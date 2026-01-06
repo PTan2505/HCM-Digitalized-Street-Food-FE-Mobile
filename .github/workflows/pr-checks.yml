@@ -1,0 +1,74 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [main, dev]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main, dev]
+
+jobs:
+  lint-and-type-check:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+
+    # Skip checks for draft PRs unless explicitly requested
+    if: github.event.pull_request.draft == false || contains(github.event.pull_request.labels.*.name, 'ready-for-review')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 🔁 npm → bun
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 'latest'
+
+      # 🔁 npm ci → bun install
+      - name: Install dependencies
+        run: |
+          bun install --frozen-lockfile
+          echo "Dependencies installed successfully"
+
+      # 🔁 cache key package-lock.json → bun.lockb
+      - name: Cache ESLint and TypeScript
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules/.cache
+            .eslintcache
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-
+
+      # 🔁 npm run → bun run
+      - name: Run TypeScript type checking
+        run: |
+          echo "🔍 Running TypeScript type checking..."
+          bun run type-check
+          echo "✅ TypeScript type checking passed"
+
+      - name: Run ESLint
+        run: |
+          echo "🔍 Running ESLint..."
+          bun run lint
+          echo "✅ ESLint checks passed"
+
+      # 🔁 npx → bunx
+      - name: Check for formatting issues (Prettier)
+        run: |
+          echo "🔍 Checking code formatting..."
+          bunx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
+          echo "✅ Code formatting is correct"
+
+      # 🔁 npm run build → bun run build
+      - name: Build application
+        run: |
+          echo "🏗️ Building application..."
+          echo "This is the comprehensive build test moved from pre-commit hook"
+          bun run build
+          echo "✅ Build completed successfully"
+          echo "Build artifacts created and verified"
