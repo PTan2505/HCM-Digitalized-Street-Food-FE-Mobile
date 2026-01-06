@@ -2,6 +2,7 @@
   "name": "hcm-digitalized-street-food-fe-mobile",
   "version": "1.0.0",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",

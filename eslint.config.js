@@ -15,7 +15,7 @@ export default tseslint.config(
       '.expo/**',
       'web-build/**',
       'babel.config.js',
-      'metro.config.js',
+      'metro.config.cjs',
     ],
   },
   js.configs.recommended,
@@ -101,7 +101,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
   }
 );
