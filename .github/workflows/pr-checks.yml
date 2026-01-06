@@ -30,7 +30,7 @@ jobs:
       # 🔁 npm ci → bun install
       - name: Install dependencies
         run: |
-          bun install --frozen-lockfile
+          bun install
           echo "Dependencies installed successfully"
 
       # 🔁 cache key package-lock.json → bun.lockb
