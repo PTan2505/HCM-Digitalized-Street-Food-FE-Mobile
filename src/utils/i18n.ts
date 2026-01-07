@@ -20,7 +20,6 @@ i18n
   .init({
     resources: localesResource,
     fallbackLng: 'vi',
-    compatibilityJSON: 'v3',
     interpolation: {
       escapeValue: false,
     },
