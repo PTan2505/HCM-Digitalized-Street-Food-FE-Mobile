@@ -6,7 +6,7 @@ import '../utils/i18n';
 export const TestI18n: React.FC = () => {
   const { t, i18n } = useTranslation();
 
-  const changeLanguage = (lng: string) => {
+  const changeLanguage = (lng: string): void => {
     i18n.changeLanguage(lng);
   };
 

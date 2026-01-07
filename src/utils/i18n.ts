@@ -6,12 +6,12 @@ import localesResource from '../assets/locales';
 const languageDetector = {
   type: 'languageDetector' as const,
   async: true,
-  detect: (callback: (lng: string) => void) => {
-    const locale = Localization.getLocales()[0]?.languageCode || 'vi';
+  detect: (callback: (lng: string) => void): void => {
+    const locale = Localization.getLocales()[0]?.languageCode ?? 'vi';
     callback(locale);
   },
-  init: () => {},
-  cacheUserLanguage: () => {},
+  init: (): void => {},
+  cacheUserLanguage: (): void => {},
 };
 
 i18n

@@ -1,8 +1,11 @@
+import viStrings from './vi/strings.json';
+import enStrings from './en/strings.json';
+
 export default {
   vi: {
-    translation: require('./vi/strings.json'),
+    translation: viStrings,
   },
   en: {
-    translation: require('./en/strings.json'),
+    translation: enStrings,
   },
 };
