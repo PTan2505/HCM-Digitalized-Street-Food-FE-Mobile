@@ -14,7 +14,7 @@ export default tseslint.config(
       'ios/**',
       '.expo/**',
       'web-build/**',
-      'babel.config.js',
+      'babel.config.cjs',
       'metro.config.cjs',
     ],
   },
