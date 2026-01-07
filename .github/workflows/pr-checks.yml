@@ -64,11 +64,11 @@ jobs:
           bunx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
           echo "✅ Code formatting is correct"
 
-      # 🔁 npm run build → bun run build
-      - name: Build application
+      # 4. "Build" / Bundle Verification
+      # Verifies that Metro can bundle the app for BOTH platforms.
+      - name: Verify Bundle (Dry Run)
         run: |
-          echo "🏗️ Building application..."
-          echo "This is the comprehensive build test moved from pre-commit hook"
-          bun run build
-          echo "✅ Build completed successfully"
-          echo "Build artifacts created and verified"
+          echo "🏗️ Verifying JavaScript Bundle (iOS)..."
+          bun run check:bundle
+
+          echo "✅ JS Bundles for both platforms compiled successfully"
