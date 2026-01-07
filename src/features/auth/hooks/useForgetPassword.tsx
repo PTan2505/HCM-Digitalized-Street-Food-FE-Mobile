@@ -10,15 +10,11 @@ import {
   forgetPassword,
   resendForgetPasswordOTP,
   resetPassword,
-  selectAuthError,
-  selectAuthStatus,
   selectForgetPasswordEmail,
 } from '@slices/auth';
 
 export default function useForgetPassword(): {
   forgetPasswordEmail: string | null;
-  status: 'idle' | 'pending' | 'succeeded' | 'failed';
-  error: unknown;
   onRequestForgetPassword: (values: ForgetPasswordRequest) => Promise<void>;
   onResetPassword: (values: ResetPasswordRequest) => Promise<void>;
   onResendForgetPasswordOTP: (
@@ -29,8 +25,6 @@ export default function useForgetPassword(): {
 } {
   const dispatch = useAppDispatch();
   const forgetPasswordEmail = useAppSelector(selectForgetPasswordEmail);
-  const status = useAppSelector(selectAuthStatus);
-  const error = useAppSelector(selectAuthError);
 
   const onRequestForgetPassword = async (
     values: ForgetPasswordRequest
@@ -60,8 +54,6 @@ export default function useForgetPassword(): {
 
   return {
     forgetPasswordEmail,
-    status,
-    error,
     onRequestForgetPassword,
     onResetPassword,
     onResendForgetPasswordOTP,

@@ -302,7 +302,7 @@ export const selectRegisterEmail = (state: RootState): string | null =>
 export const selectForgetPasswordEmail = (state: RootState): string | null =>
   state.user.forgetPasswordEmail;
 
-export const selectAuthStatus = (
+export const selectUserStatus = (
   state: RootState
 ): 'idle' | 'pending' | 'succeeded' | 'failed' => state.user.status;
 

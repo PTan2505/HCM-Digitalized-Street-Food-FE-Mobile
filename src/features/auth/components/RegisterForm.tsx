@@ -3,7 +3,7 @@ import { RegisterSchema } from '@auth/utils/registerFormSchema';
 import { CustomInput } from '@components/CustomInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
-import { selectRegisterEmail, selectAuthStatus } from '@slices/auth';
+import { selectRegisterEmail, selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
@@ -19,7 +19,7 @@ const initialValues: RegisterRequest = {
 
 export const RegisterForm = (): JSX.Element => {
   const registerEmail = useAppSelector(selectRegisterEmail);
-  const authStatus = useAppSelector(selectAuthStatus);
+  const userStatus = useAppSelector(selectUserStatus);
   const { onRegisterSubmit } = useRegister();
 
   const methods = useForm<RegisterRequest>({
@@ -76,15 +76,15 @@ export const RegisterForm = (): JSX.Element => {
 
           <Pressable
             onPress={handleSubmit(onSubmit)}
-            disabled={authStatus === 'pending'}
+            disabled={userStatus === 'pending'}
             accessibilityRole="button"
             className={
               'w-full items-center justify-center rounded-md px-4 py-3 ' +
-              (authStatus === 'pending' ? 'opacity-60' : '')
+              (userStatus === 'pending' ? 'opacity-60' : '')
             }
           >
             <Text className="title-medium text-primary-900">
-              {authStatus === 'pending' ? 'Đang đăng ký...' : 'Đăng ký'}
+              {userStatus === 'pending' ? 'Đang đăng ký...' : 'Đăng ký'}
             </Text>
           </Pressable>
         </View>

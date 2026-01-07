@@ -8,8 +8,6 @@ import {
   clearError,
   clearRegisterEmail,
   resendRegistrationOTP,
-  selectAuthError,
-  selectAuthStatus,
   selectRegisterEmail,
   userRegister,
   verifyRegistration,
@@ -17,8 +15,6 @@ import {
 
 export default function useRegister(): {
   registerEmail: string | null;
-  status: 'idle' | 'pending' | 'succeeded' | 'failed';
-  error: unknown;
   onRegisterSubmit: (values: RegisterRequest) => Promise<void>;
   onVerifyRegistration: (values: VerifyRegistrationRequest) => Promise<void>;
   onResendRegistrationOTP: (
@@ -29,8 +25,6 @@ export default function useRegister(): {
 } {
   const dispatch = useAppDispatch();
   const registerEmail = useAppSelector(selectRegisterEmail);
-  const status = useAppSelector(selectAuthStatus);
-  const error = useAppSelector(selectAuthError);
 
   const onRegisterSubmit = async (values: RegisterRequest): Promise<void> => {
     await dispatch(userRegister(values)).unwrap();
@@ -58,8 +52,6 @@ export default function useRegister(): {
 
   return {
     registerEmail,
-    status,
-    error,
     onRegisterSubmit,
     onVerifyRegistration,
     onResendRegistrationOTP,
