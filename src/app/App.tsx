@@ -1,14 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { JSX } from 'react';
-import { Text, View } from 'react-native';
-import { TestI18n } from '../components/TestI18n';
+import { CustomTheme, Navigation } from '@app/RootStack';
+import { Nunito_400Regular, useFonts } from '@expo-google-fonts/nunito';
+import { setGlobalStyles } from '@utils/setGlobalStyles';
+import { ReactNode } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 
-export default function App(): JSX.Element {
-  return (
-    <View className="h-full justify-center bg-blue-400">
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-      <TestI18n />
-    </View>
-  );
+setGlobalStyles();
+
+export default function App(): ReactNode {
+  const [fontsLoaded] = useFonts({
+    Nunito: Nunito_400Regular,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return <Navigation theme={CustomTheme} />;
 }
