@@ -1,12 +1,13 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   createStaticNavigation,
   StaticParamList,
 } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
-import { OTPScreen } from '@features/auth/screens/OTPScreen';
+import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { LoginScreen } from '@features/auth/screens/LoginScreen';
+import { OTPScreen } from '@features/auth/screens/OTPScreen';
+import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Register',
@@ -22,6 +23,12 @@ const RootStack = createNativeStackNavigator({
     Login: {
       screen: LoginScreen,
       options: { headerShown: false },
+    },
+    Main: {
+      screen: HomeBottomTabs,
+      options: {
+        headerShown: false,
+      },
     },
   },
 });
