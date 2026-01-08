@@ -1,26 +1,28 @@
 import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { JSX } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  createStaticNavigation,
+  StaticParamList,
+} from '@react-navigation/native';
 
-export type RootStackParamList = {
-  Register: undefined;
-};
+const RootStack = createNativeStackNavigator({
+  initialRouteName: 'Register',
+  screens: {
+    Register: {
+      screen: RegisterScreen,
+      options: { headerShown: false },
+    },
+  },
+});
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+type RootStackParamList = StaticParamList<typeof RootStack>;
 
-export const StackNavigator = (): JSX.Element => {
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Register"
-          screenOptions={{ headerShown: false }}
-        >
-          <Stack.Screen name="Register" component={RegisterScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
-  );
-};
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace ReactNavigation {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+
+export const Navigation = createStaticNavigation(RootStack);

@@ -5,7 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const LoginScreen = (): JSX.Element => {
   return (
-    <SafeAreaView className="align-items-center flex-1 justify-center bg-white">
+    <SafeAreaView
+      className="align-items-center flex-1 justify-center bg-white"
+      edges={['top', 'left', 'right']}
+    >
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16 }}

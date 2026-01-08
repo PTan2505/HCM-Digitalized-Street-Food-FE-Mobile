@@ -8,7 +8,10 @@ export const RegisterScreen = (): JSX.Element => {
   const { registerEmail, onClearRegisterEmail } = useRegister();
 
   return (
-    <SafeAreaView className="align-items-center flex-1 justify-center bg-white">
+    <SafeAreaView
+      className="align-items-center flex-1 justify-center bg-white"
+      edges={['top', 'left', 'right']}
+    >
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16 }}

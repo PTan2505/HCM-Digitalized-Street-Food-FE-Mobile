@@ -146,7 +146,7 @@ export const resendForgetPasswordOTP = createAppAsyncThunk(
 );
 
 export const authSlice = createSlice({
-  name: 'auth',
+  name: 'user',
   initialState,
   reducers: {
     logout: () => {
