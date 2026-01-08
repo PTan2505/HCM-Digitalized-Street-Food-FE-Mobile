@@ -13,8 +13,8 @@ export const CustomBottomTabBar = ({
   const { buildHref } = useLinkBuilder();
 
   return (
-    <View className="absolute bottom-8 w-full flex-row items-center justify-center shadow-lg">
-      <View className="flex-row items-center justify-between rounded-full bg-white p-[8px] shadow-lg">
+    <View className="absolute bottom-8 w-full flex-row items-center justify-center">
+      <View className="flex-row items-center justify-between rounded-full bg-white p-[8px] shadow-[0_4px_2px_rgba(0,0,0,0.2)]">
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
