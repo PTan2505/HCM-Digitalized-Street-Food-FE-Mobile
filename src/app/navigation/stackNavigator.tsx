@@ -1,15 +1,26 @@
-import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   createStaticNavigation,
   StaticParamList,
 } from '@react-navigation/native';
 
+import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
+import { OTPScreen } from '@features/auth/screens/OTPScreen';
+import { LoginScreen } from '@features/auth/screens/LoginScreen';
+
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Register',
   screens: {
     Register: {
       screen: RegisterScreen,
+      options: { headerShown: false },
+    },
+    OTP: {
+      screen: OTPScreen,
+      options: { headerShown: false },
+    },
+    Login: {
+      screen: LoginScreen,
       options: { headerShown: false },
     },
   },

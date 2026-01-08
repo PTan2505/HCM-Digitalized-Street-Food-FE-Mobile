@@ -32,3 +32,9 @@ export interface ResendRegistrationOTPResponse {
   message: string;
   email: string;
 }
+
+export interface OTPScreenParams {
+  username: string;
+  email: string;
+  password: string;
+}

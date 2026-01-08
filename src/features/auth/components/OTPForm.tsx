@@ -1,18 +1,15 @@
 import useRegister from '@auth/hooks/useRegister';
 import { VerifyRegistrationSchema } from '@auth/utils/registerFormSchema';
-import { OtpInput } from 'react-native-otp-entry';
+import { CustomOTPInput } from '@components/CustomOTPInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
-import { selectRegisterEmail, selectUserStatus } from '@slices/auth';
+import { selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
-  Controller,
   FormProvider,
   useForm,
   useWatch,
-    type FieldPath,
-    type FieldValues,
   type SubmitHandler,
 } from 'react-hook-form';
 import type { VerifyRegistrationRequest } from '@auth/types/register';
@@ -41,6 +38,14 @@ export const OTPForm = (): JSX.Element => {
   return (
     <FormProvider {...methods}>
       <View className="w-full gap-4">
+        <CustomOTPInput
+          name="otp"
+          control={control}
+          label="Mã OTP"
+          required
+          numberOfDigits={6}
+        />
+        ;
         <Pressable
           className="items-center rounded-lg bg-blue-500 p-3"
           onPress={handleSubmit(onSubmit)}
