@@ -1,4 +1,5 @@
-import { CustomTheme, Navigation } from '@app/RootStack';
+import { CustomTheme } from '@app/navigation/customNavigationTheme';
+import { Navigation } from '@app/navigation/stackNavigator';
 import { Nunito_400Regular, useFonts } from '@expo-google-fonts/nunito';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
