@@ -1,8 +1,8 @@
 import discovery from '@assets/icons/discovery.png';
 import person from '@assets/icons/person.png';
 import { CustomBottomTabBar } from '@components/navigation/CustomBottomTabBar';
-import HomeScreen from '@features/auth/HomeScreen';
-import TestScreen from '@features/auth/TestScreen';
+import { LoginScreen } from '@features/auth/screens/LoginScreen';
+import { OTPScreen } from '@features/auth/screens/OTPScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   createStaticNavigation,
@@ -15,15 +15,15 @@ import { Image } from 'react-native';
 const HomeBottomTabs = createBottomTabNavigator({
   tabBar: (props) => <CustomBottomTabBar {...props} />,
 
-  initialRouteName: 'Home',
+  initialRouteName: 'LoginScreen',
   screenOptions: {
     headerShown: true,
     headerStyle: { backgroundColor: 'tomato' },
     tabBarActiveIndicatorColor: 'red',
   },
   screens: {
-    Home: {
-      screen: HomeScreen,
+    LoginScreen: {
+      screen: LoginScreen,
       options: {
         title: 'Khám phá',
         tabBarIcon: ({ color, size }) => (
@@ -39,8 +39,8 @@ const HomeBottomTabs = createBottomTabNavigator({
         ),
       },
     },
-    Test: {
-      screen: TestScreen,
+    OTP: {
+      screen: OTPScreen,
       options: {
         title: 'Cá nhân',
         tabBarIcon: ({ color, size }) => (
@@ -64,6 +64,12 @@ const RootStack = createNativeStackNavigator({
   screens: {
     Main: {
       screen: HomeBottomTabs,
+      options: {
+        headerShown: false,
+      },
+    },
+    LoginScreen: {
+      screen: LoginScreen,
       options: {
         headerShown: false,
       },
