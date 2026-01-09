@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, FlatList, type ImageSourcePropType, Animated } from 'react-native';
 import type { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,27 @@ import SearchBar from '../components/SearchBar';
 import BannerCarousel from '../components/BannerCarousel';
 import CategoryCard from '../components/CategoryCard';
 import { StatusBar } from 'expo-status-bar';
+import { PlaceCard } from "@features/home/components/PlaceCard";
+
+interface PlaceItem {
+    id: string;
+    title: string;
+    rating: number;
+    distance: string;
+    priceRange: string;
+    imageSource: ImageSourcePropType;
+    isVegetarian: boolean;
+};
+
+const SAMPLE_PLACES: PlaceItem[] = Array.from({ length: 10 }).map((_, index) => ({
+    id: String(index + 1),
+    title: `Quán ăn số ${index + 1}`,
+    rating: Number((4.0 + (index % 6) * 0.1).toFixed(1)),
+    distance: `${(0.5 + index * 0.2).toFixed(1)} km`,
+    priceRange: index % 2 === 0 ? 'Từ 30k đến 80k' : 'Từ 50k đến 200k',
+    imageSource: require('@assets/SamplePlace.jpg'),
+    isVegetarian: index % 3 === 0,
+}));
 
 const HomeScreen = (): JSX.Element => {
   const banners = [
@@ -80,7 +101,24 @@ const HomeScreen = (): JSX.Element => {
               Places you might like
             </Text>
             <View className="h-40 items-center justify-center rounded-2xl bg-gray-100">
-              {/* ĐỂ CARD Ở ĐÂY NHA */}
+              <FlatList
+                    data={SAMPLE_PLACES}
+                    keyExtractor={(item) => item.id}
+                    numColumns={2}
+                    showsVerticalScrollIndicator={false}
+                    columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
+                    contentContainerStyle={{ paddingBottom: 16, paddingTop: 8 }}
+                    renderItem={({ item }) => (
+                        <PlaceCard
+                            title={item.title}
+                            rating={item.rating}
+                            distance={item.distance}
+                            priceRange={item.priceRange}
+                            imageSource={item.imageSource}
+                            isVegetarian={item.isVegetarian}
+                        />
+                    )}
+                />
             </View>
           </View>
         </ScrollView>

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "expo start",
-     "android": "expo start --android",
+    "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint .",
@@ -33,6 +33,7 @@
     "link": "^2.1.1",
     "nativewind": "^4.2.1",
     "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-hook-form": "^7.70.0",
     "react-i18next": "^16.5.1",
     "react-native": "0.81.5",
@@ -42,6 +43,7 @@
     "react-native-reanimated-carousel": "^4.0.3",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-web": "^0.21.0",
     "react-redux": "^9.2.0",
     "validator": "^13.15.26",
     "zod": "^4.3.5"
