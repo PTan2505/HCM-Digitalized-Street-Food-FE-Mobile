@@ -1,0 +1,23 @@
+import { View, Text, TouchableOpacity } from 'react-native';
+import type { JSX } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+
+const HomeHeader = (): JSX.Element => {
+  return (
+    <View className="flex-row items-center justify-between px-4 pb-6 pt-4">
+      <Text className="title-xl text-gray-900">Lowca</Text>
+
+      <View className="flex-row gap-3">
+        <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
+          <Ionicons name="map-outline" size={20} color="#588d22" />
+        </TouchableOpacity>
+
+        <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
+          <Ionicons name="bookmark-outline" size={20} color="#588d22" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default HomeHeader;

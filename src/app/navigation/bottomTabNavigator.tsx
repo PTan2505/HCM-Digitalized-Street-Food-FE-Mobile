@@ -15,7 +15,7 @@ export const HomeBottomTabs = createBottomTabNavigator({
       screen: HomeScreen,
       options: {
         title: 'Home',
-      }
+      },
     },
   },
 });
