@@ -94,7 +94,7 @@ const HomeScreen = (): JSX.Element => {
       <StatusBar style="dark" />
 
       <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1 }}>
-        <View style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <HomeHeader />
 
           <SearchBar />
@@ -179,7 +179,22 @@ const HomeScreen = (): JSX.Element => {
           </View>
 
           <View className="flex-1 px-4 pt-2">
-            <FlatList
+            <View className="flex-row flex-wrap justify-between">
+              {SAMPLE_PLACES.map((item) => (
+                <View key={item.id} className="mb-3">
+                  <PlaceCard
+                    title={item.title}
+                    rating={item.rating}
+                    distance={item.distance}
+                    priceRange={item.priceRange}
+                    imageSource={item.imageSource}
+                    isVegetarian={item.isVegetarian}
+                  />
+                </View>
+              ))}
+            </View>
+
+            {/* <FlatList
               data={SAMPLE_PLACES}
               keyExtractor={(item) => item.id}
               numColumns={2}
@@ -199,7 +214,7 @@ const HomeScreen = (): JSX.Element => {
                   isVegetarian={item.isVegetarian}
                 />
               )}
-            />
+            /> */}
             {/* <FlatList
               data={SAMPLE_PLACES}
               keyExtractor={(item) => item.id}
@@ -222,7 +237,7 @@ const HomeScreen = (): JSX.Element => {
               )}
             /> */}
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </LinearGradient>
   );
