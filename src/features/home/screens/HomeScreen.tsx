@@ -13,6 +13,7 @@ import HomeHeader from '../components/HomeHeader';
 import SearchBar from '../components/SearchBar';
 import BannerCarousel from '../components/BannerCarousel';
 import CategoryCard from '../components/CategoryCard';
+import Title from '../components/Title';
 import { StatusBar } from 'expo-status-bar';
 import { PlaceCard } from '@features/home/components/PlaceCard';
 import SamplePlace from '@assets/SamplePlace.jpg';
@@ -101,53 +102,8 @@ const HomeScreen = (): JSX.Element => {
 
           <BannerCarousel banners={banners} />
 
-          {/* <View className="mb-6 px-4">
-            <Text className="title-md mb-4 text-gray-900">
-              What are you craving?
-            </Text>
-
-            <View className="flex-row justify-between">
-              {categories.map((category) => (
-                <CategoryCard
-                  key={category.id}
-                  title={category.title}
-                  image={category.image}
-                  onPress={() => console.log(`Selected ${category.title}`)}
-                />
-              ))}
-            </View>
-          </View> */}
-
-          {/* <View className="px-4 pb-6">
-            <Text className="title-md mb-4 text-gray-900">
-              Places you might like
-            </Text>
-            <View className="h-40 items-center justify-center rounded-2xl bg-gray-100">
-              <FlatList
-                    data={SAMPLE_PLACES}
-                    keyExtractor={(item) => item.id}
-                    numColumns={2}
-                    showsVerticalScrollIndicator={false}
-                    columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
-                    contentContainerStyle={{ paddingBottom: 16, paddingTop: 8 }}
-                    renderItem={({ item }) => (
-                        <PlaceCard
-                            title={item.title}
-                            rating={item.rating}
-                            distance={item.distance}
-                            priceRange={item.priceRange}
-                            imageSource={item.imageSource}
-                            isVegetarian={item.isVegetarian}
-                        />
-                    )}
-                />
-            </View>
-          </View> */}
-
           <View className="px-4 py-2">
-            <Text className="font-nunito title-md font-semibold text-[#a5cf7bff]">
-              Bạn muốn ăn gì
-            </Text>
+            <Title>Bạn muốn ăn gì?</Title>
           </View>
 
           <View className="flex-row px-4 pt-2">
@@ -173,38 +129,12 @@ const HomeScreen = (): JSX.Element => {
           </View>
 
           <View className="px-4 pb-2 pt-6">
-            <Text className="font-nunito title-md font-semibold text-[#a5cf7bff]">
-              Những địa điểm bạn có thể thích
-            </Text>
+            <Title>Những địa điểm bạn có thể thích</Title>
           </View>
 
-          <View className="flex-1 px-4 pt-2">
-            <View className="flex-row flex-wrap justify-between">
-              {SAMPLE_PLACES.map((item) => (
-                <View key={item.id} className="mb-3">
-                  <PlaceCard
-                    title={item.title}
-                    rating={item.rating}
-                    distance={item.distance}
-                    priceRange={item.priceRange}
-                    imageSource={item.imageSource}
-                    isVegetarian={item.isVegetarian}
-                  />
-                </View>
-              ))}
-            </View>
-
-            {/* <FlatList
-              data={SAMPLE_PLACES}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              showsVerticalScrollIndicator={false}
-              columnWrapperStyle={{
-                justifyContent: 'space-between',
-                marginBottom: 12,
-              }}
-              contentContainerStyle={{ paddingBottom: 16, paddingTop: 8 }}
-              renderItem={({ item }) => (
+          <View className="flex-row flex-wrap justify-between px-4 pb-6 pt-2">
+            {SAMPLE_PLACES.map((item) => (
+              <View key={item.id} className="mb-3 w-[49%]">
                 <PlaceCard
                   title={item.title}
                   rating={item.rating}
@@ -213,29 +143,8 @@ const HomeScreen = (): JSX.Element => {
                   imageSource={item.imageSource}
                   isVegetarian={item.isVegetarian}
                 />
-              )}
-            /> */}
-            {/* <FlatList
-              data={SAMPLE_PLACES}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingVertical: 8,
-              }}
-              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-              renderItem={({ item }) => (
-                <PlaceCard
-                  title={item.title}
-                  rating={item.rating}
-                  distance={item.distance}
-                  priceRange={item.priceRange}
-                  imageSource={item.imageSource}
-                  isVegetarian={item.isVegetarian}
-                />
-              )}
-            /> */}
+              </View>
+            ))}
           </View>
         </ScrollView>
       </SafeAreaView>

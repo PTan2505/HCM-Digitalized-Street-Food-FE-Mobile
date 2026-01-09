@@ -20,7 +20,7 @@ export const PlaceCard = ({
   isVegetarian,
 }: PlaceCardProps): JSX.Element => {
   return (
-    <View className="h-fit w-[49%] overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
+    <View className="h-fit overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
       <View className="p-[6.31px]">
         <View className="relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px]">
           <Image
