@@ -1,13 +1,13 @@
 interface FieldError {
   field: string;
-  errorType: string;
   message: string;
 }
 
 export interface ErrorResponse {
   errorCode: string;
-  message: string;
-  fieldErrors?: FieldError[];
+  status: number;
+  title: string;
+  error?: FieldError[];
 }
 
 export interface APIErrorResponse {

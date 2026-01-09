@@ -1,13 +1,14 @@
 import useRegister from '@auth/hooks/useRegister';
+import type { RegisterRequest } from '@auth/types/register';
 import { RegisterSchema } from '@auth/utils/registerFormSchema';
 import { CustomInput } from '@components/CustomInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
+import { useNavigation } from '@react-navigation/native';
 import { selectRegisterEmail, selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
-import { Pressable, Text, View } from 'react-native';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
-import type { RegisterRequest } from '@auth/types/register';
+import { Pressable, Text, View } from 'react-native';
 
 const initialValues: RegisterRequest = {
   username: '',
@@ -21,6 +22,7 @@ export const RegisterForm = (): JSX.Element => {
   const registerEmail = useAppSelector(selectRegisterEmail);
   const userStatus = useAppSelector(selectUserStatus);
   const { onRegisterSubmit } = useRegister();
+  const navigation = useNavigation();
 
   const methods = useForm<RegisterRequest>({
     defaultValues: initialValues,
@@ -30,6 +32,13 @@ export const RegisterForm = (): JSX.Element => {
   const { control, handleSubmit } = methods;
   const onSubmit: SubmitHandler<RegisterRequest> = async (values) => {
     await onRegisterSubmit(values);
+    navigation.navigate('OTP', {
+      otpFormProps: {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+      },
+    });
   };
 
   return (

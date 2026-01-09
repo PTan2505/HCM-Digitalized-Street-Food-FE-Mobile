@@ -4,6 +4,7 @@ import { VerifyRegistrationSchema } from '@auth/utils/registerFormSchema';
 import { CustomOTPInput } from '@components/CustomOTPInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
+import { useNavigation } from '@react-navigation/native';
 import { selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
@@ -16,18 +17,26 @@ const initialValues: VerifyRegistrationRequest = {
   otp: '',
 };
 
-export const OTPForm = (): JSX.Element => {
+export interface OTPFormProps {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export const OTPForm = (props: OTPFormProps): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
   const { onVerifyRegistration } = useRegister();
+  const navigation = useNavigation();
 
   const methods = useForm<VerifyRegistrationRequest>({
-    defaultValues: initialValues,
+    defaultValues: { ...initialValues, ...props },
     resolver: zodResolver(VerifyRegistrationSchema),
   });
 
   const { control, handleSubmit } = methods;
   const onSubmit: SubmitHandler<VerifyRegistrationRequest> = async (values) => {
     await onVerifyRegistration(values);
+    navigation.navigate('Main');
   };
 
   return (

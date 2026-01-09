@@ -14,6 +14,8 @@ export const VALIDATE_ERROR_MESSAGES: Record<string, string> = {
   EMPTY_EMAIL: 'Vui lòng nhập email!',
   INVALID_EMAIL: 'Email không hợp lệ!',
   EMPTY_USERNAME: 'Vui lòng nhập tên đăng nhập!',
+  MIN_USERNAME_LENGTH: 'Tên đăng nhập phải có ít nhất 5 ký tự!',
+  MAX_USERNAME_LENGTH: 'Tên đăng nhập không được vượt quá 100 ký tự!',
   EMPTY_PASSWORD: 'Vui lòng nhập mật khẩu!',
   PASSWORD_MIN_LENGTH: 'Mật khẩu phải có ít nhất 6 ký tự!',
   EMPTY_OTP: 'Vui lòng nhập mã OTP!',

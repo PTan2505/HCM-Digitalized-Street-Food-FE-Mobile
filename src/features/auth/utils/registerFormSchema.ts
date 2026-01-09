@@ -3,7 +3,11 @@ import validator from 'validator';
 import { z } from 'zod';
 
 export const RegisterSchema = z.object({
-  username: z.string().nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_USERNAME),
+  username: z
+    .string()
+    .min(5, VALIDATE_ERROR_MESSAGES.MIN_USERNAME_LENGTH)
+    .max(100, VALIDATE_ERROR_MESSAGES.MAX_USERNAME_LENGTH)
+    .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_USERNAME),
   email: z
     .string()
     .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_EMAIL)
@@ -14,8 +18,14 @@ export const RegisterSchema = z.object({
     .string()
     .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PASSWORD)
     .min(6, VALIDATE_ERROR_MESSAGES.PASSWORD_MIN_LENGTH),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  firstName: z
+    .string()
+    .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_FIELD)
+    .regex(/^[a-zA-Z\u00C0-\u1EF9\s]+$/, 'Tên không hợp lệ'),
+  lastName: z
+    .string()
+    .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_FIELD)
+    .regex(/^[a-zA-Z\u00C0-\u1EF9\s]+$/, 'Họ không hợp lệ'),
 });
 
 export const VerifyRegistrationSchema = z.object({

@@ -1,9 +1,15 @@
-import { OTPForm } from '@auth/components/OTPForm';
+import { OTPForm, OTPFormProps } from '@auth/components/OTPForm';
+import type { StaticScreenProps } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export const OTPScreen = (): JSX.Element => {
+type OTPScreenProps = StaticScreenProps<{
+  otpFormProps: OTPFormProps;
+}>;
+
+export const OTPScreen = ({ route }: OTPScreenProps): JSX.Element => {
+  const { otpFormProps } = route.params;
   return (
     <SafeAreaView
       className="align-items-center flex-1 justify-center bg-white"
@@ -22,7 +28,7 @@ export const OTPScreen = (): JSX.Element => {
               Nhập mã OTP đã được gửi đến email của bạn.
             </Text>
           </View>
-          <OTPForm />
+          <OTPForm {...otpFormProps} />
         </View>
       </ScrollView>
     </SafeAreaView>
