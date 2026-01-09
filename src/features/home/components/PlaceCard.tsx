@@ -34,7 +34,7 @@ export const PlaceCard = ({
                     {isVegetarian && (
                         <View className="absolute bottom-2 left-2 flex-row bg-[#4FBE71] rounded-[16.81px] items-center justify-center px-[6.31px] py-[6.31px] gap-[4.2px]">
                             <Text className="font-comfortaa font-medium text-[#FFFF] text-[10.5px] leading-[10.5px]">
-                                MÃ³n chay
+                                Món chay
                             </Text>
                         </View>
                     )}

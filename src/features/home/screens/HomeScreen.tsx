@@ -10,23 +10,23 @@ import { StatusBar } from 'expo-status-bar';
 import { PlaceCard } from "@features/home/components/PlaceCard";
 
 interface PlaceItem {
-    id: string;
-    title: string;
-    rating: number;
-    distance: string;
-    priceRange: string;
-    imageSource: ImageSourcePropType;
-    isVegetarian: boolean;
+  id: string;
+  title: string;
+  rating: number;
+  distance: string;
+  priceRange: string;
+  imageSource: ImageSourcePropType;
+  isVegetarian: boolean;
 };
 
 const SAMPLE_PLACES: PlaceItem[] = Array.from({ length: 10 }).map((_, index) => ({
-    id: String(index + 1),
-    title: `Quán ăn số ${index + 1}`,
-    rating: Number((4.0 + (index % 6) * 0.1).toFixed(1)),
-    distance: `${(0.5 + index * 0.2).toFixed(1)} km`,
-    priceRange: index % 2 === 0 ? 'Từ 30k đến 80k' : 'Từ 50k đến 200k',
-    imageSource: require('@assets/SamplePlace.jpg'),
-    isVegetarian: index % 3 === 0,
+  id: String(index + 1),
+  title: `Quán ăn số ${index + 1}`,
+  rating: Number((4.0 + (index % 6) * 0.1).toFixed(1)),
+  distance: `${(0.5 + index * 0.2).toFixed(1)} km`,
+  priceRange: index % 2 === 0 ? 'Từ 30k đến 80k' : 'Từ 50k đến 200k',
+  imageSource: require('@assets/SamplePlace.jpg'),
+  isVegetarian: index % 3 === 0,
 }));
 
 const HomeScreen = (): JSX.Element => {
@@ -79,7 +79,7 @@ const HomeScreen = (): JSX.Element => {
 
           <BannerCarousel banners={banners} />
 
-          <View className="mb-6 px-4">
+          {/* <View className="mb-6 px-4">
             <Text className="title-md mb-4 text-gray-900">
               What are you craving?
             </Text>
@@ -94,9 +94,10 @@ const HomeScreen = (): JSX.Element => {
                 />
               ))}
             </View>
-          </View>
+          </View> */}
 
-          <View className="px-4 pb-6">
+
+          {/* <View className="px-4 pb-6">
             <Text className="title-md mb-4 text-gray-900">
               Places you might like
             </Text>
@@ -120,6 +121,51 @@ const HomeScreen = (): JSX.Element => {
                     )}
                 />
             </View>
+          </View> */}
+
+          <View className="px-4 py-4">
+            <Text className="title-md mb-4 text-gray-900">
+              What are you craving?
+            </Text>
+          </View>
+
+          <View className="flex-row justify-between px-4 py-4">
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                title={category.title}
+                image={category.image}
+                onPress={() => console.log(`Selected ${category.title}`)}
+              />
+            ))}
+          </View>
+
+
+          <View className="px-4 py-4">
+            <Text className="title-md text-gray-900">
+              Places you might like
+            </Text>
+          </View>
+
+          <View className="flex-1 px-4 py-4">
+            <FlatList
+              data={SAMPLE_PLACES}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              showsVerticalScrollIndicator={false}
+              columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 12 }}
+              contentContainerStyle={{ paddingBottom: 16, paddingTop: 8 }}
+              renderItem={({ item }) => (
+                <PlaceCard
+                  title={item.title}
+                  rating={item.rating}
+                  distance={item.distance}
+                  priceRange={item.priceRange}
+                  imageSource={item.imageSource}
+                  isVegetarian={item.isVegetarian}
+                />
+              )}
+            />
           </View>
         </ScrollView>
       </SafeAreaView>
