@@ -7,7 +7,10 @@ import {
   Animated,
 } from 'react-native';
 import type { JSX } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import HomeHeader from '../components/HomeHeader';
 import SearchBar from '../components/SearchBar';
@@ -41,6 +44,8 @@ const SAMPLE_PLACES: PlaceItem[] = Array.from({ length: 10 }).map(
 );
 
 const HomeScreen = (): JSX.Element => {
+  const insets = useSafeAreaInsets();
+
   const banners = [
     'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=400&fit=crop',
@@ -87,68 +92,69 @@ const HomeScreen = (): JSX.Element => {
   ];
 
   return (
-    <LinearGradient
-      colors={['#B8E986', '#FFFFFF']}
-      locations={[0, 0.4]}
-      style={{ flex: 1 }}
-    >
-      <StatusBar style="dark" />
+    <>
+      <SafeAreaView edges={['left', 'right']} className="flex-1">
+        {/* <StatusBar style="light" /> */}
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <LinearGradient
+            colors={['#B8E986', '#FFFFFF']}
+            locations={[0, 0.4]}
+            style={{ paddingTop: insets.top + 12 }}
+          >
+            <HomeHeader />
 
-      <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1 }}>
-        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          <HomeHeader />
+            <SearchBar />
 
-          <SearchBar />
+            <BannerCarousel banners={banners} />
 
-          <BannerCarousel banners={banners} />
+            <View className="px-4 py-2">
+              <Title>Bạn muốn ăn gì?</Title>
+            </View>
 
-          <View className="px-4 py-2">
-            <Title>Bạn muốn ăn gì?</Title>
-          </View>
+            <View className="flex-row px-4 pt-2">
+              <FlatList
+                data={categories}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingTop: 8,
+                  paddingBottom: 4,
+                }}
+                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                renderItem={({ item }) => (
+                  <CategoryCard
+                    title={item.title}
+                    image={item.image}
+                    onPress={() => console.log(`Selected ${item.title}`)}
+                  />
+                )}
+              />
+            </View>
 
-          <View className="flex-row px-4 pt-2">
-            <FlatList
-              data={categories}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingTop: 8,
-                paddingBottom: 4,
-              }}
-              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-              renderItem={({ item }) => (
-                <CategoryCard
-                  title={item.title}
-                  image={item.image}
-                  onPress={() => console.log(`Selected ${item.title}`)}
-                />
-              )}
-            />
-          </View>
+            <View className="px-4 pb-2 pt-6">
+              <Title>Những địa điểm bạn có thể thích</Title>
+            </View>
 
-          <View className="px-4 pb-2 pt-6">
-            <Title>Những địa điểm bạn có thể thích</Title>
-          </View>
-
-          <View className="flex-row flex-wrap justify-between px-4 pb-6 pt-2">
-            {SAMPLE_PLACES.map((item) => (
-              <View key={item.id} className="mb-3 w-[49%]">
-                <PlaceCard
-                  title={item.title}
-                  rating={item.rating}
-                  distance={item.distance}
-                  priceRange={item.priceRange}
-                  imageSource={item.imageSource}
-                  isVegetarian={item.isVegetarian}
-                />
-              </View>
-            ))}
-          </View>
+            <View className="flex-row flex-wrap justify-between px-4 pb-6 pt-2">
+              {SAMPLE_PLACES.map((item) => (
+                <View key={item.id} className="mb-3 w-[49%]">
+                  <PlaceCard
+                    title={item.title}
+                    rating={item.rating}
+                    distance={item.distance}
+                    priceRange={item.priceRange}
+                    imageSource={item.imageSource}
+                    isVegetarian={item.isVegetarian}
+                  />
+                </View>
+              ))}
+            </View>
+          </LinearGradient>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </>
   );
 };
 
