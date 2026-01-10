@@ -15,7 +15,7 @@ export const HaveAccountText = ({
 }: HaveAccountTextProps): JSX.Element => {
   const navigation = useNavigation();
   return (
-    <View className="mt-2 flex-row items-center justify-center pb-2">
+    <View className="mt-2 mb-6 flex-row items-center justify-center pb-2">
       <Text className="body-medium mt-6 text-center text-[#616161]">
         {text}{' '}
         <Text
