@@ -1,25 +1,22 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  FlatList,
-  type ImageSourcePropType,
-  Animated,
-} from 'react-native';
+import SamplePlace from '@assets/SamplePlace.jpg';
+import BannerCarousel from '@features/home/components/BannerCarousel';
+import { PlaceCard } from '@features/home/components/PlaceCard';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
+import {
+  FlatList,
+  ScrollView,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import CategoryCard from '../components/CategoryCard';
 import HomeHeader from '../components/HomeHeader';
 import SearchBar from '../components/SearchBar';
-import BannerCarousel from '../components/BannerCarousel';
-import CategoryCard from '../components/CategoryCard';
 import Title from '../components/Title';
-import { StatusBar } from 'expo-status-bar';
-import { PlaceCard } from '@features/home/components/PlaceCard';
-import SamplePlace from '@assets/SamplePlace.jpg';
 
 interface PlaceItem {
   id: string;
@@ -104,7 +101,7 @@ const HomeScreen = (): JSX.Element => {
             <HomeHeader />
 
             <SearchBar />
-
+            {/* <TestCarousel /> */}
             <BannerCarousel banners={banners} />
 
             <View className="px-4 py-2">
