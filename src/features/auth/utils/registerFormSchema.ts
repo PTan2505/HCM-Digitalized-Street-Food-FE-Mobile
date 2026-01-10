@@ -18,15 +18,21 @@ export const RegisterSchema = z
     password: z
       .string()
       .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PASSWORD)
-      .min(6, VALIDATE_ERROR_MESSAGES.PASSWORD_MIN_LENGTH),
+      .min(8, VALIDATE_ERROR_MESSAGES.PASSWORD_MIN_LENGTH),
     firstName: z
       .string()
-      .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_FIELD)
-      .regex(/^[a-zA-Z\u00C0-\u1EF9\s]+$/, 'Tên không hợp lệ'),
+      .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_NAME)
+      .regex(
+        /^[a-zA-Z\u00C0-\u1EF9\s]+$/,
+        VALIDATE_ERROR_MESSAGES.INVALID_NAME
+      ),
     lastName: z
       .string()
-      .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_FIELD)
-      .regex(/^[a-zA-Z\u00C0-\u1EF9\s]+$/, 'Họ không hợp lệ'),
+      .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_LAST_NAME)
+      .regex(
+        /^[a-zA-Z\u00C0-\u1EF9\s]+$/,
+        VALIDATE_ERROR_MESSAGES.INVALID_LAST_NAME
+      ),
     phoneNumber: z
       .string()
       .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PHONE_NUMBER)
@@ -35,10 +41,11 @@ export const RegisterSchema = z
       }),
     confirmPassword: z
       .string()
-      .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PASSWORD),
+      .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_CONFIRM_PASSWORD),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: VALIDATE_ERROR_MESSAGES.PASSWORD_MISMATCH,
+    path: ['confirmPassword'],
   });
 
 export const VerifyRegistrationSchema = z.object({

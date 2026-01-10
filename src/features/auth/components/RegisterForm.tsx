@@ -112,7 +112,7 @@ export const RegisterForm = (): JSX.Element => {
               <CustomInput
                 name="confirmPassword"
                 control={control}
-                label="Nhập lại mật khẩu"
+                label="Xác nhận mật khẩu"
                 placeholder="Nhập lại mật khẩu"
                 type="password"
                 required
