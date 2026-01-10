@@ -24,10 +24,10 @@ export const RegisterScreen = (): JSX.Element => {
             automaticallyAdjustContentInsets={false}
             contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
           >
-            <View className="relative h-[260px] w-full overflow-hidden">
+            <View className="relative h-[265px] w-full overflow-hidden">
               <Image
                 source={authenticationBackground}
-                className="absolute top-[-327px] h-auto w-full"
+                className="absolute top-[-332px] h-auto w-full"
                 resizeMode="cover"
               />
             </View>
