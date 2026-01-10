@@ -11,16 +11,16 @@ import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
 const initialValues: VerifyRegistrationRequest = {
-  username: '',
+  // username: '',
   email: '',
-  password: '',
+  // password: '',
   otp: '',
 };
 
 export interface OTPFormProps {
-  username: string;
+  // username: string;
   email: string;
-  password: string;
+  // password: string;
 }
 
 export const OTPForm = (props: OTPFormProps): JSX.Element => {

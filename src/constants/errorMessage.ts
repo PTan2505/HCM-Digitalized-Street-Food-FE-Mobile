@@ -23,4 +23,5 @@ export const VALIDATE_ERROR_MESSAGES: Record<string, string> = {
   EMPTY_NEW_PASSWORD: 'Vui lòng nhập mật khẩu mới!',
   NEW_PASSWORD_MIN_LENGTH: 'Mật khẩu mới phải có ít nhất 6 ký tự!',
   INVALID_PHONE_NUMBER: 'Số điện thoại không hợp lệ!',
+  PASSWORD_MISMATCH: 'Mật khẩu không khớp!',
 };

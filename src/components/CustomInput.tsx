@@ -6,6 +6,7 @@ import {
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface CustomInputProps<T extends FieldValues> {
   name: FieldPath<T>;
@@ -21,41 +22,98 @@ export const CustomInput = <T extends FieldValues>(
 ): JSX.Element => {
   const { name, control, label, required, placeholder, type } = props;
   const [hidePassword, setHidePassword] = useState(true);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <View className="flex w-full flex-col gap-2">
-          <Text className="title-medium text-primary-900">
+        <View className="flex w-full flex-col gap-5">
+          <Text className="text-base font-medium text-[#616161]">
             {label}
-            {required && <Text className="text-required"> *</Text>}
+            {required && <Text className="text-[#FE4763]"> *</Text>}
           </Text>
 
           <View
             className={
-              'flex-row items-center gap-2 rounded-md border px-3 py-2 ' +
-              (field.value?.length > 0 && !fieldState.error
-                ? 'border-primary-1000'
-                : 'border-primary-200')
+              'flex-row items-center gap-3 border-b-2 pb-2 ' +
+              (fieldState.error
+                ? 'border-b-[#FE4763]'
+                : isFocused
+                  ? 'border-b-[#a1d973]'
+                  : 'border-b-[#E5E5E5]')
             }
           >
+            <View className="h-5 w-5 items-center justify-center">
+              {type === 'email' && (
+                <View className="h-5 w-5 items-center justify-center">
+                  <MaterialCommunityIcons
+                    name="email-outline"
+                    size={15}
+                    color="#999999"
+                  />
+                </View>
+              )}
+              {type === 'phone' && (
+                <View className="h-5 w-5 items-center justify-center">
+                  <MaterialCommunityIcons
+                    name="phone-outline"
+                    size={15}
+                    color="#999999"
+                  />
+                </View>
+              )}
+              {type === 'password' && (
+                <View className="h-5 w-5 items-center justify-center">
+                  <MaterialCommunityIcons
+                    name="lock-outline"
+                    size={15}
+                    color="#999999"
+                  />
+                </View>
+              )}
+              {type === 'username' && (
+                <View className="h-5 w-5 items-center justify-center">
+                  <MaterialCommunityIcons
+                    name="account-circle-outline"
+                    size={15}
+                    color="#999999"
+                  />
+                </View>
+              )}
+              {type === 'name' && (
+                <View className="h-5 w-5 items-center justify-center">
+                  <MaterialCommunityIcons
+                    name="account-outline"
+                    size={15}
+                    color="#999999"
+                  />
+                </View>
+              )}
+            </View>
+
             <TextInput
               ref={field.ref}
               value={(field.value ?? '') as string}
               onChangeText={field.onChange}
-              onBlur={field.onBlur}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => {
+                setIsFocused(false);
+                field.onBlur();
+              }}
               placeholder={placeholder}
+              placeholderTextColor="#BDBDBD"
               secureTextEntry={type === 'password' ? hidePassword : false}
               autoCapitalize={type === 'email' ? 'none' : 'sentences'}
-              keyboardType={type === 'email' ? 'email-address' : 'default'}
-              className={
-                'text-primary-900 flex-1 ' +
-                (field.value?.length > 0 && !fieldState.error
-                  ? 'text-primary-1000'
-                  : '')
+              keyboardType={
+                type === 'email'
+                  ? 'email-address'
+                  : type === 'phone'
+                    ? 'phone-pad'
+                    : 'default'
               }
+              className="flex-1 py-0 text-base text-[#333333]"
             />
 
             {type === 'password' && (
@@ -64,18 +122,22 @@ export const CustomInput = <T extends FieldValues>(
                 accessibilityRole="button"
                 hitSlop={8}
               >
-                <Text className="body-medium text-primary-600">
-                  {hidePassword ? 'Hiện' : 'Ẩn'}
-                </Text>
+                <View className="h-5 w-5 items-center justify-center">
+                  <MaterialCommunityIcons
+                    name={hidePassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={15}
+                    color="#999999"
+                  />
+                </View>
               </Pressable>
             )}
           </View>
 
-          <View style={{ minHeight: 19 }}>
-            <Text className="body-medium text-[#FE4763]">
+          {fieldState.error && (
+            <Text className="mt-1 text-sm text-[#FE4763]">
               {fieldState.error?.message}
             </Text>
-          </View>
+          )}
         </View>
       )}
     />

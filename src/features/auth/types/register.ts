@@ -4,6 +4,7 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
 }
 
 export interface RegisterResponse {
@@ -12,9 +13,9 @@ export interface RegisterResponse {
 }
 
 export interface VerifyRegistrationRequest {
-  username: string;
+  // username: string;
   email: string;
-  password: string;
+  // password: string;
   otp: string;
 }
 

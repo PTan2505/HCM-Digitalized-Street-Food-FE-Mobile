@@ -1,26 +1,35 @@
 import { RegisterForm } from '@auth/components/RegisterForm';
+import { Title } from '@auth/components/Title';
+import { HaveAccountText } from '@auth/components/HaveAccountText';
 import type { JSX } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
 
 export const RegisterScreen = (): JSX.Element => {
   return (
-    <SafeAreaView
-      className="align-items-center flex-1 justify-center bg-white"
-      edges={['top', 'left', 'right']}
-    >
+    <SafeAreaView className="flex-1" edges={['left', 'right']}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
       >
-        <View className="w-full gap-6">
-          <View className="gap-2">
-            <Text className="headline-medium text-primary-900">Đăng ký</Text>
-            <Text className="body-medium text-primary-600">
-              Tạo tài khoản mới để bắt đầu.
-            </Text>
-          </View>
+        <View className="relative h-[320px] w-full overflow-hidden">
+          <Image
+            source={authenticationBackground}
+            className="absolute top-[-267px] h-auto w-full"
+            resizeMode="cover"
+          />
+        </View>
+
+        <View
+          className="mt-[-5px]"
+          style={{
+            paddingHorizontal: 16,
+          }}
+        >
+          <Title title="Đăng ký" />
           <RegisterForm />
+          <HaveAccountText />
         </View>
       </ScrollView>
     </SafeAreaView>

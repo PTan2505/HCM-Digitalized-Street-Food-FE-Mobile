@@ -10,12 +10,14 @@ import type { JSX } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-const initialValues: RegisterRequest = {
+const initialValues: RegisterRequest & { confirmPassword: string } = {
   username: '',
   email: '',
   password: '',
+  confirmPassword: '',
   firstName: '',
   lastName: '',
+  phoneNumber: '',
 };
 
 export const RegisterForm = (): JSX.Element => {
@@ -24,19 +26,22 @@ export const RegisterForm = (): JSX.Element => {
   const { onRegisterSubmit } = useRegister();
   const navigation = useNavigation();
 
-  const methods = useForm<RegisterRequest>({
+  const methods = useForm<RegisterRequest & { confirmPassword: string }>({
     defaultValues: initialValues,
     resolver: zodResolver(RegisterSchema),
   });
 
   const { control, handleSubmit } = methods;
-  const onSubmit: SubmitHandler<RegisterRequest> = async (values) => {
-    await onRegisterSubmit(values);
+  const onSubmit: SubmitHandler<
+    RegisterRequest & { confirmPassword: string }
+  > = async (values) => {
+    const { confirmPassword, ...registerData } = values;
+    await onRegisterSubmit(registerData);
     navigation.navigate('OTP', {
       otpFormProps: {
-        username: values.username,
+        // username: values.username,
         email: values.email,
-        password: values.password,
+        // password: values.password,
       },
     });
   };
@@ -46,12 +51,13 @@ export const RegisterForm = (): JSX.Element => {
       {registerEmail ? (
         <></>
       ) : (
-        <View className="w-full gap-4">
+        <View className="w-full gap-4 px-5">
           <CustomInput
             name="username"
             control={control}
             label="Tên đăng nhập"
             placeholder="Nhập tên đăng nhập"
+            type="username"
             required
           />
           <CustomInput
@@ -62,37 +68,66 @@ export const RegisterForm = (): JSX.Element => {
             type="email"
             required
           />
+          <View className="flex-row gap-4">
+            <View className="flex-1">
+              <CustomInput
+                name="lastName"
+                control={control}
+                label="Họ"
+                type="name"
+                placeholder="Nhập họ"
+              />
+            </View>
+            <View className="flex-1">
+              <CustomInput
+                name="firstName"
+                control={control}
+                label="Tên"
+                type="name"
+                placeholder="Nhập tên"
+              />
+            </View>
+          </View>
           <CustomInput
-            name="password"
+            name="phoneNumber"
             control={control}
-            label="Mật khẩu"
-            placeholder="Nhập mật khẩu"
-            type="password"
-            required
+            label="Số điện thoại"
+            type="phone"
+            placeholder="Nhập số điện thoại"
           />
-          <CustomInput
-            name="firstName"
-            control={control}
-            label="Tên"
-            placeholder="Nhập tên"
-          />
-          <CustomInput
-            name="lastName"
-            control={control}
-            label="Họ"
-            placeholder="Nhập họ"
-          />
+          <View className="flex-row gap-4">
+            <View className="flex-1">
+              <CustomInput
+                name="password"
+                control={control}
+                label="Mật khẩu"
+                placeholder="Nhập mật khẩu"
+                type="password"
+                required
+              />
+            </View>
+            <View className="flex-1">
+              <CustomInput
+                name="confirmPassword"
+                control={control}
+                label="Nhập lại mật khẩu"
+                placeholder="Nhập lại mật khẩu"
+                type="password"
+                required
+              />
+            </View>
+          </View>
 
           <Pressable
             onPress={handleSubmit(onSubmit)}
             disabled={userStatus === 'pending'}
             accessibilityRole="button"
             className={
-              'w-full items-center justify-center rounded-md px-4 py-3 ' +
+              'mt-5 w-full items-center justify-center rounded-2xl bg-[#a1d973] px-4 py-5' +
               (userStatus === 'pending' ? 'opacity-60' : '')
             }
           >
-            <Text className="title-medium text-primary-900">
+            <Text className="title-medium font-semibold text-[#F8F8FF]">
               {userStatus === 'pending' ? 'Đang đăng ký...' : 'Đăng ký'}
             </Text>
           </Pressable>
