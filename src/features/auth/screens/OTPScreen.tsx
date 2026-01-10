@@ -45,7 +45,7 @@ export const OTPScreen = ({ route }: OTPScreenProps): JSX.Element => {
               <Title title="Xác thực OTP" />
               <View className="mb-5 gap-2 px-5">
                 <Text className="body-medium font-semibold text-[#a1d973]">
-                  Nhập mã OTP đã được gửi đến email của bạn.
+                  Nhập mã OTP đã được gửi đến email: {otpFormProps.email}
                 </Text>
               </View>
               <OTPForm {...otpFormProps} />

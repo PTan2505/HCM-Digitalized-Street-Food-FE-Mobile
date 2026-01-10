@@ -40,7 +40,7 @@ export const RegisterForm = (): JSX.Element => {
     await onRegisterSubmit(registerData);
     navigation.navigate('OTP', {
       otpFormProps: {
-        // username: values.username,
+        username: values.username,
         email: values.email,
         // password: values.password,
       },
