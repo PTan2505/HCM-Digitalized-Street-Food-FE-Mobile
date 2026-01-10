@@ -96,7 +96,7 @@ const HomeScreen = (): JSX.Element => {
           <LinearGradient
             colors={['#B8E986', '#FFFFFF']}
             locations={[0, 0.4]}
-            style={{ paddingTop: insets.top + 12 }}
+            style={{ paddingTop: insets.top }}
           >
             <HomeHeader />
 
