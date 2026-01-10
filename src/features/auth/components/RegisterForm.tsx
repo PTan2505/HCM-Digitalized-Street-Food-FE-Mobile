@@ -8,7 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { selectRegisterEmail, selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
-import { Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
+import { CustomButton } from '@auth/components/CustomButton';
 
 const initialValues: RegisterRequest & { confirmPassword: string } = {
   username: '',
@@ -44,6 +45,7 @@ export const RegisterForm = (): JSX.Element => {
         // password: values.password,
       },
     });
+    // navigation.navigate('OTP');
   };
 
   return (
@@ -118,19 +120,12 @@ export const RegisterForm = (): JSX.Element => {
             </View>
           </View>
 
-          <Pressable
+          <CustomButton
             onPress={handleSubmit(onSubmit)}
-            disabled={userStatus === 'pending'}
-            accessibilityRole="button"
-            className={
-              'mt-5 w-full items-center justify-center rounded-2xl bg-[#a1d973] px-4 py-5' +
-              (userStatus === 'pending' ? 'opacity-60' : '')
-            }
-          >
-            <Text className="title-medium font-semibold text-[#F8F8FF]">
-              {userStatus === 'pending' ? 'Đang đăng ký...' : 'Đăng ký'}
-            </Text>
-          </Pressable>
+            isLoading={userStatus === 'pending'}
+            text="Đăng ký"
+            loadingText="Đang đăng ký..."
+          />
         </View>
       )}
     </FormProvider>

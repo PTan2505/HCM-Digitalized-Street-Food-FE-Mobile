@@ -13,10 +13,10 @@ export const RegisterScreen = (): JSX.Element => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View className="relative h-[320px] w-full overflow-hidden">
+        <View className="relative h-[321px] w-full overflow-hidden">
           <Image
             source={authenticationBackground}
-            className="absolute top-[-267px] h-auto w-full"
+            className="absolute top-[-266px] h-auto w-full"
             resizeMode="cover"
           />
         </View>
@@ -29,7 +29,11 @@ export const RegisterScreen = (): JSX.Element => {
         >
           <Title title="Đăng ký" />
           <RegisterForm />
-          <HaveAccountText />
+          <HaveAccountText
+            text="Bạn đã có tài khoản?"
+            linkText="Đăng nhập"
+            navigateTo="Login"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

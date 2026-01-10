@@ -27,9 +27,9 @@ export const CustomOTPInput = <T extends FieldValues>(
       control={control}
       render={({ field, fieldState }) => (
         <View className="flex w-full flex-col gap-2">
-          <Text className="title-medium text-primary-900">
+          <Text className="text-base font-semibold text-[#616161]">
             {label}
-            {required && <Text className="text-required"> *</Text>}
+            {required && <Text className="text-[#FE4763]"> *</Text>}
           </Text>
 
           <OtpInput
@@ -38,7 +38,7 @@ export const CustomOTPInput = <T extends FieldValues>(
             onFilled={field.onChange}
             focusColor={
               field.value?.length > 0 && !fieldState.error
-                ? '#1A1A1A'
+                ? '#a1d973'
                 : '#E5E5E5'
             }
             theme={{
@@ -50,21 +50,21 @@ export const CustomOTPInput = <T extends FieldValues>(
                 borderWidth: 1,
                 borderColor:
                   field.value?.length > 0 && !fieldState.error
-                    ? '#1A1A1A'
+                    ? '#a1d973'
                     : '#E5E5E5',
                 minHeight: 48,
               },
               pinCodeTextStyle: {
-                color: '#1A1A1A',
+                color: '#a1d973',
               },
               focusStickStyle: {
-                backgroundColor: '#1A1A1A',
+                backgroundColor: '#a1d973',
               },
             }}
           />
 
           <View style={{ minHeight: 19 }}>
-            <Text className="body-medium text-[#FE4763]">
+            <Text className="mt-1 text-sm text-[#FE4763]">
               {fieldState.error?.message}
             </Text>
           </View>

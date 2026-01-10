@@ -9,6 +9,7 @@ import { selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
+import { CustomButton } from '@auth/components/CustomButton';
 
 const initialValues: VerifyRegistrationRequest = {
   // username: '',
@@ -41,7 +42,7 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
 
   return (
     <FormProvider {...methods}>
-      <View className="w-full gap-4">
+      <View className="w-full gap-4 px-5">
         <CustomOTPInput
           name="otp"
           control={control}
@@ -49,13 +50,18 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           required
           numberOfDigits={6}
         />
-        <Pressable
-          className="items-center rounded-lg bg-blue-500 p-3"
+        <View className="flex-row justify-center ">
+          <Text className="text-lg font-semibold text-[#a1d973]">
+            Gửi lại mã{' '}
+            <Text className="text-lg font-semibold text-[#616161]">2:29</Text>
+          </Text>
+        </View>
+        <CustomButton
           onPress={handleSubmit(onSubmit)}
-          disabled={userStatus === 'pending'}
-        >
-          <Text className="text-base font-medium text-white">Xác nhận</Text>
-        </Pressable>
+          isLoading={userStatus === 'pending'}
+          text="Xác nhận"
+          loadingText="Đang xác nhận..."
+        />
       </View>
     </FormProvider>
   );
