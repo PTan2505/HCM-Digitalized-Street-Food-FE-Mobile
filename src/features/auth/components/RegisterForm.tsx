@@ -42,7 +42,6 @@ export const RegisterForm = (): JSX.Element => {
       otpFormProps: {
         username: values.username,
         email: values.email,
-        // password: values.password,
       },
     });
     // navigation.navigate('OTP');

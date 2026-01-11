@@ -1,5 +1,8 @@
 import useRegister from '@auth/hooks/useRegister';
-import type { VerifyRegistrationRequest, ResendRegistrationOTPRequest } from '@auth/types/register';
+import type {
+  VerifyRegistrationRequest,
+  ResendRegistrationOTPRequest,
+} from '@auth/types/register';
 import { VerifyRegistrationSchema } from '@auth/utils/registerFormSchema';
 import { CustomOTPInput } from '@components/CustomOTPInput';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -77,18 +80,23 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           required
           numberOfDigits={6}
         />
-        <View className="flex-row justify-center ">
+        <View className="flex-row justify-center">
           <Pressable
             onPress={handleResendOTP}
             disabled={countdown > 0 || isResending}
           >
             <Text
-              className={`text-lg font-semibold ${countdown > 0 || isResending
-                ? 'text-gray-400'
-                : 'text-[#a1d973]'
-                }`}
+              className={`text-lg font-semibold ${
+                countdown > 0 || isResending
+                  ? 'text-gray-400'
+                  : 'text-[#a1d973]'
+              }`}
             >
-              {isResending ? 'Đang gửi...' : countdown > 0 ? 'Gửi lại mã sau' : 'Gửi lại mã'}{' '}
+              {isResending
+                ? 'Đang gửi...'
+                : countdown > 0
+                  ? 'Gửi lại mã sau'
+                  : 'Gửi lại mã'}{' '}
               {countdown > 0 && (
                 <Text className="text-lg font-semibold text-[#616161]">
                   {formatCountDownTime(countdown)}
