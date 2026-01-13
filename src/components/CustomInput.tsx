@@ -113,7 +113,8 @@ export const CustomInput = <T extends FieldValues>(
                     ? 'phone-pad'
                     : 'default'
               }
-              className="flex-1 py-0 text-base text-[#333333]"
+              textAlignVertical="center"
+              className="flex-1 py-3 text-base text-[#333333]"
             />
 
             {type === 'password' && (

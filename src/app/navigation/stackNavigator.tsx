@@ -8,6 +8,8 @@ import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { LoginScreen } from '@features/auth/screens/LoginScreen';
 import { OTPScreen } from '@features/auth/screens/OTPScreen';
 import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
+import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
+import { ResetPasswordScreen } from '@features/auth/screens/ResetPasswordScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Register',
@@ -22,6 +24,14 @@ const RootStack = createNativeStackNavigator({
     },
     Login: {
       screen: LoginScreen,
+      options: { headerShown: false },
+    },
+    ForgetPassword: {
+      screen: ForgetPasswordScreen,
+      options: { headerShown: false },
+    },
+    ResetPassword: {
+      screen: ResetPasswordScreen,
       options: { headerShown: false },
     },
     Main: {

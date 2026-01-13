@@ -1,4 +1,5 @@
 import useRegister from '@auth/hooks/useRegister';
+import useForgetPassword from '@auth/hooks/useForgetPassword';
 import type {
   VerifyRegistrationRequest,
   ResendRegistrationOTPRequest,
@@ -14,6 +15,7 @@ import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 import { CustomButton } from '@auth/components/CustomButton';
 import { formatCountDownTime } from '@utils/formatCountDownTime';
+import type { OTPType } from '@auth/types/otp';
 
 const initialValues: VerifyRegistrationRequest = {
   // username: '',
@@ -27,12 +29,14 @@ const RESEND_COOLDOWN = 180;
 export interface OTPFormProps {
   username: string;
   email: string;
+  otpType: OTPType;
   // password: string;
 }
 
 export const OTPForm = (props: OTPFormProps): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
   const { onVerifyRegistration, onResendRegistrationOTP } = useRegister();
+  const { onResendForgetPasswordOTP } = useForgetPassword();
   const navigation = useNavigation();
 
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
@@ -55,19 +59,37 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
   const handleResendOTP = async (): Promise<void> => {
     if (countdown > 0 || isResending) return;
 
-    setIsResending(true);
-    await onResendRegistrationOTP({
-      email: props.email,
-      username: props.username,
-    });
-    setCountdown(RESEND_COOLDOWN);
-    setIsResending(false);
+    if (props.otpType === 'registration_verification') {
+      setIsResending(true);
+      await onResendRegistrationOTP({
+        email: props.email,
+        username: props.username,
+      });
+      setCountdown(RESEND_COOLDOWN);
+      setIsResending(false);
+    } else if (props.otpType === 'password_reset') {
+      setIsResending(true);
+      await onResendForgetPasswordOTP({
+        email: props.email,
+      });
+      setCountdown(RESEND_COOLDOWN);
+      setIsResending(false);
+    }
   };
 
   const { control, handleSubmit } = methods;
   const onSubmit: SubmitHandler<VerifyRegistrationRequest> = async (values) => {
-    await onVerifyRegistration(values);
-    navigation.navigate('Main');
+    if (props.otpType === 'password_reset') {
+      navigation.navigate('ResetPassword', {
+        resetPasswordFormProps: {
+          email: props.email,
+          otp: values.otp,
+        },
+      });
+    } else {
+      await onVerifyRegistration(values);
+      navigation.navigate('Login');
+    }
   };
 
   return (

@@ -8,29 +8,44 @@ import type { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import type { ResetPasswordRequest } from '@auth/types/forgetPassword';
+import { CustomButton } from '@auth/components/CustomButton';
+import { useNavigation } from '@react-navigation/native';
 
-const initialValues: ResetPasswordRequest = {
+const initialValues: ResetPasswordRequest & { confirmPassword: string } = {
   email: '',
   otp: '',
   newPassword: '',
+  confirmPassword: '',
 };
 
-export const ResetPasswordForm = (): JSX.Element => {
+export interface ResetPasswordFormProps {
+  email: string;
+  otp: string;
+}
+
+export const ResetPasswordForm = (
+  props: ResetPasswordFormProps
+): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
   const { onResetPassword } = useForgetPassword();
+  const navigation = useNavigation();
 
-  const methods = useForm<ResetPasswordRequest>({
-    defaultValues: initialValues,
+  const methods = useForm<ResetPasswordRequest & { confirmPassword: string }>({
+    defaultValues: { ...initialValues, ...props },
     resolver: zodResolver(ResetPasswordSchema),
   });
   const { control, handleSubmit } = methods;
-  const onSubmit: SubmitHandler<ResetPasswordRequest> = async (values) => {
-    await onResetPassword(values);
+  const onSubmit: SubmitHandler<
+    ResetPasswordRequest & { confirmPassword: string }
+  > = async (values) => {
+    const { confirmPassword, ...resetData } = values;
+    await onResetPassword(resetData);
+    navigation.navigate('Login');
   };
 
   return (
     <FormProvider {...methods}>
-      <View className="w-full gap-4">
+      <View className="w-full gap-4 px-5">
         <CustomInput
           name="newPassword"
           control={control}
@@ -40,19 +55,21 @@ export const ResetPasswordForm = (): JSX.Element => {
           required
         />
 
-        <Pressable
+        <CustomInput
+          name="confirmPassword"
+          control={control}
+          label="Xác nhận mật khẩu"
+          placeholder="Nhập lại mật khẩu mới"
+          type="password"
+          required
+        />
+
+        <CustomButton
           onPress={handleSubmit(onSubmit)}
-          disabled={userStatus === 'pending'}
-          accessibilityRole="button"
-          className={
-            'w-full items-center justify-center rounded-md px-4 py-3 ' +
-            (userStatus === 'pending' ? 'opacity-60' : '')
-          }
-        >
-          <Text className="title-medium text-primary-900">
-            {userStatus === 'pending' ? 'Đang xác nhận...' : 'Xác nhận'}
-          </Text>
-        </Pressable>
+          isLoading={userStatus === 'pending'}
+          text="Xác nhận"
+          loadingText="Đang xác nhận..."
+        />
       </View>
     </FormProvider>
   );

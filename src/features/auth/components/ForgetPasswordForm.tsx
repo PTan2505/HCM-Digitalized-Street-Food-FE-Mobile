@@ -8,6 +8,8 @@ import type { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import type { ForgetPasswordRequest } from '@auth/types/forgetPassword';
+import { CustomButton } from '@auth/components/CustomButton';
+import { useNavigation } from '@react-navigation/native';
 
 const initialValues: ForgetPasswordRequest = {
   email: '',
@@ -16,6 +18,7 @@ const initialValues: ForgetPasswordRequest = {
 export const ForgetPasswordForm = (): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
   const { onRequestForgetPassword } = useForgetPassword();
+  const navigation = useNavigation();
 
   const methods = useForm<ForgetPasswordRequest>({
     defaultValues: initialValues,
@@ -25,11 +28,18 @@ export const ForgetPasswordForm = (): JSX.Element => {
   const { control, handleSubmit } = methods;
   const onSubmit: SubmitHandler<ForgetPasswordRequest> = async (values) => {
     await onRequestForgetPassword(values);
+    navigation.navigate('OTP', {
+      otpFormProps: {
+        username: '',
+        email: values.email,
+        otpType: 'password_reset',
+      },
+    });
   };
 
   return (
     <FormProvider {...methods}>
-      <View className="w-full gap-4">
+      <View className="w-full gap-4 px-5">
         <CustomInput
           name="email"
           control={control}
@@ -39,19 +49,12 @@ export const ForgetPasswordForm = (): JSX.Element => {
           required
         />
 
-        <Pressable
+        <CustomButton
           onPress={handleSubmit(onSubmit)}
-          disabled={userStatus === 'pending'}
-          accessibilityRole="button"
-          className={
-            'w-full items-center justify-center rounded-md px-4 py-3 ' +
-            (userStatus === 'pending' ? 'opacity-60' : '')
-          }
-        >
-          <Text className="title-medium text-primary-900">
-            {userStatus === 'pending' ? 'Đang gửi yêu cầu...' : 'Gửi yêu cầu'}
-          </Text>
-        </Pressable>
+          isLoading={userStatus === 'pending'}
+          text="Gửi yêu cầu"
+          loadingText="Đang gửi yêu cầu..."
+        />
       </View>
     </FormProvider>
   );

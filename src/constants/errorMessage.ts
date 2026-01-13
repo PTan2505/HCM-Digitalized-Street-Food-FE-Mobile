@@ -22,7 +22,7 @@ export const VALIDATE_ERROR_MESSAGES: Record<string, string> = {
   EMPTY_OTP: 'Vui lòng nhập mã OTP!',
   INVALID_OTP: 'Mã OTP không hợp lệ!',
   EMPTY_NEW_PASSWORD: 'Vui lòng nhập mật khẩu mới!',
-  NEW_PASSWORD_MIN_LENGTH: 'Mật khẩu mới phải có ít nhất 6 ký tự!',
+  NEW_PASSWORD_MIN_LENGTH: 'Mật khẩu mới phải có ít nhất 8 ký tự!',
   INVALID_PHONE_NUMBER: 'Số điện thoại không hợp lệ!',
   PASSWORD_MISMATCH: 'Mật khẩu không khớp!',
   EMPTY_NAME: 'Vui lòng nhập tên!',

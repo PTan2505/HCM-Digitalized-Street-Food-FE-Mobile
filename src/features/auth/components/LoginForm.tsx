@@ -9,6 +9,8 @@ import { View, Text } from 'react-native';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import type { LoginRequest } from '@auth/types/login';
 import { CustomButton } from '@auth/components/CustomButton';
+import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const initialValues: LoginRequest = {
   email: '',
@@ -18,6 +20,7 @@ const initialValues: LoginRequest = {
 export const LoginForm = (): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
   const { onLoginSubmit } = useLogin();
+  const navigation = useNavigation();
 
   const methods = useForm<LoginRequest>({
     defaultValues: initialValues,
@@ -50,7 +53,12 @@ export const LoginForm = (): JSX.Element => {
         />
 
         <View className="mt-2 flex-row justify-end">
-          <Text className="font-semibold text-[#a1d973]">Quên mật khẩu?</Text>
+          <Text
+            className="font-semibold text-[#a1d973]"
+            onPress={() => navigation.navigate('ForgetPassword')}
+          >
+            Quên mật khẩu?
+          </Text>
         </View>
 
         <CustomButton
@@ -59,6 +67,21 @@ export const LoginForm = (): JSX.Element => {
           text="Đăng nhập"
           loadingText="Đang đăng nhập..."
         />
+
+        <View className="flex-row items-center py-5">
+          <View className="h-[2px] w-[100px] flex-1 rounded-full bg-[#BDBDBD]" />
+
+          <Text className="mx-3 text-center font-semibold text-[#a1d973]">
+            Hoặc tiếp tục với
+          </Text>
+
+          <View className="h-[2px] w-[100px] flex-1 rounded-full bg-[#BDBDBD]" />
+        </View>
+
+        <View className="flex-row justify-center gap-10">
+          <MaterialCommunityIcons name="google" size={40} color="#a1d973" />
+          <MaterialCommunityIcons name="facebook" size={40} color="#a1d973" />
+        </View>
       </View>
     </FormProvider>
   );
