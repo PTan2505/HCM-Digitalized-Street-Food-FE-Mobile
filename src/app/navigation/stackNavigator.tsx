@@ -5,14 +5,15 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import { AuthScreen } from '@features/auth/screens/AuthScreen';
+import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
 import { LoginScreen } from '@features/auth/screens/LoginScreen';
 import { OTPScreen } from '@features/auth/screens/OTPScreen';
 import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
-import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
 import { ResetPasswordScreen } from '@features/auth/screens/ResetPasswordScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Register',
+  initialRouteName: 'Auth',
   screens: {
     Register: {
       screen: RegisterScreen,
@@ -39,6 +40,10 @@ const RootStack = createNativeStackNavigator({
       options: {
         headerShown: false,
       },
+    },
+    Auth: {
+      screen: AuthScreen,
+      options: { headerShown: false },
     },
   },
 });

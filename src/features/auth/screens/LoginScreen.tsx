@@ -1,21 +1,18 @@
+import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
+import { HaveAccountText } from '@auth/components/HaveAccountText';
 import { LoginForm } from '@auth/components/LoginForm';
 import { Title } from '@auth/components/Title';
-import { HaveAccountText } from '@auth/components/HaveAccountText';
 import type { JSX } from 'react';
 import {
-  ScrollView,
   Image,
-  View,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   TouchableWithoutFeedback,
-  Dimensions,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
-
-const HEADER_HEIGHT = Dimensions.get('window').height * 0.58;
 
 export const LoginScreen = (): JSX.Element => {
   return (
@@ -29,17 +26,14 @@ export const LoginScreen = (): JSX.Element => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             automaticallyAdjustContentInsets={false}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            contentContainerStyle={{ flexGrow: 1 }}
           >
-            <View
-              className="relative w-full overflow-hidden"
-              style={{ height: HEADER_HEIGHT }}
-            >
+            <View className="relative">
               <Image
                 source={authenticationBackground}
                 style={{
                   position: 'absolute',
-                  top: '-22%',
+                  top: -250,
                   height: 'auto',
                   width: '100%',
                   aspectRatio: 393 / 627,
@@ -49,9 +43,10 @@ export const LoginScreen = (): JSX.Element => {
             </View>
 
             <View
-              className="mt-[-20px]"
               style={{
+                backgroundColor: 'transparent',
                 paddingHorizontal: 16,
+                marginTop: 280,
               }}
             >
               <Title title="Đăng nhập" />

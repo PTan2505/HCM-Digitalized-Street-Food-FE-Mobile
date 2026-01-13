@@ -1,21 +1,18 @@
+import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
+import { HaveAccountText } from '@auth/components/HaveAccountText';
 import { RegisterForm } from '@auth/components/RegisterForm';
 import { Title } from '@auth/components/Title';
-import { HaveAccountText } from '@auth/components/HaveAccountText';
 import type { JSX } from 'react';
 import {
-  ScrollView,
-  View,
   Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   TouchableWithoutFeedback,
-  Dimensions,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
-
-const HEADER_HEIGHT = Dimensions.get('window').height * 0.36;
 
 export const RegisterScreen = (): JSX.Element => {
   return (
@@ -31,15 +28,12 @@ export const RegisterScreen = (): JSX.Element => {
             automaticallyAdjustContentInsets={false}
             contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
           >
-            <View
-              className="relative w-full overflow-hidden"
-              style={{ height: HEADER_HEIGHT }}
-            >
+            <View className="relative w-full">
               <Image
                 source={authenticationBackground}
                 style={{
                   position: 'absolute',
-                  top: '-95%',
+                  top: -380,
                   height: 'auto',
                   width: '100%',
                   aspectRatio: 393 / 627,
@@ -56,9 +50,10 @@ export const RegisterScreen = (): JSX.Element => {
             </View> */}
 
             <View
-              className="mt-[-20px]"
               style={{
+                marginTop: 150,
                 paddingHorizontal: 16,
+                backgroundColor: 'transparent',
               }}
             >
               <Title title="Đăng ký" />

@@ -1,12 +1,12 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, type JSX } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
 import {
   Controller,
   type Control,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Pressable, Text, TextInput, View } from 'react-native';
 
 interface CustomInputProps<T extends FieldValues> {
   name: FieldPath<T>;
@@ -29,7 +29,7 @@ export const CustomInput = <T extends FieldValues>(
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <View className="flex w-full flex-col gap-5">
+        <View className="flex w-full flex-col gap-1">
           <Text className="text-base font-medium text-[#616161]">
             {label}
             {required && <Text className="text-[#FE4763]"> *</Text>}
