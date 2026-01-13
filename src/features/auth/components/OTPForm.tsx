@@ -88,7 +88,7 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
       });
     } else {
       await onVerifyRegistration(values);
-      navigation.navigate('Login');
+      navigation.navigate('Auth');
     }
   };
 
@@ -108,11 +108,10 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
             disabled={countdown > 0 || isResending}
           >
             <Text
-              className={`text-lg font-semibold ${
-                countdown > 0 || isResending
+              className={`text-lg font-semibold ${countdown > 0 || isResending
                   ? 'text-gray-400'
                   : 'text-[#a1d973]'
-              }`}
+                }`}
             >
               {isResending
                 ? 'Đang gửi...'

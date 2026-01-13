@@ -1,7 +1,7 @@
 import discovery from '@assets/icons/discovery.png';
 import person from '@assets/icons/person.png';
 import { CustomBottomTabBar } from '@components/navigation/CustomBottomTabBar';
-import { LoginScreen } from '@features/auth/screens/LoginScreen';
+import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
 import { OTPScreen } from '@features/auth/screens/OTPScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
@@ -9,15 +9,15 @@ import { Image } from 'react-native';
 export const HomeBottomTabs = createBottomTabNavigator({
   tabBar: (props) => <CustomBottomTabBar {...props} />,
 
-  initialRouteName: 'LoginScreen',
+  initialRouteName: 'ForgetPassword',
   screenOptions: {
     headerShown: true,
     headerStyle: { backgroundColor: 'tomato' },
     tabBarActiveIndicatorColor: 'red',
   },
   screens: {
-    LoginScreen: {
-      screen: LoginScreen,
+    ForgetPassword: {
+      screen: ForgetPasswordScreen,
       options: {
         title: 'Khám phá',
         tabBarIcon: ({ color, size }) => (

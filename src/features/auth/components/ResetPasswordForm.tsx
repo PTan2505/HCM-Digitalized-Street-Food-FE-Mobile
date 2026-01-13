@@ -40,7 +40,7 @@ export const ResetPasswordForm = (
   > = async (values) => {
     const { confirmPassword, ...resetData } = values;
     await onResetPassword(resetData);
-    navigation.navigate('Login');
+    navigation.navigate('Auth');
   };
 
   return (

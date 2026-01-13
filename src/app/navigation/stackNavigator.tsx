@@ -7,24 +7,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
-import { LoginScreen } from '@features/auth/screens/LoginScreen';
 import { OTPScreen } from '@features/auth/screens/OTPScreen';
-import { RegisterScreen } from '@features/auth/screens/RegisterScreen';
 import { ResetPasswordScreen } from '@features/auth/screens/ResetPasswordScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
   screens: {
-    Register: {
-      screen: RegisterScreen,
+    Auth: {
+      screen: AuthScreen,
       options: { headerShown: false },
     },
     OTP: {
       screen: OTPScreen,
-      options: { headerShown: false },
-    },
-    Login: {
-      screen: LoginScreen,
       options: { headerShown: false },
     },
     ForgetPassword: {
@@ -41,10 +35,6 @@ const RootStack = createNativeStackNavigator({
         headerShown: false,
       },
     },
-    Auth: {
-      screen: AuthScreen,
-      options: { headerShown: false },
-    },
   },
 });
 
@@ -54,7 +44,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
 
