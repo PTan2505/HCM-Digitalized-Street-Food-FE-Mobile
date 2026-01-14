@@ -11,12 +11,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
-
-const HEADER_HEIGHT = Dimensions.get('window').height * 0.7;
 
 type OTPScreenProps = StaticScreenProps<{
   otpFormProps: OTPFormProps;
@@ -35,29 +32,35 @@ export const OTPScreen = ({ route }: OTPScreenProps): JSX.Element => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             automaticallyAdjustContentInsets={false}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
           >
-            <View
-              className="relative w-full overflow-hidden"
-              style={{ height: HEADER_HEIGHT }}
-            >
-              <Image
-                source={authenticationBackground}
+            <View className="relative w-full">
+              <View
                 style={{
                   position: 'absolute',
-                  top: '-5%',
-                  height: 'auto',
+                  top: -90,
                   width: '100%',
-                  aspectRatio: 393 / 627,
                 }}
-                resizeMode="cover"
-              />
+              >
+                <Image
+                  source={authenticationBackground}
+                  style={{
+                    height: 'auto',
+                    width: '100%',
+                    aspectRatio: 393 / 627,
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
             </View>
 
             <View
-              className="mt-[-20px]"
               style={{
+                marginTop: 500,
                 paddingHorizontal: 16,
+                backgroundColor: 'transparent',
               }}
             >
               <Title title="Xác thực OTP" />

@@ -9,17 +9,13 @@ import {
   ScrollView,
   Image,
   View,
-  Text,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import authenticationBackground from '@assets/backgrounds/authenticationBackground.png';
-
-const HEADER_HEIGHT = Dimensions.get('window').height * 0.65;
 
 type ResetPasswordScreenProps = StaticScreenProps<{
   resetPasswordFormProps: ResetPasswordFormProps;
@@ -40,29 +36,35 @@ export const ResetPasswordScreen = ({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             automaticallyAdjustContentInsets={false}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
           >
-            <View
-              className="relative w-full overflow-hidden"
-              style={{ height: HEADER_HEIGHT }}
-            >
-              <Image
-                source={authenticationBackground}
+            <View className="relative w-full">
+              <View
                 style={{
                   position: 'absolute',
-                  top: '-5%',
-                  height: 'auto',
+                  top: -90,
                   width: '100%',
-                  aspectRatio: 393 / 627,
                 }}
-                resizeMode="cover"
-              />
+              >
+                <Image
+                  source={authenticationBackground}
+                  style={{
+                    height: 'auto',
+                    width: '100%',
+                    aspectRatio: 393 / 627,
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
             </View>
 
             <View
-              className="mt-[-20px]"
               style={{
+                marginTop: 520,
                 paddingHorizontal: 16,
+                backgroundColor: 'transparent',
               }}
             >
               <Title title="Đặt lại mật khẩu" />
