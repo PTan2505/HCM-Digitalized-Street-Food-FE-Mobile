@@ -5,12 +5,14 @@ interface CategoryCardProps {
   title: string;
   image: string;
   onPress?: () => void;
+  selected?: boolean;
 }
 
 const CategoryCard = ({
   title,
   image,
   onPress,
+  selected = false,
 }: CategoryCardProps): JSX.Element => {
   return (
     <TouchableOpacity
@@ -18,10 +20,14 @@ const CategoryCard = ({
       className="items-center"
       style={{ width: 80 }}
     >
-      <View className="mb-2 h-20 w-20 overflow-hidden rounded-full bg-white shadow-md">
+      <View
+        className={`mb-2 h-20 w-20 items-center justify-center rounded-full bg-white ${
+          selected ? 'border-[2px] border-[#06AA4C] p-[3px]' : ''
+        }`}
+      >
         <Image
           source={{ uri: image }}
-          style={{ width: 80, height: 80 }}
+          className="h-full w-full rounded-full"
           resizeMode="cover"
         />
       </View>
