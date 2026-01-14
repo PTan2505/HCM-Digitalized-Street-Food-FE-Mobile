@@ -33,12 +33,12 @@ export const AuthScreen = (): JSX.Element => {
 
     animationRef.current = Animated.parallel([
       Animated.timing(imageTopPosition, {
-        toValue: authMode === 'login' ? -250 : -380,
+        toValue: authMode === 'login' ? -270 : -400,
         duration: 400,
         useNativeDriver: false,
       }),
       Animated.timing(contentMarginTop, {
-        toValue: authMode === 'login' ? 280 : 150,
+        toValue: authMode === 'login' ? 260 : 130,
         duration: 400,
         useNativeDriver: false,
       }),
