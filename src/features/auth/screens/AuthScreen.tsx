@@ -23,9 +23,15 @@ export const AuthScreen = (): JSX.Element => {
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const imageTopPosition = useRef(new Animated.Value(-250)).current;
   const contentMarginTop = useRef(new Animated.Value(280)).current;
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    Animated.parallel([
+    // Stop any ongoing animation
+    if (animationRef.current) {
+      animationRef.current.stop();
+    }
+
+    animationRef.current = Animated.parallel([
       Animated.timing(imageTopPosition, {
         toValue: authMode === 'login' ? -250 : -380,
         duration: 400,
@@ -36,7 +42,9 @@ export const AuthScreen = (): JSX.Element => {
         duration: 400,
         useNativeDriver: false,
       }),
-    ]).start();
+    ]);
+
+    animationRef.current.start();
   }, [authMode, contentMarginTop, imageTopPosition]);
 
   const toggleAuthMode = (): void => {
@@ -56,7 +64,6 @@ export const AuthScreen = (): JSX.Element => {
             automaticallyAdjustContentInsets={false}
             contentContainerStyle={{
               flexGrow: 1,
-              justifyContent: authMode === 'register' ? 'center' : undefined,
             }}
           >
             <View className="relative w-full">
