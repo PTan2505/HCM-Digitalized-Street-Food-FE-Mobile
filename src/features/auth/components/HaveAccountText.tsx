@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 interface HaveAccountTextProps {
   text: string;
   linkText?: string;
-  navigateTo: 'Login' | 'Register';
+  navigateTo: 'Auth';
 }
 
 export const HaveAccountText = ({

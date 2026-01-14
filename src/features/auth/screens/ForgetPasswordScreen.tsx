@@ -59,7 +59,7 @@ export const ForgetPasswordScreen = (): JSX.Element => {
               <HaveAccountText
                 text="Bạn đã nhớ mật khẩu?"
                 linkText="Đăng nhập"
-                navigateTo="Login"
+                navigateTo="Auth"
               />
             </View>
           </ScrollView>
