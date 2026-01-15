@@ -1,8 +1,10 @@
 import SamplePlace from '@assets/SamplePlace.jpg';
 import BannerCarousel from '@features/home/components/BannerCarousel';
 import { PlaceCard } from '@features/home/components/PlaceCard';
+import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
+import { useState } from 'react';
 import {
   FlatList,
   ScrollView,
@@ -14,6 +16,7 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import CategoryCard from '../components/CategoryCard';
+import FilterModal, { type FilterState } from '../components/FilterModal';
 import HomeHeader from '../components/HomeHeader';
 import SearchBar from '../components/SearchBar';
 import Title from '../components/Title';
@@ -42,50 +45,17 @@ const SAMPLE_PLACES: PlaceItem[] = Array.from({ length: 10 }).map(
 
 const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+
+  const handleFilterApply = (filters: FilterState) => {
+    console.log('Applied filters:', filters);
+    // TODO: Apply filters to the place list
+  };
 
   const banners = [
     'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
-  ];
-
-  const categories = [
-    {
-      id: '1',
-      title: 'Cơm',
-      image:
-        'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=160&h=160&fit=crop',
-    },
-    {
-      id: '2',
-      title: 'Bún',
-      image:
-        'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?w=160&h=160&fit=crop',
-    },
-    {
-      id: '3',
-      title: 'Phở',
-      image:
-        'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=160&h=160&fit=crop',
-    },
-    {
-      id: '4',
-      title: 'Cafe',
-      image:
-        'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=160&h=160&fit=crop',
-    },
-    {
-      id: '5',
-      title: 'Trà sữa',
-      image:
-        'https://images.unsplash.com/photo-1562440499-64e3f2085e04?w=160&h=160&fit=crop',
-    },
-    {
-      id: '6',
-      title: 'Lòng se điếu',
-      image:
-        'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=160&h=160&fit=crop',
-    },
   ];
 
   return (
@@ -100,7 +70,7 @@ const HomeScreen = (): JSX.Element => {
           >
             <HomeHeader />
 
-            <SearchBar />
+            <SearchBar onFilterPress={() => setFilterModalVisible(true)} />
             {/* <TestCarousel /> */}
             <BannerCarousel banners={banners} />
 
@@ -110,7 +80,7 @@ const HomeScreen = (): JSX.Element => {
 
             <View className="flex-row px-4 pt-2">
               <FlatList
-                data={categories}
+                data={FOOD_CATEGORIES}
                 keyExtractor={(item) => item.id}
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -151,6 +121,12 @@ const HomeScreen = (): JSX.Element => {
           </LinearGradient>
         </ScrollView>
       </SafeAreaView>
+
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApply={handleFilterApply}
+      />
     </>
   );
 };

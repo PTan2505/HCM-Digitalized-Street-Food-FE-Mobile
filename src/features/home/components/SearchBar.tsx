@@ -5,11 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 interface SearchBarProps {
   placeholder?: string;
   onSearch?: (text: string) => void;
+  onFilterPress?: () => void;
 }
 
 const SearchBar = ({
   placeholder = 'Tìm nhà hàng, quán cà phê',
   onSearch,
+  onFilterPress,
 }: SearchBarProps): JSX.Element => {
   return (
     <View className="mx-4 mb-4">
@@ -23,7 +25,7 @@ const SearchBar = ({
           className="ml-3 flex-1 text-base text-gray-900"
         />
 
-        <TouchableOpacity className="ml-2">
+        <TouchableOpacity className="ml-2" onPress={onFilterPress}>
           <Ionicons name="options-outline" size={20} color="#588d22" />
         </TouchableOpacity>
       </View>
