@@ -4,12 +4,19 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import RestaurantScreen from '@features/home/screens/RestaurantDetailsScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Main',
+  initialRouteName: 'RestaurantDetails',
   screens: {
     Main: {
       screen: HomeBottomTabs,
+      options: {
+        headerShown: false,
+      },
+    },
+    RestaurantDetails: {
+      screen: RestaurantScreen,
       options: {
         headerShown: false,
       },
