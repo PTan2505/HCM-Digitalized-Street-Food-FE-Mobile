@@ -1,3 +1,4 @@
+import { MapScreen } from '@features/maps/screens/MapScreen';
 import {
   createStaticNavigation,
   StaticParamList,
@@ -5,8 +6,12 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Register',
-  screens: {},
+  initialRouteName: 'Map',
+  screens: {
+    Map: {
+      screen: MapScreen,
+    },
+  },
 });
 
 type RootStackParamList = StaticParamList<typeof RootStack>;
