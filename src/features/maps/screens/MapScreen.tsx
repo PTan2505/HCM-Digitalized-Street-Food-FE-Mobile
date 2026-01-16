@@ -5,9 +5,17 @@ import {
   VendorList,
 } from '@features/maps/components/VendorList';
 import MOCK_VENDORS from '@features/maps/constants/mockData';
+import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import type { JSX } from 'react';
 import React, { useRef, useState } from 'react';
-import { FlatList, View, ViewToken } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewToken,
+} from 'react-native';
 import MapView from 'react-native-maps';
 
 export const MapScreen = (): JSX.Element => {
@@ -15,6 +23,7 @@ export const MapScreen = (): JSX.Element => {
   const flatListRef = useRef<FlatList>(null);
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
   const isMarkerPressRef = useRef(false);
+  const { permissionStatus, retryPermission } = useLocationPermission();
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -74,6 +83,39 @@ export const MapScreen = (): JSX.Element => {
       }, 500);
     }
   };
+
+  if (permissionStatus === 'loading') {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#a1d973" />
+        <Text className="mt-4 text-base text-[#666]">
+          Đang yêu cầu quyền truy cập vị trí...
+        </Text>
+      </View>
+    );
+  }
+
+  if (permissionStatus === 'denied') {
+    return (
+      <View className="flex-1 items-center justify-center bg-white px-6">
+        <Text className="mb-2 text-xl font-bold text-[#333]">
+          Cần quyền truy cập vị trí
+        </Text>
+        <Text className="mb-6 text-center text-base text-[#666]">
+          Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ và các quán ăn
+          gần bạn.
+        </Text>
+        <TouchableOpacity
+          className="rounded-lg bg-[#a1d973] px-6 py-3"
+          onPress={retryPermission}
+        >
+          <Text className="text-base font-semibold text-white">
+            Cấp quyền truy cập
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1">

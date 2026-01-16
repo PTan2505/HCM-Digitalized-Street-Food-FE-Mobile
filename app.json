@@ -12,8 +12,28 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+          "locationWhenInUsePermission": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ]
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location to show nearby street food vendors.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location to show nearby street food vendors."
+      }
+    },
+    "locales": {
+      "vi": {
+        "NSLocationWhenInUseUsageDescription": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +41,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png",
