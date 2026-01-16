@@ -18,6 +18,8 @@ const MOCK_VENDORS = [
     avgRating: 4.8,
     isActive: true,
     isSubscribed: true,
+    imageUrl:
+      'https://r2.nucuoimekong.com/wp-content/uploads/cac-quan-an-ngon-o-sai-gon.jpg',
   },
   {
     vendorId: 'v002',
@@ -38,6 +40,8 @@ const MOCK_VENDORS = [
     avgRating: 4.5,
     isActive: true,
     isSubscribed: false,
+    imageUrl:
+      'https://r2.nucuoimekong.com/wp-content/uploads/cac-quan-an-ngon-o-sai-gon.jpg',
   },
   {
     vendorId: 'v003',
@@ -58,6 +62,8 @@ const MOCK_VENDORS = [
     avgRating: 4.2,
     isActive: true,
     isSubscribed: false,
+    imageUrl:
+      'https://r2.nucuoimekong.com/wp-content/uploads/cac-quan-an-ngon-o-sai-gon.jpg',
   },
   {
     vendorId: 'v004',
@@ -78,6 +84,8 @@ const MOCK_VENDORS = [
     avgRating: 4.6,
     isActive: true,
     isSubscribed: true,
+    imageUrl:
+      'https://r2.nucuoimekong.com/wp-content/uploads/cac-quan-an-ngon-o-sai-gon.jpg',
   },
   {
     vendorId: 'v005',
@@ -98,6 +106,8 @@ const MOCK_VENDORS = [
     avgRating: 4.0,
     isActive: true,
     isSubscribed: false,
+    imageUrl:
+      'https://r2.nucuoimekong.com/wp-content/uploads/cac-quan-an-ngon-o-sai-gon.jpg',
   },
   {
     vendorId: 'v006',
@@ -118,6 +128,8 @@ const MOCK_VENDORS = [
     avgRating: 4.3,
     isActive: false, // Closed today maybe?
     isSubscribed: false,
+    imageUrl:
+      'https://r2.nucuoimekong.com/wp-content/uploads/cac-quan-an-ngon-o-sai-gon.jpg',
   },
 ];
 

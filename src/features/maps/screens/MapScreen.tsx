@@ -10,6 +10,7 @@ import type { JSX } from 'react';
 import React, { useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   Text,
   TouchableOpacity,
@@ -17,6 +18,10 @@ import {
   ViewToken,
 } from 'react-native';
 import MapView from 'react-native-maps';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+// Approximate card height: 192 (image) + 64 (gallery) + 120 (info) + 24 (padding) = 400
+const CARD_HEIGHT = 400;
 
 export const MapScreen = (): JSX.Element => {
   const mapRef = useRef<MapView>(null);
@@ -33,11 +38,17 @@ export const MapScreen = (): JSX.Element => {
 
         // Only animate map if it's not from a marker press
         if (!isMarkerPressRef.current) {
+          // Calculate offset to center marker in visible map area
+          const latitudeDelta = 0.02;
+          // Offset the latitude so marker appears centered in visible area
+          const latitudeOffset =
+            (latitudeDelta * CARD_HEIGHT) / (SCREEN_HEIGHT * 2);
+
           mapRef.current?.animateToRegion(
             {
-              latitude: vendor.lat,
+              latitude: vendor.lat - latitudeOffset,
               longitude: vendor.long,
-              latitudeDelta: 0.02,
+              latitudeDelta: latitudeDelta,
               longitudeDelta: 0.02,
             },
             350
@@ -60,12 +71,17 @@ export const MapScreen = (): JSX.Element => {
       // Set flag to prevent onViewableItemsChanged from animating the map
       isMarkerPressRef.current = true;
 
-      // Animate map directly to the vendor
+      // Calculate offset to center marker in visible map area
+      const latitudeDelta = 0.02;
+      const latitudeOffset =
+        (latitudeDelta * CARD_HEIGHT) / (SCREEN_HEIGHT * 2);
+
+      // Animate map directly to the vendor with offset
       mapRef.current?.animateToRegion(
         {
-          latitude: vendor.lat,
+          latitude: vendor.lat - latitudeOffset,
           longitude: vendor.long,
-          latitudeDelta: 0.02,
+          latitudeDelta: latitudeDelta,
           longitudeDelta: 0.02,
         },
         350
