@@ -7,7 +7,10 @@ import {
   Image,
   TouchableOpacity,
   StatusBar,
+  Dimensions,
 } from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
+import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import SamplePlace from '@assets/SamplePlace.jpg';
@@ -21,8 +24,13 @@ import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/RestaurantInfo';
 
+const width = Dimensions.get('window').width;
+
 const RestaurantScreen: () => JSX.Element = () => {
   const [activeTab, setActiveTab] = useState<TabType>('menu');
+  const progress = useSharedValue<number>(0);
+
+  const restaurantBanners = [SamplePlace, SamplePlace, SamplePlace];
 
   const restaurantInfo: RestaurantInfoData = {
     name: 'Tiệm mì Chan Chan',
@@ -135,15 +143,45 @@ const RestaurantScreen: () => JSX.Element = () => {
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        automaticallyAdjustContentInsets={false}
       >
         {/* Header Image */}
-        <View className="relative h-[200px]">
-          <Image
-            source={SamplePlace}
-            className="h-full w-full"
-            resizeMode="cover"
+        <View className="relative h-[300px]">
+          <Carousel
+            data={restaurantBanners}
+            onProgressChange={progress}
+            renderItem={({ index }) => (
+              <View className="flex flex-1 justify-center">
+                <Image
+                  source={restaurantBanners[index]}
+                  style={{ width: width, height: 300 }}
+                  resizeMode="cover"
+                />
+              </View>
+            )}
           />
+          <View className="absolute bottom-3 w-full items-center">
+            <Pagination.Basic
+              progress={progress}
+              data={restaurantBanners}
+              size={10}
+              dotStyle={{
+                borderRadius: 100,
+                backgroundColor: '#262626',
+              }}
+              activeDotStyle={{
+                borderRadius: 100,
+                overflow: 'hidden',
+                backgroundColor: '#f1f1f1',
+              }}
+              containerStyle={[
+                {
+                  gap: 5,
+                  marginBottom: 10,
+                },
+              ]}
+              horizontal
+            />
+          </View>
           <TouchableOpacity className="absolute left-3 top-12 h-9 w-9 items-center justify-center rounded-full bg-black/50">
             <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
