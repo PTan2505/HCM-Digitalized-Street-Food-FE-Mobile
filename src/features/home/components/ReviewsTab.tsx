@@ -4,9 +4,12 @@ import {
   Text,
   ScrollView,
   Image,
+  Dimensions,
   type ImageSourcePropType,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSharedValue } from 'react-native-reanimated';
+import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 
 export interface Review {
   id: string;
@@ -21,9 +24,24 @@ interface ReviewsTabProps {
   reviews: Review[];
 }
 
+const width = Dimensions.get('window').width;
+
 const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
+  const progress = useSharedValue<number>(0);
+
   const renderReview = (review: Review): JSX.Element => (
-    <View key={review.id} className="mb-5 border-b border-gray-200 pb-5">
+    <View
+      key={review.id}
+      className="mx-2 rounded-2xl bg-white p-4"
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+        minHeight: 220,
+      }}
+    >
       <View className="mb-3 flex-row items-center">
         <View className="mr-3">
           <Ionicons name="person-circle-outline" size={40} color="#ccc" />
@@ -64,8 +82,8 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
     <View className="p-4">
       {/* Rating Overview */}
       <View className="mb-6 flex-row gap-5">
-        <View className="items-center justify-center">
-          <View>
+        <View className="justify-center">
+          <View className="flex-row justify-start">
             <Text className="text-[16px] font-semibold text-black">
               Bình luận
             </Text>
@@ -74,11 +92,11 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
             <Text className="text-[50px] font-bold text-[#06AA4C]">4.5</Text>
             <Text className="text-base text-gray-600">/ 5.0</Text>
           </View>
-          <Text className="text-black-400 mt-1 text-xs">10 đánh giá</Text>
+          <Text className="text-black-400 ml-2 mt-1 text-xs">10 đánh giá</Text>
         </View>
 
         <View className="flex-1 justify-center">
-          <View>
+          <View className="mb-3 flex-row justify-end">
             <Text className="text-[10px] font-semibold text-gray-600 underline">
               Xem thêm
             </Text>
@@ -137,8 +155,45 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
         </View>
       </View>
 
-      {/* Reviews List */}
-      <View className="mt-2">{reviews.map(renderReview)}</View>
+      {/* Reviews Carousel */}
+      <View className="mt-2">
+        <Carousel
+          style={{
+            width: width - 32,
+            height: 240,
+          }}
+          data={reviews}
+          onProgressChange={progress}
+          mode="parallax"
+          modeConfig={{
+            parallaxScrollingScale: 0.95,
+            parallaxScrollingOffset: 30,
+          }}
+          loop={true}
+          renderItem={({ item }) => renderReview(item)}
+        />
+        <Pagination.Basic
+          progress={progress}
+          data={reviews}
+          size={10}
+          dotStyle={{
+            borderRadius: 100,
+            backgroundColor: '#262626',
+          }}
+          activeDotStyle={{
+            borderRadius: 100,
+            overflow: 'hidden',
+            backgroundColor: '#06AA4C',
+          }}
+          containerStyle={[
+            {
+              gap: 5,
+              marginBottom: 10,
+            },
+          ]}
+          horizontal
+        />
+      </View>
     </View>
   );
 };

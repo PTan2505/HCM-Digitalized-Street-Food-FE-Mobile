@@ -97,6 +97,24 @@ const RestaurantScreen: () => JSX.Element = () => {
         'Đồ ăn quán ngon, vừa miệng, trelệt bài bảng số của tiệm ấm cúng và có hình ảnh đặt...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
+    {
+      id: '3',
+      userName: 'Người dùng',
+      date: '02/09/2025',
+      rating: 4.5,
+      comment:
+        'Quán có không gian rộng rãi, thoáng mát, nhân viên phục vụ nhiệt tình. Món ăn thì rất ngon, đặc biệt là món mì tiềm chay...',
+      images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
+    },
+    {
+      id: '4',
+      userName: 'Người dùng',
+      date: '02/09/2025',
+      rating: 4.5,
+      comment:
+        'Mình rất thích không gian quán, rất yên tĩnh và thoải mái. Món ăn thì ngon, đặc biệt là món mì viên kho Hồng Kông...',
+      images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
+    },
   ];
 
   const nearbyRestaurants: NearbyRestaurant[] = [
