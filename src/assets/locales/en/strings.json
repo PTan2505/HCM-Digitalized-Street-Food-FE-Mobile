@@ -6,5 +6,25 @@
   "setting": "Settings",
   "welcome": "Welcome",
   "language": "Language",
-  "change_language": "Change Language"
+  "change_language": "Change Language",
+  "dietary": {
+    "preferences_title": "Choose your dietary preferences",
+    "preferences_description": "This is support the system can filter food based on your choices",
+    "vegan": "Vegan",
+    "vegan_desc": "No animal products",
+    "vegetarian": "Vegetarian",
+    "vegetarian_desc": "No meat products",
+    "gluten_free": "Gluten-Free",
+    "gluten_free_desc": "No gluten-containing products",
+    "dairy_free": "Dairy-Free",
+    "dairy_free_desc": "No dairy products",
+    "nut_free": "Nut-Free",
+    "nut_free_desc": "No nut products",
+    "halal": "Halal",
+    "halal_desc": "Permissible according to Islamic law",
+    "kosher": "Kosher",
+    "kosher_desc": "Prepared according to Jewish dietary laws",
+    "pescatarian": "Pescatarian",
+    "pescatarian_desc": "Includes fish but no other meat"
+  }
 }

@@ -9,9 +9,10 @@ import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
 import { OTPScreen } from '@features/auth/screens/OTPScreen';
 import { ResetPasswordScreen } from '@features/auth/screens/ResetPasswordScreen';
+import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Auth',
+  initialRouteName: 'DietaryPreferences',
   screens: {
     Auth: {
       screen: AuthScreen,
@@ -35,6 +36,12 @@ const RootStack = createNativeStackNavigator({
         headerShown: false,
       },
     },
+    DietaryPreferences: {
+      screen: DietaryPreferencesScreen,
+      options: {
+        headerShown: false,
+      },
+    },
   },
 });
 
@@ -44,7 +51,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList { }
+    interface RootParamList extends RootStackParamList {}
   }
 }
 
