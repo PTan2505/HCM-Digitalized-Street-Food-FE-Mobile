@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-  Dimensions,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
-import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import SamplePlace from '@assets/SamplePlace.jpg';
@@ -23,8 +14,8 @@ import TabsBar, { type TabType } from '@features/home/components/TabsBar';
 import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/RestaurantInfo';
-
-const width = Dimensions.get('window').width;
+import HeaderImage from '@features/home/components/HeaderImage';
+import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
 
 const RestaurantScreen: () => JSX.Element = () => {
   const [activeTab, setActiveTab] = useState<TabType>('menu');
@@ -140,60 +131,13 @@ const RestaurantScreen: () => JSX.Element = () => {
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
+      <FixedHeaderControls />
+
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Image */}
-        <View className="relative h-[300px]">
-          <Carousel
-            data={restaurantBanners}
-            onProgressChange={progress}
-            renderItem={({ index }) => (
-              <View className="flex flex-1 justify-center">
-                <Image
-                  source={restaurantBanners[index]}
-                  style={{ width: width, height: 300 }}
-                  resizeMode="cover"
-                />
-              </View>
-            )}
-          />
-          <View className="absolute bottom-3 w-full items-center">
-            <Pagination.Basic
-              progress={progress}
-              data={restaurantBanners}
-              size={10}
-              dotStyle={{
-                borderRadius: 100,
-                backgroundColor: '#262626',
-              }}
-              activeDotStyle={{
-                borderRadius: 100,
-                overflow: 'hidden',
-                backgroundColor: '#f1f1f1',
-              }}
-              containerStyle={[
-                {
-                  gap: 5,
-                  marginBottom: 10,
-                },
-              ]}
-              horizontal
-            />
-          </View>
-          <TouchableOpacity className="absolute left-3 top-12 h-9 w-9 items-center justify-center rounded-full bg-black/50">
-            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View className="absolute right-3 top-12 flex-row gap-2">
-            <TouchableOpacity className="h-9 w-9 items-center justify-center rounded-full bg-black/50">
-              <Ionicons name="share-outline" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity className="h-9 w-9 items-center justify-center rounded-full bg-black/50">
-              <Ionicons name="heart-outline" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <HeaderImage images={restaurantBanners} progress={progress} />
 
         <RestaurantInfo restaurant={restaurantInfo} />
 
