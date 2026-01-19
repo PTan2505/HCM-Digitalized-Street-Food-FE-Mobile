@@ -5,9 +5,11 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
+import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
+import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'RestaurantDetails',
+  initialRouteName: 'CurrentPicks',
   screens: {
     Main: {
       screen: HomeBottomTabs,
@@ -17,6 +19,18 @@ const RootStack = createNativeStackNavigator({
     },
     RestaurantDetails: {
       screen: RestaurantDetailsScreen,
+      options: {
+        headerShown: false,
+      },
+    },
+    CurrentPicks: {
+      screen: CurrentPicksScreen,
+      options: {
+        headerShown: false,
+      },
+    },
+    CurrentPickDetails: {
+      screen: CurrentPickDetailsScreen,
       options: {
         headerShown: false,
       },
