@@ -17,7 +17,7 @@ import RestaurantInfo, {
 import HeaderImage from '@features/home/components/HeaderImage';
 import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
 
-const RestaurantScreen: () => JSX.Element = () => {
+const RestaurantDetailsScreen: () => JSX.Element = () => {
   const [activeTab, setActiveTab] = useState<TabType>('menu');
   const progress = useSharedValue<number>(0);
 
@@ -179,4 +179,4 @@ const RestaurantScreen: () => JSX.Element = () => {
   );
 };
 
-export default RestaurantScreen;
+export default RestaurantDetailsScreen;

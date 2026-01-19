@@ -4,7 +4,7 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
-import RestaurantScreen from '@features/home/screens/RestaurantDetailsScreen';
+import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'RestaurantDetails',
@@ -16,7 +16,7 @@ const RootStack = createNativeStackNavigator({
       },
     },
     RestaurantDetails: {
-      screen: RestaurantScreen,
+      screen: RestaurantDetailsScreen,
       options: {
         headerShown: false,
       },
@@ -30,7 +30,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
 
