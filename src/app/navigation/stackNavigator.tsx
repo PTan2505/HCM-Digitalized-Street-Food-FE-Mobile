@@ -5,9 +5,10 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import RestaurantScreen from '@features/home/screens/RestaurantDetailsScreen';
+import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'RestaurantDetails',
+  initialRouteName: 'RestaurantSwipe',
   screens: {
     Main: {
       screen: HomeBottomTabs,
@@ -17,6 +18,12 @@ const RootStack = createNativeStackNavigator({
     },
     RestaurantDetails: {
       screen: RestaurantScreen,
+      options: {
+        headerShown: false,
+      },
+    },
+    RestaurantSwipe: {
+      screen: RestaurantSwipeScreen,
       options: {
         headerShown: false,
       },

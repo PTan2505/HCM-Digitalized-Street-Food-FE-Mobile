@@ -51,7 +51,7 @@ const MenuTab = ({
           {item.name}
         </Text>
         <Text
-          className="text-[13px] leading-[18px] text-gray-400 font-semibold"
+          className="text-[13px] font-semibold leading-[18px] text-gray-400"
           numberOfLines={2}
         >
           {item.description}

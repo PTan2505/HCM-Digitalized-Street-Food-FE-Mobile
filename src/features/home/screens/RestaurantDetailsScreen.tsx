@@ -1,13 +1,6 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-} from 'react-native';
+import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import SamplePlace from '@assets/SamplePlace.jpg';
