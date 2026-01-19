@@ -13,9 +13,14 @@ import TabsBar, { type TabType } from '@features/home/components/TabsBar';
 import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/RestaurantInfo';
+import HeaderImage from '@features/home/components/HeaderImage';
+import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
 
-const RestaurantScreen: () => JSX.Element = () => {
+const RestaurantDetailsScreen: () => JSX.Element = () => {
   const [activeTab, setActiveTab] = useState<TabType>('menu');
+  const progress = useSharedValue<number>(0);
+
+  const restaurantBanners = [SamplePlace, SamplePlace, SamplePlace];
 
   const restaurantInfo: RestaurantInfoData = {
     name: 'Tiệm mì Chan Chan',
@@ -91,6 +96,24 @@ const RestaurantScreen: () => JSX.Element = () => {
         'Đồ ăn quán ngon, vừa miệng, trelệt bài bảng số của tiệm ấm cúng và có hình ảnh đặt...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
+    {
+      id: '3',
+      userName: 'Người dùng',
+      date: '02/09/2025',
+      rating: 4.5,
+      comment:
+        'Quán có không gian rộng rãi, thoáng mát, nhân viên phục vụ nhiệt tình. Món ăn thì rất ngon, đặc biệt là món mì tiềm chay...',
+      images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
+    },
+    {
+      id: '4',
+      userName: 'Người dùng',
+      date: '02/09/2025',
+      rating: 4.5,
+      comment:
+        'Mình rất thích không gian quán, rất yên tĩnh và thoải mái. Món ăn thì ngon, đặc biệt là món mì viên kho Hồng Kông...',
+      images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
+    },
   ];
 
   const nearbyRestaurants: NearbyRestaurant[] = [
@@ -125,30 +148,13 @@ const RestaurantScreen: () => JSX.Element = () => {
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
+      <FixedHeaderControls />
+
       <ScrollView
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        automaticallyAdjustContentInsets={false}
       >
-        {/* Header Image */}
-        <View className="relative h-[200px]">
-          <Image
-            source={SamplePlace}
-            className="h-full w-full"
-            resizeMode="cover"
-          />
-          <TouchableOpacity className="absolute left-3 top-12 h-9 w-9 items-center justify-center rounded-full bg-black/50">
-            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View className="absolute right-3 top-12 flex-row gap-2">
-            <TouchableOpacity className="h-9 w-9 items-center justify-center rounded-full bg-black/50">
-              <Ionicons name="share-outline" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity className="h-9 w-9 items-center justify-center rounded-full bg-black/50">
-              <Ionicons name="heart-outline" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <HeaderImage images={restaurantBanners} progress={progress} />
 
         <RestaurantInfo restaurant={restaurantInfo} />
 
@@ -172,4 +178,4 @@ const RestaurantScreen: () => JSX.Element = () => {
   );
 };
 
-export default RestaurantScreen;
+export default RestaurantDetailsScreen;

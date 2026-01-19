@@ -17,7 +17,19 @@ const RootStack = createNativeStackNavigator({
       },
     },
     RestaurantDetails: {
-      screen: RestaurantScreen,
+      screen: RestaurantDetailsScreen,
+      options: {
+        headerShown: false,
+      },
+    },
+    CurrentPicks: {
+      screen: CurrentPicksScreen,
+      options: {
+        headerShown: false,
+      },
+    },
+    CurrentPickDetails: {
+      screen: CurrentPickDetailsScreen,
       options: {
         headerShown: false,
       },
@@ -37,7 +49,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
 
