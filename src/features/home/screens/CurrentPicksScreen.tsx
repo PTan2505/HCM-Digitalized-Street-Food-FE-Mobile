@@ -97,7 +97,7 @@ const CurrentPicksScreen = () => {
                         </View>
 
                         <TouchableOpacity className="p-2 ml-2">
-                            <Ionicons name="share-outline" size={24} color="#000" />
+                            <Ionicons name="share-social-outline" size={24} color="#000" />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -105,7 +105,7 @@ const CurrentPicksScreen = () => {
 
             {/* Add Button */}
             <TouchableOpacity
-                className="absolute bottom-5 right-5 bg-[#EE6612] flex-row items-center py-3.5 px-6 rounded-[8px]"
+                className="absolute bottom-5 right-5 bg-[#EE6612] flex-row items-center py-3 px-6 rounded-[8px]"
             >
                 <Ionicons name="add" size={24} color="#fff" />
                 <Text className="text-white text-base font-semibold ml-2">Thêm mới</Text>

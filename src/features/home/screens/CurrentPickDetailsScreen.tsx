@@ -4,12 +4,11 @@ import {
     Text,
     Image,
     TouchableOpacity,
-    StyleSheet,
-    SafeAreaView,
     StatusBar,
     ScrollView,
 } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Location {
     id: string;
@@ -18,7 +17,6 @@ interface Location {
     distance: string;
     priceRange: string;
     tag: string;
-    tagColor: string;
     image: any;
     likes: number;
     comments: number;
@@ -36,7 +34,6 @@ const CurrentPickDetailsScreen = () => {
             distance: '0.8 km',
             priceRange: 'Từ 150k đến 200k',
             tag: 'Món Việt',
-            tagColor: '#00bfa5',
             image: { uri: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=400' },
             likes: 2,
             comments: 0,
@@ -49,7 +46,6 @@ const CurrentPickDetailsScreen = () => {
             distance: '0.8 km',
             priceRange: 'Từ 150k đến 200k',
             tag: 'Món Việt',
-            tagColor: '#00bfa5',
             image: { uri: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400' },
             likes: 2,
             comments: 1,
@@ -61,7 +57,39 @@ const CurrentPickDetailsScreen = () => {
             distance: '0.8 km',
             priceRange: 'Từ 200k đến 500k',
             tag: 'Đi tập nhóm bè',
-            tagColor: '#00bfa5',
+            image: { uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' },
+            likes: 2,
+            comments: 1,
+        },
+        {
+            id: '4',
+            name: 'The Gangs Mac Đĩnh Chi',
+            rating: 4.5,
+            distance: '0.8 km',
+            priceRange: 'Từ 200k đến 500k',
+            tag: 'Đi tập nhóm bè',
+            image: { uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' },
+            likes: 2,
+            comments: 1,
+        },
+        {
+            id: '5',
+            name: 'The Gangs Mac Đĩnh Chi',
+            rating: 4.5,
+            distance: '0.8 km',
+            priceRange: 'Từ 200k đến 500k',
+            tag: 'Đi tập nhóm bè',
+            image: { uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' },
+            likes: 2,
+            comments: 1,
+        },
+        {
+            id: '6',
+            name: 'The Gangs Mac Đĩnh Chi',
+            rating: 4.5,
+            distance: '0.8 km',
+            priceRange: 'Từ 200k đến 500k',
+            tag: 'Đi tập nhóm bè',
             image: { uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400' },
             likes: 2,
             comments: 1,
@@ -69,359 +97,184 @@ const CurrentPickDetailsScreen = () => {
     ];
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
             <StatusBar barStyle="dark-content" />
 
             {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.headerButton}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+            <View className="flex-row justify-between items-center px-4 py-3">
+                <TouchableOpacity className="p-1">
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.headerButton}>
-                    <Ionicons name="ellipsis-horizontal" size={24} color="#000" />
+                <TouchableOpacity className="p-1">
+                    <Ionicons name="ellipsis-horizontal" size={28} color="#000" />
                 </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                {/* Title Section */}
-                <View style={styles.titleSection}>
-                    <Text style={styles.title}>Current Picks #1</Text>
-                    <Text style={styles.subtitle}>3 địa điểm</Text>
+            {/* Title Section */}
+            <View className="px-4 pt-2" style={{
+                shadowColor: '#CAC4C4',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+            }}>
+                <Text className="text-[20px] font-semibold text-black mb-2 leading-[22px]">Current Picks #1</Text>
+                {/* <View
+                    style={{
+                        width: 0,
+                        height: 80, // chiều cao ban đầu (height)
+                        borderTopWidth: 0,
+                        borderBottomWidth: 40, // slantWidth
+                        borderRightWidth: 120, // width - slantWidth
+                        borderStyle: 'solid',
+                        backgroundColor: 'transparent',
+                        borderTopColor: 'transparent',
+                        borderBottomColor: 'transparent',
+                        borderRightColor: '#f59e0b',
+                    }}
+                /> */}
+                <Text className="text-sm text-gray-400 mb-2">3 địa điểm</Text>
 
-                    <View style={styles.statusContainer}>
-                        <Text style={styles.statusText}>Danh sách hết hạn trong</Text>
-                        <View style={styles.timeContainer}>
-                            <View style={styles.timeBadge}>
-                                <Text style={styles.timeText}>04 ngày</Text>
-                            </View>
-                            <Text style={styles.timeSeparator}>:</Text>
-                            <View style={styles.timeBadge}>
-                                <Text style={styles.timeText}>12 tiếng</Text>
-                            </View>
-                            <Text style={styles.timeSeparator}>:</Text>
-                            <View style={styles.timeBadge}>
-                                <Text style={styles.timeText}>21 phút</Text>
-                            </View>
+                <View className="mb-3 flex-row justify-between items-center">
+                    <Text className="text-sm text-[#086524] font-medium mr-2">Danh sách hết hạn trong</Text>
+                    <View className="flex-row items-center">
+                        <View className="rounded-md border-[0.95px] border-[#1D7518] bg-white w-[49px] h-[18px] items-center justify-center">
+                            <Text className="text-[9.45px] text-[#1D7518] font-semibold leading-[100%]">04 ngày</Text>
+                        </View>
+                        <Text className="text-sm text-[#1D7518] font-semibold mx-1.5">:</Text>
+                        <View className="rounded-md border-[0.95px] border-[#1D7518] bg-white w-[49px] h-[18px] items-center justify-center">
+                            <Text className="text-[9.45px] text-[#1D7518] font-semibold leading-[100%]">12 tiếng</Text>
+                        </View>
+                        <Text className="text-sm text-[#1D7518] font-semibold mx-1.5">:</Text>
+                        <View className="rounded-md border-[0.95px] border-[#1D7518] bg-white w-[49px] h-[18px] items-center justify-center">
+                            <Text className="text-[9.45px] text-[#1D7518] font-semibold leading-[100%]">21 phút</Text>
                         </View>
                     </View>
                 </View>
+            </View>
 
+            <View
+                className="flex-1 bg-[#f9f9f9]"
+                style={{
+                    shadowColor: '#D9D9D933',
+                    shadowOffset: { width: 0, height: -4 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    elevation: 5,
+                }}
+            >
                 {/* Action Buttons */}
-                <View style={styles.actionButtons}>
-                    <TouchableOpacity style={styles.actionButton}>
-                        <MaterialIcons name="restaurant-menu" size={20} color="#000" />
-                        <Text style={styles.actionButtonText}>Bản đồ</Text>
+                <View className="flex-row px-4 mb-5 gap-2 mt-4">
+                    <TouchableOpacity
+                        className="flex-row items-center justify-center rounded-[16px] bg-[#FFFFFF] gap-1.5 w-[87px] h-[26px]"
+                        style={{
+                            shadowColor: '#CAC4C4',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 5,
+                        }}
+                    >
+                        <Ionicons name="map-outline" size={20} color="#000" />
+                        <Text className="text-[12px] text-black font-medium">Bản đồ</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.actionButton}>
-                        <Ionicons name="share-outline" size={20} color="#000" />
-                        <Text style={styles.actionButtonText}>Chia sẻ</Text>
+                    <TouchableOpacity
+                        className="flex-row items-center justify-center rounded-[16px] bg-[#FFFFFF] gap-1.5 w-[87px] h-[26px]"
+                        style={{
+                            shadowColor: '#CAC4C4',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 5,
+                        }}
+                    >
+                        <Ionicons name="share-social-outline" size={20} color="#000" />
+                        <Text className="text-[12px] text-black font-medium">Chia sẻ</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.actionButtonPrimary}>
-                        <Ionicons name="bed-outline" size={20} color="#00a86b" />
-                        <Text style={styles.actionButtonPrimaryText}>Chọn ngẫu nhiên</Text>
+                    <TouchableOpacity
+                        className="flex-1 flex-row items-center justify-center rounded-[16px] border-[1px] border-[#1D7518] bg-white gap-1.5 h-[26px]"
+                        style={{
+                            shadowColor: '#CAC4C4',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 5,
+                        }}
+                    >
+                        <Ionicons name="dice-outline" size={20} color="#1D7518" />
+                        <Text className="text-[12px] text-black font-medium">Chọn ngẫu nhiên</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* List Header */}
-                <View style={styles.listHeader}>
-                    <Text style={styles.listTitle}>Danh sách địa điểm</Text>
-                    <TouchableOpacity style={styles.sortButton}>
-                        <MaterialIcons name="sort" size={20} color="#666" />
-                        <Text style={styles.sortText}>Sắp xếp theo</Text>
+                <View className="flex-row justify-between items-center px-4 mb-4">
+                    <Text className="text-[16px] font-semibold text-black">Danh sách địa điểm</Text>
+                    <TouchableOpacity className="flex-row items-center justify-center rounded-[16px] bg-[#ECECEC] gap-1.5 w-[97px] h-[26px]">
+                        <Ionicons name="options-outline" size={14} color="#666" />
+                        <Text className="text-[10px] text-gray-600">Sắp xếp theo</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Locations List */}
-                <View style={styles.locationsList}>
+                <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
                     {locations.map((location) => (
-                        <View key={location.id} style={styles.locationCard}>
-                            <View style={styles.locationImageContainer}>
-                                {location.isTopPick && (
-                                    <View style={styles.topPickBadge}>
-                                        <Text style={styles.topPickText}>Top pick</Text>
+                        <View key={location.id} className="flex-row mb-5 bg-white py-[8px] relative px-3 rounded-[16px]">
+                            {location.isTopPick && (
+                                <>
+                                    <View className="absolute top-3 -left-2 bg-[#ff6b35] px-3 py-1 rounded-tr rounded-br z-10">
+                                        <Text className="text-[10px] text-white font-semibold">Top pick</Text>
                                     </View>
-                                )}
-                                <Image source={location.image} style={styles.locationImage} />
+                                </>
+                            )}
+                            <View className="mr-3">
+                                <Image source={location.image} className="w-[99px] h-[99px] rounded-xl bg-gray-100" />
                             </View>
 
-                            <View style={styles.locationInfo}>
-                                <Text style={styles.locationName}>{location.name}</Text>
+                            <View className="flex-1 justify-start">
+                                <Text className="text-[16px] font-semibold text-black mb-1.5">{location.name}</Text>
 
-                                <View style={styles.locationMeta}>
+                                <View className="flex-row items-center mb-1.5">
                                     <Ionicons name="star" size={14} color="#ffc107" />
-                                    <Text style={styles.ratingText}>{location.rating}</Text>
-                                    <Text style={styles.metaSeparator}>·</Text>
-                                    <Text style={styles.distanceText}>{location.distance}</Text>
+                                    <Text className="text-[13px] text-[#ffc107] ml-1 font-medium">{location.rating}</Text>
+                                    <Text className="text-[13px] text-gray-400 mx-1.5">·</Text>
+                                    <Text className="text-[13px] text-[#979797]">{location.distance}</Text>
                                 </View>
 
-                                <View style={styles.priceContainer}>
-                                    <Ionicons name="diamond-outline" size={14} color="#00bfa5" />
-                                    <Text style={styles.priceText}>{location.priceRange}</Text>
+                                <View className="flex-row items-center mb-2 gap-1">
+                                    <Ionicons name="pricetag-outline" size={14} color="#06AA4C" />
+                                    <Text className="text-[14px] text-[#06AA4C] font-bold">{location.priceRange}</Text>
                                 </View>
 
-                                <View style={styles.tagContainer}>
-                                    <View style={[styles.tag, { backgroundColor: location.tagColor }]}>
-                                        <Text style={styles.tagText}>{location.tag}</Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.engagementBar}>
-                                    <View style={styles.engagementItem}>
-                                        <Ionicons name="thumbs-up-outline" size={16} color="#666" />
-                                        <Text style={styles.engagementText}>{location.likes}</Text>
-                                    </View>
-                                    <View style={styles.engagementItem}>
-                                        <Ionicons name="chatbubble-outline" size={16} color="#666" />
-                                        <Text style={styles.engagementText}>{location.comments}</Text>
+                                <View className="flex-row">
+                                    <View className="px-2.5 py-1 rounded-[16px] bg-[#06AA4C]">
+                                        <Text className="text-[11px] text-white font-medium">{location.tag}</Text>
                                     </View>
                                 </View>
                             </View>
 
-                            <TouchableOpacity style={styles.bookmarkButton}>
-                                <Ionicons name="bookmark" size={24} color="#ff6b35" />
+                            <TouchableOpacity className="w-[22px] h-[22px] rounded-full bg-[#EE6612CC] items-center justify-center absolute top-3 right-3">
+                                <Ionicons name="bookmark" size={12} color="white" />
                             </TouchableOpacity>
+
+                            <View className="flex-row items-center justify-center gap-2 absolute bottom-3 right-3 bg-[#F3F3F2] rounded-[33.33px] w-[65.625] h-[18.75]">
+                                <View className="flex-row items-center gap-1">
+                                    <Ionicons name="thumbs-up-outline" size={10.42} color="black" />
+                                    <Text className="text-[10.42px] text-black">{location.likes}</Text>
+                                </View>
+                                <View className="w-[1px] h-[12px] bg-gray-400" />
+                                <View className="flex-row items-center gap-1">
+                                    <Ionicons name="chatbubble-outline" size={10.42} color="black" />
+                                    <Text className="text-[10.42px] text-black">{location.comments}</Text>
+                                </View>
+                            </View>
                         </View>
                     ))}
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-    },
-    headerButton: {
-        padding: 4,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    titleSection: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#000',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 14,
-        color: '#999',
-        marginBottom: 12,
-    },
-    statusContainer: {
-        marginBottom: 20,
-    },
-    statusText: {
-        fontSize: 14,
-        color: '#00a86b',
-        marginBottom: 8,
-        fontWeight: '500',
-    },
-    timeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    timeBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 6,
-        borderWidth: 1.5,
-        borderColor: '#4caf50',
-        backgroundColor: '#fff',
-    },
-    timeText: {
-        fontSize: 12,
-        color: '#4caf50',
-        fontWeight: '500',
-    },
-    timeSeparator: {
-        fontSize: 14,
-        color: '#4caf50',
-        fontWeight: '600',
-        marginHorizontal: 6,
-    },
-    actionButtons: {
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        marginBottom: 20,
-        gap: 8,
-    },
-    actionButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        backgroundColor: '#fff',
-        gap: 6,
-    },
-    actionButtonText: {
-        fontSize: 14,
-        color: '#000',
-        fontWeight: '500',
-    },
-    actionButtonPrimary: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#00a86b',
-        backgroundColor: '#fff',
-        gap: 6,
-    },
-    actionButtonPrimaryText: {
-        fontSize: 14,
-        color: '#00a86b',
-        fontWeight: '500',
-    },
-    listHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        marginBottom: 16,
-    },
-    listTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#000',
-    },
-    sortButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    sortText: {
-        fontSize: 14,
-        color: '#666',
-    },
-    locationsList: {
-        paddingHorizontal: 16,
-    },
-    locationCard: {
-        flexDirection: 'row',
-        marginBottom: 20,
-        backgroundColor: '#fff',
-    },
-    locationImageContainer: {
-        position: 'relative',
-        marginRight: 12,
-    },
-    topPickBadge: {
-        position: 'absolute',
-        top: 8,
-        left: 8,
-        backgroundColor: '#ff6b35',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-        zIndex: 1,
-    },
-    topPickText: {
-        fontSize: 10,
-        color: '#fff',
-        fontWeight: '600',
-    },
-    locationImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 12,
-        backgroundColor: '#f0f0f0',
-    },
-    locationInfo: {
-        flex: 1,
-        justifyContent: 'flex-start',
-    },
-    locationName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#000',
-        marginBottom: 6,
-    },
-    locationMeta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 6,
-    },
-    ratingText: {
-        fontSize: 13,
-        color: '#000',
-        marginLeft: 4,
-        fontWeight: '500',
-    },
-    metaSeparator: {
-        fontSize: 13,
-        color: '#999',
-        marginHorizontal: 6,
-    },
-    distanceText: {
-        fontSize: 13,
-        color: '#666',
-    },
-    priceContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-        gap: 4,
-    },
-    priceText: {
-        fontSize: 13,
-        color: '#00bfa5',
-        fontWeight: '500',
-    },
-    tagContainer: {
-        flexDirection: 'row',
-        marginBottom: 8,
-    },
-    tag: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    tagText: {
-        fontSize: 11,
-        color: '#fff',
-        fontWeight: '600',
-    },
-    engagementBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    engagementItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    engagementText: {
-        fontSize: 13,
-        color: '#666',
-    },
-    bookmarkButton: {
-        padding: 4,
-        alignSelf: 'flex-start',
-    },
-});
 
 export default CurrentPickDetailsScreen;

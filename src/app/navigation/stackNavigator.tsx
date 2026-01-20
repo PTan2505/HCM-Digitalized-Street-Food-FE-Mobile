@@ -9,7 +9,7 @@ import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
 import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'CurrentPicks',
+  initialRouteName: 'CurrentPickDetails',
   screens: {
     Main: {
       screen: HomeBottomTabs,
