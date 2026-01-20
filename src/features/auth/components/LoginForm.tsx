@@ -1,16 +1,20 @@
+import GoogleIcon from '@assets/icons/googleIcon.svg';
+import { CustomButton } from '@auth/components/CustomButton';
+import useGoogleLogin from '@auth/hooks/useGoogleLogin';
 import useLogin from '@auth/hooks/useLogin';
+import type { LoginRequest } from '@auth/types/login';
 import { LoginSchema } from '@auth/utils/loginFormSchema';
 import { CustomInput } from '@components/CustomInput';
+import SvgIcon from '@components/SvgIcon';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
-import { selectUserStatus } from '@slices/auth';
-import type { JSX } from 'react';
-import { View, Text } from 'react-native';
-import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
-import type { LoginRequest } from '@auth/types/login';
-import { CustomButton } from '@auth/components/CustomButton';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { selectUserStatus } from '@slices/auth';
+import { useEffect, type JSX } from 'react';
+import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+import { Alert, Pressable, Text, View } from 'react-native';
 
 const initialValues: LoginRequest = {
   email: '',
@@ -20,7 +24,16 @@ const initialValues: LoginRequest = {
 export const LoginForm = (): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
   const { onLoginSubmit } = useLogin();
+  const { onGoogleLoginSubmit } = useGoogleLogin();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+      offlineAccess: true,
+    });
+  }, []);
 
   const methods = useForm<LoginRequest>({
     defaultValues: initialValues,
@@ -32,6 +45,13 @@ export const LoginForm = (): JSX.Element => {
     await onLoginSubmit(values);
   };
 
+  const handleGoogleLogin = async (): Promise<void> => {
+    try {
+      await onGoogleLoginSubmit();
+    } catch (error) {
+      Alert.alert('Lỗi', 'Đăng nhập Google thất bại: ');
+    }
+  };
   return (
     <FormProvider {...methods}>
       <View className="w-full gap-4 px-5">
@@ -79,7 +99,13 @@ export const LoginForm = (): JSX.Element => {
         </View>
 
         <View className="flex-row justify-center gap-10">
-          <MaterialCommunityIcons name="google" size={40} color="#a1d973" />
+          <Pressable
+            className={`flex-row items-center gap-2 rounded-full bg-white p-2`}
+            onPress={handleGoogleLogin}
+          >
+            <SvgIcon width={20} icon={GoogleIcon} height={20} />
+            <Text>Login with Google</Text>
+          </Pressable>
           <MaterialCommunityIcons name="facebook" size={40} color="#a1d973" />
         </View>
       </View>

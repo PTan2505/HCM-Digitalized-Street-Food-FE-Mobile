@@ -2,6 +2,7 @@ import type { ApiService } from '@config/axiosApiService';
 import {
   APIErrorResponse,
   ApiResponse,
+  BackendResponse,
   ErrorResponse,
 } from '@custom-types/apiResponse';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -9,30 +10,37 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 export interface RawAPIError {
   response?: AxiosResponse<ErrorResponse>;
 }
+
 interface IFormatAxiosResponse {
   formatResponse: <TResponse>(
-    promiseResponse: AxiosResponse<TResponse>
+    promiseResponse: AxiosResponse<BackendResponse<TResponse>>
   ) => ApiResponse<TResponse>;
   formatError: (error: RawAPIError) => APIErrorResponse;
 }
 
 class FormatAxiosResponse implements IFormatAxiosResponse {
   formatResponse<TResponse>(
-    response: AxiosResponse<TResponse>
+    response: AxiosResponse<BackendResponse<TResponse>>
   ): ApiResponse<TResponse> {
+    const backendResponse = response.data;
+
     return {
-      data: response.data,
-      status: response.status,
+      data: backendResponse.data,
+      status: backendResponse.status,
+      message: backendResponse.message,
     };
   }
   formatError(error: RawAPIError): APIErrorResponse {
-    console.error(error.response?.data);
+    const errorData = error.response?.data;
 
     return {
-      code: error.response?.data.errorCode,
-      status: error.response?.status ?? 500,
-      message: error.response?.data.title,
-      fieldErrors: error.response?.data.error ?? [],
+      code: errorData?.errorCode,
+      status: errorData?.status ?? error.response?.status ?? 500,
+      message: errorData?.message,
+      fieldErrors:
+        errorData?.data && typeof errorData.data === 'object'
+          ? (errorData.data as Record<string, string[]>)
+          : undefined,
     };
   }
 }
@@ -50,7 +58,7 @@ export default class ApiClient {
     requestConfig: AxiosRequestConfig<TRequest>
   ): Promise<ApiResponse<TResponse>> {
     try {
-      const res = await this.service.call<TResponse>({
+      const res = await this.service.call<BackendResponse<TResponse>>({
         ...requestConfig,
       });
       return this.formatResponse.formatResponse(res);

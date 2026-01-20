@@ -1,5 +1,5 @@
 import type { LoginRequest } from '@auth/types/login';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useAppDispatch } from '@hooks/reduxHooks';
 import { userLogin } from '@slices/auth';
 
 export default function useLogin(): {

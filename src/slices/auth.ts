@@ -1,18 +1,22 @@
 import type { RootState } from '@app/store';
+import type {
+  ForgetPasswordRequest,
+  ResendForgetPasswordOTPRequest,
+  ResetPasswordRequest,
+} from '@auth/types/forgetPassword';
 import type { LoginRequest, LoginResponse } from '@auth/types/login';
 import type {
   RegisterRequest,
-  VerifyRegistrationRequest,
   ResendRegistrationOTPRequest,
+  VerifyRegistrationRequest,
 } from '@auth/types/register';
-import type {
-  ForgetPasswordRequest,
-  ResetPasswordRequest,
-  ResendForgetPasswordOTPRequest,
-} from '@auth/types/forgetPassword';
 import type { User } from '@custom-types/user';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
+import {
+  GoogleSignin,
+  isErrorWithCode,
+} from '@react-native-google-signin/google-signin';
 import { createSlice } from '@reduxjs/toolkit';
 import { tokenManagement } from '@utils/tokenManagement';
 
@@ -42,8 +46,37 @@ export const userLogin = createAppAsyncThunk(
       await tokenManagement.setTokens({ newAccessToken: loginResponse.token });
 
       const userProfile = await axiosApi.userProfileApi.getUserProfile();
+
       return { loginResponse, userProfile };
     } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const userLoginWithGoogle = createAppAsyncThunk(
+  'auth/loginWithGoogle',
+  async (_, { rejectWithValue }) => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+
+      if (!userInfo.data?.idToken) {
+        throw new Error('No ID token received from Google');
+      }
+      console.log('Google ID token:', userInfo.data?.idToken);
+
+      const { token, user } = await axiosApi.loginApi.loginWithGoogle({
+        idToken: userInfo.data?.idToken,
+      });
+
+      await tokenManagement.setTokens({ newAccessToken: token });
+
+      return { user };
+    } catch (error) {
+      if (isErrorWithCode(error)) {
+        console.log('Google sign-in error code:', error.code);
+      }
       return rejectWithValue(error);
     }
   }
@@ -145,14 +178,32 @@ export const resendForgetPasswordOTP = createAppAsyncThunk(
   }
 );
 
+export const userLogout = createAppAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      try {
+        await GoogleSignin.signOut();
+      } catch (googleError) {
+        console.log(
+          'Google signOut failed (user likely already out):',
+          googleError
+        );
+      }
+
+      await tokenManagement.clearTokens();
+
+      return null;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    logout: () => {
-      void tokenManagement.clearTokens();
-      return initialState;
-    },
     clearError: (state) => {
       state.error = null;
     },
@@ -178,6 +229,19 @@ export const authSlice = createSlice({
       .addCase(userLogin.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload ?? { message: 'Login failed' };
+      })
+      // Google login cases
+      .addCase(userLoginWithGoogle.pending, (state) => {
+        state.status = 'pending';
+        state.error = null;
+      })
+      .addCase(userLoginWithGoogle.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.value = action.payload.user;
+      })
+      .addCase(userLoginWithGoogle.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload ?? { message: 'Google login failed' };
       })
       // Load user from storage cases
       .addCase(loadUserFromStorage.pending, (state) => {
@@ -276,17 +340,25 @@ export const authSlice = createSlice({
         state.error = action.payload ?? {
           message: 'Resend forget password OTP failed',
         };
+      })
+      // Logout cases
+      .addCase(userLogout.pending, (state) => {
+        state.status = 'pending';
+        state.error = null;
+      })
+      .addCase(userLogout.fulfilled, () => {
+        return initialState;
+      })
+      .addCase(userLogout.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload ?? { message: 'Logout failed' };
       });
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {
-  logout,
-  clearError,
-  clearRegisterEmail,
-  clearForgetPasswordEmail,
-} = authSlice.actions;
+export const { clearError, clearRegisterEmail, clearForgetPasswordEmail } =
+  authSlice.actions;
 
 export default authSlice.reducer;
 
