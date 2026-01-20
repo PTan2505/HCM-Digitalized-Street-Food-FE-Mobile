@@ -3,6 +3,7 @@
     "name": "hcm-digitalized-street-food-fe-mobile",
     "slug": "hcm-digitalized-street-food-fe-mobile",
     "version": "1.0.0",
+    "owner": "street-food",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
