@@ -19,7 +19,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { createSlice } from '@reduxjs/toolkit';
 import { tokenManagement } from '@utils/tokenManagement';
-import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
+import { AccessToken, LoginManager, Profile } from 'react-native-fbsdk-next';
 
 export interface AuthState {
   value: User | null;
@@ -98,6 +98,8 @@ export const userLoginWithFacebook = createAppAsyncThunk(
       console.log(result);
 
       const data = await AccessToken.getCurrentAccessToken();
+      const currentProfile = await Profile.getCurrentProfile();
+      console.log(currentProfile);
 
       if (!data?.accessToken) {
         throw new Error('No access token received from Facebook');

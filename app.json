@@ -21,7 +21,7 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads and improve your login experience."
+        "NSUserTrackingUsageDescription": "This identifier ensures a secure login experience."
       }
     },
     "android": {
@@ -31,8 +31,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "usesCleartextTraffic": true
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -59,10 +58,22 @@
           "scheme": "fb702936619420508",
           "advertiserIDCollectionEnabled": false,
           "autoLogAppEventsEnabled": false,
-          "isAutoInitEnabled": true
+          "isAutoInitEnabled": true,
+          "iosUserTrackingPermission": "This identifier ensures a secure login experience."
         }
       ],
-      "expo-tracking-transparency"
+      "expo-tracking-transparency",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          },
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
     ]
   }
 }
