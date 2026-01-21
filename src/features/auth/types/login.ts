@@ -9,6 +9,10 @@ export interface LoginWithGoogleRequest {
   idToken: string;
 }
 
+export interface LoginWithFacebookRequest {
+  accessToken: string;
+}
+
 export interface LoginResponse {
   message?: string;
   token: string;

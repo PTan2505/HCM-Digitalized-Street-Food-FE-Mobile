@@ -19,6 +19,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { createSlice } from '@reduxjs/toolkit';
 import { tokenManagement } from '@utils/tokenManagement';
+import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 
 export interface AuthState {
   value: User | null;
@@ -77,6 +78,42 @@ export const userLoginWithGoogle = createAppAsyncThunk(
       if (isErrorWithCode(error)) {
         console.log('Google sign-in error code:', error.code);
       }
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const userLoginWithFacebook = createAppAsyncThunk(
+  'auth/loginWithFacebook',
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await LoginManager.logInWithPermissions([
+        'public_profile',
+        'email',
+      ]);
+
+      if (result.isCancelled) {
+        throw new Error('User cancelled Facebook login');
+      }
+      console.log(result);
+
+      const data = await AccessToken.getCurrentAccessToken();
+
+      if (!data?.accessToken) {
+        throw new Error('No access token received from Facebook');
+      }
+
+      console.log('Facebook access token:', data.accessToken);
+
+      // const { token, user } = await axiosApi.loginApi.loginWithFacebook({
+      //   accessToken: data.accessToken,
+      // });
+
+      // await tokenManagement.setTokens({ newAccessToken: token });
+
+      // return { data };
+    } catch (error) {
+      console.log('Facebook sign-in error:', error);
       return rejectWithValue(error);
     }
   }
@@ -182,13 +219,18 @@ export const userLogout = createAppAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
+      // Sign out from Google
       try {
         await GoogleSignin.signOut();
       } catch (googleError) {
-        console.log(
-          'Google signOut failed (user likely already out):',
-          googleError
-        );
+        console.log('Google signOut failed:', googleError);
+      }
+
+      // Sign out from Facebook
+      try {
+        LoginManager.logOut();
+      } catch (facebookError) {
+        console.log('Facebook logout failed:', facebookError);
       }
 
       await tokenManagement.clearTokens();
@@ -242,6 +284,19 @@ export const authSlice = createSlice({
       .addCase(userLoginWithGoogle.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload ?? { message: 'Google login failed' };
+      })
+      // Facebook login cases
+      .addCase(userLoginWithFacebook.pending, (state) => {
+        state.status = 'pending';
+        state.error = null;
+      })
+      .addCase(userLoginWithFacebook.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // state.value = action.payload.user;
+      })
+      .addCase(userLoginWithFacebook.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload ?? { message: 'Facebook login failed' };
       })
       // Load user from storage cases
       .addCase(loadUserFromStorage.pending, (state) => {

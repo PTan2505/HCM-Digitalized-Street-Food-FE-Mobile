@@ -1,6 +1,6 @@
 export const apiUrl = {
   auth: {
-    // facebook: '/Auth/facebook-login',
+    facebookLogin: '/Auth/facebook-login',
     login: '/Auth/login',
     googleLogin: '/Auth/google-login',
     profile: '/Auth/profile',

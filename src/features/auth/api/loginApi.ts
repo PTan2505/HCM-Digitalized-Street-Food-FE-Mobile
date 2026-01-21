@@ -1,6 +1,7 @@
 import type {
   LoginRequest,
   LoginResponse,
+  LoginWithFacebookRequest,
   LoginWithGoogleRequest,
 } from '@auth/types/login';
 import type ApiClient from '@lib/api/apiClient';
@@ -26,6 +27,17 @@ export class LoginApi {
     let res = null;
     res = await this.apiClient.post<LoginResponse, LoginWithGoogleRequest>({
       url: apiUrl.auth.googleLogin,
+      data,
+    });
+    return res.data;
+  }
+
+  async loginWithFacebook(
+    data: LoginWithFacebookRequest
+  ): Promise<LoginResponse> {
+    let res = null;
+    res = await this.apiClient.post<LoginResponse, LoginWithFacebookRequest>({
+      url: apiUrl.auth.facebookLogin,
       data,
     });
     return res.data;

@@ -8,6 +8,7 @@ interface CustomButtonProps {
   text: string;
   loadingText?: string;
   className?: string;
+  children?: React.ReactNode;
 }
 
 export const CustomButton = ({
@@ -17,6 +18,7 @@ export const CustomButton = ({
   text,
   loadingText,
   className = '',
+  children,
 }: CustomButtonProps): JSX.Element => {
   const isDisabled = disabled || isLoading;
 
@@ -29,6 +31,7 @@ export const CustomButton = ({
         isDisabled ? 'opacity-60' : ''
       } ${className}`.trim()}
     >
+      {children}
       <Text className="title-medium font-semibold text-[#F8F8FF]">
         {isLoading && loadingText ? loadingText : text}
       </Text>
