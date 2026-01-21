@@ -1,5 +1,7 @@
-// plugins/withAndroidDebugKeystore.ts
-import { ConfigPlugin, withAppBuildGradle } from '@expo/config-plugins';
+/* eslint-disable no-undef */
+// plugins/withAndroidDebugKeystore.cjs
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { withAppBuildGradle } = require('@expo/config-plugins');
 
 // THÔNG TIN KEYSTORE TỪ EAS (Đã điền sẵn)
 const KEYSTORE_CONFIG = {
@@ -9,7 +11,7 @@ const KEYSTORE_CONFIG = {
   keyPassword: '442a3e9a71b78e21fac6ef9877a5bfc9',
 };
 
-const withAndroidDebugKeystore: ConfigPlugin = (config) => {
+const withAndroidDebugKeystore = (config) => {
   return withAppBuildGradle(config, (config) => {
     if (config.modResults.language === 'groovy') {
       const buildGradle = config.modResults.contents;
@@ -41,4 +43,4 @@ const withAndroidDebugKeystore: ConfigPlugin = (config) => {
   });
 };
 
-export default withAndroidDebugKeystore;
+module.exports = withAndroidDebugKeystore;

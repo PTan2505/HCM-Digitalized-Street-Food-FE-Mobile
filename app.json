@@ -77,7 +77,7 @@
       ],
       "expo-font",
       "expo-system-ui",
-      "./plugins/withAndroidDebugKeystore"
+      "./plugins/withAndroidDebugKeystore.cjs"
     ]
   }
 }
