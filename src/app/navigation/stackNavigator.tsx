@@ -9,6 +9,7 @@ import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
 import { OTPScreen } from '@features/auth/screens/OTPScreen';
 import { ResetPasswordScreen } from '@features/auth/screens/ResetPasswordScreen';
+import ProfileScreen from '@features/user/screens/ProfileScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
@@ -31,6 +32,12 @@ const RootStack = createNativeStackNavigator({
     },
     Main: {
       screen: HomeBottomTabs,
+      options: {
+        headerShown: false,
+      },
+    },
+    Profile: {
+      screen: ProfileScreen,
       options: {
         headerShown: false,
       },

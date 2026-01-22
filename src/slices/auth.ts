@@ -16,6 +16,7 @@ import { axiosApi } from '@lib/api/apiInstance';
 import {
   GoogleSignin,
   isErrorWithCode,
+  statusCodes,
 } from '@react-native-google-signin/google-signin';
 import { createSlice } from '@reduxjs/toolkit';
 import { tokenManagement } from '@utils/tokenManagement';
@@ -50,7 +51,17 @@ export const userLogin = createAppAsyncThunk(
 
       return { loginResponse, userProfile };
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'LOGIN_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'An unexpected error occurred during login',
+      });
     }
   }
 );
@@ -65,10 +76,9 @@ export const userLoginWithGoogle = createAppAsyncThunk(
       if (!userInfo.data?.idToken) {
         throw new Error('No ID token received from Google');
       }
-      console.log('Google ID token:', userInfo.data?.idToken);
 
       const { token, user } = await axiosApi.loginApi.loginWithGoogle({
-        idToken: userInfo.data?.idToken,
+        idToken: userInfo.data.idToken,
       });
 
       await tokenManagement.setTokens({ newAccessToken: token });
@@ -76,9 +86,45 @@ export const userLoginWithGoogle = createAppAsyncThunk(
       return { user };
     } catch (error) {
       if (isErrorWithCode(error)) {
-        console.log('Google sign-in error code:', error.code);
+        switch (error.code) {
+          case statusCodes.SIGN_IN_CANCELLED:
+            return rejectWithValue({
+              code: 'CANCELLED',
+              message: 'User cancelled the login flow',
+            });
+
+          case statusCodes.IN_PROGRESS:
+            return rejectWithValue({
+              code: 'IN_PROGRESS',
+              message: 'Sign in is already in progress',
+            });
+
+          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+            return rejectWithValue({
+              code: 'PLAY_SERVICES_NOT_AVAILABLE',
+              message: 'Google Play Services are not available or outdated',
+            });
+
+          default:
+            return rejectWithValue({
+              code: 'GOOGLE_SIGN_IN_ERROR',
+              message: error.message || 'Google Sign-In failed',
+            });
+        }
       }
-      return rejectWithValue(error);
+
+      // Handle API errors or other errors
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'API_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'An unexpected error occurred during Google login',
+      });
     }
   }
 );
@@ -89,34 +135,56 @@ export const userLoginWithFacebook = createAppAsyncThunk(
     try {
       const result = await LoginManager.logInWithPermissions([
         'public_profile',
-        'email',
       ]);
 
+      const currentProfile = await Profile.getCurrentProfile();
+      console.log('Current profile:', currentProfile);
+
       if (result.isCancelled) {
-        throw new Error('User cancelled Facebook login');
+        return rejectWithValue({
+          code: 'CANCELLED',
+          message: 'User cancelled Facebook login',
+        });
       }
-      console.log(result);
 
       const data = await AccessToken.getCurrentAccessToken();
-      const currentProfile = await Profile.getCurrentProfile();
-      console.log(currentProfile);
 
       if (!data?.accessToken) {
         throw new Error('No access token received from Facebook');
       }
+      console.log(data);
 
-      console.log('Facebook access token:', data.accessToken);
-
+      const user = {
+        email: currentProfile?.email,
+        firstName: currentProfile?.firstName,
+        lastName: currentProfile?.lastName,
+        avatarUrl: currentProfile?.imageURL,
+        username: currentProfile?.name,
+        point: 0,
+        emailVerified: true,
+      } as User; // Placeholder for user data
       // const { token, user } = await axiosApi.loginApi.loginWithFacebook({
       //   accessToken: data.accessToken,
       // });
 
       // await tokenManagement.setTokens({ newAccessToken: token });
 
-      // return { data };
+      return { user };
     } catch (error) {
       console.log('Facebook sign-in error:', error);
-      return rejectWithValue(error);
+
+      // Handle API errors or other errors
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'API_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'FACEBOOK_LOGIN_ERROR',
+        message: 'An unexpected error occurred during Facebook login',
+      });
     }
   }
 );
@@ -135,7 +203,18 @@ export const loadUserFromStorage = createAppAsyncThunk(
       return userProfile;
     } catch (error) {
       await tokenManagement.clearTokens();
-      return rejectWithValue(error);
+
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'LOAD_USER_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to load user from storage',
+      });
     }
   }
 );
@@ -147,7 +226,22 @@ export const userRegister = createAppAsyncThunk(
       const registerResponse = await axiosApi.registerApi.register(payload);
       return registerResponse;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        const apiError = error as {
+          message: string;
+          fieldErrors?: Record<string, string[]>;
+        };
+        return rejectWithValue({
+          code: 'REGISTER_ERROR',
+          message: apiError.message,
+          fieldErrors: apiError.fieldErrors,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'An unexpected error occurred during registration',
+      });
     }
   }
 );
@@ -160,7 +254,17 @@ export const verifyRegistration = createAppAsyncThunk(
         await axiosApi.registerApi.verifyRegistration(payload);
       return verifyResponse;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'VERIFY_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to verify registration',
+      });
     }
   }
 );
@@ -173,7 +277,17 @@ export const resendRegistrationOTP = createAppAsyncThunk(
         await axiosApi.registerApi.resendRegistrationOTP(payload);
       return resendResponse;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'RESEND_OTP_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to resend registration OTP',
+      });
     }
   }
 );
@@ -186,7 +300,17 @@ export const forgetPassword = createAppAsyncThunk(
         await axiosApi.forgetPasswordApi.forgetPassword(payload);
       return forgetPasswordResponse;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'FORGET_PASSWORD_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to process forgot password request',
+      });
     }
   }
 );
@@ -199,7 +323,17 @@ export const resetPassword = createAppAsyncThunk(
         await axiosApi.forgetPasswordApi.resetPassword(payload);
       return resetPasswordResponse;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'RESET_PASSWORD_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to reset password',
+      });
     }
   }
 );
@@ -212,7 +346,17 @@ export const resendForgetPasswordOTP = createAppAsyncThunk(
         await axiosApi.forgetPasswordApi.resendForgetPasswordOTP(payload);
       return resendResponse;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'RESEND_OTP_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to resend forgot password OTP',
+      });
     }
   }
 );
@@ -224,6 +368,7 @@ export const userLogout = createAppAsyncThunk(
       // Sign out from Google
       try {
         await GoogleSignin.signOut();
+        console.log('gg');
       } catch (googleError) {
         console.log('Google signOut failed:', googleError);
       }
@@ -231,6 +376,7 @@ export const userLogout = createAppAsyncThunk(
       // Sign out from Facebook
       try {
         LoginManager.logOut();
+        console.log('facebook logout success');
       } catch (facebookError) {
         console.log('Facebook logout failed:', facebookError);
       }
@@ -239,7 +385,17 @@ export const userLogout = createAppAsyncThunk(
 
       return null;
     } catch (error) {
-      return rejectWithValue(error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'LOGOUT_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to logout',
+      });
     }
   }
 );
@@ -294,7 +450,9 @@ export const authSlice = createSlice({
       })
       .addCase(userLoginWithFacebook.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // state.value = action.payload.user;
+        if (action.payload) {
+          state.value = action.payload.user;
+        }
       })
       .addCase(userLoginWithFacebook.rejected, (state, action) => {
         state.status = 'failed';

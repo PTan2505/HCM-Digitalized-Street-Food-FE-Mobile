@@ -1,20 +1,16 @@
-import FaceBookIcon from '@assets/icons/facebookIcon.svg';
-import GoogleIcon from '@assets/icons/googleIcon.svg';
-import { CustomButton } from '@auth/components/CustomButton';
-import useFacebookLogin from '@auth/hooks/useFacebookLogin';
-import useGoogleLogin from '@auth/hooks/useGoogleLogin';
+import FaceBookLogo from '@assets/logos/facebookLogo.svg';
+import GoogleLogo from '@assets/logos/googleLogo.svg';
 import useLogin from '@auth/hooks/useLogin';
 import type { LoginRequest } from '@auth/types/login';
 import { LoginSchema } from '@auth/utils/loginFormSchema';
-import { CustomInput } from '@components/CustomInput';
 import SvgIcon from '@components/SvgIcon';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { useNavigation } from '@react-navigation/native';
 import { selectUserStatus } from '@slices/auth';
 import { useEffect, type JSX } from 'react';
-import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { Alert, Pressable, Text, View } from 'react-native';
 
 const initialValues: LoginRequest = {
@@ -24,10 +20,7 @@ const initialValues: LoginRequest = {
 
 export const LoginForm = (): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
-  const { onLoginSubmit } = useLogin();
-  const { onGoogleLoginSubmit } = useGoogleLogin();
-  const { onFacebookLoginSubmit } = useFacebookLogin();
-  const navigation = useNavigation();
+  const { onGoogleLoginSubmit, onFacebookLoginSubmit } = useLogin();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -42,15 +35,12 @@ export const LoginForm = (): JSX.Element => {
     resolver: zodResolver(LoginSchema),
   });
 
-  const { control, handleSubmit } = methods;
-  const onSubmit: SubmitHandler<LoginRequest> = async (values) => {
-    await onLoginSubmit(values);
-  };
-
   const handleGoogleLogin = async (): Promise<void> => {
     try {
       await onGoogleLoginSubmit();
     } catch (error) {
+      console.log(error);
+
       Alert.alert('Lỗi', 'Đăng nhập Google thất bại');
     }
   };
@@ -59,6 +49,8 @@ export const LoginForm = (): JSX.Element => {
     try {
       await onFacebookLoginSubmit();
     } catch (error) {
+      console.log(error);
+
       Alert.alert('Lỗi', 'Đăng nhập Facebook thất bại');
     }
   };
@@ -66,7 +58,7 @@ export const LoginForm = (): JSX.Element => {
   return (
     <FormProvider {...methods}>
       <View className="w-full gap-4 px-5">
-        <CustomInput
+        {/* <CustomInput
           name="email"
           control={control}
           label="Email"
@@ -97,9 +89,9 @@ export const LoginForm = (): JSX.Element => {
           isLoading={userStatus === 'pending'}
           text="Đăng nhập"
           loadingText="Đang đăng nhập..."
-        />
+        /> */}
 
-        <View className="flex-row items-center py-5">
+        {/* <View className="flex-row items-center py-5">
           <View className="h-[2px] w-[100px] flex-1 rounded-full bg-[#BDBDBD]" />
 
           <Text className="mx-3 text-center font-semibold text-[#a1d973]">
@@ -107,18 +99,18 @@ export const LoginForm = (): JSX.Element => {
           </Text>
 
           <View className="h-[2px] w-[100px] flex-1 rounded-full bg-[#BDBDBD]" />
-        </View>
+        </View> */}
 
         <View className="justify-center gap-4">
           <View className="flex-row justify-center gap-10">
             <Pressable
-              className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-white p-4 active:opacity-50`}
+              className={`relative w-full flex-row items-center justify-center gap-2 rounded-full border-[1px] bg-white p-4 active:opacity-50`}
               onPress={handleGoogleLogin}
               disabled={userStatus === 'pending'}
             >
               <SvgIcon
                 width={20}
-                icon={GoogleIcon}
+                icon={GoogleLogo}
                 height={20}
                 style={{ position: 'absolute', left: 12 }}
               />
@@ -127,20 +119,38 @@ export const LoginForm = (): JSX.Element => {
           </View>
           <View className="flex-row justify-center gap-10">
             <Pressable
-              className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-white p-4 active:opacity-50`}
+              className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-[#1877F2] p-4 active:opacity-50`}
               onPress={handleFacebookLogin}
               disabled={userStatus === 'pending'}
             >
               <SvgIcon
-                width={20}
-                icon={FaceBookIcon}
-                height={20}
+                width={24}
+                icon={FaceBookLogo}
+                height={24}
                 style={{ position: 'absolute', left: 12 }}
               />
-              <Text className="font-semibold">Đăng nhập với Facebook</Text>
+              <Text className="font-semibold text-white">
+                Đăng nhập với Facebook
+              </Text>
             </Pressable>
           </View>
-          {/* <MaterialCommunityIcons name="facebook" size={40} color="#a1d973" /> */}
+          <View className="flex-row justify-center gap-10">
+            <Pressable
+              className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-black p-4 active:opacity-50`}
+              onPress={() => console.log('Login with phone')}
+              disabled={userStatus === 'pending'}
+            >
+              <FontAwesome6
+                name="phone"
+                size={20}
+                color="white"
+                style={{ position: 'absolute', left: 12 }}
+              />
+              <Text className="font-semibold text-white">
+                Đăng nhập với Số điện thoại
+              </Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </FormProvider>
