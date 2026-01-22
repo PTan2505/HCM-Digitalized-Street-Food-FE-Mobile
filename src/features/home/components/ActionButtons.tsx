@@ -19,14 +19,14 @@ const ActionButtons = ({
         onPress={onBookmark}
         className="h-10 w-14 items-center justify-center rounded-full border border-gray-200 bg-white"
       >
-        <Ionicons name="bookmark-outline" size={24} color="#333" />
+        <Ionicons name="restaurant-outline" size={24} color="#333" />
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={onShare}
         className="h-10 w-14 items-center justify-center rounded-full border border-gray-200 bg-white"
       >
-        <Ionicons name="share-outline" size={24} color="#333" />
+        <Ionicons name="chatbubble-outline" size={24} color="#333" />
       </TouchableOpacity>
 
       <TouchableOpacity

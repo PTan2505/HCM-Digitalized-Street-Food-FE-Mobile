@@ -21,9 +21,10 @@ interface RestaurantInfoProps {
 const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
   return (
     <View className="p-4">
-      <Text className="mb-2 text-2xl font-bold text-black">
-        {restaurant.name}
-      </Text>
+      <View className="mb-2 flex-row justify-between">
+        <Text className="text-2xl font-bold text-black">{restaurant.name}</Text>
+        <Ionicons name="share-social-outline" size={25} color="#00000" />
+      </View>
 
       <View className="mb-2 flex-row items-center gap-2">
         <Text className="text-sm font-semibold text-[#06AA4C]">

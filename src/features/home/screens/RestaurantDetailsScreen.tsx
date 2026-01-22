@@ -15,6 +15,7 @@ import RestaurantInfo, {
 } from '@features/home/components/RestaurantInfo';
 import HeaderImage from '@features/home/components/HeaderImage';
 import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
+import { useSharedValue } from 'react-native-reanimated';
 
 const RestaurantDetailsScreen: () => JSX.Element = () => {
   const [activeTab, setActiveTab] = useState<TabType>('menu');
