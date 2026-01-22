@@ -47,7 +47,7 @@ const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
   const [filterModalVisible, setFilterModalVisible] = useState(false);
 
-  const handleFilterApply = (filters: FilterState) => {
+  const handleFilterApply = (filters: FilterState): void => {
     console.log('Applied filters:', filters);
     // TODO: Apply filters to the place list
   };

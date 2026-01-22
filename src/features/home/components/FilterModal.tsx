@@ -46,7 +46,7 @@ const FilterModal = ({
     item: string,
     selected: string[],
     setSelected: (items: string[]) => void
-  ) => {
+  ): void => {
     if (selected.includes(item)) {
       setSelected(selected.filter((i) => i !== item));
     } else {
@@ -54,7 +54,7 @@ const FilterModal = ({
     }
   };
 
-  const handleReset = () => {
+  const handleReset = (): void => {
     setSpaceTypes([]);
     setDishTypes([]);
     setPriceRange([]);
@@ -64,7 +64,7 @@ const FilterModal = ({
     setAmenities([]);
   };
 
-  const handleApply = () => {
+  const handleApply = (): void => {
     onApply({
       spaceTypes,
       dishTypes,

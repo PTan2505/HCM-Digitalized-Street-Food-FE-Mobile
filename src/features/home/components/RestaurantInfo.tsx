@@ -20,7 +20,7 @@ interface RestaurantInfoProps {
 
 const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
   return (
-    <View className="border-b border-gray-200 p-4">
+    <View className="p-4">
       <Text className="mb-2 text-2xl font-bold text-black">
         {restaurant.name}
       </Text>
@@ -35,9 +35,11 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             {restaurant.rating}
           </Text>
         </View>
-        <Text className="text-sm text-gray-600">
-          {restaurant.reviewCount} đánh giá
-        </Text>
+        {restaurant.reviewCount > 0 && (
+          <Text className="text-sm text-gray-600">
+            {restaurant.reviewCount} đánh giá
+          </Text>
+        )}
       </View>
 
       <View className="mb-3 flex-row items-center gap-2">
