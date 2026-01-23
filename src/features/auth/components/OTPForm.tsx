@@ -1,21 +1,18 @@
-import useRegister from '@auth/hooks/useRegister';
+import { CustomButton } from '@auth/components/CustomButton';
 import useForgetPassword from '@auth/hooks/useForgetPassword';
-import type {
-  VerifyRegistrationRequest,
-  ResendRegistrationOTPRequest,
-} from '@auth/types/register';
+import useRegister from '@auth/hooks/useRegister';
+import type { OTPType } from '@auth/types/otp';
+import type { VerifyRegistrationRequest } from '@auth/types/register';
 import { VerifyRegistrationSchema } from '@auth/utils/registerFormSchema';
 import { CustomOTPInput } from '@components/CustomOTPInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUserStatus } from '@slices/auth';
-import { type JSX, useState, useEffect } from 'react';
+import { formatCountDownTime } from '@utils/formatCountDownTime';
+import { useEffect, useState, type JSX } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
-import { CustomButton } from '@auth/components/CustomButton';
-import { formatCountDownTime } from '@utils/formatCountDownTime';
-import type { OTPType } from '@auth/types/otp';
 
 const initialValues: VerifyRegistrationRequest = {
   // username: '',
@@ -48,13 +45,17 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
   });
 
   useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => {
+    const myInterval = setInterval(() => {
+      if (countdown > 0) {
         setCountdown(countdown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
+      } else {
+        clearInterval(myInterval);
+      }
+    }, 1000);
+    return (): void => {
+      clearInterval(myInterval);
+    };
+  }, []);
 
   const handleResendOTP = async (): Promise<void> => {
     if (countdown > 0 || isResending) return;
@@ -77,7 +78,7 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
     }
   };
 
-  const { control, handleSubmit } = methods;
+  const { handleSubmit } = methods;
   const onSubmit: SubmitHandler<VerifyRegistrationRequest> = async (values) => {
     if (props.otpType === 'password_reset') {
       navigation.navigate('ResetPassword', {
@@ -95,23 +96,18 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
   return (
     <FormProvider {...methods}>
       <View className="w-full gap-4 px-5">
-        <CustomOTPInput
-          name="otp"
-          control={control}
-          label="Mã OTP"
-          required
-          numberOfDigits={6}
-        />
+        <CustomOTPInput name="otp" label="Mã OTP" required numberOfDigits={6} />
         <View className="flex-row justify-center">
           <Pressable
             onPress={handleResendOTP}
             disabled={countdown > 0 || isResending}
           >
             <Text
-              className={`text-lg font-semibold ${countdown > 0 || isResending
+              className={`text-lg font-semibold ${
+                countdown > 0 || isResending
                   ? 'text-gray-400'
                   : 'text-[#a1d973]'
-                }`}
+              }`}
             >
               {isResending
                 ? 'Đang gửi...'

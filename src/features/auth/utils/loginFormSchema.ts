@@ -14,3 +14,18 @@ export const LoginSchema = z.object({
     .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PASSWORD)
     .min(6, VALIDATE_ERROR_MESSAGES.PASSWORD_MIN_LENGTH),
 });
+
+export const LoginWithPhoneNumberSchema = z.object({
+  phoneNumber: z
+    .string()
+    .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PHONE_NUMBER)
+    .transform((value) => {
+      return value.replace(/^(\+\d+)0/, '$1');
+    })
+    .refine(
+      (value) => validator.isMobilePhone(value, 'any', { strictMode: true }),
+      {
+        message: VALIDATE_ERROR_MESSAGES.INVALID_PHONE_NUMBER,
+      }
+    ),
+});

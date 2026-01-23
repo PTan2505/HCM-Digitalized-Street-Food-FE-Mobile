@@ -1,15 +1,15 @@
+import { CustomButton } from '@auth/components/CustomButton';
 import useForgetPassword from '@auth/hooks/useForgetPassword';
+import type { ForgetPasswordRequest } from '@auth/types/forgetPassword';
 import { ForgetPasswordSchema } from '@auth/utils/forgetPasswordFormSchema';
 import { CustomInput } from '@components/CustomInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
+import { useNavigation } from '@react-navigation/native';
 import { selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
-import { Pressable, Text, View } from 'react-native';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
-import type { ForgetPasswordRequest } from '@auth/types/forgetPassword';
-import { CustomButton } from '@auth/components/CustomButton';
-import { useNavigation } from '@react-navigation/native';
+import { View } from 'react-native';
 
 const initialValues: ForgetPasswordRequest = {
   email: '',
@@ -42,7 +42,6 @@ export const ForgetPasswordForm = (): JSX.Element => {
       <View className="w-full gap-4 px-5">
         <CustomInput
           name="email"
-          control={control}
           label="Email"
           placeholder="Nhập email"
           type="email"

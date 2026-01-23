@@ -5,6 +5,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface LoginWithPhoneNumberRequest {
+  phoneNumber: string;
+}
+
 export interface LoginWithGoogleRequest {
   idToken: string;
 }

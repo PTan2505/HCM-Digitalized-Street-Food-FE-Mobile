@@ -1,16 +1,15 @@
-import { OtpInput } from 'react-native-otp-entry';
 import { type JSX } from 'react';
-import { Text, View } from 'react-native';
 import {
   Controller,
-  type Control,
+  useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
+import { Text, View } from 'react-native';
+import { OtpInput } from 'react-native-otp-entry';
 
 interface CustomOTPInputProps<T extends FieldValues> {
   name: FieldPath<T>;
-  control: Control<T>;
   label: string;
   required?: boolean;
   numberOfDigits?: number;
@@ -19,7 +18,8 @@ interface CustomOTPInputProps<T extends FieldValues> {
 export const CustomOTPInput = <T extends FieldValues>(
   props: CustomOTPInputProps<T>
 ): JSX.Element => {
-  const { name, control, label, required, numberOfDigits = 6 } = props;
+  const { name, label, required, numberOfDigits = 6 } = props;
+  const { control } = useFormContext();
 
   return (
     <Controller

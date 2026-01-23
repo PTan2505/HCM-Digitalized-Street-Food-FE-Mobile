@@ -1,3 +1,4 @@
+import { CustomButton } from '@auth/components/CustomButton';
 import useRegister from '@auth/hooks/useRegister';
 import type { RegisterRequest } from '@auth/types/register';
 import { RegisterSchema } from '@auth/utils/registerFormSchema';
@@ -9,7 +10,6 @@ import { selectUserStatus } from '@slices/auth';
 import type { JSX } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 import { View } from 'react-native';
-import { CustomButton } from '@auth/components/CustomButton';
 
 const initialValues: RegisterRequest & { confirmPassword: string } = {
   username: '',
@@ -52,7 +52,6 @@ export const RegisterForm = (): JSX.Element => {
       <View className="w-full gap-4 px-5">
         <CustomInput
           name="username"
-          control={control}
           label="Tên đăng nhập"
           placeholder="Nhập tên đăng nhập"
           type="username"
@@ -60,7 +59,6 @@ export const RegisterForm = (): JSX.Element => {
         />
         <CustomInput
           name="email"
-          control={control}
           label="Email"
           placeholder="Nhập email"
           type="email"
@@ -70,7 +68,6 @@ export const RegisterForm = (): JSX.Element => {
           <View className="flex-1">
             <CustomInput
               name="lastName"
-              control={control}
               label="Họ"
               type="name"
               placeholder="Nhập họ"
@@ -79,7 +76,6 @@ export const RegisterForm = (): JSX.Element => {
           <View className="flex-1">
             <CustomInput
               name="firstName"
-              control={control}
               label="Tên"
               type="name"
               placeholder="Nhập tên"
@@ -88,7 +84,6 @@ export const RegisterForm = (): JSX.Element => {
         </View>
         <CustomInput
           name="phoneNumber"
-          control={control}
           label="Số điện thoại"
           type="phone"
           placeholder="Nhập số điện thoại"
@@ -97,7 +92,6 @@ export const RegisterForm = (): JSX.Element => {
           <View className="flex-1">
             <CustomInput
               name="password"
-              control={control}
               label="Mật khẩu"
               placeholder="Nhập mật khẩu"
               type="password"
@@ -107,7 +101,6 @@ export const RegisterForm = (): JSX.Element => {
           <View className="flex-1">
             <CustomInput
               name="confirmPassword"
-              control={control}
               label="Xác nhận mật khẩu"
               placeholder="Nhập lại mật khẩu"
               type="password"
