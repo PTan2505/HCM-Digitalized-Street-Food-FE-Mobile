@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "owner": "street-food",
     "orientation": "portrait",
-    "icon": "./assets/appLogo.png",
+    "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "light",
     "backgroundColor": "#ffffff",
     "newArchEnabled": true,
@@ -17,6 +17,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hcmstreetfood.mobile",
+      "icon": {
+        "light": "./assets/ios-light.png"
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
@@ -28,7 +31,8 @@
     "android": {
       "package": "com.hcmstreetfood.mobile",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/appLogo.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
