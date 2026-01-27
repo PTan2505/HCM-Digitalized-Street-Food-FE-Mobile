@@ -2,27 +2,64 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, type JSX } from 'react';
 import {
   Controller,
-  type Control,
+  useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import {
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  type KeyboardTypeOptions,
+} from 'react-native';
+
+const INPUT_ICONS: Record<
+  string,
+  keyof typeof MaterialCommunityIcons.glyphMap
+> = {
+  email: 'email-outline',
+  phone: 'phone-outline',
+  password: 'lock-outline',
+  username: 'account-circle-outline',
+  name: 'account-outline',
+  // You can add 'text' here if you want a default icon, or leave it out
+};
 
 interface CustomInputProps<T extends FieldValues> {
   name: FieldPath<T>;
-  control: Control<T>;
   label: string;
   required?: boolean;
   placeholder?: string;
-  type?: string;
+  keyboardType?: KeyboardTypeOptions;
+  autoFocus?: boolean;
+  type?: 'email' | 'phone' | 'password' | 'username' | 'name' | 'text';
 }
 
 export const CustomInput = <T extends FieldValues>(
   props: CustomInputProps<T>
 ): JSX.Element => {
-  const { name, control, label, required, placeholder, type } = props;
+  const {
+    name,
+    label,
+    required,
+    placeholder,
+    type = 'text',
+    keyboardType,
+  } = props;
   const [hidePassword, setHidePassword] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
+  const { control } = useFormContext();
+
+  // Determine keyboard type automatically if not provided explicitly
+  const getKeyboardType = (): KeyboardTypeOptions => {
+    if (keyboardType) return keyboardType;
+    if (type === 'email') return 'email-address';
+    if (type === 'phone') return 'phone-pad';
+    return 'default';
+  };
+
+  const iconName = INPUT_ICONS[type];
 
   return (
     <Controller
@@ -30,7 +67,7 @@ export const CustomInput = <T extends FieldValues>(
       control={control}
       render={({ field, fieldState }) => (
         <View className="flex w-full flex-col gap-1">
-          <Text className="text-base font-medium text-[#616161]">
+          <Text className="text-lg font-semibold text-[#616161]">
             {label}
             {required && <Text className="text-[#FE4763]"> *</Text>}
           </Text>
@@ -45,59 +82,21 @@ export const CustomInput = <T extends FieldValues>(
                   : 'border-b-[#E5E5E5]')
             }
           >
-            <View className="h-5 w-5 items-center justify-center">
-              {type === 'email' && (
-                <View className="h-5 w-5 items-center justify-center">
-                  <MaterialCommunityIcons
-                    name="email-outline"
-                    size={15}
-                    color="#999999"
-                  />
-                </View>
-              )}
-              {type === 'phone' && (
-                <View className="h-5 w-5 items-center justify-center">
-                  <MaterialCommunityIcons
-                    name="phone-outline"
-                    size={15}
-                    color="#999999"
-                  />
-                </View>
-              )}
-              {type === 'password' && (
-                <View className="h-5 w-5 items-center justify-center">
-                  <MaterialCommunityIcons
-                    name="lock-outline"
-                    size={15}
-                    color="#999999"
-                  />
-                </View>
-              )}
-              {type === 'username' && (
-                <View className="h-5 w-5 items-center justify-center">
-                  <MaterialCommunityIcons
-                    name="account-circle-outline"
-                    size={15}
-                    color="#999999"
-                  />
-                </View>
-              )}
-              {type === 'name' && (
-                <View className="h-5 w-5 items-center justify-center">
-                  <MaterialCommunityIcons
-                    name="account-outline"
-                    size={15}
-                    color="#999999"
-                  />
-                </View>
-              )}
-            </View>
+            {iconName && (
+              <View className="h-5 w-5 items-center justify-center">
+                <MaterialCommunityIcons
+                  name={iconName}
+                  size={20} // Slightly increased size for visibility
+                  color="#999999"
+                />
+              </View>
+            )}
 
             <TextInput
+              {...field}
               ref={field.ref}
-              value={(field.value ?? '') as string}
-              onChangeText={field.onChange}
               onFocus={() => setIsFocused(true)}
+              onChangeText={field.onChange}
               onBlur={() => {
                 setIsFocused(false);
                 field.onBlur();
@@ -106,15 +105,10 @@ export const CustomInput = <T extends FieldValues>(
               placeholderTextColor="#BDBDBD"
               secureTextEntry={type === 'password' ? hidePassword : false}
               autoCapitalize={type === 'email' ? 'none' : 'sentences'}
-              keyboardType={
-                type === 'email'
-                  ? 'email-address'
-                  : type === 'phone'
-                    ? 'phone-pad'
-                    : 'default'
-              }
+              keyboardType={getKeyboardType()}
               textAlignVertical="center"
-              className="flex-1 py-3 text-base text-[#333333]"
+              autoFocus={props.autoFocus}
+              className="flex-1 justify-center py-3 text-[#333333]"
             />
 
             {type === 'password' && (
@@ -126,7 +120,7 @@ export const CustomInput = <T extends FieldValues>(
                 <View className="h-5 w-5 items-center justify-center">
                   <MaterialCommunityIcons
                     name={hidePassword ? 'eye-off-outline' : 'eye-outline'}
-                    size={15}
+                    size={20}
                     color="#999999"
                   />
                 </View>

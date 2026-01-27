@@ -38,8 +38,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            node_modules/.cache
-            .eslintcache
+            node_modules/.cache/.eslintcache
           key: ${{ runner.os }}-lint-${{ hashFiles('**/bun.lockb') }}
           restore-keys: |
             ${{ runner.os }}-lint-

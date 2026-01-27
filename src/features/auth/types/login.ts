@@ -1,20 +1,25 @@
+import { User } from '@custom-types/user';
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
-  message: string;
-  token: string;
-  user: UserResponse;
+export interface LoginWithPhoneNumberRequest {
+  phoneNumber: string;
+  otp?: string;
 }
 
-export interface UserResponse {
-  id: number;
-  username: string;
-  email: string;
-  role: number;
-  createdAt: string;
-  emailVerified: boolean;
-  point: number;
+export interface LoginWithGoogleRequest {
+  idToken: string;
+}
+
+export interface LoginWithFacebookRequest {
+  accessToken: string;
+}
+
+export interface LoginResponse {
+  message?: string;
+  token: string;
+  user: User;
 }
