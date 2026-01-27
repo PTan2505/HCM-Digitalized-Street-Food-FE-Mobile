@@ -1,13 +1,13 @@
 import type { LoginWithPhoneNumberRequest } from '@auth/types/login';
 import { LoginWithPhoneNumberSchema } from '@auth/utils/loginFormSchema';
+import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { CustomButton } from '@features/auth/components/CustomButton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUserStatus } from '@slices/auth';
-import { type JSX } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { RefObject, type JSX } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
 const initialValues: LoginWithPhoneNumberRequest = {
@@ -15,10 +15,16 @@ const initialValues: LoginWithPhoneNumberRequest = {
 };
 
 interface LoginFormProps {
+  setIsSendedOTP: (value: boolean) => void;
+  phoneNumberRef: RefObject<string>;
   onBack: () => void;
 }
 
-export const LoginForm = ({ onBack }: LoginFormProps): JSX.Element => {
+export const LoginForm = ({
+  setIsSendedOTP,
+  phoneNumberRef,
+  onBack,
+}: LoginFormProps): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
 
   const methods = useForm<LoginWithPhoneNumberRequest>({
@@ -26,10 +32,20 @@ export const LoginForm = ({ onBack }: LoginFormProps): JSX.Element => {
     resolver: zodResolver(LoginWithPhoneNumberSchema),
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, control } = methods;
+
+  const watchedValue = useWatch({
+    name: 'phoneNumber',
+    control,
+    compute: (data: string) => {
+      return data.length ? data : '';
+    },
+  });
 
   const onSubmit = (data: LoginWithPhoneNumberRequest): void => {
     // Phone number is already cleaned by the schema transform
+    setIsSendedOTP(true);
+    phoneNumberRef.current = data.phoneNumber;
     console.log(data);
     // TODO: Call your login API here
   };
@@ -53,7 +69,11 @@ export const LoginForm = ({ onBack }: LoginFormProps): JSX.Element => {
           autoFocus
           required
         />
-        <CustomButton text="Đăng nhập" onPress={handleSubmit(onSubmit)} />
+        <CustomButton
+          text="Đăng nhập"
+          onPress={handleSubmit(onSubmit)}
+          disabled={watchedValue.length === 0 || userStatus === 'pending'}
+        />
       </View>
     </FormProvider>
   );

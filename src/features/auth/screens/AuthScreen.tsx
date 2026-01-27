@@ -5,6 +5,7 @@ import lowcaLogo from '@assets/logos/lowcaLogo.svg';
 import { LoginForm } from '@auth/components/LoginForm';
 import SvgIcon from '@components/SvgIcon';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { OTPForm } from '@features/auth/components/OTPForm';
 import useLogin from '@features/auth/hooks/useLogin';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -18,6 +19,9 @@ export const AuthScreen = (): JSX.Element => {
   const { onGoogleLoginSubmit, onFacebookLoginSubmit } = useLogin();
   const [showPhoneLogin, setShowPhoneLogin] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const formTransition = useRef(new Animated.Value(0)).current;
+  const [isSendedOTP, setIsSendedOTP] = useState(false);
+  const phoneNumberRef = useRef('');
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -56,6 +60,13 @@ export const AuthScreen = (): JSX.Element => {
     }).start();
   };
 
+  useEffect(() => {
+    Animated.timing(formTransition, {
+      toValue: isSendedOTP ? 1 : 0,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
+  }, [isSendedOTP, formTransition]);
   return (
     <SafeAreaView className="flex-1" edges={['left', 'right']}>
       <View className="relative">
@@ -180,22 +191,74 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [200, 0], // Slides up into position
+                  outputRange: [200, 0],
                 }),
               },
             ],
           }}
         >
-          <LoginForm
-            onBack={() => {
-              setShowPhoneLogin(false);
-              Animated.timing(animatedValue, {
-                toValue: 0,
-                duration: 400,
-                useNativeDriver: true,
-              }).start();
-            }}
-          />
+          <View style={{ position: 'relative', width: '100%' }}>
+            <Animated.View
+              style={{
+                opacity: formTransition.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0],
+                }),
+                transform: [
+                  {
+                    translateX: formTransition.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -400],
+                    }),
+                  },
+                ],
+                position: isSendedOTP ? 'absolute' : 'relative',
+                width: '100%',
+              }}
+              pointerEvents={isSendedOTP ? 'none' : 'auto'}
+            >
+              <LoginForm
+                setIsSendedOTP={setIsSendedOTP}
+                phoneNumberRef={phoneNumberRef}
+                onBack={() => {
+                  setShowPhoneLogin(false);
+                  Animated.timing(animatedValue, {
+                    toValue: 0,
+                    duration: 400,
+                    useNativeDriver: true,
+                  }).start();
+                }}
+              />
+            </Animated.View>
+
+            <Animated.View
+              style={{
+                opacity: formTransition.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 1],
+                }),
+                transform: [
+                  {
+                    translateX: formTransition.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [400, 0],
+                    }),
+                  },
+                ],
+                position: !isSendedOTP ? 'absolute' : 'relative',
+                width: '100%',
+              }}
+              pointerEvents={!isSendedOTP ? 'none' : 'auto'}
+            >
+              <OTPForm
+                phoneNumber={phoneNumberRef.current}
+                shouldFocus={isSendedOTP}
+                onBack={() => {
+                  setIsSendedOTP(false);
+                }}
+              />
+            </Animated.View>
+          </View>
         </Animated.View>
       )}
     </SafeAreaView>

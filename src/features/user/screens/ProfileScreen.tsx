@@ -1,5 +1,5 @@
+import { CustomButton } from '@components/CustomButton';
 import { User } from '@custom-types/user';
-import { CustomButton } from '@features/auth/components/CustomButton';
 import useLogin from '@features/auth/hooks/useLogin';
 import { StaticScreenProps } from '@react-navigation/native';
 import React, { JSX } from 'react';

@@ -7,6 +7,7 @@ export interface LoginRequest {
 
 export interface LoginWithPhoneNumberRequest {
   phoneNumber: string;
+  otp?: string;
 }
 
 export interface LoginWithGoogleRequest {
