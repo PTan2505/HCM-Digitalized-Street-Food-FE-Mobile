@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRoute } from '@react-navigation/native';
 import SamplePlace from '@assets/SamplePlace.jpg';
 import ReviewsTab, { type Review } from '@features/home/components/ReviewsTab';
 import RestaurantsMayLikeTab, {
@@ -18,8 +19,16 @@ import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
 import { useSharedValue } from 'react-native-reanimated';
 
 const RestaurantDetailsScreen: () => JSX.Element = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('menu');
+  const route = useRoute();
+  const params = route.params as { tab?: TabType } | undefined;
+  const [activeTab, setActiveTab] = useState<TabType>(params?.tab || 'menu');
   const progress = useSharedValue<number>(0);
+
+  useEffect(() => {
+    if (params?.tab) {
+      setActiveTab(params.tab);
+    }
+  }, [params?.tab]);
 
   const restaurantBanners = [SamplePlace, SamplePlace, SamplePlace];
 

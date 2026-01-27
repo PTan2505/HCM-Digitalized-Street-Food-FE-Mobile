@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 interface FixedHeaderControlsProps {
   onBackPress?: () => void;
@@ -13,11 +14,13 @@ const FixedHeaderControls: (props: FixedHeaderControlsProps) => JSX.Element = ({
   onSharePress,
   onFavoritePress,
 }) => {
+  const navigation = useNavigation();
+
   return (
     <>
       <View className="absolute left-3 top-[60px] z-10">
         <TouchableOpacity
-          onPress={onBackPress}
+          onPress={onBackPress || (() => navigation.goBack())}
           className="h-9 w-9 items-center justify-center rounded-full bg-black/50"
         >
           <Ionicons name="chevron-back" size={24} color="#FFFFFF" />

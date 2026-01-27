@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
+import { useNavigation } from '@react-navigation/native';
 
 interface PickItem {
   id: string;
@@ -25,6 +26,7 @@ interface PickItem {
 }
 
 const CurrentPicksScreen = (): JSX.Element => {
+  const navigation = useNavigation();
   const picks: PickItem[] = [
     {
       id: '1',
@@ -79,7 +81,7 @@ const CurrentPicksScreen = (): JSX.Element => {
 
         {/* Header */}
         <View className="flex-row items-center justify-between border-b border-gray-100 px-4 py-3">
-          <TouchableOpacity className="p-1">
+          <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
             <Ionicons name="chevron-back" size={28} color="#000" />
           </TouchableOpacity>
           <Text className="text-xl font-semibold text-black">
@@ -97,7 +99,7 @@ const CurrentPicksScreen = (): JSX.Element => {
               overshootRight={false}
               rightThreshold={40}
             >
-              <View className="flex-row items-center border-b border-gray-100 bg-white p-4">
+              <TouchableOpacity onPress={() => navigation.navigate('CurrentPickDetails')} className="flex-row items-center border-b border-gray-100 bg-white p-4">
                 <View className="relative mr-4">
                   <View
                     className="absolute -left-2 top-3 h-[63px] w-[63px] rounded-[6px] bg-[#EE66127D] opacity-60"
@@ -153,7 +155,7 @@ const CurrentPicksScreen = (): JSX.Element => {
                     color="#000"
                   />
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </Swipeable>
           ))}
         </ScrollView>

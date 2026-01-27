@@ -8,12 +8,19 @@ import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen'
 import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
 import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
 import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
+import type { TabType } from '@features/home/components/TabsBar';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'CurrentPickDetails',
+  initialRouteName: 'Main',
   screens: {
     Main: {
       screen: HomeBottomTabs,
+      options: {
+        headerShown: false,
+      },
+    },
+    RestaurantSwipe: {
+      screen: RestaurantSwipeScreen,
       options: {
         headerShown: false,
       },
@@ -23,6 +30,7 @@ const RootStack = createNativeStackNavigator({
       options: {
         headerShown: false,
       },
+      initialParams: {} as { tab?: TabType },
     },
     CurrentPicks: {
       screen: CurrentPicksScreen,
@@ -35,13 +43,7 @@ const RootStack = createNativeStackNavigator({
       options: {
         headerShown: false,
       },
-    },
-    RestaurantSwipe: {
-      screen: RestaurantSwipeScreen,
-      options: {
-        headerShown: false,
-      },
-    },
+    }
   },
 });
 
@@ -51,7 +53,9 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList {
+      RestaurantDetails: { tab?: TabType };
+    }
   }
 }
 

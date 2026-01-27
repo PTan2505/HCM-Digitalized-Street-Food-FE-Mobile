@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 interface ActionButtonsProps {
   onBookmark?: () => void;
@@ -13,17 +14,25 @@ const ActionButtons = ({
   onShare,
   onAddToCurrentPick,
 }: ActionButtonsProps): JSX.Element => {
+  const navigation = useNavigation();
+
   return (
     <View className="flex-row items-center justify-center gap-2 px-4 pb-4">
       <TouchableOpacity
-        onPress={onBookmark}
+        onPress={() => {
+          onBookmark?.();
+          navigation.navigate('RestaurantDetails', { tab: 'menu' });
+        }}
         className="h-10 w-14 items-center justify-center rounded-full border border-gray-200 bg-white"
       >
         <Ionicons name="restaurant-outline" size={24} color="#333" />
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={onShare}
+        onPress={() => {
+          onShare?.();
+          navigation.navigate('RestaurantDetails', { tab: 'reviews' });
+        }}
         className="h-10 w-14 items-center justify-center rounded-full border border-gray-200 bg-white"
       >
         <Ionicons name="chatbubble-outline" size={24} color="#333" />
