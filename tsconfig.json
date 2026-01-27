@@ -41,6 +41,7 @@
     ".eslintrc.js",
     "eslint.config.js",
     "nativewind-env.d.ts",
-    "images.d.ts"
+    "images.d.ts",
+    "plugins/withAndroidDebugKeystore.cjs"
   ]
 }
