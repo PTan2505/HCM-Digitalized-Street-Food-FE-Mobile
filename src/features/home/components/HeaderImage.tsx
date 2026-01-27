@@ -1,9 +1,8 @@
 import type { JSX } from 'react';
-import { View, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Image, Dimensions } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
-import { Ionicons } from '@expo/vector-icons';
 
 const width = Dimensions.get('window').width;
 

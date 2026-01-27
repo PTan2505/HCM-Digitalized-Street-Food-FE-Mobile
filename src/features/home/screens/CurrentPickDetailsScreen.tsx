@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  type ImageSourcePropType,
 } from 'react-native';
 import type { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +21,7 @@ interface Location {
   distance: string;
   priceRange: string;
   tag: string;
-  image: any;
+  image: ImageSourcePropType;
   likes: number;
   comments: number;
   isTopPick?: boolean;

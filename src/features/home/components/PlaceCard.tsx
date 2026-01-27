@@ -1,5 +1,11 @@
 import type { JSX } from 'react';
-import { View, Text, Image, type ImageSourcePropType, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  type ImageSourcePropType,
+  TouchableOpacity,
+} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -22,7 +28,10 @@ export const PlaceCard = ({
 }: PlaceCardProps): JSX.Element => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("RestaurantSwipe")} className="h-fit overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
+    <TouchableOpacity
+      onPress={() => navigation.navigate('RestaurantSwipe')}
+      className="h-fit overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white"
+    >
       <View className="p-[6.31px]">
         <View className="relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px]">
           <Image

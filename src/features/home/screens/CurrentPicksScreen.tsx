@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  type ImageSourcePropType,
 } from 'react-native';
 import type { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,7 +23,7 @@ interface PickItem {
   days: number;
   hours: number;
   minutes: number;
-  image: any;
+  image: ImageSourcePropType;
 }
 
 const CurrentPicksScreen = (): JSX.Element => {
@@ -52,7 +53,7 @@ const CurrentPicksScreen = (): JSX.Element => {
     },
   ];
 
-  const renderRightActions = (pickId: string) => {
+  const renderRightActions = (pickId: string): JSX.Element => {
     return (
       <View className="flex-row">
         <TouchableOpacity
@@ -99,7 +100,10 @@ const CurrentPicksScreen = (): JSX.Element => {
               overshootRight={false}
               rightThreshold={40}
             >
-              <TouchableOpacity onPress={() => navigation.navigate('CurrentPickDetails')} className="flex-row items-center border-b border-gray-100 bg-white p-4">
+              <TouchableOpacity
+                onPress={() => navigation.navigate('CurrentPickDetails')}
+                className="flex-row items-center border-b border-gray-100 bg-white p-4"
+              >
                 <View className="relative mr-4">
                   <View
                     className="absolute -left-2 top-3 h-[63px] w-[63px] rounded-[6px] bg-[#EE66127D] opacity-60"

@@ -20,7 +20,7 @@ const FixedHeaderControls: (props: FixedHeaderControlsProps) => JSX.Element = ({
     <>
       <View className="absolute left-3 top-[60px] z-10">
         <TouchableOpacity
-          onPress={onBackPress || (() => navigation.goBack())}
+          onPress={onBackPress ?? ((): void => navigation.goBack())}
           className="h-9 w-9 items-center justify-center rounded-full bg-black/50"
         >
           <Ionicons name="chevron-back" size={24} color="#FFFFFF" />

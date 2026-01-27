@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { JSX } from 'react';
-import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import SamplePlace from '@assets/SamplePlace.jpg';
 import ReviewsTab, { type Review } from '@features/home/components/ReviewsTab';
@@ -21,7 +20,7 @@ import { useSharedValue } from 'react-native-reanimated';
 const RestaurantDetailsScreen: () => JSX.Element = () => {
   const route = useRoute();
   const params = route.params as { tab?: TabType } | undefined;
-  const [activeTab, setActiveTab] = useState<TabType>(params?.tab || 'menu');
+  const [activeTab, setActiveTab] = useState<TabType>(params?.tab ?? 'menu');
   const progress = useSharedValue<number>(0);
 
   useEffect(() => {

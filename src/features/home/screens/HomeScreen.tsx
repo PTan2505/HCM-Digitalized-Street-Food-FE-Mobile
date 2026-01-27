@@ -15,6 +15,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import CategoryCard from '../components/CategoryCard';
 import FilterModal, { type FilterState } from '../components/FilterModal';
 import HomeHeader from '../components/HomeHeader';
@@ -45,6 +46,7 @@ const SAMPLE_PLACES: PlaceItem[] = Array.from({ length: 10 }).map(
 
 const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [filterModalVisible, setFilterModalVisible] = useState(false);
 
   const handleFilterApply = (filters: FilterState): void => {
@@ -70,7 +72,10 @@ const HomeScreen = (): JSX.Element => {
           >
             <HomeHeader />
 
-            <SearchBar onFilterPress={() => setFilterModalVisible(true)} />
+            <SearchBar
+              onPress={() => navigation.navigate('Search')}
+              onFilterPress={() => setFilterModalVisible(true)}
+            />
             {/* <TestCarousel /> */}
             <BannerCarousel banners={banners} />
 
