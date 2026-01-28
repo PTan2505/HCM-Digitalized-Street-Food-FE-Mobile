@@ -1,10 +1,125 @@
 {
   "home": "Màn hình chính",
   "detail": "Màn chi tiết",
-  "go_to_detail": "Đi đến màn hình chi tiết",
+  "go to detail": "Đi đến màn hình chi tiết",
   "back": "Trở lại",
   "setting": "Cấu hình",
   "welcome": "Chào mừng",
   "language": "Ngôn ngữ",
-  "change_language": "Đổi ngôn ngữ"
+  "change language": "Đổi ngôn ngữ",
+  "search_placeholder": "Tìm nhà hàng, quán cà phê...",
+  "what_want_eat": "Bạn muốn ăn gì?",
+  "places_might_like": "Những địa điểm bạn có thể thích",
+  "vegetarian_dish": "Món chay",
+  "reviews": "đánh giá",
+  "restaurant_name": "Quán ăn số {{number}}",
+  "price_format": "Từ {{from}} đến {{to}}",
+  "from": "Từ",
+  "to": "đến",
+  "filter": "Bộ lọc",
+  "space": "Không gian",
+  "dish_type": "Loại món",
+  "price_range": "Khoảng giá",
+  "distance": "Khoảng cách",
+  "has_parking": "Có chỗ để xe ô tô",
+  "time_slot": "Khung giờ",
+  "show_open_only": "Chỉ hiển thị những cửa hàng đang mở",
+  "other_amenities": "Tiện ích khác",
+  "reset": "Thiết lập lại",
+  "apply": "Áp dụng",
+  "sort_by": "Sắp xếp theo",
+  "categories": {
+    "rice": "Cơm",
+    "noodle": "Bún",
+    "pho": "Phở",
+    "coffee": "Cafe",
+    "milk_tea": "Trà sữa",
+    "other": "Lòng se điếu"
+  },
+  "space_types": {
+    "restaurant": "Nhà hàng",
+    "cafe": "Cafe",
+    "casual": "Quán bình dân",
+    "takeaway": "Mua mang về",
+    "food_court": "Khu ẩm thực",
+    "food_street": "Phố ẩm thực"
+  },
+  "price_options": {
+    "any": "Bất kì",
+    "under_50": "Dưới 50,000",
+    "range_50_150": "Từ 50,000 - 150,000",
+    "range_150_300": "Từ 150,000 - 300,000",
+    "over_300": "Trên 300,000"
+  },
+  "amenities": {
+    "vegetarian": "Món chay",
+    "hygiene": "Chứng nhận vệ sinh",
+    "michelin": "Michelin",
+    "air_conditioned": "Có điều hòa",
+    "wifi": "Wifi",
+    "pet_friendly": "Thân thiện với thú cưng",
+    "delivery": "Giao hàng"
+  },
+  "sort_options": {
+    "distance": "Khoảng cách",
+    "newest": "Mới nhất",
+    "votes": "Lượt vote"
+  },
+  "cuisines": {
+    "chinese": "Món Hoa",
+    "vietnamese": "Món Việt",
+    "vegetarian": "Món Chay"
+  },
+  "days": {
+    "monday": "Thứ hai",
+    "tuesday": "Thứ ba",
+    "wednesday": "Thứ tư",
+    "thursday": "Thứ năm",
+    "friday": "Thứ sáu",
+    "saturday": "Thứ bảy",
+    "sunday": "Chủ nhật"
+  },
+  "status": {
+    "open": "Đang mở cửa",
+    "closed": "Đã đóng cửa"
+  },
+  "hours_format": "{{start}} - {{end}} ({{days}})",
+  "days_range": {
+    "mon_sat": "Thứ hai - Thứ bảy",
+    "mon_sun": "Thứ hai - Chủ nhật"
+  },
+  "actions": {
+    "add_to_current_pick": "Thêm vào Current Pick",
+    "swipe_up": "Vuốt lên",
+    "to_see_similar": "Để xem các quán tương tự",
+    "sort_by": "Sắp xếp theo",
+    "all": "Tất cả",
+    "new": "Mới",
+    "main_dishes": "Món chính",
+    "appetizers": "Khai vị",
+    "desserts": "Tráng miệng",
+    "see_all_reviews": "Xem tất cả đánh giá",
+    "you_may_like": "Bạn có thể sẽ thích",
+    "comments": "Bình luận",
+    "rating_out_of": "/ 5.0",
+    "locations": "địa điểm",
+    "days": "ngày",
+    "hours": "giờ",
+    "minutes": "phút",
+    "see_more": "Xem thêm",
+    "food": "Đồ ăn",
+    "service": "Dịch vụ",
+    "location": "Địa điểm",
+    "vibe": "Vibe"
+  },
+  "tabs": {
+    "menu": "Menu Quán",
+    "reviews": "Bình luận",
+    "nearby": "Bạn có thể thích"
+  },
+  "badges": {
+    "ready_order": "Đơn sẵn",
+    "top_pick": "Top pick"
+  },
+  "user": "Người dùng"
 }

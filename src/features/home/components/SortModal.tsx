@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { View, Text, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface SortModalProps {
   visible: boolean;
@@ -15,10 +16,12 @@ const SortModal: (props: SortModalProps) => JSX.Element = ({
   selectedSort,
   onSelectSort,
 }) => {
+  const { t } = useTranslation();
+
   const sortOptions = [
-    { id: 'distance', label: 'Khoảng cách' },
-    { id: 'newest', label: 'Mới nhất' },
-    { id: 'votes', label: 'Lượt vote' },
+    { id: 'distance', label: t('sort_options.distance') },
+    { id: 'newest', label: t('sort_options.newest') },
+    { id: 'votes', label: t('sort_options.votes') },
   ];
 
   return (
@@ -37,7 +40,7 @@ const SortModal: (props: SortModalProps) => JSX.Element = ({
             {/* Header */}
             <View className="mb-4 flex-row items-center justify-between">
               <Text className="text-[18px] font-semibold text-black">
-                Sắp xếp theo
+                {t('actions.sort_by')}
               </Text>
               <TouchableOpacity onPress={onClose} className="p-1">
                 <Ionicons name="close" size={24} color="#000" />

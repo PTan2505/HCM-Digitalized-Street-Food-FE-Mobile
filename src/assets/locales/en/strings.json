@@ -1,10 +1,125 @@
 {
   "home": "Home Screen",
   "detail": "Detail Screen",
-  "go_to_detail": "Go to detail screen",
+  "go to detail": "Go To Detail Screen",
   "back": "Back",
   "setting": "Settings",
   "welcome": "Welcome",
   "language": "Language",
-  "change_language": "Change Language"
+  "change language": "Change Language",
+  "search_placeholder": "Search restaurants, coffee...",
+  "what_want_eat": "What Do You Want To Eat?",
+  "places_might_like": "Places Might You Like",
+  "vegetarian_dish": "Vegetarian Dish",
+  "reviews": "reviews",
+  "restaurant_name": "Quan an so {{number}}",
+  "price_format": "From {{from}} to {{to}}",
+  "from": "From",
+  "to": "To",
+  "filter": "Filter",
+  "space": "Space",
+  "dish_type": "Dish Type",
+  "price_range": "Price Range",
+  "distance": "Distance",
+  "has_parking": "Has Car Parking",
+  "time_slot": "Time Slot",
+  "show_open_only": "Only Show Open Stores",
+  "other_amenities": "Other Amenities",
+  "reset": "Reset",
+  "apply": "Apply",
+  "sort_by": "Sort By",
+  "categories": {
+    "rice": "Rice",
+    "noodle": "Noodle",
+    "pho": "Pho",
+    "coffee": "Coffee",
+    "milk_tea": "Milk Tea",
+    "other": "Long Se Dieu"
+  },
+  "space_types": {
+    "restaurant": "Restaurant",
+    "cafe": "Cafe",
+    "casual": "Casual Dining",
+    "takeaway": "Takeaway",
+    "food_court": "Food Court",
+    "food_street": "Food Street"
+  },
+  "price_options": {
+    "any": "Any",
+    "under_50": "Under 50,000",
+    "range_50_150": "From 50,000 - 150,000",
+    "range_150_300": "From 150,000 - 300,000",
+    "over_300": "Over 300,000"
+  },
+  "amenities": {
+    "vegetarian": "Vegetarian",
+    "hygiene": "Hygiene Certified",
+    "michelin": "Michelin",
+    "air_conditioned": "Air Conditioned",
+    "wifi": "Wifi",
+    "pet_friendly": "Pet Friendly",
+    "delivery": "Delivery"
+  },
+  "sort_options": {
+    "distance": "Distance",
+    "newest": "Newest",
+    "votes": "Votes"
+  },
+  "cuisines": {
+    "chinese": "Mon Hoa",
+    "vietnamese": "Mon Viet",
+    "vegetarian": "Mon Chay"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "status": {
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "hours_format": "{{start}} - {{end}} ({{days}})",
+  "days_range": {
+    "mon_sat": "Monday - Saturday",
+    "mon_sun": "Monday - Sunday"
+  },
+  "actions": {
+    "add_to_current_pick": "Add to Current Pick",
+    "swipe_up": "Swipe up",
+    "to_see_similar": "To see similar restaurants",
+    "sort_by": "Sort by",
+    "all": "All",
+    "new": "New",
+    "main_dishes": "Main Dishes",
+    "appetizers": "Appetizers",
+    "desserts": "Desserts",
+    "see_all_reviews": "See all reviews",
+    "you_may_like": "You may like",
+    "comments": "Comments",
+    "rating_out_of": "/ 5.0",
+    "locations": "locations",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "minutes",
+    "see_more": "See more",
+    "food": "Food",
+    "service": "Service",
+    "location": "Location",
+    "vibe": "Vibe"
+  },
+  "tabs": {
+    "menu": "Menu",
+    "reviews": "Reviews",
+    "nearby": "You May Like"
+  },
+  "badges": {
+    "ready_order": "Ready order",
+    "top_pick": "Top pick"
+  },
+  "user": "User"
 }

@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 import { View, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import ImageCarouselWithProgress from '@features/home/components/ImageCarouselWithProgress';
 import RestaurantInfo, {
   type RestaurantInfoData,
@@ -19,6 +20,8 @@ const RestaurantSwipeScreen = ({
   restaurantData,
   onClose,
 }: RestaurantSwipeScreenProps = {}): JSX.Element => {
+  const { t } = useTranslation();
+
   const restaurantImages = restaurantData?.images ?? [
     'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200',
     'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&h=1200',
@@ -26,30 +29,42 @@ const RestaurantSwipeScreen = ({
   ];
 
   const restaurantInfo: RestaurantInfoData = {
-    name: restaurantData?.name ?? 'Tiệm mì Chan Chan',
-    priceRange: restaurantData?.priceRange ?? 'Từ 200k đến 500k',
+    name: restaurantData?.name ?? 'Tiem mi Chan Chan',
+    priceRange:
+      restaurantData?.priceRange ??
+      t('price_format', { from: '200k', to: '500k' }),
     rating: restaurantData?.rating ?? 4.5,
     reviewCount: restaurantData?.reviewCount ?? 0,
     isVegetarian: restaurantData?.isVegetarian ?? true,
-    cuisine: restaurantData?.cuisine ?? 'Món Hoa',
+    cuisine: restaurantData?.cuisine ?? t('cuisines.chinese'),
     address:
       restaurantData?.address ??
-      '25A Ngô Quang Huy, Phường An Khánh, Hồ Chí Minh',
-    hours: restaurantData?.hours ?? '8:00 - 23:00 (Thứ hai - Thứ bảy)',
+      '25A Ngo Quang Huy, Phuong An Khanh, Ho Chi Minh',
+    hours:
+      restaurantData?.hours ??
+      t('hours_format', {
+        start: '8:00',
+        end: '23:00',
+        days: t('days_range.mon_sat'),
+      }),
     isOpen: restaurantData?.isOpen ?? true,
   };
 
   const similarRestaurants = [
     {
       restaurant: {
-        name: 'Quán Chay Hương Sen',
-        priceRange: 'Từ 150k đến 350k',
+        name: 'Quan Chay Huong Sen',
+        priceRange: t('price_format', { from: '150k', to: '350k' }),
         rating: 4.3,
         reviewCount: 128,
         isVegetarian: true,
-        cuisine: 'Món Chay',
-        address: '123 Nguyễn Văn Linh, Quận 7, Hồ Chí Minh',
-        hours: '9:00 - 22:00 (Thứ hai - Chủ nhật)',
+        cuisine: t('cuisines.vegetarian'),
+        address: '123 Nguyen Van Linh, Quan 7, Ho Chi Minh',
+        hours: t('hours_format', {
+          start: '9:00',
+          end: '22:00',
+          days: t('days_range.mon_sun'),
+        }),
         isOpen: true,
       },
       images: [
@@ -60,14 +75,18 @@ const RestaurantSwipeScreen = ({
     },
     {
       restaurant: {
-        name: 'Nhà Hàng Thiên Hương',
-        priceRange: 'Từ 180k đến 450k',
+        name: 'Nha Hang Thien Huong',
+        priceRange: t('price_format', { from: '180k', to: '450k' }),
         rating: 4.7,
         reviewCount: 256,
         isVegetarian: true,
-        cuisine: 'Món Hoa',
-        address: '456 Lê Văn Việt, Quận 9, Hồ Chí Minh',
-        hours: '7:00 - 21:00 (Thứ hai - Thứ bảy)',
+        cuisine: t('cuisines.chinese'),
+        address: '456 Le Van Viet, Quan 9, Ho Chi Minh',
+        hours: t('hours_format', {
+          start: '7:00',
+          end: '21:00',
+          days: t('days_range.mon_sat'),
+        }),
         isOpen: true,
       },
       images: [
@@ -79,13 +98,17 @@ const RestaurantSwipeScreen = ({
     {
       restaurant: {
         name: 'Bistro Xanh Healthy',
-        priceRange: 'Từ 100k đến 300k',
+        priceRange: t('price_format', { from: '100k', to: '300k' }),
         rating: 4.6,
         reviewCount: 89,
         isVegetarian: true,
-        cuisine: 'Món Việt',
-        address: '789 Võ Văn Ngân, Thủ Đức, Hồ Chí Minh',
-        hours: '8:00 - 20:00 (Thứ hai - Chủ nhật)',
+        cuisine: t('cuisines.vietnamese'),
+        address: '789 Vo Van Ngan, Thu Duc, Ho Chi Minh',
+        hours: t('hours_format', {
+          start: '8:00',
+          end: '20:00',
+          days: t('days_range.mon_sun'),
+        }),
         isOpen: false,
       },
       images: [

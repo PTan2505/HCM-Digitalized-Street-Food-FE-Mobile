@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import type { JSX } from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   Modal,
@@ -34,6 +35,7 @@ const FilterModal = ({
   onClose,
   onApply,
 }: FilterModalProps): JSX.Element => {
+  const { t } = useTranslation();
   const [spaceTypes, setSpaceTypes] = useState<string[]>([]);
   const [dishTypes, setDishTypes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<string[]>([]);
@@ -78,30 +80,30 @@ const FilterModal = ({
   };
 
   const spaceOptions = [
-    'Nhà hàng',
-    'Cafe',
-    'Quán bình dân',
-    'Mua mang về',
-    'Khu ẩm thực',
-    'Phố ẩm thực',
+    { key: 'restaurant', label: t('space_types.restaurant') },
+    { key: 'cafe', label: t('space_types.cafe') },
+    { key: 'casual', label: t('space_types.casual') },
+    { key: 'takeaway', label: t('space_types.takeaway') },
+    { key: 'food_court', label: t('space_types.food_court') },
+    { key: 'food_street', label: t('space_types.food_street') },
   ];
 
   const priceOptions = [
-    'Bất kì',
-    'Dưới 50,000',
-    'Từ 50,000 - 150,000',
-    'Từ 150,000 - 300,000',
-    'Trên 300,000',
+    { key: 'any', label: t('price_options.any') },
+    { key: 'under_50', label: t('price_options.under_50') },
+    { key: 'range_50_150', label: t('price_options.range_50_150') },
+    { key: 'range_150_300', label: t('price_options.range_150_300') },
+    { key: 'over_300', label: t('price_options.over_300') },
   ];
 
   const amenityOptions = [
-    'Món chay',
-    'Chứng nhận vệ sinh',
-    'Michelin',
-    'Có điều hòa',
-    'Wifi',
-    'Thân thiện với thú cưng',
-    'Giao hàng',
+    { key: 'vegetarian', label: t('amenities.vegetarian') },
+    { key: 'hygiene', label: t('amenities.hygiene') },
+    { key: 'michelin', label: t('amenities.michelin') },
+    { key: 'air_conditioned', label: t('amenities.air_conditioned') },
+    { key: 'wifi', label: t('amenities.wifi') },
+    { key: 'pet_friendly', label: t('amenities.pet_friendly') },
+    { key: 'delivery', label: t('amenities.delivery') },
   ];
 
   return (
@@ -114,7 +116,9 @@ const FilterModal = ({
       <View className="flex-1 justify-end bg-black/50">
         <View className="rounded-t-3xl bg-white" style={{ maxHeight: '90%' }}>
           <View className="items-center border-b border-gray-200 px-6 py-4">
-            <Text className="text-xl font-semibold text-gray-900">Bộ lọc</Text>
+            <Text className="text-xl font-semibold text-gray-900">
+              {t('filter')}
+            </Text>
             <TouchableOpacity
               onPress={onClose}
               className="absolute right-6 top-4"
@@ -129,29 +133,29 @@ const FilterModal = ({
           >
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
-                Không gian
+                {t('space')}
               </Text>
               <View className="flex-row flex-wrap gap-2">
                 {spaceOptions.map((option) => (
                   <TouchableOpacity
-                    key={option}
+                    key={option.key}
                     onPress={() =>
-                      toggleSelection(option, spaceTypes, setSpaceTypes)
+                      toggleSelection(option.key, spaceTypes, setSpaceTypes)
                     }
                     className={`rounded-full border px-4 py-2 ${
-                      spaceTypes.includes(option)
+                      spaceTypes.includes(option.key)
                         ? 'border-[#06AA4C] bg-[#06AA4C]'
                         : 'border-gray-300 bg-white'
                     }`}
                   >
                     <Text
                       className={`text-sm ${
-                        spaceTypes.includes(option)
+                        spaceTypes.includes(option.key)
                           ? 'text-white'
                           : 'text-gray-700'
                       }`}
                     >
-                      {option}
+                      {option.label}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -160,7 +164,7 @@ const FilterModal = ({
 
             <View className="border-b border-gray-100 py-5">
               <Text className="mb-4 px-6 text-base font-semibold text-gray-900">
-                Loại món
+                {t('dish_type')}
               </Text>
               <FlatList
                 data={FOOD_CATEGORIES}
@@ -171,7 +175,7 @@ const FilterModal = ({
                 ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
                 renderItem={({ item }) => (
                   <CategoryCard
-                    title={item.title}
+                    title={t(item.titleKey)}
                     image={item.image}
                     selected={dishTypes.includes(item.id)}
                     onPress={() =>
@@ -184,29 +188,29 @@ const FilterModal = ({
 
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
-                Khoảng giá
+                {t('price_range')}
               </Text>
               <View className="flex-row flex-wrap gap-2">
                 {priceOptions.map((option) => (
                   <TouchableOpacity
-                    key={option}
+                    key={option.key}
                     onPress={() =>
-                      toggleSelection(option, priceRange, setPriceRange)
+                      toggleSelection(option.key, priceRange, setPriceRange)
                     }
                     className={`rounded-full border px-4 py-2 ${
-                      priceRange.includes(option)
+                      priceRange.includes(option.key)
                         ? 'border-[#06AA4C] bg-[#06AA4C]'
                         : 'border-gray-300 bg-white'
                     }`}
                   >
                     <Text
                       className={`text-sm ${
-                        priceRange.includes(option)
+                        priceRange.includes(option.key)
                           ? 'text-white'
                           : 'text-gray-700'
                       }`}
                     >
-                      {option}
+                      {option.label}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -216,7 +220,7 @@ const FilterModal = ({
             {/* Khoảng cách */}
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-4 text-base font-semibold text-gray-900">
-                Khoảng cách
+                {t('distance')}
               </Text>
               <View className="relative">
                 {/* Track line with dots */}
@@ -269,7 +273,9 @@ const FilterModal = ({
                 onPress={() => setHasParking(!hasParking)}
                 className="mt-3 flex-row items-center justify-between"
               >
-                <Text className="text-sm text-gray-700">Có chỗ để xe ô tô</Text>
+                <Text className="text-sm text-gray-700">
+                  {t('has_parking')}
+                </Text>
                 <View
                   className={`h-5 w-5 items-center justify-center rounded ${
                     hasParking
@@ -286,14 +292,14 @@ const FilterModal = ({
 
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
-                Khung giờ
+                {t('time_slot')}
               </Text>
               <TouchableOpacity
                 onPress={() => setOpenNow(!openNow)}
                 className="flex-row items-center justify-between"
               >
                 <Text className="flex-1 text-sm text-gray-700">
-                  Chỉ hiển thị những cửa hàng đang mở
+                  {t('show_open_only')}
                 </Text>
                 <View
                   className={`h-5 w-5 items-center justify-center rounded ${
@@ -309,29 +315,29 @@ const FilterModal = ({
 
             <View className="px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
-                Tiện ích khác
+                {t('other_amenities')}
               </Text>
               <View className="flex-row flex-wrap gap-2">
                 {amenityOptions.map((option) => (
                   <TouchableOpacity
-                    key={option}
+                    key={option.key}
                     onPress={() =>
-                      toggleSelection(option, amenities, setAmenities)
+                      toggleSelection(option.key, amenities, setAmenities)
                     }
                     className={`rounded-full border px-4 py-2 ${
-                      amenities.includes(option)
+                      amenities.includes(option.key)
                         ? 'border-[#06AA4C] bg-[#06AA4C]'
                         : 'border-gray-300 bg-white'
                     }`}
                   >
                     <Text
                       className={`text-sm ${
-                        amenities.includes(option)
+                        amenities.includes(option.key)
                           ? 'text-white'
                           : 'text-gray-700'
                       }`}
                     >
-                      {option}
+                      {option.label}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -345,7 +351,7 @@ const FilterModal = ({
               className="flex-1 rounded-full border border-gray-300 bg-white py-4"
             >
               <Text className="text-center text-base font-semibold text-gray-700">
-                Thiết lập lại
+                {t('reset')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -353,7 +359,7 @@ const FilterModal = ({
               className="flex-1 rounded-full bg-[#06AA4C] py-4"
             >
               <Text className="text-center text-base font-semibold text-white">
-                Áp dụng
+                {t('apply')}
               </Text>
             </TouchableOpacity>
           </View>

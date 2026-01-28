@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -25,6 +26,8 @@ interface RestaurantsMayLikeTabProps {
 const RestaurantsMayLikeTab = ({
   restaurants,
 }: RestaurantsMayLikeTabProps): JSX.Element => {
+  const { t } = useTranslation();
+
   const renderNearbyRestaurant = (
     restaurant: NearbyRestaurant
   ): JSX.Element => (
@@ -56,7 +59,7 @@ const RestaurantsMayLikeTab = ({
         {restaurant.badge && (
           <View className="self-start rounded bg-green-50 px-2 py-1">
             <Text className="text-xs font-semibold text-[#00B14F]">
-              {restaurant.badge}
+              {t('badges.ready_order')}
             </Text>
           </View>
         )}
@@ -70,7 +73,7 @@ const RestaurantsMayLikeTab = ({
   return (
     <View className="p-4">
       <Text className="mb-4 text-lg font-bold text-black">
-        Bạn có thể sẽ thích
+        {t('actions.you_may_like')}
       </Text>
       {restaurants.map(renderNearbyRestaurant)}
     </View>

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 interface PlaceCardProps {
   title: string;
@@ -27,6 +28,7 @@ export const PlaceCard = ({
   isVegetarian,
 }: PlaceCardProps): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('RestaurantSwipe')}
@@ -45,7 +47,7 @@ export const PlaceCard = ({
           {isVegetarian && (
             <View className="absolute bottom-2 left-2 flex-row items-center justify-center gap-[4.2px] rounded-[16.81px] bg-[#4FBE71] px-[6.31px] py-[6.31px]">
               <Text className="font-comfortaa text-[10.5px] font-medium leading-[10.5px] text-[#FFFF]">
-                Món chay
+                {t('vegetarian_dish')}
               </Text>
             </View>
           )}

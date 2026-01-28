@@ -1,6 +1,7 @@
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import type { JSX } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -12,13 +13,15 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({
-  placeholder = 'Tìm nhà hàng, quán cà phê',
+  placeholder,
   onSearch,
   onFilterPress,
   onPress,
   editable = true,
   noMargin = false,
 }: SearchBarProps): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <View className={noMargin ? '' : 'mx-4 mb-4'}>
       <TouchableOpacity
@@ -30,7 +33,7 @@ const SearchBar = ({
           <Ionicons name="search" size={20} color="#588d22" />
 
           <TextInput
-            placeholder={placeholder}
+            placeholder={placeholder ?? t('search_placeholder')}
             placeholderTextColor="#9CA3AF"
             onChangeText={onSearch}
             className="ml-3 flex-1 text-base text-gray-900"

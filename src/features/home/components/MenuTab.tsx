@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -31,6 +32,7 @@ const MenuTab = ({
   appetizers,
   desserts,
 }: MenuTabProps): JSX.Element => {
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<CategoryType>('all');
 
   const allMenuItems = [...menuItems, ...appetizers, ...desserts];
@@ -84,7 +86,7 @@ const MenuTab = ({
                 : 'text-black-400'
             }`}
           >
-            Tất cả
+            {t('actions.all')}
           </Text>
         </TouchableOpacity>
 
@@ -101,7 +103,7 @@ const MenuTab = ({
                 : 'text-black-400'
             }`}
           >
-            Món mới
+            {t('actions.new')}
           </Text>
         </TouchableOpacity>
 
@@ -120,7 +122,7 @@ const MenuTab = ({
                 : 'text-black-400'
             }`}
           >
-            Món chính
+            {t('actions.main_dishes')}
           </Text>
         </TouchableOpacity>
 
@@ -139,7 +141,7 @@ const MenuTab = ({
                 : 'text-black-400'
             }`}
           >
-            Món khai vị
+            {t('actions.appetizers')}
           </Text>
         </TouchableOpacity>
 
@@ -158,7 +160,7 @@ const MenuTab = ({
                 : 'text-black-400'
             }`}
           >
-            Món tráng miệng
+            {t('actions.desserts')}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -168,14 +170,16 @@ const MenuTab = ({
         <>
           {menuItems.length > 0 && (
             <View className="border-b border-gray-200 p-4">
-              <Text className="mb-4 text-lg font-bold text-black">Món mới</Text>
+              <Text className="mb-4 text-lg font-bold text-black">
+                {t('actions.new')}
+              </Text>
               {menuItems.map(renderMenuItem)}
             </View>
           )}
           {appetizers.length > 0 && (
             <View className="border-b border-gray-200 p-4">
               <Text className="mb-4 text-lg font-bold text-black">
-                Món khai vị
+                {t('actions.appetizers')}
               </Text>
               {appetizers.map(renderMenuItem)}
             </View>
@@ -183,7 +187,7 @@ const MenuTab = ({
           {desserts.length > 0 && (
             <View className="border-b border-gray-200 p-4">
               <Text className="mb-4 text-lg font-bold text-black">
-                Món tráng miệng
+                {t('actions.desserts')}
               </Text>
               {desserts.map(renderMenuItem)}
             </View>
@@ -192,7 +196,7 @@ const MenuTab = ({
             0 && (
             <View className="border-b border-gray-200 p-4">
               <Text className="mb-4 text-lg font-bold text-black">
-                Món chính
+                {t('actions.main_dishes')}
               </Text>
               {allMenuItems
                 .filter((item) => item.category === 'main')
@@ -204,12 +208,12 @@ const MenuTab = ({
         <View className="border-b border-gray-200 p-4">
           <Text className="mb-4 text-lg font-bold text-black">
             {activeCategory === 'new'
-              ? 'Món mới'
+              ? t('actions.new')
               : activeCategory === 'main'
-                ? 'Món chính'
+                ? t('actions.main_dishes')
                 : activeCategory === 'appetizer'
-                  ? 'Món khai vị'
-                  : 'Món tráng miệng'}
+                  ? t('actions.appetizers')
+                  : t('actions.desserts')}
           </Text>
           {filteredMenuItems.length > 0 ? (
             filteredMenuItems.map(renderMenuItem)
