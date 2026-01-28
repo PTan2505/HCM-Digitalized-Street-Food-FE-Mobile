@@ -1,5 +1,4 @@
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
-import type { TabType } from '@features/home/components/TabsBar';
 import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
 import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
 import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
@@ -15,7 +14,7 @@ import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import ProfileScreen from '@features/user/screens/ProfileScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Main',
+  initialRouteName: 'Auth',
   screenOptions: { headerShown: false },
   screens: {
     Auth: {
@@ -33,7 +32,6 @@ const RootStack = createNativeStackNavigator({
     },
     RestaurantDetails: {
       screen: RestaurantDetailsScreen,
-      initialParams: {} as { tab?: TabType },
     },
     CurrentPicks: {
       screen: CurrentPicksScreen,
@@ -44,18 +42,6 @@ const RootStack = createNativeStackNavigator({
     Profile: {
       screen: ProfileScreen,
     },
-    // OTP: {
-    //   screen: OTPScreen,
-    //   options: { headerShown: false },
-    // },
-    // ForgetPassword: {
-    //   screen: ForgetPasswordScreen,
-    //   options: { headerShown: false },
-    // },
-    // ResetPassword: {
-    //   screen: ResetPasswordScreen,
-    //   options: { headerShown: false },
-    // },
   },
 });
 
@@ -64,9 +50,8 @@ type RootStackParamList = StaticParamList<typeof RootStack>;
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {
-      RestaurantDetails: { tab?: TabType };
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface RootParamList extends RootStackParamList {}
   }
 }
 
