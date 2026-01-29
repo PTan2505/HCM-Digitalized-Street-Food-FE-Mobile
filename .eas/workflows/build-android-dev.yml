@@ -1,0 +1,22 @@
+name: Android development build
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'android/**' # Trigger on Native Android changes
+      - 'src/**' # Trigger on Shared JS code
+      - 'components/**' # (Optional) If you have a components folder
+      - 'App.js' # Trigger on Entry file
+      - 'app.json' # Trigger on Config changes
+      - 'package.json' # Trigger on Dependency changes
+      - '!ios/**' # ⛔️ NEVER trigger on iOS changes
+      - '!**/*.md' # ⛔️ NEVER trigger on Markdown/Docs
+
+jobs:
+  build_android:
+    name: Build Android development
+    type: build
+    params:
+      platform: android
+      profile: development

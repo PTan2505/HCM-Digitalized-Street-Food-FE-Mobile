@@ -1,55 +1,46 @@
+import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
+import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
+import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
+import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
+import SearchScreen from '@features/home/screens/SearchScreen';
 import {
   createStaticNavigation,
   StaticParamList,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
-import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
-import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
-import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
-import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
-import SearchScreen from '@features/home/screens/SearchScreen';
-import type { TabType } from '@features/home/components/TabsBar';
+
+import { AuthScreen } from '@features/auth/screens/AuthScreen';
+import ProfileScreen from '@features/user/screens/ProfileScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Main',
+  initialRouteName: 'Auth',
+  screenOptions: { headerShown: false },
   screens: {
+    Auth: {
+      screen: AuthScreen,
+    },
+
     Main: {
       screen: HomeBottomTabs,
-      options: {
-        headerShown: false,
-      },
     },
     Search: {
       screen: SearchScreen,
-      options: {
-        headerShown: false,
-      },
     },
     RestaurantSwipe: {
       screen: RestaurantSwipeScreen,
-      options: {
-        headerShown: false,
-      },
     },
     RestaurantDetails: {
       screen: RestaurantDetailsScreen,
-      options: {
-        headerShown: false,
-      },
-      initialParams: {} as { tab?: TabType },
     },
     CurrentPicks: {
       screen: CurrentPicksScreen,
-      options: {
-        headerShown: false,
-      },
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
-      options: {
-        headerShown: false,
-      },
+    },
+    Profile: {
+      screen: ProfileScreen,
     },
   },
 });
@@ -59,9 +50,8 @@ type RootStackParamList = StaticParamList<typeof RootStack>;
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {
-      RestaurantDetails: { tab?: TabType };
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface RootParamList extends RootStackParamList {}
   }
 }
 
