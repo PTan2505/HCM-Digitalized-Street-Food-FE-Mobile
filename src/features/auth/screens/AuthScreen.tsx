@@ -122,7 +122,7 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -150], // Starts at natural position, slides down when animating
+                  outputRange: [50, -150], // Starts at natural position, slides down when animating
                 }),
               },
             ],
