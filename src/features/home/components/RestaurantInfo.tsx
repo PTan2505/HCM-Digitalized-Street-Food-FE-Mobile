@@ -46,7 +46,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
       <View className="mb-3 flex-row items-center gap-2">
         {restaurant.isVegetarian && (
           <View className="rounded-2xl bg-[#00B14F] px-2 py-1">
-            <Text className="text-xs font-semibold text-white">Ăn chay</Text>
+            <Text className="text-xs font-semibold text-white">Món Chay</Text>
           </View>
         )}
         <View className="rounded-2xl bg-[#F1FAEA] px-2 py-1">
@@ -65,7 +65,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             restaurant.isOpen ? 'text-[#00B14F]' : 'text-red-500'
           }`}
         >
-          {restaurant.isOpen ? 'Đang mở' : 'Đã đóng'}
+          {restaurant.isOpen ? 'Mở cửa' : 'Đóng cửa'}
         </Text>
       </View>
     </View>

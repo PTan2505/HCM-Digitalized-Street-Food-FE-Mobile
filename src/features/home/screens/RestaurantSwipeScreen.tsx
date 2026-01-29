@@ -26,30 +26,30 @@ const RestaurantSwipeScreen = ({
   ];
 
   const restaurantInfo: RestaurantInfoData = {
-    name: restaurantData?.name ?? 'Tiệm mì Chan Chan',
-    priceRange: restaurantData?.priceRange ?? 'Từ 200k đến 500k',
+    name: restaurantData?.name ?? 'Tiem mi Chan Chan',
+    priceRange: restaurantData?.priceRange ?? '200k - 500k',
     rating: restaurantData?.rating ?? 4.5,
     reviewCount: restaurantData?.reviewCount ?? 0,
     isVegetarian: restaurantData?.isVegetarian ?? true,
     cuisine: restaurantData?.cuisine ?? 'Món Hoa',
     address:
       restaurantData?.address ??
-      '25A Ngô Quang Huy, Phường An Khánh, Hồ Chí Minh',
-    hours: restaurantData?.hours ?? '8:00 - 23:00 (Thứ hai - Thứ bảy)',
+      '25A Ngo Quang Huy, Phuong An Khanh, Ho Chi Minh',
+    hours: restaurantData?.hours ?? '8:00 - 23:00 (Thứ 2 - Thứ 7)',
     isOpen: restaurantData?.isOpen ?? true,
   };
 
   const similarRestaurants = [
     {
       restaurant: {
-        name: 'Quán Chay Hương Sen',
-        priceRange: 'Từ 150k đến 350k',
+        name: 'Quan Chay Huong Sen',
+        priceRange: '150k - 350k',
         rating: 4.3,
         reviewCount: 128,
         isVegetarian: true,
         cuisine: 'Món Chay',
-        address: '123 Nguyễn Văn Linh, Quận 7, Hồ Chí Minh',
-        hours: '9:00 - 22:00 (Thứ hai - Chủ nhật)',
+        address: '123 Nguyen Van Linh, Quan 7, Ho Chi Minh',
+        hours: '9:00 - 22:00 (Thứ 2 - Chủ Nhật)',
         isOpen: true,
       },
       images: [
@@ -60,14 +60,14 @@ const RestaurantSwipeScreen = ({
     },
     {
       restaurant: {
-        name: 'Nhà Hàng Thiên Hương',
-        priceRange: 'Từ 180k đến 450k',
+        name: 'Nha Hang Thien Huong',
+        priceRange: '180k - 450k',
         rating: 4.7,
         reviewCount: 256,
         isVegetarian: true,
         cuisine: 'Món Hoa',
-        address: '456 Lê Văn Việt, Quận 9, Hồ Chí Minh',
-        hours: '7:00 - 21:00 (Thứ hai - Thứ bảy)',
+        address: '456 Le Van Viet, Quan 9, Ho Chi Minh',
+        hours: '7:00 - 21:00 (Thứ 2 - Thứ 7)',
         isOpen: true,
       },
       images: [
@@ -79,13 +79,13 @@ const RestaurantSwipeScreen = ({
     {
       restaurant: {
         name: 'Bistro Xanh Healthy',
-        priceRange: 'Từ 100k đến 300k',
+        priceRange: '100k - 300k',
         rating: 4.6,
         reviewCount: 89,
         isVegetarian: true,
         cuisine: 'Món Việt',
-        address: '789 Võ Văn Ngân, Thủ Đức, Hồ Chí Minh',
-        hours: '8:00 - 20:00 (Thứ hai - Chủ nhật)',
+        address: '789 Vo Van Ngan, Thu Duc, Ho Chi Minh',
+        hours: '8:00 - 20:00 (Thứ 2 - Chủ Nhật)',
         isOpen: false,
       },
       images: [

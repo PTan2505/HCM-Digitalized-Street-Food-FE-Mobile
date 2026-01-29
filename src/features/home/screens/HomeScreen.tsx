@@ -5,6 +5,8 @@ import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import '@utils/i18n';
 import {
   FlatList,
   ScrollView,
@@ -32,22 +34,23 @@ interface PlaceItem {
   isVegetarian: boolean;
 }
 
-const SAMPLE_PLACES: PlaceItem[] = Array.from({ length: 10 }).map(
-  (_, index) => ({
-    id: String(index + 1),
-    title: `Quán ăn số ${index + 1}`,
-    rating: Number((4.0 + (index % 6) * 0.1).toFixed(1)),
-    distance: `${(0.5 + index * 0.2).toFixed(1)} km`,
-    priceRange: index % 2 === 0 ? 'Từ 30k đến 80k' : 'Từ 50k đến 200k',
-    imageSource: SamplePlace,
-    isVegetarian: index % 3 === 0,
-  })
-);
-
 const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+
+  const samplePlaces: PlaceItem[] = Array.from({ length: 10 }).map(
+    (_, index) => ({
+      id: String(index + 1),
+      title: `Nhà hàng ${index + 1}`,
+      rating: Number((4.0 + (index % 6) * 0.1).toFixed(1)),
+      distance: `${(0.5 + index * 0.2).toFixed(1)} km`,
+      priceRange: index % 2 === 0 ? 'Từ 30k - 80k' : 'Từ 50k - 200k',
+      imageSource: SamplePlace,
+      isVegetarian: index % 3 === 0,
+    })
+  );
 
   const handleFilterApply = (filters: FilterState): void => {
     console.log('Applied filters:', filters);
@@ -80,7 +83,7 @@ const HomeScreen = (): JSX.Element => {
             <BannerCarousel banners={banners} />
 
             <View className="px-4 py-2">
-              <Title>Bạn muốn ăn gì?</Title>
+              <Title>{t('what_want_eat')}</Title>
             </View>
 
             <View className="flex-row px-4 pt-2">
@@ -97,20 +100,20 @@ const HomeScreen = (): JSX.Element => {
                 ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
                 renderItem={({ item }) => (
                   <CategoryCard
-                    title={item.title}
+                    title={t(item.titleKey)}
                     image={item.image}
-                    onPress={() => console.log(`Selected ${item.title}`)}
+                    onPress={() => console.log(`Selected ${t(item.titleKey)}`)}
                   />
                 )}
               />
             </View>
 
             <View className="px-4 pb-2 pt-6">
-              <Title>Những địa điểm bạn có thể thích</Title>
+              <Title>{t('places_might_like')}</Title>
             </View>
 
             <View className="flex-row flex-wrap justify-between px-4 pb-6 pt-2">
-              {SAMPLE_PLACES.map((item) => (
+              {samplePlaces.map((item) => (
                 <View key={item.id} className="mb-3 w-[49%]">
                   <PlaceCard
                     title={item.title}

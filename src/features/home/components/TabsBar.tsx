@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export type TabType = 'menu' | 'reviews' | 'nearby';
 
@@ -10,6 +11,8 @@ interface TabsBarProps {
 }
 
 const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <View className="flex-row justify-start gap-2 border-b border-gray-200 px-4">
       <TouchableOpacity
@@ -30,7 +33,7 @@ const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
               : 'text-black-400'
           }`}
         >
-          Menu Quán
+          {t('tabs.menu')}
         </Text>
       </TouchableOpacity>
 
@@ -52,7 +55,7 @@ const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
               : 'text-black-400'
           }`}
         >
-          Bình luận
+          {t('tabs.reviews')}
         </Text>
       </TouchableOpacity>
 
@@ -74,7 +77,7 @@ const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
               : 'text-black-400'
           }`}
         >
-          Bạn có thể thích
+          {t('tabs.nearby')}
         </Text>
       </TouchableOpacity>
     </View>

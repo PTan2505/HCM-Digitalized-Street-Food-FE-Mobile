@@ -33,31 +33,31 @@ const RestaurantDetailsScreen = ({
   const restaurantBanners = [SamplePlace, SamplePlace, SamplePlace];
 
   const restaurantInfo: RestaurantInfoData = {
-    name: 'Tiệm mì Chan Chan',
-    priceRange: 'Từ 50k đến 200k',
+    name: 'Tiem mi Chan Chan',
+    priceRange: 'Từ 50k - 200k',
     rating: 4.5,
     reviewCount: 10,
     isVegetarian: true,
     cuisine: 'Món Hoa',
-    address: '25A Ngô Quang Huy, Phường An Khánh, Hồ Chí Minh',
-    hours: '8:00 - 23:00 (Thứ hai - Thứ bảy)',
+    address: '25A Ngo Quang Huy, Phuong An Khanh, Ho Chi Minh',
+    hours: '8:00 - 23:00 (Thứ 2 - Thứ 7)',
     isOpen: true,
   };
 
   const menuItems: MenuItem[] = [
     {
       id: '1',
-      name: 'Mì viên kho Hồng Kông',
-      description: 'Mì trứng, viên chay, hành tím, gừng, rau cải và đủ độ',
+      name: 'Mi vien kho Hong Kong',
+      description: 'Mi trung, vien chay, hanh tim, gung, rau cai va du do',
       price: '200k',
       image: SamplePlace,
       category: 'new',
     },
     {
       id: '2',
-      name: 'Mì tiềm chay',
+      name: 'Mi tiem chay',
       description:
-        'Mì trứng, nấm đông cô, cà rốt, táo đỏ, kỷ tử, gừng, rau cải',
+        'Mi trung, nam dong co, ca rot, tao do, ky tu, gung, rau cai',
       price: '150k',
       image: SamplePlace,
       category: 'main',
@@ -67,8 +67,8 @@ const RestaurantDetailsScreen = ({
   const appetizers: MenuItem[] = [
     {
       id: '3',
-      name: 'Nấm Bào Ngư Tempura',
-      description: 'Nấm tươi chiên giòn mềm ngọt chấm cùng sốt cay béo',
+      name: 'Nam Bao Ngu Tempura',
+      description: 'Nam tuoi chien gion mem ngot cham cung sot cay beo',
       price: '80k',
       image: SamplePlace,
       category: 'appetizer',
@@ -78,9 +78,9 @@ const RestaurantDetailsScreen = ({
   const desserts: MenuItem[] = [
     {
       id: '4',
-      name: 'Chè Đậu Đỏ Mochi',
+      name: 'Che Dau Do Mochi',
       description:
-        'Đậu đỏ hấm mềm, đường thốt nốt, nước cốt dừa, muối, bột nếp, me rang và ít dừa',
+        'Dau do ham mem, duong thot not, nuoc cot dua, muoi, bot nep, me rang va it dua',
       price: '50k',
       image: SamplePlace,
       category: 'dessert',
@@ -94,7 +94,7 @@ const RestaurantDetailsScreen = ({
       date: '02/09/2025',
       rating: 4.5,
       comment:
-        'Lần đầu ghé quán ăn thấy rất tuyệng ngay tử lúc bước vào. Không gian quán mình mát, decor thì xịn như Tết ở Trung Quốc...',
+        'Lan dau ghe quan an thay rat tuyeng ngay tu luc buoc vao. Khong gian quan minh mat, decor thi xin nhu Tet o Trung Quoc...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
     {
@@ -103,7 +103,7 @@ const RestaurantDetailsScreen = ({
       date: '02/09/2025',
       rating: 4.5,
       comment:
-        'Đồ ăn quán ngon, vừa miệng, trelệt bài bảng số của tiệm ấm cúng và có hình ảnh đặt...',
+        'Do an quan ngon, vua mieng, trelet bai bang so cua tiem am cung va co hinh anh dat...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
     {
@@ -112,7 +112,7 @@ const RestaurantDetailsScreen = ({
       date: '02/09/2025',
       rating: 4.5,
       comment:
-        'Quán có không gian rộng rãi, thoáng mát, nhân viên phục vụ nhiệt tình. Món ăn thì rất ngon, đặc biệt là món mì tiềm chay...',
+        'Quan co khong gian rong rai, thoang mat, nhan vien phuc vu nhiet tinh. Mon an thi rat ngon, dac biet la mon mi tiem chay...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
     {
@@ -121,7 +121,7 @@ const RestaurantDetailsScreen = ({
       date: '02/09/2025',
       rating: 4.5,
       comment:
-        'Mình rất thích không gian quán, rất yên tĩnh và thoải mái. Món ăn thì ngon, đặc biệt là món mì viên kho Hồng Kông...',
+        'Minh rat thich khong gian quan, rat yen tinh va thoai mai. Mon an thi ngon, dac biet la mon mi vien kho Hong Kong...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
   ];
@@ -129,29 +129,29 @@ const RestaurantDetailsScreen = ({
   const nearbyRestaurants: NearbyRestaurant[] = [
     {
       id: '1',
-      name: 'Bánh mì Huỳnh Hoa',
+      name: 'Banh mi Huynh Hoa',
       rating: 4.5,
       distance: '0.8 km',
-      priceRange: 'Từ 150k đến 200k',
-      badge: 'Đơn sẵn',
+      priceRange: 'Từ 150k - 200k',
+      badge: 'Sẵn sàng đặt',
       image: SamplePlace,
     },
     {
       id: '2',
-      name: 'Quán Gà Ta Muối',
+      name: 'Quan Ga Ta Muoi',
       rating: 4.3,
       distance: '0.8 km',
-      priceRange: 'Từ 150k đến 200k',
-      badge: 'Đơn sẵn',
+      priceRange: 'Từ 150k - 200k',
+      badge: 'Sẵn sàng đặt',
       image: SamplePlace,
     },
     {
       id: '3',
-      name: 'The Gangs Mạc Đĩnh Chi',
+      name: 'The Gangs Mac Dinh Chi',
       rating: 4.4,
       distance: '1.2 km',
-      priceRange: 'Từ 200k đến 500k',
-      badge: 'Tư tập bạn bè',
+      priceRange: 'Từ 200k - 500k',
+      badge: 'Tu tap ban be',
       image: SamplePlace,
     },
   ];

@@ -6,6 +6,7 @@ import FilterModal, {
 } from '@features/home/components/FilterModal';
 import type { JSX } from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   Text,
@@ -35,13 +36,6 @@ interface RestaurantItem {
   isTopPick?: boolean;
 }
 
-const FILTER_BUTTONS: FilterButton[] = [
-  { id: 'all', label: 'Tất cả', type: 'toggle' },
-  { id: 'vegetarian', label: 'Món chay', type: 'toggle' },
-  { id: 'space', label: 'Không gian', type: 'toggle' },
-  { id: 'dish', label: 'Loại món', type: 'toggle' },
-];
-
 const SAMPLE_RESTAURANTS: RestaurantItem[] = [
   {
     id: '1',
@@ -59,11 +53,17 @@ const SAMPLE_RESTAURANTS: RestaurantItem[] = [
 ];
 
 const SearchScreen = (): JSX.Element => {
+  const { t } = useTranslation();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [filteredRestaurants] = useState<RestaurantItem[]>(SAMPLE_RESTAURANTS);
-
-  // Modal states
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+
+  const filterButtons: FilterButton[] = [
+    { id: 'all', label: t('actions.all'), type: 'toggle' },
+    { id: 'vegetarian', label: t('vegetarian_dish'), type: 'toggle' },
+    { id: 'space', label: t('space'), type: 'toggle' },
+    { id: 'dish', label: t('dish_type'), type: 'toggle' },
+  ];
 
   const handleSearch = (text: string): void => {
     // TODO: Implement search logic
@@ -151,7 +151,7 @@ const SearchScreen = (): JSX.Element => {
         {/* Filter Buttons */}
         <View className="px-4">
           <FlatList
-            data={FILTER_BUTTONS}
+            data={filterButtons}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}

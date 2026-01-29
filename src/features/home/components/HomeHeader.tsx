@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import type { JSX } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import LanguageButton from './LanguageButton';
 
 const HomeHeader = (): JSX.Element => {
   const navigation = useNavigation();
@@ -10,6 +11,8 @@ const HomeHeader = (): JSX.Element => {
       <Text className="title-xl text-gray-900">Lowca</Text>
 
       <View className="flex-row gap-3">
+        <LanguageButton />
+
         <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
           <Ionicons name="map-outline" size={20} color="#588d22" />
         </TouchableOpacity>

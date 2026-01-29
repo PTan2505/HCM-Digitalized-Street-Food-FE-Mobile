@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 interface ActionButtonsProps {
   onBookmark?: () => void;
@@ -15,6 +16,7 @@ const ActionButtons = ({
   onAddToCurrentPick,
 }: ActionButtonsProps): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   return (
     <View className="flex-row items-center justify-center gap-2 px-4 pb-4">
@@ -43,7 +45,7 @@ const ActionButtons = ({
         className="h-14 flex-1 items-center justify-center rounded-full bg-[#FF6B2C]"
       >
         <Text className="text-base font-bold text-white">
-          Thêm vào Current Pick
+          {t('actions.add_to_current_pick')}
         </Text>
       </TouchableOpacity>
     </View>

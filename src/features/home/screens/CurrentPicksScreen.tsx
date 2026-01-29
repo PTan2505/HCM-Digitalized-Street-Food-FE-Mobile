@@ -15,6 +15,7 @@ import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 interface PickItem {
   id: string;
@@ -28,11 +29,13 @@ interface PickItem {
 
 const CurrentPicksScreen = (): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
+
   const picks: PickItem[] = [
     {
       id: '1',
       title: 'Current Picks #1',
-      locations: '3 địa điểm',
+      locations: `3 ${t('actions.locations')}`,
       days: 4,
       hours: 12,
       minutes: 21,
@@ -43,7 +46,7 @@ const CurrentPicksScreen = (): JSX.Element => {
     {
       id: '2',
       title: 'Current Picks #2',
-      locations: '9 địa điểm',
+      locations: `9 ${t('actions.locations')}`,
       days: 4,
       hours: 12,
       minutes: 21,
@@ -130,7 +133,7 @@ const CurrentPicksScreen = (): JSX.Element => {
                   <View className="flex-row items-center">
                     <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
                       <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
-                        {String(pick.days).padStart(2, '0')} ngày
+                        {String(pick.days).padStart(2, '0')} {t('actions.days')}
                       </Text>
                     </View>
                     <Text className="mx-1.5 text-base font-semibold text-[#1D7518]">
@@ -138,7 +141,8 @@ const CurrentPicksScreen = (): JSX.Element => {
                     </Text>
                     <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
                       <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
-                        {String(pick.hours).padStart(2, '0')} tiếng
+                        {String(pick.hours).padStart(2, '0')}{' '}
+                        {t('actions.hours')}
                       </Text>
                     </View>
                     <Text className="mx-1.5 text-base font-semibold text-[#1D7518]">
@@ -146,7 +150,8 @@ const CurrentPicksScreen = (): JSX.Element => {
                     </Text>
                     <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
                       <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
-                        {String(pick.minutes).padStart(2, '0')} phút
+                        {String(pick.minutes).padStart(2, '0')}{' '}
+                        {t('actions.minutes')}
                       </Text>
                     </View>
                   </View>

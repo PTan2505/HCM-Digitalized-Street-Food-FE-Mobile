@@ -70,7 +70,7 @@ const RestaurantsMayLikeTab = ({
   return (
     <View className="p-4">
       <Text className="mb-4 text-lg font-bold text-black">
-        Bạn có thể sẽ thích
+        Bạn có thể thích
       </Text>
       {restaurants.map(renderNearbyRestaurant)}
     </View>
