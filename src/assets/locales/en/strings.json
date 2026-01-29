@@ -10,10 +10,6 @@
   "search_placeholder": "Search restaurants, coffee...",
   "what_want_eat": "What Do You Want To Eat?",
   "places_might_like": "Places Might You Like",
-  "vegetarian_dish": "Vegetarian Dish",
-  "reviews": "reviews",
-  "restaurant_name": "Quan an so {{number}}",
-  "price_format": "From {{from}} to {{to}}",
   "from": "From",
   "to": "To",
   "filter": "Filter",
@@ -65,29 +61,6 @@
     "newest": "Newest",
     "votes": "Votes"
   },
-  "cuisines": {
-    "chinese": "Mon Hoa",
-    "vietnamese": "Mon Viet",
-    "vegetarian": "Mon Chay"
-  },
-  "days": {
-    "monday": "Monday",
-    "tuesday": "Tuesday",
-    "wednesday": "Wednesday",
-    "thursday": "Thursday",
-    "friday": "Friday",
-    "saturday": "Saturday",
-    "sunday": "Sunday"
-  },
-  "status": {
-    "open": "Open",
-    "closed": "Closed"
-  },
-  "hours_format": "{{start}} - {{end}} ({{days}})",
-  "days_range": {
-    "mon_sat": "Monday - Saturday",
-    "mon_sun": "Monday - Sunday"
-  },
   "actions": {
     "add_to_current_pick": "Add to Current Pick",
     "swipe_up": "Swipe up",
@@ -99,7 +72,6 @@
     "appetizers": "Appetizers",
     "desserts": "Desserts",
     "see_all_reviews": "See all reviews",
-    "you_may_like": "You may like",
     "comments": "Comments",
     "rating_out_of": "/ 5.0",
     "locations": "locations",
@@ -116,10 +88,5 @@
     "menu": "Menu",
     "reviews": "Reviews",
     "nearby": "You May Like"
-  },
-  "badges": {
-    "ready_order": "Ready order",
-    "top_pick": "Top pick"
-  },
-  "user": "User"
+  }
 }

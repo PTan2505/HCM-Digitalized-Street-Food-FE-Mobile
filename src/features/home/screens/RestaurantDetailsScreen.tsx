@@ -3,7 +3,6 @@ import type { JSX } from 'react';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 import SamplePlace from '@assets/SamplePlace.jpg';
 import ReviewsTab, { type Review } from '@features/home/components/ReviewsTab';
 import RestaurantsMayLikeTab, {
@@ -20,7 +19,6 @@ import { useSharedValue } from 'react-native-reanimated';
 
 const RestaurantDetailsScreen: () => JSX.Element = () => {
   const route = useRoute();
-  const { t } = useTranslation();
   const params = route.params as { tab?: TabType } | undefined;
   const [activeTab, setActiveTab] = useState<TabType>(params?.tab ?? 'menu');
   const progress = useSharedValue<number>(0);
@@ -35,17 +33,13 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
 
   const restaurantInfo: RestaurantInfoData = {
     name: 'Tiem mi Chan Chan',
-    priceRange: t('price_format', { from: '50k', to: '200k' }),
+    priceRange: 'Từ 50k - 200k',
     rating: 4.5,
     reviewCount: 10,
     isVegetarian: true,
-    cuisine: t('cuisines.chinese'),
+    cuisine: 'Món Hoa',
     address: '25A Ngo Quang Huy, Phuong An Khanh, Ho Chi Minh',
-    hours: t('hours_format', {
-      start: '8:00',
-      end: '23:00',
-      days: t('days_range.mon_sat'),
-    }),
+    hours: '8:00 - 23:00 (Thứ 2 - Thứ 7)',
     isOpen: true,
   };
 
@@ -95,7 +89,7 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
   const reviews: Review[] = [
     {
       id: '1',
-      userName: t('user'),
+      userName: 'Người dùng',
       date: '02/09/2025',
       rating: 4.5,
       comment:
@@ -104,7 +98,7 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
     },
     {
       id: '2',
-      userName: t('user'),
+      userName: 'Người dùng',
       date: '02/09/2025',
       rating: 4.5,
       comment:
@@ -113,7 +107,7 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
     },
     {
       id: '3',
-      userName: t('user'),
+      userName: 'Người dùng',
       date: '02/09/2025',
       rating: 4.5,
       comment:
@@ -122,7 +116,7 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
     },
     {
       id: '4',
-      userName: t('user'),
+      userName: 'Người dùng',
       date: '02/09/2025',
       rating: 4.5,
       comment:
@@ -137,8 +131,8 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
       name: 'Banh mi Huynh Hoa',
       rating: 4.5,
       distance: '0.8 km',
-      priceRange: t('price_format', { from: '150k', to: '200k' }),
-      badge: t('badges.ready_order'),
+      priceRange: 'Từ 150k - 200k',
+      badge: 'Sẵn sàng đặt',
       image: SamplePlace,
     },
     {
@@ -146,8 +140,8 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
       name: 'Quan Ga Ta Muoi',
       rating: 4.3,
       distance: '0.8 km',
-      priceRange: t('price_format', { from: '150k', to: '200k' }),
-      badge: t('badges.ready_order'),
+      priceRange: 'Từ 150k - 200k',
+      badge: 'Sẵn sàng đặt',
       image: SamplePlace,
     },
     {
@@ -155,7 +149,7 @@ const RestaurantDetailsScreen: () => JSX.Element = () => {
       name: 'The Gangs Mac Dinh Chi',
       rating: 4.4,
       distance: '1.2 km',
-      priceRange: t('price_format', { from: '200k', to: '500k' }),
+      priceRange: 'Từ 200k - 500k',
       badge: 'Tu tap ban be',
       image: SamplePlace,
     },

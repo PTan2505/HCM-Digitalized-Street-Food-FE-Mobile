@@ -43,13 +43,10 @@ const HomeScreen = (): JSX.Element => {
   const samplePlaces: PlaceItem[] = Array.from({ length: 10 }).map(
     (_, index) => ({
       id: String(index + 1),
-      title: t('restaurant_name', { number: index + 1 }),
+      title: `Nhà hàng ${index + 1}`,
       rating: Number((4.0 + (index % 6) * 0.1).toFixed(1)),
       distance: `${(0.5 + index * 0.2).toFixed(1)} km`,
-      priceRange:
-        index % 2 === 0
-          ? t('price_format', { from: '30k', to: '80k' })
-          : t('price_format', { from: '50k', to: '200k' }),
+      priceRange: index % 2 === 0 ? 'Từ 30k - 80k' : 'Từ 50k - 200k',
       imageSource: SamplePlace,
       isVegetarian: index % 3 === 0,
     })
