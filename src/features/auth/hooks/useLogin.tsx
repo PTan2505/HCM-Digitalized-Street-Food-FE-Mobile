@@ -23,12 +23,14 @@ export default function useLogin(): {
 
   async function onGoogleLoginSubmit(): Promise<void> {
     const { user } = await dispatch(userLoginWithGoogle()).unwrap();
-    navigation.navigate('Profile', { user });
+    // navigation.navigate('Profile', { user });
+    navigation.navigate('Profile');
   }
 
   async function onFacebookLoginSubmit(): Promise<void> {
     const { user } = await dispatch(userLoginWithFacebook()).unwrap();
-    navigation.navigate('Profile', { user });
+    // navigation.navigate('Profile', { user });
+    navigation.navigate('Profile');
   }
 
   async function onLogout(): Promise<void> {

@@ -1,16 +1,17 @@
 import { CustomButton } from '@components/CustomButton';
-import { User } from '@custom-types/user';
+// import { User } from '@custom-types/user';
 import useLogin from '@features/auth/hooks/useLogin';
-import { StaticScreenProps } from '@react-navigation/native';
+// import { StaticScreenProps } from '@react-navigation/native';
 import React, { JSX } from 'react';
 import { Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUser } from '@slices/auth';
 
-type ProfileScreenProps = StaticScreenProps<{ user: User }>;
+// type ProfileScreenProps = StaticScreenProps<{ user: User }>;
 
-const ProfileScreen = ({ route }: ProfileScreenProps): JSX.Element => {
+// const ProfileScreen = ({ route }: ProfileScreenProps): JSX.Element => {
+const ProfileScreen = (): JSX.Element => {
   // const { user } = route.params;
   const user = useAppSelector(selectUser);
   const { onLogout } = useLogin();
