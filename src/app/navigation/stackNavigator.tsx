@@ -15,7 +15,7 @@ import ProfileScreen from '@features/user/screens/ProfileScreen';
 import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'Auth',
+  initialRouteName: 'DietaryPreferences',
   screenOptions: { headerShown: false },
   screens: {
     Auth: {
