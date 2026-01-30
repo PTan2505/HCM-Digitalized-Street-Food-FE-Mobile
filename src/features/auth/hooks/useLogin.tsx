@@ -30,7 +30,7 @@ export default function useLogin(): {
   async function onFacebookLoginSubmit(): Promise<void> {
     const { user } = await dispatch(userLoginWithFacebook()).unwrap();
     // navigation.navigate('Profile', { user });
-    navigation.navigate('Main');
+   navigation.navigate('Main');
   }
 
   async function onLogout(): Promise<void> {
