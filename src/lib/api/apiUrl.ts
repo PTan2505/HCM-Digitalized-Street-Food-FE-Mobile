@@ -11,4 +11,7 @@ export const apiUrl = {
     resetPassword: '/Auth/reset-password',
     resendForgetPasswordOTP: '/Auth/resend-forget-password-otp',
   },
+  dietaryPreference: {
+    getAll: '/DietaryPreference',
+  },
 };

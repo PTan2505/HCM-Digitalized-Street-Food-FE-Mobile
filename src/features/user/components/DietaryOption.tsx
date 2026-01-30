@@ -1,10 +1,9 @@
+import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import React, { JSX } from 'react';
 import { Pressable, Text } from 'react-native';
 
 export type DietaryOptionProps = {
-  id: number;
-  name: string;
-  description: string;
+  dietaryPreference: DietaryPreference;
   isSelected?: boolean;
   onSelect?: () => void;
 };
@@ -17,7 +16,7 @@ const DietaryOption = (props: DietaryOptionProps): JSX.Element => {
       } active:bg-teal-600`}
       onPress={props.onSelect}
     >
-      <Text>{props.name}</Text>
+      <Text>{props.dietaryPreference.name}</Text>
     </Pressable>
   );
 };
