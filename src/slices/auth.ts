@@ -179,28 +179,28 @@ export const userLoginWithFacebook = createAppAsyncThunk(
       // Your BE (updated in previous steps) will detect if it's JWT or Graph Token.
 
       /* UNCOMMENT AND USE YOUR ACTUAL API CALL HERE */
-      // const { token, user } = await axiosApi.loginApi.loginWithFacebook({
-      //   accessToken: tokenString,
-      // });
-      // await tokenManagement.setTokens({ newAccessToken: token });
-      // return { user };
+      const { token, user } = await axiosApi.loginApi.loginWithFacebook({
+        accessToken: tokenString,
+      });
+      await tokenManagement.setTokens({ newAccessToken: token });
+      return { user };
 
       // ---------------------------------------------------------
       // FALLBACK: Optimistic UI (If you are not ready to call BE yet)
       // Note: 'Profile' might be incomplete in Limited Login mode
-      const currentProfile = await Profile.getCurrentProfile();
+      // const currentProfile = await Profile.getCurrentProfile();
 
-      const user = {
-        email: currentProfile?.email ?? '', // Email often null in Limited Login without BE decode
-        firstName: currentProfile?.firstName,
-        lastName: currentProfile?.lastName,
-        avatarUrl: currentProfile?.imageURL,
-        username: currentProfile?.name,
-        point: 0,
-        emailVerified: true,
-      } as User;
+      // const user = {
+      //   email: currentProfile?.email ?? '', // Email often null in Limited Login without BE decode
+      //   firstName: currentProfile?.firstName,
+      //   lastName: currentProfile?.lastName,
+      //   avatarUrl: currentProfile?.imageURL,
+      //   username: currentProfile?.name,
+      //   point: 0,
+      //   emailVerified: true,
+      // } as User;
 
-      return { user };
+      // return { user };
     } catch (error) {
       console.log('Facebook sign-in error:', error);
 
