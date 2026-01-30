@@ -12,6 +12,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import ProfileScreen from '@features/user/screens/ProfileScreen';
+import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
@@ -20,7 +21,6 @@ const RootStack = createNativeStackNavigator({
     Auth: {
       screen: AuthScreen,
     },
-
     Main: {
       screen: HomeBottomTabs,
     },
@@ -41,6 +41,9 @@ const RootStack = createNativeStackNavigator({
     },
     Profile: {
       screen: ProfileScreen,
+    },
+    DietaryPreferences: {
+      screen: DietaryPreferencesScreen,
     },
   },
 });
