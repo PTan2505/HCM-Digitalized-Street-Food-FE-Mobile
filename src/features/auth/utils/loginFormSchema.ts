@@ -14,3 +14,13 @@ export const LoginSchema = z.object({
     .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PASSWORD)
     .min(6, VALIDATE_ERROR_MESSAGES.PASSWORD_MIN_LENGTH),
 });
+
+export const LoginWithPhoneNumberSchema = z.object({
+  phoneNumber: z
+    .string()
+    .nonempty(VALIDATE_ERROR_MESSAGES.EMPTY_PHONE_NUMBER)
+    .refine((value) => validator.isMobilePhone(value, 'vi-VN'), {
+      message: VALIDATE_ERROR_MESSAGES.INVALID_PHONE_NUMBER,
+    }),
+  otp: z.string().optional(),
+});

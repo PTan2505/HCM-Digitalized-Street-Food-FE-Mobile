@@ -1,7 +1,7 @@
 {
   "home": "Màn hình chính",
   "detail": "Màn chi tiết",
-  "go_to_detail": "Đi đến màn hình chi tiết",
+  "go to detail": "Đi đến màn hình chi tiết",
   "back": "Trở lại",
   "setting": "Cấu hình",
   "welcome": "Chào mừng",
@@ -26,5 +26,87 @@
     "kosher_desc": "Được chuẩn bị theo luật ăn uống Do Thái",
     "pescatarian": "Ăn cá",
     "pescatarian_desc": "Bao gồm cá nhưng không có thịt khác"
+  }
+  "search_placeholder": "Tìm nhà hàng, quán cà phê...",
+  "what_want_eat": "Bạn muốn ăn gì?",
+  "places_might_like": "Những địa điểm bạn có thể thích",
+  "from": "Từ",
+  "to": "đến",
+  "filter": "Bộ lọc",
+  "space": "Không gian",
+  "dish_type": "Loại món",
+  "price_range": "Khoảng giá",
+  "distance": "Khoảng cách",
+  "has_parking": "Có chỗ để xe ô tô",
+  "time_slot": "Khung giờ",
+  "show_open_only": "Chỉ hiển thị những cửa hàng đang mở",
+  "other_amenities": "Tiện ích khác",
+  "reset": "Thiết lập lại",
+  "apply": "Áp dụng",
+  "sort_by": "Sắp xếp theo",
+  "categories": {
+    "rice": "Cơm",
+    "noodle": "Bún",
+    "pho": "Phở",
+    "coffee": "Cafe",
+    "milk_tea": "Trà sữa",
+    "other": "Lòng se điếu"
+  },
+  "space_types": {
+    "restaurant": "Nhà hàng",
+    "cafe": "Cafe",
+    "casual": "Quán bình dân",
+    "takeaway": "Mua mang về",
+    "food_court": "Khu ẩm thực",
+    "food_street": "Phố ẩm thực"
+  },
+  "price_options": {
+    "any": "Bất kì",
+    "under_50": "Dưới 50,000",
+    "range_50_150": "Từ 50,000 - 150,000",
+    "range_150_300": "Từ 150,000 - 300,000",
+    "over_300": "Trên 300,000"
+  },
+  "amenities": {
+    "vegetarian": "Món chay",
+    "hygiene": "Chứng nhận vệ sinh",
+    "michelin": "Michelin",
+    "air_conditioned": "Có điều hòa",
+    "wifi": "Wifi",
+    "pet_friendly": "Thân thiện với thú cưng",
+    "delivery": "Giao hàng"
+  },
+  "sort_options": {
+    "distance": "Khoảng cách",
+    "newest": "Mới nhất",
+    "votes": "Lượt vote"
+  },
+  "actions": {
+    "add_to_current_pick": "Thêm vào Current Pick",
+    "swipe_up": "Vuốt lên",
+    "to_see_similar": "Để xem các quán tương tự",
+    "sort_by": "Sắp xếp theo",
+    "all": "Tất cả",
+    "new": "Mới",
+    "main_dishes": "Món chính",
+    "appetizers": "Khai vị",
+    "desserts": "Tráng miệng",
+    "see_all_reviews": "Xem tất cả đánh giá",
+    "comments": "Bình luận",
+    "rating_out_of": "/ 5.0",
+    "locations": "địa điểm",
+    "days": "ngày",
+    "hours": "giờ",
+    "minutes": "phút",
+    "see_more": "Xem thêm",
+    "food": "Đồ ăn",
+    "service": "Dịch vụ",
+    "location": "Địa điểm",
+    "vibe": "Vibe"
+  },
+  "tabs": {
+    "menu": "Menu Quán",
+    "reviews": "Bình luận",
+    "nearby": "Bạn có thể thích"
   }
 }

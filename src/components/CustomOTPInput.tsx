@@ -1,16 +1,16 @@
-import { OtpInput } from 'react-native-otp-entry';
-import { type JSX } from 'react';
-import { Text, View } from 'react-native';
+import { Ref, type JSX } from 'react';
 import {
   Controller,
-  type Control,
+  useFormContext,
   type FieldPath,
   type FieldValues,
 } from 'react-hook-form';
+import { Text, View } from 'react-native';
+import { OtpInput, OtpInputRef } from 'react-native-otp-entry';
 
 interface CustomOTPInputProps<T extends FieldValues> {
+  ref: Ref<OtpInputRef>;
   name: FieldPath<T>;
-  control: Control<T>;
   label: string;
   required?: boolean;
   numberOfDigits?: number;
@@ -19,7 +19,8 @@ interface CustomOTPInputProps<T extends FieldValues> {
 export const CustomOTPInput = <T extends FieldValues>(
   props: CustomOTPInputProps<T>
 ): JSX.Element => {
-  const { name, control, label, required, numberOfDigits = 6 } = props;
+  const { ref, name, label, required, numberOfDigits = 6 } = props;
+  const { control } = useFormContext();
 
   return (
     <Controller
@@ -27,20 +28,22 @@ export const CustomOTPInput = <T extends FieldValues>(
       control={control}
       render={({ field, fieldState }) => (
         <View className="flex w-full flex-col gap-2">
-          <Text className="text-base font-semibold text-[#616161]">
+          <Text className="text-lg font-semibold text-[#616161]">
             {label}
             {required && <Text className="text-[#FE4763]"> *</Text>}
           </Text>
 
           <OtpInput
+            {...field}
+            ref={ref}
             numberOfDigits={numberOfDigits}
+            focusColor={'#a1d973'}
+            autoFocus={false}
+            hideStick={true}
+            blurOnFilled={true}
+            type="numeric"
             onTextChange={field.onChange}
             onFilled={field.onChange}
-            focusColor={
-              field.value?.length > 0 && !fieldState.error
-                ? '#a1d973'
-                : '#E5E5E5'
-            }
             theme={{
               containerStyle: {
                 width: '100%',
@@ -48,17 +51,10 @@ export const CustomOTPInput = <T extends FieldValues>(
               pinCodeContainerStyle: {
                 borderRadius: 8,
                 borderWidth: 1,
-                borderColor:
-                  field.value?.length > 0 && !fieldState.error
-                    ? '#a1d973'
-                    : '#E5E5E5',
                 minHeight: 48,
               },
               pinCodeTextStyle: {
                 color: '#a1d973',
-              },
-              focusStickStyle: {
-                backgroundColor: '#a1d973',
               },
             }}
           />

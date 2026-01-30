@@ -1,46 +1,49 @@
+import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
+import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
+import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
+import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
+import SearchScreen from '@features/home/screens/SearchScreen';
 import {
   createStaticNavigation,
   StaticParamList,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import { ForgetPasswordScreen } from '@features/auth/screens/ForgetPasswordScreen';
-import { OTPScreen } from '@features/auth/screens/OTPScreen';
-import { ResetPasswordScreen } from '@features/auth/screens/ResetPasswordScreen';
+import ProfileScreen from '@features/user/screens/ProfileScreen';
 import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'DietaryPreferences',
+  initialRouteName: 'Auth',
+  screenOptions: { headerShown: false },
   screens: {
     Auth: {
       screen: AuthScreen,
-      options: { headerShown: false },
-    },
-    OTP: {
-      screen: OTPScreen,
-      options: { headerShown: false },
-    },
-    ForgetPassword: {
-      screen: ForgetPasswordScreen,
-      options: { headerShown: false },
-    },
-    ResetPassword: {
-      screen: ResetPasswordScreen,
-      options: { headerShown: false },
     },
     Main: {
       screen: HomeBottomTabs,
-      options: {
-        headerShown: false,
-      },
+    },
+    Search: {
+      screen: SearchScreen,
+    },
+    RestaurantSwipe: {
+      screen: RestaurantSwipeScreen,
+    },
+    RestaurantDetails: {
+      screen: RestaurantDetailsScreen,
+    },
+    CurrentPicks: {
+      screen: CurrentPicksScreen,
+    },
+    CurrentPickDetails: {
+      screen: CurrentPickDetailsScreen,
+    },
+    Profile: {
+      screen: ProfileScreen,
     },
     DietaryPreferences: {
       screen: DietaryPreferencesScreen,
-      options: {
-        headerShown: false,
-      },
     },
   },
 });

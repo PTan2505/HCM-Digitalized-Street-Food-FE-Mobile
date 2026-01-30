@@ -1,11 +1,13 @@
 {
   "expo": {
-    "name": "hcm-digitalized-street-food-fe-mobile",
+    "name": "Lowca",
     "slug": "hcm-digitalized-street-food-fe-mobile",
     "version": "1.0.0",
+    "owner": "street-food",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#ffffff",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -13,11 +15,24 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hcmstreetfood.mobile",
+      "icon": {
+        "light": "./assets/ios-light.png"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        },
+        "NSUserTrackingUsageDescription": "This identifier ensures a secure login experience."
+      }
     },
     "android": {
+      "package": "com.hcmstreetfood.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -26,6 +41,47 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fc2233e3-5c88-40b1-9ee2-e576aa043330"
+      }
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.1007238627252-i94s152d100nfooh48athhbg3lp101s4"
+        }
+      ],
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "702936619420508",
+          "clientToken": "b729db072cd18408c9596df88868a408",
+          "displayName": "Street Food HCM",
+          "scheme": "fb702936619420508",
+          "advertiserIDCollectionEnabled": false,
+          "autoLogAppEventsEnabled": false,
+          "isAutoInitEnabled": true,
+          "iosUserTrackingPermission": "This identifier ensures a secure login experience."
+        }
+      ],
+      "expo-tracking-transparency",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          },
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "expo-font",
+      "expo-system-ui",
+      "./plugins/withAndroidDebugKeystore.cjs"
+    ]
   }
 }

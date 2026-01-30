@@ -1,1 +1,1 @@
-export type OTPType = 'registration_verification' | 'password_reset';
+export type OTPType = 'login' | 'password_reset';

@@ -8,7 +8,7 @@ import axios, {
 } from 'axios';
 
 const skipAuthorizationPaths = [
-  apiUrl.auth.google,
+  apiUrl.auth.googleLogin,
   apiUrl.auth.login,
   apiUrl.auth.register,
   apiUrl.auth.verifyRegistration,
@@ -36,6 +36,7 @@ axiosInstance.interceptors.request.use(
     );
 
     const accessToken = await tokenManagement.getAccessToken();
+
     if (config.headers && accessToken && !isSkipAuthorization) {
       (config.headers as AxiosHeaders).set(
         'Authorization',
