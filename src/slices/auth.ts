@@ -20,7 +20,13 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { createSlice } from '@reduxjs/toolkit';
 import { tokenManagement } from '@utils/tokenManagement';
-import { AccessToken, LoginManager, Profile } from 'react-native-fbsdk-next';
+import { Platform } from 'react-native';
+import {
+  AccessToken,
+  AuthenticationToken,
+  LoginManager,
+  Profile,
+} from 'react-native-fbsdk-next';
 
 export interface AuthState {
   value: User | null;
@@ -76,6 +82,7 @@ export const userLoginWithGoogle = createAppAsyncThunk(
       if (!userInfo.data?.idToken) {
         throw new Error('No ID token received from Google');
       }
+      console.log(userInfo.data?.idToken);
 
       const { token, user } = await axiosApi.loginApi.loginWithGoogle({
         idToken: userInfo.data.idToken,
@@ -133,12 +140,12 @@ export const userLoginWithFacebook = createAppAsyncThunk(
   'auth/loginWithFacebook',
   async (_, { rejectWithValue }) => {
     try {
-      const result = await LoginManager.logInWithPermissions([
-        'public_profile',
-      ]);
-
-      const currentProfile = await Profile.getCurrentProfile();
-      console.log('Current profile:', currentProfile);
+      // 1. Request 'email' permission alongside 'public_profile'
+      // 'limited' mode is safer for iOS compliance (no tracking consent needed)
+      const result = await LoginManager.logInWithPermissions(
+        ['public_profile', 'email'],
+        'limited'
+      );
 
       if (result.isCancelled) {
         return rejectWithValue({
@@ -147,33 +154,56 @@ export const userLoginWithFacebook = createAppAsyncThunk(
         });
       }
 
-      const data = await AccessToken.getCurrentAccessToken();
+      // 2. Platform-Specific Token Retrieval
+      let tokenString: string | undefined;
 
-      if (!data?.accessToken) {
-        throw new Error('No access token received from Facebook');
+      if (Platform.OS === 'ios') {
+        // iOS: Get the OIDC JWT (AuthenticationToken)
+        // This avoids the "Invalid Token" / Year 4001 expiration issue
+        const authToken = await AuthenticationToken.getAuthenticationTokenIOS();
+        tokenString = authToken?.authenticationToken;
+      } else {
+        // Android: Get the Standard Graph Access Token
+        const accessTokenData = await AccessToken.getCurrentAccessToken();
+        tokenString = accessTokenData?.accessToken;
       }
-      console.log(data);
+
+      if (!tokenString) {
+        throw new Error('Failed to retrieve a valid token from Facebook');
+      }
+
+      console.log(`Sending ${Platform.OS} token to Backend:`, tokenString);
+
+      // 3. Call your Backend API
+      // We pass the generic 'accessToken' field, but the content varies by OS.
+      // Your BE (updated in previous steps) will detect if it's JWT or Graph Token.
+
+      /* UNCOMMENT AND USE YOUR ACTUAL API CALL HERE */
+      // const { token, user } = await axiosApi.loginApi.loginWithFacebook({
+      //   accessToken: tokenString,
+      // });
+      // await tokenManagement.setTokens({ newAccessToken: token });
+      // return { user };
+
+      // ---------------------------------------------------------
+      // FALLBACK: Optimistic UI (If you are not ready to call BE yet)
+      // Note: 'Profile' might be incomplete in Limited Login mode
+      const currentProfile = await Profile.getCurrentProfile();
 
       const user = {
-        email: currentProfile?.email,
+        email: currentProfile?.email ?? '', // Email often null in Limited Login without BE decode
         firstName: currentProfile?.firstName,
         lastName: currentProfile?.lastName,
         avatarUrl: currentProfile?.imageURL,
         username: currentProfile?.name,
         point: 0,
         emailVerified: true,
-      } as User; // Placeholder for user data
-      // const { token, user } = await axiosApi.loginApi.loginWithFacebook({
-      //   accessToken: data.accessToken,
-      // });
-
-      // await tokenManagement.setTokens({ newAccessToken: token });
+      } as User;
 
       return { user };
     } catch (error) {
       console.log('Facebook sign-in error:', error);
 
-      // Handle API errors or other errors
       if (error && typeof error === 'object' && 'message' in error) {
         return rejectWithValue({
           code: 'API_ERROR',
