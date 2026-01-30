@@ -11,7 +11,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import ProfileScreen from '@features/user/screens/ProfileScreen';
+// import ProfileScreen from '@features/user/screens/ProfileScreen';
 import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
 
 const RootStack = createNativeStackNavigator({
@@ -39,9 +39,9 @@ const RootStack = createNativeStackNavigator({
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
     },
-    Profile: {
-      screen: ProfileScreen,
-    },
+    // Profile: {
+    //   screen: ProfileScreen,
+    // },
     DietaryPreferences: {
       screen: DietaryPreferencesScreen,
     },
