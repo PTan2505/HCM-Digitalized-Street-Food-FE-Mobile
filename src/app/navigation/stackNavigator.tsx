@@ -10,6 +10,7 @@ import ProfileScreen from '@features/user/screens/ProfileScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
+  screenOptions: { headerShown: false },
   screens: {
     Auth: {
       screen: AuthScreen,
