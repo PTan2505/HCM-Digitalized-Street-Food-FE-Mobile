@@ -25,7 +25,6 @@ import {
   AccessToken,
   AuthenticationToken,
   LoginManager,
-  Profile,
 } from 'react-native-fbsdk-next';
 
 export interface AuthState {
@@ -174,32 +173,11 @@ export const userLoginWithFacebook = createAppAsyncThunk(
 
       console.log(`Sending ${Platform.OS} token to Backend:`, tokenString);
 
-      // 3. Call your Backend API
-      // We pass the generic 'accessToken' field, but the content varies by OS.
-      // Your BE (updated in previous steps) will detect if it's JWT or Graph Token.
-
-      /* UNCOMMENT AND USE YOUR ACTUAL API CALL HERE */
-      // const { token, user } = await axiosApi.loginApi.loginWithFacebook({
-      //   accessToken: tokenString,
-      // });
-      // await tokenManagement.setTokens({ newAccessToken: token });
-      // return { user };
-
-      // ---------------------------------------------------------
-      // FALLBACK: Optimistic UI (If you are not ready to call BE yet)
-      // Note: 'Profile' might be incomplete in Limited Login mode
-      const currentProfile = await Profile.getCurrentProfile();
-
-      const user = {
-        email: currentProfile?.email ?? '', // Email often null in Limited Login without BE decode
-        firstName: currentProfile?.firstName,
-        lastName: currentProfile?.lastName,
-        avatarUrl: currentProfile?.imageURL,
-        username: currentProfile?.name,
-        point: 0,
-        emailVerified: true,
-      } as User;
-
+      // 3. Call Backend API
+      const { token, user } = await axiosApi.loginApi.loginWithFacebook({
+        accessToken: tokenString,
+      });
+      await tokenManagement.setTokens({ newAccessToken: token });
       return { user };
     } catch (error) {
       console.log('Facebook sign-in error:', error);
