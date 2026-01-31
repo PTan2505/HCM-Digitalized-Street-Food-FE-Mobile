@@ -4,18 +4,22 @@ import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
 import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
 import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
 import SearchScreen from '@features/home/screens/SearchScreen';
+import { useAppSelector } from '@hooks/reduxHooks';
 import {
   createStaticNavigation,
   StaticParamList,
+  Theme,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { selectUserStatus } from '@slices/auth';
+import { ActivityIndicator, View } from 'react-native';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
 
 const RootStack = createNativeStackNavigator({
-  initialRouteName: 'DietaryPreferences',
+  initialRouteName: 'Auth',
   screenOptions: { headerShown: false },
   screens: {
     Auth: {
@@ -58,4 +62,19 @@ declare global {
   }
 }
 
-export const Navigation = createStaticNavigation(RootStack);
+const StaticNavigation = createStaticNavigation(RootStack);
+
+export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
+  const userStatus = useAppSelector(selectUserStatus);
+
+  // Show loading indicator while checking authentication
+  if (userStatus === 'idle' || userStatus === 'pending') {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return <StaticNavigation theme={theme} />;
+}
