@@ -4,6 +4,7 @@ import GoogleLogo from '@assets/logos/googleLogo.svg';
 import lowcaLogo from '@assets/logos/lowcaLogo.svg';
 import { LoginForm } from '@auth/components/LoginForm';
 import SvgIcon from '@components/SvgIcon';
+import { APIErrorResponse } from '@custom-types/apiResponse';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { OTPForm } from '@features/auth/components/OTPForm';
 import useLogin from '@features/auth/hooks/useLogin';
@@ -35,9 +36,12 @@ export const AuthScreen = (): JSX.Element => {
     try {
       await onGoogleLoginSubmit();
     } catch (error) {
-      console.log(error);
-
-      Alert.alert('Lỗi', 'Đăng nhập Google thất bại');
+      const err = error as APIErrorResponse; // Assert the type here
+      if (err?.code === 'CANCELLED') {
+        console.log(err);
+      } else {
+        Alert.alert('Lỗi', 'Đăng nhập Google thất bại');
+      }
     }
   };
 
@@ -45,9 +49,12 @@ export const AuthScreen = (): JSX.Element => {
     try {
       await onFacebookLoginSubmit();
     } catch (error) {
-      console.log(error);
-
-      Alert.alert('Lỗi', 'Đăng nhập Facebook thất bại');
+      const err = error as APIErrorResponse; // Assert the type here
+      if (err?.code === 'CANCELLED') {
+        console.log(err);
+      } else {
+        Alert.alert('Lỗi', 'Đăng nhập Facebook thất bại');
+      }
     }
   };
 
