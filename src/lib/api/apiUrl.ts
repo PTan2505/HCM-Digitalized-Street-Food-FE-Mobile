@@ -14,4 +14,7 @@ export const apiUrl = {
   dietaryPreference: {
     getAll: '/DietaryPreference',
   },
+  userDietary: {
+    userDietary: '/UserDietary/user',
+  },
 };
