@@ -1,10 +1,10 @@
+import discoveryIcon from '@assets/icons/discovery.svg';
+import profileIcon from '@assets/icons/profileIcon.svg';
 import { CustomBottomTabBar } from '@components/navigation/CustomBottomTabBar';
+import SvgIcon from '@components/SvgIcon';
 import HomeScreen from '@features/home/screens/HomeScreen';
 import ProfileScreen from '@features/user/screens/ProfileScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image } from 'react-native';
-import discovery from '@assets/icons/discovery.png';
-import person from '@assets/icons/person.png';
 
 export const HomeBottomTabs = createBottomTabNavigator({
   tabBar: (props) => <CustomBottomTabBar {...props} />,
@@ -21,14 +21,13 @@ export const HomeBottomTabs = createBottomTabNavigator({
       options: {
         title: 'Khám phá',
         tabBarIcon: ({ color, size }) => (
-          <Image
-            source={discovery}
+          <SvgIcon
+            icon={discoveryIcon}
             style={{
               width: size,
               height: size,
-              tintColor: color,
             }}
-            resizeMode="contain"
+            color={color}
           />
         ),
       },
@@ -38,14 +37,13 @@ export const HomeBottomTabs = createBottomTabNavigator({
       options: {
         title: 'Tài khoản',
         tabBarIcon: ({ color, size }) => (
-          <Image
-            source={person}
+          <SvgIcon
+            icon={profileIcon}
             style={{
               width: size,
               height: size,
-              tintColor: color,
             }}
-            resizeMode="contain"
+            color={color}
           />
         ),
       },
