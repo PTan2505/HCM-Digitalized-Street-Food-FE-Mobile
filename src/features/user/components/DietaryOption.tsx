@@ -11,13 +11,13 @@ export type DietaryOptionProps = {
 const DietaryOption = (props: DietaryOptionProps): JSX.Element => {
   return (
     <Pressable
-      className={`self-start rounded-3xl border-[1px] border-[#06AA4C] px-4 py-2 ${
-        props.isSelected ? 'bg-[#06AA4C]' : 'bg-transparent'
-      } active:bg-[#06AA4C]`}
+      className={`self-start rounded-3xl border-[1px] border-[#a1d973] px-4 py-2 ${
+        props.isSelected ? 'bg-[#a1d973]' : 'bg-transparent'
+      } active:bg-[#a1d973]`}
       onPress={props.onSelect}
     >
       <Text
-        className={`text-base font-semibold ${props.isSelected ? 'text-white' : 'text-[#06AA4C]'}`}
+        className={`text-base font-semibold ${props.isSelected ? 'text-white' : 'text-[#a1d973]'}`}
       >
         {props.dietaryPreference.name}
       </Text>

@@ -39,6 +39,7 @@ export const AuthScreen = (): JSX.Element => {
 
   // Navigate to Main if user is already logged in
   useEffect(() => {
+    console.log('User Status:', userStatus, 'User:', user);
     if (userStatus === 'succeeded' && user) {
       navigation.replace('Main');
     }
