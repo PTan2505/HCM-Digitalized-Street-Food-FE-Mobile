@@ -1,16 +1,21 @@
-import { DietaryPreference } from '@features/user/types/dietaryPreference';
-import { axiosApi } from '@lib/api/apiInstance';
+import type { DietaryPreference } from '@features/user/types/dietaryPreference';
+import { useAppDispatch } from '@hooks/reduxHooks';
+import { getAllDietaryPreferences } from '@slices/dietary';
+import { useCallback } from 'react';
 
 export default function useDietaryPreference(): {
-  getAllDietaryPreferences: () => Promise<DietaryPreference[]>;
+  onGetAllDietaryPreferences: () => Promise<DietaryPreference[]>;
 } {
-  const getAllDietaryPreferences = async (): Promise<DietaryPreference[]> => {
-    const dietaryPreferences: DietaryPreference[] =
-      await axiosApi.dietaryPreferenceApi.getAllDietaryPreferences();
-    return dietaryPreferences;
-  };
+  const dispatch = useAppDispatch();
+
+  const onGetAllDietaryPreferences = useCallback(async (): Promise<
+    DietaryPreference[]
+  > => {
+    const response = await dispatch(getAllDietaryPreferences()).unwrap();
+    return response;
+  }, [dispatch]);
 
   return {
-    getAllDietaryPreferences,
+    onGetAllDietaryPreferences,
   };
 }
