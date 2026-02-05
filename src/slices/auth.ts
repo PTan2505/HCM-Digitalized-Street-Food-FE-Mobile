@@ -83,13 +83,14 @@ export const userLoginWithGoogle = createAppAsyncThunk(
       }
       console.log(userInfo.data?.idToken);
 
-      const { token, user } = await axiosApi.loginApi.loginWithGoogle({
+      const { token } = await axiosApi.loginApi.loginWithGoogle({
         idToken: userInfo.data.idToken,
       });
 
       await tokenManagement.setTokens({ newAccessToken: token });
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
 
-      return { user };
+      return { userProfile };
     } catch (error) {
       if (isErrorWithCode(error)) {
         switch (error.code) {
@@ -174,11 +175,12 @@ export const userLoginWithFacebook = createAppAsyncThunk(
       console.log(`Sending ${Platform.OS} token to Backend:`, tokenString);
 
       // 3. Call Backend API
-      const { token, user } = await axiosApi.loginApi.loginWithFacebook({
+      const { token } = await axiosApi.loginApi.loginWithFacebook({
         accessToken: tokenString,
       });
       await tokenManagement.setTokens({ newAccessToken: token });
-      return { user };
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
+      return { userProfile };
     } catch (error) {
       console.log('Facebook sign-in error:', error);
 
@@ -197,6 +199,62 @@ export const userLoginWithFacebook = createAppAsyncThunk(
   }
 );
 
+export const userLoginWithPhoneNumber = createAppAsyncThunk(
+  'auth/loginWithPhoneNumber',
+  async (payload: { phoneNumber: string }, { rejectWithValue }) => {
+    try {
+      const response = await axiosApi.loginApi.loginWithPhoneNumber({
+        phoneNumber: payload.phoneNumber,
+      });
+      console.log('Phone login response:', response);
+      return response;
+    } catch (error) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'PHONE_LOGIN_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'An unexpected error occurred during phone login',
+      });
+    }
+  }
+);
+
+export const verifyPhoneNumber = createAppAsyncThunk(
+  'auth/verifyPhoneNumber',
+  async (
+    payload: { phoneNumber: string; otp: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { token } = await axiosApi.loginApi.verifyPhoneNumber({
+        phoneNumber: payload.phoneNumber,
+        otp: payload.otp,
+      });
+      await tokenManagement.setTokens({ newAccessToken: token });
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
+
+      return { userProfile };
+    } catch (error) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        return rejectWithValue({
+          code: 'PHONE_VERIFY_ERROR',
+          message: (error as { message: string }).message,
+        });
+      }
+
+      return rejectWithValue({
+        code: 'UNKNOWN_ERROR',
+        message: 'An unexpected error occurred during phone verification',
+      });
+    }
+  }
+);
+
 export const loadUserFromStorage = createAppAsyncThunk(
   'auth/loadUserFromStorage',
   async (_, { rejectWithValue }) => {
@@ -204,7 +262,10 @@ export const loadUserFromStorage = createAppAsyncThunk(
       const accessToken = await tokenManagement.getAccessToken();
       if (!accessToken) {
         await tokenManagement.clearTokens();
-        return null;
+        return rejectWithValue({
+          code: 'NO_TOKEN',
+          message: 'No access token found',
+        });
       }
 
       const userProfile = await axiosApi.userProfileApi.getUserProfile();
@@ -445,7 +506,7 @@ export const authSlice = createSlice({
       })
       .addCase(userLoginWithGoogle.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.value = action.payload.user;
+        state.value = action.payload.userProfile;
       })
       .addCase(userLoginWithGoogle.rejected, (state, action) => {
         state.status = 'failed';
@@ -459,12 +520,39 @@ export const authSlice = createSlice({
       .addCase(userLoginWithFacebook.fulfilled, (state, action) => {
         state.status = 'succeeded';
         if (action.payload) {
-          state.value = action.payload.user;
+          state.value = action.payload.userProfile;
         }
       })
       .addCase(userLoginWithFacebook.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload ?? { message: 'Facebook login failed' };
+      })
+      // Phone number login cases
+      .addCase(userLoginWithPhoneNumber.pending, (state) => {
+        state.status = 'pending';
+        state.error = null;
+      })
+      .addCase(userLoginWithPhoneNumber.fulfilled, (state) => {
+        state.status = 'succeeded';
+      })
+      .addCase(userLoginWithPhoneNumber.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload ?? { message: 'Phone login failed' };
+      })
+      // Phone number verify cases
+      .addCase(verifyPhoneNumber.pending, (state) => {
+        state.status = 'pending';
+        state.error = null;
+      })
+      .addCase(verifyPhoneNumber.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        if (action.payload) {
+          state.value = action.payload.userProfile;
+        }
+      })
+      .addCase(verifyPhoneNumber.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload ?? { message: 'Phone verify failed' };
       })
       // Load user from storage cases
       .addCase(loadUserFromStorage.pending, (state) => {

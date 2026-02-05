@@ -2,6 +2,7 @@ import { CustomButton } from '@components/CustomButton';
 import { CustomOTPInput } from '@components/CustomOTPInput';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { LoginWithPhoneNumberRequest } from '@features/auth/types/login';
+import useLogin from '@features/auth/hooks/useLogin';
 import { LoginWithPhoneNumberSchema } from '@features/auth/utils/loginFormSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -55,16 +56,35 @@ export interface OTPFormProps {
 
 export const OTPForm = (props: OTPFormProps): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
+  const { onVerifyPhoneNumberSubmit } = useLogin();
   const otpRef = useRef<OtpInputRef>(null);
 
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
   const [isResending, setIsResending] = useState(false);
 
   const methods = useForm<LoginWithPhoneNumberRequest>({
-    defaultValues: { ...initialValues, ...props },
+    defaultValues: { ...initialValues, phoneNumber: props.phoneNumber },
     resolver: zodResolver(LoginWithPhoneNumberSchema),
   });
-  const { handleSubmit } = methods;
+  const {
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = methods;
+
+  // Update form when phoneNumber changes (from LoginForm)
+  useEffect(() => {
+    if (props.phoneNumber) {
+      reset({ ...initialValues, phoneNumber: props.phoneNumber });
+    }
+  }, [props.phoneNumber, reset]);
+
+  // Debug: Log form errors
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log('Form validation errors:', errors);
+    }
+  }, [errors]);
 
   useEffect(() => {
     otpRef.current?.clear();
@@ -107,8 +127,16 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
     setIsResending(false);
   };
 
-  const onSubmit = (data: LoginWithPhoneNumberRequest): void => {
-    console.log(data?.otp);
+  const onSubmit = async (data: LoginWithPhoneNumberRequest): Promise<void> => {
+    try {
+      console.log('Verifying OTP with data:', data);
+      await onVerifyPhoneNumberSubmit({
+        phoneNumber: props.phoneNumber,
+        otp: data.otp ?? '',
+      });
+    } catch (error) {
+      console.error('OTP verification failed:', error);
+    }
   };
 
   return (
@@ -121,8 +149,8 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           <FontAwesome6 name="arrow-left" size={20} color="#000" />
           <Text className="text-base font-semibold">Quay lại</Text>
         </Pressable>
-        <View className="gap-2 px-5">
-          <Text className="text-xl font-semibold">
+        <View className="gap-2 px-1">
+          <Text className="text-xl font-semibold text-[#a1d973]">
             Nhập mã OTP đã được gửi đến số điện thoại:{' '}
             {maskPhoneNumber(props.phoneNumber)}
           </Text>

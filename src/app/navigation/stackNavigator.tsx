@@ -67,8 +67,9 @@ const StaticNavigation = createStaticNavigation(RootStack);
 export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
   const userStatus = useAppSelector(selectUserStatus);
 
-  // Show loading indicator while checking authentication
-  if (userStatus === 'idle' || userStatus === 'pending') {
+  // Show loading indicator only while initially checking authentication (idle state)
+  // Don't show loading during pending state to avoid unmounting screens during API calls
+  if (userStatus === 'idle') {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
