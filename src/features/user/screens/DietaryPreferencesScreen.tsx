@@ -2,7 +2,8 @@ import { CustomButton } from '@components/CustomButton';
 import DietaryList from '@features/user/components/DietaryList';
 import useDietaryPreference from '@features/user/hooks/useDietaryPreference';
 import useUserDietary from '@features/user/hooks/useUserDietary';
-import { DietaryPreference } from '@features/user/types/dietaryPreference';
+import { useAppSelector } from '@hooks/reduxHooks';
+import { selectDietaryPreferences, selectDietaryState } from '@slices/dietary';
 import React, { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Text, View } from 'react-native';
@@ -11,25 +12,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const DietaryPreferencesScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const [focusOptionId, setFocusOptionId] = useState<number | null>(null);
-  const [dietaryOptions, setDietaryOptions] = useState<DietaryPreference[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getAllDietaryPreferences } = useDietaryPreference();
-  const { createOrUpdateUserDietaryPreferences } = useUserDietary();
+  const dietaryStatus = useAppSelector(selectDietaryState);
+  const dietaryOptions = useAppSelector(selectDietaryPreferences);
+  const isSubmitting = dietaryStatus === 'pending';
+  const { onGetAllDietaryPreferences } = useDietaryPreference();
+  const { onCreateOrUpdateUserDietaryPreferences } = useUserDietary();
 
   useEffect(() => {
-    const fetchDietaryPreferences = async (): Promise<void> => {
-      const preferences = await getAllDietaryPreferences();
-      setDietaryOptions(preferences);
-    };
-    fetchDietaryPreferences();
-  }, [getAllDietaryPreferences]);
+    onGetAllDietaryPreferences();
+  }, [onGetAllDietaryPreferences]);
 
   const handleSubmit = async (): Promise<void> => {
     try {
-      setIsSubmitting(true);
       const response =
-        await createOrUpdateUserDietaryPreferences(selectedOptions);
+        await onCreateOrUpdateUserDietaryPreferences(selectedOptions);
       Alert.alert(
         t('dietary.success_title') ?? 'Success',
         response.message ??
@@ -41,8 +38,6 @@ const DietaryPreferencesScreen = (): JSX.Element => {
         t('dietary.error_title') ?? 'Error',
         t('dietary.error_message') ?? 'Failed to update dietary preferences'
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -74,8 +69,8 @@ const DietaryPreferencesScreen = (): JSX.Element => {
       <View className="mt-auto pb-4">
         <CustomButton
           onPress={handleSubmit}
-          text={t('Confirm') ?? 'Save Preferences'}
-          loadingText={t('dietary.submitting') ?? 'Saving...'}
+          text={t('Xác nhận') ?? 'Lưu lại'}
+          loadingText={t('Đang lưu...') ?? 'Đang lưu...'}
           isLoading={isSubmitting}
           disabled={selectedOptions.length === 0}
         />

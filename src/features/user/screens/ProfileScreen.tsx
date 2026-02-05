@@ -1,32 +1,24 @@
 import useLogin from '@features/auth/hooks/useLogin';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { Image, Text, View, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUser } from '@slices/auth';
+import { selectUserDietaryPreferences } from '@slices/dietary';
 import { useNavigation } from '@react-navigation/native';
 import DietaryList from '@features/user/components/DietaryList';
 import useUserDietary from '@features/user/hooks/useUserDietary';
-import { DietaryPreference } from '@features/user/types/dietaryPreference';
 
 const ProfileScreen = (): JSX.Element => {
   const user = useAppSelector(selectUser);
+  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const { onLogout } = useLogin();
   const navigation = useNavigation();
-  const [dietaryOptions, setDietaryOptions] = useState<DietaryPreference[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
-  const { getUserDietaryPreferences } = useUserDietary();
+  const { onGetUserDietaryPreferences } = useUserDietary();
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      const userPreferences = await getUserDietaryPreferences();
-      setDietaryOptions(userPreferences);
-      setSelectedOptions(
-        userPreferences.map((pref) => pref.dietaryPreferenceId)
-      );
-    };
-    fetchData();
-  }, [getUserDietaryPreferences]);
+    onGetUserDietaryPreferences();
+  }, [onGetUserDietaryPreferences]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -50,8 +42,10 @@ const ProfileScreen = (): JSX.Element => {
             Sở thích ăn kiêng của tôi
           </Text>
           <DietaryList
-            dietaryOptions={dietaryOptions}
-            selectedOptions={selectedOptions}
+            dietaryOptions={userDietaryPreferences}
+            selectedOptions={userDietaryPreferences.map(
+              (pref) => pref.dietaryPreferenceId
+            )}
             setSelectedOptions={() => {}}
           />
         </View>

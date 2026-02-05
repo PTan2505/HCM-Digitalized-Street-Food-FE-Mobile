@@ -1,31 +1,44 @@
-import {
+import type {
   UserDietary,
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
-} from '@features/user/types//userDietary';
-import { axiosApi } from '@lib/api/apiInstance';
+} from '@features/user/types/userDietary';
+import { useAppDispatch } from '@hooks/reduxHooks';
+import {
+  createOrUpdateUserDietaryPreferences,
+  getUserDietaryPreferences,
+} from '@slices/dietary';
+import { useCallback } from 'react';
 
 export default function useUserDietary(): {
-  getUserDietaryPreferences: () => Promise<UserDietary[]>;
-  createOrUpdateUserDietaryPreferences: (
+  onGetUserDietaryPreferences: () => Promise<UserDietary[]>;
+  onCreateOrUpdateUserDietaryPreferences: (
     data: CreateOrUpdateUserDietaryRequest
   ) => Promise<CreateOrUpdateUserDietaryResponse>;
 } {
-  const getUserDietaryPreferences = async (): Promise<UserDietary[]> => {
-    const userDietaryPreferences: UserDietary[] =
-      await axiosApi.userDietaryApi.getUserDietaryPreferences();
-    return userDietaryPreferences;
-  };
-  const createOrUpdateUserDietaryPreferences = async (
-    data: CreateOrUpdateUserDietaryRequest
-  ): Promise<CreateOrUpdateUserDietaryResponse> => {
-    const response: CreateOrUpdateUserDietaryResponse =
-      await axiosApi.userDietaryApi.createOrUpdateUserDietaryPreferences(data);
+  const dispatch = useAppDispatch();
+
+  const onGetUserDietaryPreferences = useCallback(async (): Promise<
+    UserDietary[]
+  > => {
+    const response = await dispatch(getUserDietaryPreferences()).unwrap();
     return response;
-  };
+  }, [dispatch]);
+
+  const onCreateOrUpdateUserDietaryPreferences = useCallback(
+    async (
+      data: CreateOrUpdateUserDietaryRequest
+    ): Promise<CreateOrUpdateUserDietaryResponse> => {
+      const response = await dispatch(
+        createOrUpdateUserDietaryPreferences(data)
+      ).unwrap();
+      return response;
+    },
+    [dispatch]
+  );
 
   return {
-    getUserDietaryPreferences,
-    createOrUpdateUserDietaryPreferences,
+    onGetUserDietaryPreferences,
+    onCreateOrUpdateUserDietaryPreferences,
   };
 }
