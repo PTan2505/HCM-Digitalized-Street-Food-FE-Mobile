@@ -11,6 +11,7 @@ import useLogin from '@features/auth/hooks/useLogin';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { Alert, Animated, Pressable, Text, View } from 'react-native';
@@ -19,7 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const AuthScreen = (): JSX.Element => {
   const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { onGoogleLoginSubmit, onFacebookLoginSubmit } = useLogin();
   const [showPhoneLogin, setShowPhoneLogin] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -38,7 +40,7 @@ export const AuthScreen = (): JSX.Element => {
   // Navigate to Main if user is already logged in
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
-      navigation.navigate('Main');
+      navigation.replace('Main');
     }
   }, [user, userStatus, navigation]);
 
@@ -208,7 +210,7 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [200, 0],
+                  outputRange: [200, 80],
                 }),
               },
             ],
