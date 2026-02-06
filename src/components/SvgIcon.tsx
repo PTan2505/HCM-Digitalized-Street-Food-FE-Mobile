@@ -19,7 +19,14 @@ const SvgIcon = ({
   ...rest
 }: SvgIconProps): React.JSX.Element => {
   return (
-    <Icon width={width} height={height} fill={color} style={style} {...rest} />
+    <Icon
+      width={width}
+      height={height}
+      fill={color}
+      color={color}
+      style={style}
+      {...rest}
+    />
   );
 };
 

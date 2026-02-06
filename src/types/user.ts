@@ -9,4 +9,5 @@ export interface User {
   point?: number;
   createdAt?: string;
   emailVerified?: boolean;
+  phoneNumber?: string;
 }

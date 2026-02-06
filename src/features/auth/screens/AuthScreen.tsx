@@ -10,13 +10,18 @@ import { OTPForm } from '@features/auth/components/OTPForm';
 import useLogin from '@features/auth/hooks/useLogin';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { selectUserStatus } from '@slices/auth';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { selectUser, selectUserStatus } from '@slices/auth';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { Alert, Animated, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const AuthScreen = (): JSX.Element => {
+  const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { onGoogleLoginSubmit, onFacebookLoginSubmit } = useLogin();
   const [showPhoneLogin, setShowPhoneLogin] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -31,6 +36,14 @@ export const AuthScreen = (): JSX.Element => {
       offlineAccess: true,
     });
   }, []);
+
+  // Navigate to Main if user is already logged in
+  useEffect(() => {
+    console.log('User Status:', userStatus, 'User:', user);
+    if (userStatus === 'succeeded' && user) {
+      navigation.replace('Main');
+    }
+  }, [user, userStatus, navigation]);
 
   const handleGoogleLogin = async (): Promise<void> => {
     try {
@@ -75,7 +88,7 @@ export const AuthScreen = (): JSX.Element => {
     }).start();
   }, [isSendedOTP, formTransition]);
   return (
-    <SafeAreaView className="flex-1" edges={['left', 'right']}>
+    <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
       <View className="relative">
         <Animated.View
           style={{
@@ -129,7 +142,7 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -150], // Starts at natural position, slides down when animating
+                  outputRange: [50, -150], // Starts at natural position, slides down when animating
                 }),
               },
             ],
@@ -192,13 +205,13 @@ export const AuthScreen = (): JSX.Element => {
       {showPhoneLogin && (
         <Animated.View
           style={{
-            marginTop: -40,
+            marginTop: -100,
             opacity: animatedValue,
             transform: [
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [200, 0],
+                  outputRange: [200, 80],
                 }),
               },
             ],
