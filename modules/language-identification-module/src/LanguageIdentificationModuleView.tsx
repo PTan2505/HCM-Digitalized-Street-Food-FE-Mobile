@@ -6,6 +6,8 @@ import { LanguageIdentificationModuleViewProps } from './LanguageIdentificationM
 const NativeView: React.ComponentType<LanguageIdentificationModuleViewProps> =
   requireNativeView('LanguageIdentificationModule');
 
-export default function LanguageIdentificationModuleView(props: LanguageIdentificationModuleViewProps) {
+export default function LanguageIdentificationModuleView(
+  props: LanguageIdentificationModuleViewProps
+): React.JSX.Element {
   return <NativeView {...props} />;
 }

@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import { TranslationModuleViewProps } from './TranslationModule.types';
 
-export default function TranslationModuleView(props: TranslationModuleViewProps) {
+export default function TranslationModuleView(
+  props: TranslationModuleViewProps
+): React.JSX.Element {
   return (
     <div>
       <iframe

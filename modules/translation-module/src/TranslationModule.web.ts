@@ -4,16 +4,16 @@ import { ChangeEventPayload } from './TranslationModule.types';
 
 type TranslationModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
-}
+};
 
 class TranslationModule extends NativeModule<TranslationModuleEvents> {
   PI = Math.PI;
-  async setValueAsync(value: string): Promise<void> {
+  setValueAsync(value: string): void {
     this.emit('onChange', { value });
   }
-  hello() {
+  hello(): string {
     return 'Hello world! 👋';
   }
-};
+}
 
 export default registerWebModule(TranslationModule, 'TranslationModule');

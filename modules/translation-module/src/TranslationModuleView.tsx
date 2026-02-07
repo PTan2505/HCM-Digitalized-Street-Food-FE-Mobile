@@ -6,6 +6,8 @@ import { TranslationModuleViewProps } from './TranslationModule.types';
 const NativeView: React.ComponentType<TranslationModuleViewProps> =
   requireNativeView('TranslationModule');
 
-export default function TranslationModuleView(props: TranslationModuleViewProps) {
+export default function TranslationModuleView(
+  props: TranslationModuleViewProps
+): React.JSX.Element {
   return <NativeView {...props} />;
 }

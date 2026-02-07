@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import { LanguageIdentificationModuleViewProps } from './LanguageIdentificationModule.types';
 
-export default function LanguageIdentificationModuleView(props: LanguageIdentificationModuleViewProps) {
+export default function LanguageIdentificationModuleView(
+  props: LanguageIdentificationModuleViewProps
+): React.JSX.Element {
   return (
     <div>
       <iframe

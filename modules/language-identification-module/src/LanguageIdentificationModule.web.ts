@@ -4,16 +4,19 @@ import { ChangeEventPayload } from './LanguageIdentificationModule.types';
 
 type LanguageIdentificationModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
-}
+};
 
 class LanguageIdentificationModule extends NativeModule<LanguageIdentificationModuleEvents> {
   PI = Math.PI;
-  async setValueAsync(value: string): Promise<void> {
+  setValueAsync(value: string): void {
     this.emit('onChange', { value });
   }
-  hello() {
+  hello(): string {
     return 'Hello world! 👋';
   }
-};
+}
 
-export default registerWebModule(LanguageIdentificationModule, 'LanguageIdentificationModule');
+export default registerWebModule(
+  LanguageIdentificationModule,
+  'LanguageIdentificationModule'
+);
