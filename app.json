@@ -16,6 +16,7 @@
     },
     "ios": {
       "supportsTablet": true,
+      "deploymentTarget": "16.0",
       "bundleIdentifier": "com.hcmstreetfood.mobile",
       "icon": {
         "light": "./assets/ios-light.png"
@@ -76,6 +77,15 @@
           },
           "ios": {
             "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["en", "vi"],
+            "android": ["en", "vi"]
           }
         }
       ],

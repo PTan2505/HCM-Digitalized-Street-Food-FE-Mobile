@@ -3,7 +3,7 @@ import BannerCarousel from '@features/home/components/BannerCarousel';
 import { PlaceCard } from '@features/home/components/PlaceCard';
 import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 import { useNavigation } from '@react-navigation/native';
-import '@utils/i18n';
+// import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useState } from 'react';
