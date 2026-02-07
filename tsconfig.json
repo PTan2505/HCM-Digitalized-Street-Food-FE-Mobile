@@ -32,7 +32,8 @@
       "@constants/*": ["constants/*"],
       "@features/*": ["features/*"],
       "@auth/*": ["features/auth/*"],
-      "@user/*": ["features/user/*"]
+      "@user/*": ["features/user/*"],
+      "@modules/*": ["../modules/*"]
     }
   },
   "include": [

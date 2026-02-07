@@ -16,6 +16,7 @@ import RestaurantInfo, {
 import HeaderImage from '@features/home/components/HeaderImage';
 import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
 import { useSharedValue } from 'react-native-reanimated';
+import i18n from '@utils/i18n';
 
 type RestaurantDetailsScreenProps = StaticScreenProps<{ tab: TabType }>;
 
@@ -28,6 +29,8 @@ const RestaurantDetailsScreen = ({
 
   useEffect(() => {
     setActiveTab(tab);
+    const currentLanguage = i18n.language;
+    console.log('Current language:', currentLanguage);
   }, [tab]);
 
   const restaurantBanners = [SamplePlace, SamplePlace, SamplePlace];
@@ -124,6 +127,15 @@ const RestaurantDetailsScreen = ({
         'Minh rat thich khong gian quan, rat yen tinh va thoai mai. Mon an thi ngon, dac biet la mon mi vien kho Hong Kong...',
       images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
     },
+    {
+      id: '5',
+      userName: 'Người dùng',
+      date: '02/09/2025',
+      rating: 4.5,
+      comment:
+        'Food is amazing, staff are friendly and attentive. The ambiance is perfect for a relaxing meal with friends or family...',
+      images: [SamplePlace, SamplePlace, SamplePlace, SamplePlace],
+    },
   ];
 
   const nearbyRestaurants: NearbyRestaurant[] = [
@@ -147,6 +159,15 @@ const RestaurantDetailsScreen = ({
     },
     {
       id: '3',
+      name: 'The Gangs Mac Dinh Chi',
+      rating: 4.4,
+      distance: '1.2 km',
+      priceRange: 'Từ 200k - 500k',
+      badge: 'Tu tap ban be',
+      image: SamplePlace,
+    },
+    {
+      id: '4',
       name: 'The Gangs Mac Dinh Chi',
       rating: 4.4,
       distance: '1.2 km',

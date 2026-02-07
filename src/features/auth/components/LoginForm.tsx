@@ -3,6 +3,7 @@ import { LoginWithPhoneNumberSchema } from '@auth/utils/loginFormSchema';
 import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
 import { FontAwesome6 } from '@expo/vector-icons';
+import useLogin from '@features/auth/hooks/useLogin';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUserStatus } from '@slices/auth';
@@ -26,6 +27,7 @@ export const LoginForm = ({
   onBack,
 }: LoginFormProps): JSX.Element => {
   const userStatus = useAppSelector(selectUserStatus);
+  const { onPhoneNumberLoginSubmit } = useLogin();
 
   const methods = useForm<LoginWithPhoneNumberRequest>({
     defaultValues: initialValues,
@@ -42,13 +44,26 @@ export const LoginForm = ({
     },
   });
 
-  const onSubmit = (data: LoginWithPhoneNumberRequest): void => {
-    // Phone number is already cleaned by the schema transform
-    setIsSendedOTP(true);
-    phoneNumberRef.current = data.phoneNumber;
-    console.log(data);
-    // TODO: Call your login API here
+  const onSubmit = async (data: LoginWithPhoneNumberRequest): Promise<void> => {
+    try {
+      phoneNumberRef.current = data.phoneNumber;
+      console.log('Calling onPhoneNumberLoginSubmit with:', data);
+      await onPhoneNumberLoginSubmit(data);
+      console.log('API call successful, setting isSendedOTP to true');
+      setIsSendedOTP(true);
+    } catch (error) {
+      console.error('Phone number login failed:', error);
+      setIsSendedOTP(false);
+    }
   };
+
+  // const onSubmit = (data: LoginWithPhoneNumberRequest): void => {
+  //   // Phone number is already cleaned by the schema transform
+  //   setIsSendedOTP(true);
+  //   phoneNumberRef.current = data.phoneNumber;
+  //   console.log(data);
+  //   // TODO: Call your login API here
+  // };
 
   return (
     <FormProvider {...methods}>

@@ -2,11 +2,12 @@ import SamplePlace from '@assets/SamplePlace.jpg';
 import BannerCarousel from '@features/home/components/BannerCarousel';
 import { PlaceCard } from '@features/home/components/PlaceCard';
 import { FOOD_CATEGORIES } from '@features/home/constants/categories';
+import { useNavigation } from '@react-navigation/native';
+// import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import '@utils/i18n';
 import {
   FlatList,
   ScrollView,
@@ -17,7 +18,6 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import CategoryCard from '../components/CategoryCard';
 import FilterModal, { type FilterState } from '../components/FilterModal';
 import HomeHeader from '../components/HomeHeader';
