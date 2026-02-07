@@ -11,8 +11,8 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LanguageIdentificationModule } from '../../../../modules/language-identification-module';
-import { TranslationModule } from '../../../../modules/translation-module';
+import LanguageIdentificationModule from '@modules/language-identification-module';
+import TranslationModule from '@modules/translation-module';
 
 export interface Review {
   id: string;

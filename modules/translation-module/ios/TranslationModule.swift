@@ -1,48 +1,82 @@
 import ExpoModulesCore
+import MLKitTranslate
 
 public class TranslationModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
   public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('TranslationModule')` in JavaScript.
     Name("TranslationModule")
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Double.pi
-    }
-
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
-    }
-
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(TranslationModuleView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: TranslationModuleView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
+    // Translate text from source language to target language
+    // sourceLanguage and targetLanguage should be language codes like "en", "vi"
+    AsyncFunction("translate") { (text: String, sourceLanguage: String, targetLanguage: String, promise: Promise) in
+      guard let sourceLang = self.getTranslateLanguage(code: sourceLanguage),
+            let targetLang = self.getTranslateLanguage(code: targetLanguage) else {
+        promise.reject("INVALID_LANGUAGE", "Invalid source or target language code")
+        return
       }
 
-      Events("onLoad")
+      let options = TranslatorOptions(sourceLanguage: sourceLang, targetLanguage: targetLang)
+      let translator = Translator.translator(options: options)
+
+      // Download model if needed, then translate
+      let conditions = ModelDownloadConditions(
+        allowsCellularAccess: false,
+        allowsBackgroundDownloading: true
+      )
+
+      translator.downloadModelIfNeeded(with: conditions) { error in
+        if let error = error {
+          promise.reject("MODEL_DOWNLOAD_ERROR", error.localizedDescription)
+          return
+        }
+
+        translator.translate(text) { translatedText, error in
+          if let error = error {
+            promise.reject("TRANSLATION_ERROR", error.localizedDescription)
+            return
+          }
+
+          promise.resolve(translatedText)
+        }
+      }
+    }
+
+    // Download translation model for offline use
+    AsyncFunction("downloadModel") { (languageCode: String, promise: Promise) in
+      guard let lang = self.getTranslateLanguage(code: languageCode) else {
+        promise.reject("INVALID_LANGUAGE", "Invalid language code: \(languageCode)")
+        return
+      }
+
+      let options = TranslatorOptions(sourceLanguage: .english, targetLanguage: lang)
+      let translator = Translator.translator(options: options)
+
+      let conditions = ModelDownloadConditions(
+        allowsCellularAccess: false,
+        allowsBackgroundDownloading: true
+      )
+
+      translator.downloadModelIfNeeded(with: conditions) { error in
+        if let error = error {
+          promise.reject("MODEL_DOWNLOAD_ERROR", error.localizedDescription)
+          return
+        }
+        promise.resolve(true)
+      }
+    }
+  }
+
+  private func getTranslateLanguage(code: String) -> TranslateLanguage? {
+    switch code.lowercased() {
+    case "en": return .english
+    case "vi": return .vietnamese
+    case "zh": return .chinese
+    case "ja": return .japanese
+    case "ko": return .korean
+    case "fr": return .french
+    case "de": return .german
+    case "es": return .spanish
+    case "th": return .thai
+    default: return nil
     }
   }
 }
