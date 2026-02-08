@@ -89,7 +89,7 @@ const CurrentPicksScreen = (): JSX.Element => {
             <Ionicons name="chevron-back" size={28} color="#000" />
           </TouchableOpacity>
           <Text className="text-xl font-semibold text-black">
-            Current Picks
+            {t('current_pick.title')}
           </Text>
           <View className="w-9" />
         </View>
@@ -172,7 +172,9 @@ const CurrentPicksScreen = (): JSX.Element => {
         {/* Add Button */}
         <TouchableOpacity className="absolute bottom-9 right-9 flex-row items-center gap-2 rounded-[8px] bg-[#EE6612] px-2 py-2">
           <Ionicons name="add" size={24} color="#fff" />
-          <Text className="text-base font-semibold text-white">Thêm mới</Text>
+          <Text className="text-base font-semibold text-white">
+            {t('actions.add_new')}
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
     </GestureHandlerRootView>

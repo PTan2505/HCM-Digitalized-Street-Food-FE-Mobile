@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export interface RestaurantInfoData {
   name: string;
@@ -19,6 +20,8 @@ interface RestaurantInfoProps {
 }
 
 const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <View className="p-4">
       <View className="mb-2 flex-row justify-between">
@@ -38,7 +41,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
         </View>
         {restaurant.reviewCount > 0 && (
           <Text className="text-sm text-gray-600">
-            {restaurant.reviewCount} đánh giá
+            {restaurant.reviewCount} {t('actions.reviews')}
           </Text>
         )}
       </View>
@@ -46,7 +49,9 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
       <View className="mb-3 flex-row items-center gap-2">
         {restaurant.isVegetarian && (
           <View className="rounded-2xl bg-[#00B14F] px-2 py-1">
-            <Text className="text-xs font-semibold text-white">Món Chay</Text>
+            <Text className="text-xs font-semibold text-white">
+              {t('actions.vegetarian_food')}
+            </Text>
           </View>
         )}
         <View className="rounded-2xl bg-[#F1FAEA] px-2 py-1">
@@ -65,7 +70,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             restaurant.isOpen ? 'text-[#00B14F]' : 'text-red-500'
           }`}
         >
-          {restaurant.isOpen ? 'Mở cửa' : 'Đóng cửa'}
+          {restaurant.isOpen ? t('actions.open') : t('actions.closed')}
         </Text>
       </View>
     </View>

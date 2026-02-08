@@ -219,7 +219,7 @@ const MenuTab = ({
             filteredMenuItems.map(renderMenuItem)
           ) : (
             <Text className="py-8 text-center text-base text-gray-400">
-              Không có món ăn nào
+              {t('actions.no_items')}
             </Text>
           )}
         </View>
