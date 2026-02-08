@@ -7,6 +7,7 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface CurrentPickCardProps {
   id: string;
@@ -35,6 +36,8 @@ const CurrentPickCard = ({
   isTopPick,
   onBookmarkPress,
 }: CurrentPickCardProps): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <View className="relative mb-5 flex-row rounded-[16px] border border-[#EEEEEE] bg-[#FFFFFF] px-3 py-[8px]">
       {isTopPick && (
@@ -50,7 +53,9 @@ const CurrentPickCard = ({
               elevation: 5,
             }}
           >
-            <Text className="text-[10px] font-bold text-white">TOP PICK</Text>
+            <Text className="text-[10px] font-bold text-white">
+              {t('actions.top_pick')}
+            </Text>
           </View>
           {/* Ribbon fold effect */}
           <View

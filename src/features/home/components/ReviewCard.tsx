@@ -11,8 +11,8 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LanguageIdentificationModule } from '../../../../modules/language-identification-module';
-import { TranslationModule } from '../../../../modules/translation-module';
+import LanguageIdentificationModule from '@modules/language-identification-module';
+import TranslationModule from '@modules/translation-module';
 
 export interface Review {
   id: string;
@@ -102,12 +102,8 @@ const ReviewCard = ({ review }: ReviewCardProps): JSX.Element => {
 
   const displayComment = showTranslation ? translatedComment : review.comment;
   const translateButtonText = showTranslation
-    ? currentLanguage === 'vi'
-      ? 'Xem bản gốc'
-      : 'See original'
-    : currentLanguage === 'vi'
-      ? 'Xem bản dịch'
-      : 'See translation';
+    ? t('actions.see_original')
+    : t('actions.see_translation');
 
   return (
     <View

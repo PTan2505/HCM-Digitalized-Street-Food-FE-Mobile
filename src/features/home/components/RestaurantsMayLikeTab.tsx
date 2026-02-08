@@ -7,6 +7,7 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export interface NearbyRestaurant {
   id: string;
@@ -25,6 +26,8 @@ interface RestaurantsMayLikeTabProps {
 const RestaurantsMayLikeTab = ({
   restaurants,
 }: RestaurantsMayLikeTabProps): JSX.Element => {
+  const { t } = useTranslation();
+
   const renderNearbyRestaurant = (
     restaurant: NearbyRestaurant
   ): JSX.Element => (
@@ -70,7 +73,7 @@ const RestaurantsMayLikeTab = ({
   return (
     <View className="p-4">
       <Text className="mb-4 text-lg font-bold text-black">
-        Bạn có thể thích
+        {t('actions.you_may_like')}
       </Text>
       {restaurants.map(renderNearbyRestaurant)}
     </View>

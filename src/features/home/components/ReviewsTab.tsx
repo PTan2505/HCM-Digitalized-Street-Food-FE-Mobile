@@ -35,7 +35,7 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
             </Text>
           </View>
           <Text className="text-black-400 ml-2 mt-1 text-xs">
-            10 {t('reviews')}
+            10 {t('actions.reviews')}
           </Text>
         </View>
 
