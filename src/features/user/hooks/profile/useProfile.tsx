@@ -10,8 +10,8 @@ export default function useProfile(): {
 
   const updateUserProfile = useCallback(
     async (data: Partial<User>): Promise<void> => {
-      await dispatch(updateProfile(data)).unwrap();
-      await dispatch(markUserInfoSetup());
+      const updatedUser = await dispatch(updateProfile(data)).unwrap();
+      if (!updatedUser?.userInfoSetup) await dispatch(markUserInfoSetup());
     },
     [dispatch]
   );
