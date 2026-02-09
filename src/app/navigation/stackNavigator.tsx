@@ -17,6 +17,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
+import EditUserInfoScreen from '@features/user/screens/EditUserProfileScreen';
+import ProfileScreen from '@features/user/screens/ProfileScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
@@ -43,11 +45,14 @@ const RootStack = createNativeStackNavigator({
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
     },
-    // Profile: {
-    //   screen: ProfileScreen,
-    // },
+    SetupUserInfo: {
+      screen: EditUserInfoScreen,
+    },
     DietaryPreferences: {
       screen: DietaryPreferencesScreen,
+    },
+    Profile: {
+      screen: ProfileScreen,
     },
   },
 });

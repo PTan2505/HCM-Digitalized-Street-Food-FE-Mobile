@@ -19,4 +19,10 @@ export const apiUrl = {
   userDietary: {
     userDietary: '/UserDietary/user',
   },
+  user: {
+    userSetup: {
+      userinfo: '/UserSetup/userinfo-setup',
+      dietary: '/UserSetup/dietary-setup​',
+    },
+  },
 };

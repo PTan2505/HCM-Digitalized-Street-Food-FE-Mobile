@@ -1,9 +1,10 @@
 import type {
-  UserDietary,
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
+  UserDietary,
 } from '@features/user/types/userDietary';
 import { useAppDispatch } from '@hooks/reduxHooks';
+import { markDietarySetup } from '@slices/auth';
 import {
   createOrUpdateUserDietaryPreferences,
   getUserDietaryPreferences,
@@ -32,6 +33,7 @@ export default function useUserDietary(): {
       const response = await dispatch(
         createOrUpdateUserDietaryPreferences(data)
       ).unwrap();
+      await dispatch(markDietarySetup());
       return response;
     },
     [dispatch]

@@ -3,12 +3,12 @@ import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
 
+import type { DietaryPreference } from '@features/user/types/dietaryPreference';
 import type {
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
   UserDietary,
 } from '@features/user/types/userDietary';
-import type { DietaryPreference } from '@features/user/types/dietaryPreference';
 
 export interface DietaryState {
   dietaryPreferences: DietaryPreference[];
@@ -47,6 +47,8 @@ export const createOrUpdateUserDietaryPreferences = createAppAsyncThunk(
         );
       return response;
     } catch (error) {
+      console.error(error);
+
       return rejectWithValue(error);
     }
   }

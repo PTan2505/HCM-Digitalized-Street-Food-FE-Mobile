@@ -1,8 +1,9 @@
 import { CustomButton } from '@components/CustomButton';
-import DietaryList from '@features/user/components/DietaryList';
-import useDietaryPreference from '@features/user/hooks/useDietaryPreference';
-import useUserDietary from '@features/user/hooks/useUserDietary';
+import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
+import useDietaryPreference from '@features/user/hooks/dietaryPreference/useDietaryPreference';
+import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
 import { useAppSelector } from '@hooks/reduxHooks';
+import { useNavigation } from '@react-navigation/native';
 import { selectDietaryPreferences, selectDietaryState } from '@slices/dietary';
 import React, { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ const DietaryPreferencesScreen = (): JSX.Element => {
   const isSubmitting = dietaryStatus === 'pending';
   const { onGetAllDietaryPreferences } = useDietaryPreference();
   const { onCreateOrUpdateUserDietaryPreferences } = useUserDietary();
+  const navigation = useNavigation();
 
   useEffect(() => {
     onGetAllDietaryPreferences();
@@ -29,11 +31,13 @@ const DietaryPreferencesScreen = (): JSX.Element => {
         await onCreateOrUpdateUserDietaryPreferences(selectedOptions);
       Alert.alert(
         t('dietary.success_title') ?? 'Success',
-        response.message ??
-          t('dietary.success_message') ??
+        t('dietary.success_message') ??
           'Dietary preferences updated successfully'
       );
+      navigation.navigate('Main');
     } catch (error) {
+      console.error(error);
+
       Alert.alert(
         t('dietary.error_title') ?? 'Error',
         t('dietary.error_message') ?? 'Failed to update dietary preferences'
