@@ -34,7 +34,10 @@ export default function useUserDietary(): {
       const response = await dispatch(
         createOrUpdateUserDietaryPreferences(data)
       ).unwrap();
-      if (!user?.dietarySetup) await dispatch(markDietarySetup());
+      if (!user?.dietarySetup) {
+        console.log('a');
+        await dispatch(markDietarySetup());
+      }
       return response;
     },
     [dispatch, user]

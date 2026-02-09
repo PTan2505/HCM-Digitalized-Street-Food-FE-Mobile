@@ -22,7 +22,7 @@ export const apiUrl = {
   user: {
     userSetup: {
       userinfo: '/UserSetup/userinfo-setup',
-      dietary: '/UserSetup/dietary-setup​',
+      dietary: '/UserSetup/dietary-setup',
     },
   },
 };
