@@ -128,5 +128,20 @@
     "title": "Danh sách yêu thích",
     "number": "#{{number}}"
   },
-  "user": "Người dùng"
+  "user": "Người dùng",
+  "profile": {
+    "not_updated": "Chưa cập nhật",
+    "points": "điểm",
+    "last_name": "Họ",
+    "first_name": "Tên",
+    "email": "Email",
+    "phone_number": "Số điện thoại",
+    "dietary_preferences": "Sở thích ăn uống",
+    "update_dietary_preferences": "Cập nhật sở thích ăn uống",
+    "logout": "Đăng xuất"
+  },
+  "bottom_tabs": {
+    "discover": "Khám phá",
+    "account": "Tài khoản"
+  }
 }
