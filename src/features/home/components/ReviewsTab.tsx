@@ -1,25 +1,12 @@
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  Dimensions,
-  type ImageSourcePropType,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Dimensions } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
+import ReviewCard from './ReviewCard';
 
-export interface Review {
-  id: string;
-  userName: string;
-  date: string;
-  rating: number;
-  comment: string;
-  images: ImageSourcePropType[];
-}
+export type { Review } from './ReviewCard';
+import type { Review } from './ReviewCard';
 
 interface ReviewsTabProps {
   reviews: Review[];
@@ -30,55 +17,6 @@ const width = Dimensions.get('window').width;
 const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
   const { t } = useTranslation();
   const progress = useSharedValue<number>(0);
-
-  const renderReview = (review: Review): JSX.Element => (
-    <View
-      key={review.id}
-      className="mx-2 rounded-2xl bg-white p-4"
-      style={{
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
-        minHeight: 220,
-      }}
-    >
-      <View className="mb-3 flex-row items-center">
-        <View className="mr-3">
-          <Ionicons name="person-circle-outline" size={40} color="#ccc" />
-        </View>
-        <View className="flex-1">
-          <Text className="mb-0.5 text-[15px] font-semibold text-black">
-            {review.userName || t('user')}
-          </Text>
-          <Text className="text-xs text-gray-400">{review.date}</Text>
-        </View>
-        <View className="flex-row items-center gap-1">
-          <Text className="text-sm font-semibold text-black">
-            {review.rating}
-          </Text>
-          <Ionicons name="star" size={14} color="#FFA500" />
-        </View>
-      </View>
-      <Text className="mb-3 text-sm leading-5 text-gray-700" numberOfLines={3}>
-        {review.comment}
-      </Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="flex-row"
-      >
-        {review.images.map((img, index) => (
-          <Image
-            key={index}
-            source={img}
-            className="mr-2 h-20 w-20 rounded-lg"
-          />
-        ))}
-      </ScrollView>
-    </View>
-  );
 
   return (
     <View className="p-4">
@@ -97,7 +35,7 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
             </Text>
           </View>
           <Text className="text-black-400 ml-2 mt-1 text-xs">
-            10 {t('reviews')}
+            10 {t('actions.reviews')}
           </Text>
         </View>
 
@@ -174,7 +112,7 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
         <Carousel
           style={{
             width: width - 32,
-            height: 240,
+            height: 260,
           }}
           data={reviews}
           onProgressChange={progress}
@@ -184,7 +122,7 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
             parallaxScrollingOffset: 30,
           }}
           loop={true}
-          renderItem={({ item }) => renderReview(item)}
+          renderItem={({ item }) => <ReviewCard review={item} />}
         />
         <Pagination.Basic
           progress={progress}

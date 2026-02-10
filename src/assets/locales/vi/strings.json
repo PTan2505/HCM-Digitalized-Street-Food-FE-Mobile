@@ -102,11 +102,31 @@
     "food": "Đồ ăn",
     "service": "Dịch vụ",
     "location": "Địa điểm",
-    "vibe": "Vibe"
+    "vibe": "Vibe",
+    "map": "Bản đồ",
+    "share": "Chia sẻ",
+    "random_pick": "Chọn ngẫu nhiên",
+    "list_expires_in": "Danh sách hết hạn trong",
+    "location_list": "Danh sách địa điểm",
+    "no_items": "Không có món ăn nào",
+    "reviews": "đánh giá",
+    "vegetarian_food": "Món Chay",
+    "open": "Mở cửa",
+    "closed": "Đóng cửa",
+    "top_pick": "TOP PICK",
+    "you_may_like": "Bạn có thể thích",
+    "see_original": "Xem bản gốc",
+    "see_translation": "Xem bản dịch",
+    "add_new": "Thêm mới"
   },
   "tabs": {
     "menu": "Menu Quán",
     "reviews": "Bình luận",
     "nearby": "Bạn có thể thích"
-  }
+  },
+  "current_pick": {
+    "title": "Danh sách yêu thích",
+    "number": "#{{number}}"
+  },
+  "user": "Người dùng"
 }

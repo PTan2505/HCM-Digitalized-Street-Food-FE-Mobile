@@ -11,6 +11,7 @@ import type { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import SortModal from '@features/home/components/SortModal';
 import CurrentPickCard from '@features/home/components/CurrentPickCard';
 
@@ -29,6 +30,7 @@ interface Location {
 
 const CurrentPickDetailsScreen = (): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const [sortBy, setSortBy] = useState('distance');
   const [showSortModal, setShowSortModal] = useState(false);
 
@@ -141,18 +143,20 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
         }}
       >
         <Text className="mb-2 text-[20px] font-semibold leading-[22px] text-black">
-          Current Picks #1
+          {t('current_pick.title')} {t('current_pick.number', { number: 1 })}
         </Text>
-        <Text className="mb-2 text-sm text-gray-400">3 địa điểm</Text>
+        <Text className="mb-2 text-sm text-gray-400">
+          3 {t('actions.locations')}
+        </Text>
 
         <View className="mb-3 flex-row items-center justify-between">
           <Text className="mr-2 text-sm font-medium text-[#086524]">
-            Danh sách hết hạn trong
+            {t('actions.list_expires_in')}
           </Text>
           <View className="flex-row items-center">
             <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
               <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
-                04 ngày
+                04 {t('actions.days')}
               </Text>
             </View>
             <Text className="mx-1.5 text-sm font-semibold text-[#1D7518]">
@@ -160,7 +164,7 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
             </Text>
             <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
               <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
-                12 tiếng
+                12 {t('actions.hours')}
               </Text>
             </View>
             <Text className="mx-1.5 text-sm font-semibold text-[#1D7518]">
@@ -168,7 +172,7 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
             </Text>
             <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
               <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
-                21 phút
+                21 {t('actions.minutes')}
               </Text>
             </View>
           </View>
@@ -198,7 +202,9 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
             }}
           >
             <Ionicons name="map-outline" size={20} color="#000" />
-            <Text className="text-[12px] font-medium text-black">Bản đồ</Text>
+            <Text className="text-[12px] font-medium text-black">
+              {t('actions.map')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -212,7 +218,9 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
             }}
           >
             <Ionicons name="share-social-outline" size={20} color="#000" />
-            <Text className="text-[12px] font-medium text-black">Chia sẻ</Text>
+            <Text className="text-[12px] font-medium text-black">
+              {t('actions.share')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -227,7 +235,7 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
           >
             <Ionicons name="dice-outline" size={20} color="#1D7518" />
             <Text className="text-[12px] font-medium text-black">
-              Chọn ngẫu nhiên
+              {t('actions.random_pick')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -235,14 +243,16 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
         {/* List Header */}
         <View className="mb-4 flex-row items-center justify-between px-4">
           <Text className="text-[16px] font-semibold text-black">
-            Danh sách địa điểm
+            {t('actions.location_list')}
           </Text>
           <TouchableOpacity
             className="h-[26px] w-[97px] flex-row items-center justify-center gap-1.5 rounded-[16px] bg-[#ECECEC]"
             onPress={() => setShowSortModal(true)}
           >
             <Ionicons name="options-outline" size={14} color="#666" />
-            <Text className="text-[10px] text-gray-600">Sắp xếp theo</Text>
+            <Text className="text-[10px] text-gray-600">
+              {t('actions.sort_by')}
+            </Text>
           </TouchableOpacity>
         </View>
 
