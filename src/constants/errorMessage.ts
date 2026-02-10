@@ -29,4 +29,6 @@ export const VALIDATE_ERROR_MESSAGES: Record<string, string> = {
   EMPTY_LAST_NAME: 'Vui lòng nhập họ!',
   INVALID_NAME: 'Tên không hợp lệ!',
   INVALID_LAST_NAME: 'Họ không hợp lệ!',
+  EMPTY_FIRST_NAME: 'Vui lòng nhập tên!',
+  USERNAME_MIN_LENGTH: 'Tên người dùng phải có ít nhất 3 ký tự!',
 };

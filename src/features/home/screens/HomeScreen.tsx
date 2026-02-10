@@ -2,11 +2,14 @@ import SamplePlace from '@assets/SamplePlace.jpg';
 import BannerCarousel from '@features/home/components/BannerCarousel';
 import { PlaceCard } from '@features/home/components/PlaceCard';
 import { FOOD_CATEGORIES } from '@features/home/constants/categories';
+import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
-// import '@utils/i18n';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { selectUser, selectUserStatus } from '@slices/auth';
+import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -36,9 +39,12 @@ interface PlaceItem {
 
 const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
   const { t } = useTranslation();
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const user = useAppSelector(selectUser);
+  const userStatus = useAppSelector(selectUserStatus);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   const samplePlaces: PlaceItem[] = Array.from({ length: 10 }).map(
     (_, index) => ({
@@ -62,6 +68,17 @@ const HomeScreen = (): JSX.Element => {
     'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
   ];
+
+  useEffect(() => {
+    console.log('User Status:', userStatus, 'User:', user);
+    if (userStatus === 'succeeded' && user) {
+      if (!user?.userInfoSetup) {
+        navigation.replace('SetupUserInfo');
+      } else if (user?.userInfoSetup && !user?.dietarySetup) {
+        navigation.replace('DietaryPreferences');
+      }
+    }
+  }, [user, userStatus, navigation]);
 
   return (
     <>

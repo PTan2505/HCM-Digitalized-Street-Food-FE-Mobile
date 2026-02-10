@@ -1,21 +1,16 @@
-import type {
-  LoginRequest,
-  LoginWithPhoneNumberRequest,
-} from '@auth/types/login';
+import type { LoginWithPhoneNumberRequest } from '@auth/types/login';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
-  userLogin,
   userLoginWithFacebook,
   userLoginWithGoogle,
   userLoginWithPhoneNumber,
-  verifyPhoneNumber,
   userLogout,
+  verifyPhoneNumber,
 } from '@slices/auth';
 
 export default function useLogin(): {
-  onLoginSubmit: (values: LoginRequest) => Promise<void>;
   onGoogleLoginSubmit: () => Promise<void>;
   onFacebookLoginSubmit: () => Promise<void>;
   onPhoneNumberLoginSubmit: (
@@ -30,10 +25,6 @@ export default function useLogin(): {
   const dispatch = useAppDispatch();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-
-  async function onLoginSubmit(values: LoginRequest): Promise<void> {
-    await dispatch(userLogin(values)).unwrap();
-  }
 
   async function onGoogleLoginSubmit(): Promise<void> {
     await dispatch(userLoginWithGoogle()).unwrap();
@@ -65,7 +56,6 @@ export default function useLogin(): {
     // Implementation for logout if needed
   }
   return {
-    onLoginSubmit,
     onGoogleLoginSubmit,
     onFacebookLoginSubmit,
     onPhoneNumberLoginSubmit,

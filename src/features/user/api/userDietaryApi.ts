@@ -1,7 +1,7 @@
 import {
-  UserDietary,
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
+  UserDietary,
 } from '@features/user/types//userDietary';
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
@@ -30,6 +30,6 @@ export class UserDietaryApi {
       url: apiUrl.userDietary.userDietary,
       data,
     });
-    return res.data;
+    return res;
   }
 }

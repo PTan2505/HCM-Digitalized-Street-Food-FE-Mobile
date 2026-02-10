@@ -33,6 +33,7 @@ interface CustomInputProps<T extends FieldValues> {
   placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
   autoFocus?: boolean;
+  readonly?: boolean;
   type?: 'email' | 'phone' | 'password' | 'username' | 'name' | 'text';
 }
 
@@ -46,6 +47,7 @@ export const CustomInput = <T extends FieldValues>(
     placeholder,
     type = 'text',
     keyboardType,
+    readonly,
   } = props;
   const [hidePassword, setHidePassword] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
@@ -108,7 +110,11 @@ export const CustomInput = <T extends FieldValues>(
               keyboardType={getKeyboardType()}
               textAlignVertical="center"
               autoFocus={props.autoFocus}
-              className="flex-1 justify-center py-3 text-[#333333]"
+              className={`flex-1 justify-center py-3 text-[#333333] ${
+                readonly ? 'bg-gray-100 opacity-60' : 'bg-transparent'
+              }`}
+              editable={!readonly} // Control việc có cho gõ hay không
+              selectTextOnFocus={!readonly}
             />
 
             {type === 'password' && (

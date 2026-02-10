@@ -1,23 +1,23 @@
+import { Ionicons } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
+import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
+import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
+import { useAppSelector } from '@hooks/reduxHooks';
+import { useNavigation } from '@react-navigation/native';
+import { selectUser } from '@slices/auth';
+import { selectUserDietaryPreferences } from '@slices/dietary';
+import getHighResAvatar from '@utils/getHighResAvatar';
 import React, { JSX, useEffect, useState } from 'react';
 import {
   Image,
-  Text,
-  View,
-  ScrollView,
   Pressable,
-  TouchableOpacity,
+  ScrollView,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppSelector } from '@hooks/reduxHooks';
-import { selectUser } from '@slices/auth';
-import { selectUserDietaryPreferences } from '@slices/dietary';
-import { useNavigation } from '@react-navigation/native';
-import DietaryList from '@features/user/components/DietaryList';
-import useUserDietary from '@features/user/hooks/useUserDietary';
-import { Ionicons } from '@expo/vector-icons';
-import getHighResAvatar from '@utils/getHighResAvatar';
 
 const ProfileScreen = (): JSX.Element => {
   const user = useAppSelector(selectUser);
@@ -69,7 +69,7 @@ const ProfileScreen = (): JSX.Element => {
           <View className="flex-row items-center rounded-xl border border-[#a1d973] px-4 py-3.5">
             <Ionicons name={icon} size={20} color="#999" />
             <Text className="ml-3 flex-1 text-sm text-[#999]">
-              {editValues[fieldKey] || 'Chưa cập nhật'}
+              {editValues[fieldKey] ?? 'Chưa cập nhật'}
             </Text>
           </View>
         </View>

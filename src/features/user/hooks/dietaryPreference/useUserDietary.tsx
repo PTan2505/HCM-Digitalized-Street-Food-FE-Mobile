@@ -1,9 +1,10 @@
 import type {
-  UserDietary,
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
+  UserDietary,
 } from '@features/user/types/userDietary';
-import { useAppDispatch } from '@hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { markDietarySetup, selectUser } from '@slices/auth';
 import {
   createOrUpdateUserDietaryPreferences,
   getUserDietaryPreferences,
@@ -17,6 +18,7 @@ export default function useUserDietary(): {
   ) => Promise<CreateOrUpdateUserDietaryResponse>;
 } {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
   const onGetUserDietaryPreferences = useCallback(async (): Promise<
     UserDietary[]
@@ -32,9 +34,13 @@ export default function useUserDietary(): {
       const response = await dispatch(
         createOrUpdateUserDietaryPreferences(data)
       ).unwrap();
+      if (!user?.dietarySetup) {
+        console.log('a');
+        await dispatch(markDietarySetup());
+      }
       return response;
     },
-    [dispatch]
+    [dispatch, user]
   );
 
   return {
