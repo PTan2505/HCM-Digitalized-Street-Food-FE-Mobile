@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 import { OtpInputRef } from 'react-native-otp-entry';
+import { useTranslation } from 'react-i18next';
 
 const initialValues: LoginWithPhoneNumberRequest = {
   phoneNumber: '',
@@ -55,6 +56,7 @@ export interface OTPFormProps {
 }
 
 export const OTPForm = (props: OTPFormProps): JSX.Element => {
+  const { t } = useTranslation();
   const userStatus = useAppSelector(selectUserStatus);
   const { onVerifyPhoneNumberSubmit } = useLogin();
   const otpRef = useRef<OtpInputRef>(null);
@@ -147,18 +149,17 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           className="mb-2 w-[100px] flex-row items-center gap-2 active:opacity-50"
         >
           <FontAwesome6 name="arrow-left" size={20} color="#000" />
-          <Text className="text-base font-semibold">Quay lại</Text>
+          <Text className="text-base font-semibold">{t('auth.back')}</Text>
         </Pressable>
         <View className="gap-2 px-1">
           <Text className="text-xl font-semibold text-[#a1d973]">
-            Nhập mã OTP đã được gửi đến số điện thoại:{' '}
-            {maskPhoneNumber(props.phoneNumber)}
+            {t('auth.enter_otp_message')} {maskPhoneNumber(props.phoneNumber)}
           </Text>
         </View>
         <CustomOTPInput
           ref={otpRef}
           name="otp"
-          label="Mã OTP"
+          label={t('auth.otp_code')}
           required
           numberOfDigits={6}
         />
@@ -175,10 +176,10 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
               }`}
             >
               {isResending
-                ? 'Đang gửi...'
+                ? t('auth.sending')
                 : countdown > 0
-                  ? 'Gửi lại mã sau'
-                  : 'Gửi lại mã'}{' '}
+                  ? t('auth.resend_code_after')
+                  : t('auth.resend_code')}{' '}
               {countdown > 0 && (
                 <Text className="text-lg font-semibold text-[#616161]">
                   {formatCountDownTime(countdown)}
@@ -190,8 +191,8 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
         <CustomButton
           onPress={handleSubmit(onSubmit)}
           isLoading={userStatus === 'pending'}
-          text="Xác nhận"
-          loadingText="Đang xác nhận..."
+          text={t('auth.confirm')}
+          loadingText={t('auth.confirming')}
         />
       </View>
     </FormProvider>

@@ -2,17 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
 import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
 import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
-import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import { useAppSelector } from '@hooks/reduxHooks';
-import TranslationModule from '@modules/translation-module';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
 import { selectUserDietaryPreferences } from '@slices/dietary';
 import getHighResAvatar from '@utils/getHighResAvatar';
-import React, { JSX, useEffect, useState } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -23,68 +20,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileScreen = (): JSX.Element => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const { onLogout } = useLogin();
   const navigation = useNavigation();
   const { onGetUserDietaryPreferences } = useUserDietary();
-  const [translatedOptions, setTranslatedOptions] = useState<
-    DietaryPreference[]
-  >([]);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const currentLanguage = i18n.language;
 
   useEffect(() => {
     onGetUserDietaryPreferences();
   }, [onGetUserDietaryPreferences]);
-
-  // Translate dietary options when language is English
-  useEffect(() => {
-    const translateOptions = async (): Promise<void> => {
-      if (userDietaryPreferences.length === 0) {
-        setTranslatedOptions([]);
-        return;
-      }
-
-      if (currentLanguage !== 'en') {
-        setTranslatedOptions(userDietaryPreferences);
-        return;
-      }
-
-      setIsTranslating(true);
-      try {
-        const translated = await Promise.all(
-          userDietaryPreferences.map(async (option) => {
-            const [translatedName, translatedDescription] = await Promise.all([
-              TranslationModule.translate(option.name, 'vi', 'en'),
-              option.description
-                ? TranslationModule.translate(option.description, 'vi', 'en')
-                : Promise.resolve(undefined),
-            ]);
-
-            return {
-              ...option,
-              name: translatedName,
-              description: translatedDescription,
-            };
-          })
-        );
-        setTranslatedOptions(translated);
-      } catch (error) {
-        console.error('Translation error:', error);
-        setTranslatedOptions(userDietaryPreferences);
-      } finally {
-        setIsTranslating(false);
-      }
-    };
-
-    translateOptions();
-  }, [currentLanguage, userDietaryPreferences]);
-
-  // Use translated options for display
-  const displayOptions =
-    translatedOptions.length > 0 ? translatedOptions : userDietaryPreferences;
 
   const renderField = (
     label: string,
@@ -162,19 +107,13 @@ const ProfileScreen = (): JSX.Element => {
           <Text className="mb-2 text-base font-semibold">
             {t('profile.dietary_preferences')}
           </Text>
-          {isTranslating ? (
-            <View className="items-center justify-center py-4">
-              <ActivityIndicator size="small" color="#a1d973" />
-            </View>
-          ) : (
-            <DietaryList
-              dietaryOptions={displayOptions}
-              selectedOptions={userDietaryPreferences.map(
-                (pref) => pref.dietaryPreferenceId
-              )}
-              setSelectedOptions={() => {}}
-            />
-          )}
+          <DietaryList
+            dietaryOptions={userDietaryPreferences}
+            selectedOptions={userDietaryPreferences.map(
+              (pref) => pref.dietaryPreferenceId
+            )}
+            setSelectedOptions={() => {}}
+          />
         </View>
 
         <Pressable
