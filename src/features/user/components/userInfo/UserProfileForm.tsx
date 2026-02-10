@@ -82,7 +82,7 @@ const UserProfileForm = (): JSX.Element => {
               }
               className="h-[128] w-[128] rounded-[64] border-[2px] border-[#a1d973] shadow-2xl"
             />
-            <View className="bg-primary absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full">
+            <View className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-primary">
               <Text className="text-white">📷</Text>
             </View>
           </Pressable>
