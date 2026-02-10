@@ -1,17 +1,39 @@
 import localesResource from '@assets/locales';
-import * as Localization from 'expo-localization';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+
+const LANGUAGE_KEY = '@app_language';
 
 const languageDetector = {
   type: 'languageDetector' as const,
   async: true,
-  detect: (callback: (lng: string) => void): void => {
-    const locale = Localization.getLocales()[0]?.languageCode ?? 'vi';
-    callback(locale);
+  detect: async (callback: (lng: string) => void): Promise<void> => {
+    try {
+      const savedLanguage = await AsyncStorage.getItem(LANGUAGE_KEY);
+      if (savedLanguage) {
+        callback(savedLanguage);
+      } else {
+        // Get device language
+        const deviceLanguage = getLocales()[0]?.languageCode ?? 'vi';
+        // Support only 'vi' and 'en', fallback to 'vi' if not supported
+        const supportedLanguage = deviceLanguage === 'en' ? 'en' : 'vi';
+        callback(supportedLanguage);
+      }
+    } catch (error) {
+      console.error('Error loading language:', error);
+      callback('vi');
+    }
   },
   init: (): void => {},
-  cacheUserLanguage: (): void => {},
+  cacheUserLanguage: async (lng: string): Promise<void> => {
+    try {
+      await AsyncStorage.setItem(LANGUAGE_KEY, lng);
+    } catch (error) {
+      console.error('Error saving language:', error);
+    }
+  },
 };
 
 i18n

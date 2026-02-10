@@ -15,4 +15,24 @@ export class UserProfileApi {
     });
     return res.data;
   }
+
+  async updateUserProfile(data: Partial<User>): Promise<User> {
+    const res = await this.apiClient.put<User, Partial<User>>({
+      url: apiUrl.auth.profile,
+      data,
+    });
+    return res.data;
+  }
+
+  async markUserInfoSetup(): Promise<void> {
+    await this.apiClient.put<void, null>({
+      url: apiUrl.user.userSetup.userinfo,
+    });
+  }
+
+  async markDietarySetup(): Promise<void> {
+    await this.apiClient.put<void, null>({
+      url: apiUrl.user.userSetup.dietary,
+    });
+  }
 }

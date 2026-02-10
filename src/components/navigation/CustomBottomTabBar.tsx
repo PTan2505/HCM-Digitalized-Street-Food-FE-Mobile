@@ -3,6 +3,7 @@ import { PlatformPressable, Text } from '@react-navigation/elements';
 import { useLinkBuilder, useTheme } from '@react-navigation/native';
 import { JSX } from 'react';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const CustomBottomTabBar = ({
   state,
@@ -11,9 +12,13 @@ export const CustomBottomTabBar = ({
 }: BottomTabBarProps): JSX.Element => {
   const { colors } = useTheme();
   const { buildHref } = useLinkBuilder();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View className="absolute bottom-8 w-full flex-row items-center justify-center">
+    <View
+      className="absolute w-full flex-row items-center justify-center"
+      style={{ bottom: 8 + insets.bottom }}
+    >
       <View className="flex-row items-center justify-between rounded-full bg-white p-[8px] shadow-[0_4px_2px_rgba(0,0,0,0.2)]">
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
