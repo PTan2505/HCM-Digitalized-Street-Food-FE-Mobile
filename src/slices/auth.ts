@@ -289,6 +289,9 @@ export const authSlice = createSlice({
       .addCase(userLoginWithFacebook.fulfilled, (state, action) => {
         state.value = action.payload.user;
       })
+      .addCase(verifyPhoneNumber.fulfilled, (state, action) => {
+        state.value = action.payload.user;
+      })
       .addCase(loadUserFromStorage.fulfilled, (state, action) => {
         state.value = action.payload;
       })
