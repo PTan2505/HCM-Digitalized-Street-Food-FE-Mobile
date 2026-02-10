@@ -9,12 +9,38 @@ import com.google.mlkit.nl.translate.TranslatorOptions
 import com.google.mlkit.common.model.DownloadConditions
 
 class TranslationModule : Module() {
+  // Dictionary for common Vietnamese phrases that ML Kit often mistranslates (case-insensitive keys)
+  private val viToEnDictionary = mapOf(
+    "không thịt" to "No meat",
+    "ăn chay" to "Vegetarian",
+    "không hải sản" to "No seafood",
+    "không gluten" to "Gluten-free",
+    "không đường" to "Sugar-free",
+    "không sữa" to "Dairy-free",
+    "không đậu phộng" to "No peanuts",
+    "không trứng" to "No eggs",
+    "ít calo" to "Low calorie",
+    "ít muối" to "Low sodium",
+    "thuần chay" to "Vegan",
+    "halal" to "Halal",
+    "kosher" to "Kosher"
+  )
+
   override fun definition() = ModuleDefinition {
     Name("TranslationModule")
 
     // Translate text from source language to target language
     // sourceLanguage and targetLanguage should be language codes like "en", "vi"
     AsyncFunction("translate") { text: String, sourceLanguage: String, targetLanguage: String, promise: Promise ->
+      // Check dictionary first for vi->en translations
+      if (sourceLanguage.lowercase() == "vi" && targetLanguage.lowercase() == "en" && text.isNotBlank()) {
+        val dictResult = viToEnDictionary[text.lowercase().trim()]
+        if (dictResult != null) {
+          promise.resolve(dictResult)
+          return@AsyncFunction
+        }
+      }
+
       val sourceLang = getTranslateLanguage(sourceLanguage)
       val targetLang = getTranslateLanguage(targetLanguage)
       
@@ -39,7 +65,20 @@ class TranslationModule : Module() {
         .addOnSuccessListener {
           translator.translate(text)
             .addOnSuccessListener { translatedText ->
-              promise.resolve(translatedText)
+              // Post-process: fix negation issues for vi->en
+              val correctedText = if (sourceLanguage.lowercase() == "vi" && 
+                                      targetLanguage.lowercase() == "en" &&
+                                      text.contains("không", ignoreCase = true) &&
+                                      !translatedText.contains("no ", ignoreCase = true) &&
+                                      !translatedText.contains("not ", ignoreCase = true) &&
+                                      !translatedText.contains("-free", ignoreCase = true) &&
+                                      !translatedText.contains("without", ignoreCase = true) &&
+                                      translatedText.isNotBlank()) {
+                "No $translatedText"
+              } else {
+                translatedText
+              }
+              promise.resolve(correctedText)
             }
             .addOnFailureListener { e ->
               promise.reject("TRANSLATION_ERROR", e.message ?: "Failed to translate", e)
