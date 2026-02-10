@@ -128,5 +128,20 @@
     "title": "Current Picks",
     "number": "#{{number}}"
   },
-  "user": "User"
+  "user": "User",
+  "profile": {
+    "not_updated": "Not updated yet",
+    "points": "points",
+    "last_name": "Last Name",
+    "first_name": "First Name",
+    "email": "Email",
+    "phone_number": "Phone Number",
+    "dietary_preferences": "Dietary Preferences",
+    "update_dietary_preferences": "Update Dietary Preferences",
+    "logout": "Logout"
+  },
+  "bottom_tabs": {
+    "discover": "Discover",
+    "account": "Account"
+  }
 }
