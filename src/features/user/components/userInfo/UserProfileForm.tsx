@@ -21,8 +21,10 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const UserProfileForm = (): JSX.Element => {
+  const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -92,42 +94,42 @@ const UserProfileForm = (): JSX.Element => {
           <View className="flex gap-8 px-4">
             <CustomInput<Partial<User>>
               name="username"
-              label="Tên người dùng"
+              label={t('edit_profile.username')}
               type="username"
-              placeholder="Nhập tên người dùng"
+              placeholder={t('edit_profile.enter_username')}
               required
             />
 
             <CustomInput<Partial<User>>
               name="email"
-              label="Email"
+              label={t('edit_profile.email')}
               type="email"
-              placeholder="Nhập email"
+              placeholder={t('edit_profile.enter_email')}
               keyboardType="email-address"
               readonly={!!user?.email}
             />
 
             <CustomInput<Partial<User>>
               name="firstName"
-              label="Tên"
+              label={t('edit_profile.first_name')}
               type="name"
-              placeholder="Nhập tên"
+              placeholder={t('edit_profile.enter_first_name')}
               required
             />
 
             <CustomInput<Partial<User>>
               name="lastName"
-              label="Họ"
+              label={t('edit_profile.last_name')}
               type="name"
-              placeholder="Nhập họ"
+              placeholder={t('edit_profile.enter_last_name')}
               required
             />
 
             <CustomInput<Partial<User>>
               name="phoneNumber"
-              label="Số điện thoại"
+              label={t('edit_profile.phone_number')}
               type="phone"
-              placeholder="Nhập số điện thoại"
+              placeholder={t('edit_profile.enter_phone_number')}
               keyboardType="phone-pad"
             />
           </View>
@@ -135,7 +137,7 @@ const UserProfileForm = (): JSX.Element => {
           <View className="px-4 py-6">
             <View className="gap-3">
               <CustomButton
-                text="Lưu thay đổi"
+                text={t('edit_profile.save_changes')}
                 onPress={handleSubmit(onSubmit)}
               />
             </View>

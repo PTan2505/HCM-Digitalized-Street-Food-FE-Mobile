@@ -25,7 +25,13 @@
     "kosher": "Kosher",
     "kosher_desc": "Prepared according to Jewish dietary laws",
     "pescatarian": "Pescatarian",
-    "pescatarian_desc": "Includes fish but no other meat"
+    "pescatarian_desc": "Includes fish but no other meat",
+    "confirm": "Confirm",
+    "saving": "Saving...",
+    "success_title": "Success",
+    "success_message": "Dietary preferences updated successfully",
+    "error_title": "Error",
+    "error_message": "Failed to update dietary preferences"
   },
   "search_placeholder": "Search restaurants, coffee...",
   "what_want_eat": "What Do You Want To Eat?",
@@ -143,5 +149,37 @@
   "bottom_tabs": {
     "discover": "Discover",
     "account": "Account"
+  },
+  "auth": {
+    "login_with_google": "Login with Google",
+    "login_with_facebook": "Login with Facebook",
+    "login_with_phone": "Login with Phone Number",
+    "error": "Error",
+    "google_login_failed": "Google login failed",
+    "facebook_login_failed": "Facebook login failed",
+    "back": "Back",
+    "phone_number": "Phone Number",
+    "enter_phone_number": "Enter phone number",
+    "login": "Login",
+    "enter_otp_message": "Enter the OTP code sent to phone number:",
+    "otp_code": "OTP Code",
+    "sending": "Sending...",
+    "resend_code_after": "Resend code after",
+    "resend_code": "Resend code",
+    "confirm": "Confirm",
+    "confirming": "Confirming..."
+  },
+  "edit_profile": {
+    "username": "Username",
+    "enter_username": "Enter username",
+    "email": "Email",
+    "enter_email": "Enter email",
+    "first_name": "First Name",
+    "enter_first_name": "Enter first name",
+    "last_name": "Last Name",
+    "enter_last_name": "Enter last name",
+    "phone_number": "Phone Number",
+    "enter_phone_number": "Enter phone number",
+    "save_changes": "Save changes"
   }
 }

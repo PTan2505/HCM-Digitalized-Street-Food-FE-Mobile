@@ -25,7 +25,13 @@
     "kosher": "Kosher",
     "kosher_desc": "Được chuẩn bị theo luật ăn uống Do Thái",
     "pescatarian": "Ăn cá",
-    "pescatarian_desc": "Bao gồm cá nhưng không có thịt khác"
+    "pescatarian_desc": "Bao gồm cá nhưng không có thịt khác",
+    "confirm": "Xác nhận",
+    "saving": "Đang lưu...",
+    "success_title": "Thành công",
+    "success_message": "Cập nhật sở thích ăn uống thành công",
+    "error_title": "Lỗi",
+    "error_message": "Cập nhật sở thích ăn uống thất bại"
   },
   "search_placeholder": "Tìm nhà hàng, quán cà phê...",
   "what_want_eat": "Bạn muốn ăn gì?",
@@ -143,5 +149,37 @@
   "bottom_tabs": {
     "discover": "Khám phá",
     "account": "Tài khoản"
+  },
+  "auth": {
+    "login_with_google": "Đăng nhập với Google",
+    "login_with_facebook": "Đăng nhập với Facebook",
+    "login_with_phone": "Đăng nhập với Số điện thoại",
+    "error": "Lỗi",
+    "google_login_failed": "Đăng nhập Google thất bại",
+    "facebook_login_failed": "Đăng nhập Facebook thất bại",
+    "back": "Quay lại",
+    "phone_number": "Số điện thoại",
+    "enter_phone_number": "Nhập số điện thoại",
+    "login": "Đăng nhập",
+    "enter_otp_message": "Nhập mã OTP đã được gửi đến số điện thoại:",
+    "otp_code": "Mã OTP",
+    "sending": "Đang gửi...",
+    "resend_code_after": "Gửi lại mã sau",
+    "resend_code": "Gửi lại mã",
+    "confirm": "Xác nhận",
+    "confirming": "Đang xác nhận..."
+  },
+  "edit_profile": {
+    "username": "Tên người dùng",
+    "enter_username": "Nhập tên người dùng",
+    "email": "Email",
+    "enter_email": "Nhập email",
+    "first_name": "Tên",
+    "enter_first_name": "Nhập tên",
+    "last_name": "Họ",
+    "enter_last_name": "Nhập họ",
+    "phone_number": "Số điện thoại",
+    "enter_phone_number": "Nhập số điện thoại",
+    "save_changes": "Lưu thay đổi"
   }
 }

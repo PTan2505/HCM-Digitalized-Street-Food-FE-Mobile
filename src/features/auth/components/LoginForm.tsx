@@ -10,6 +10,7 @@ import { selectUserStatus } from '@slices/auth';
 import { RefObject, type JSX } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const initialValues: LoginWithPhoneNumberRequest = {
   phoneNumber: '',
@@ -26,6 +27,7 @@ export const LoginForm = ({
   phoneNumberRef,
   onBack,
 }: LoginFormProps): JSX.Element => {
+  const { t } = useTranslation();
   const userStatus = useAppSelector(selectUserStatus);
   const { onPhoneNumberLoginSubmit } = useLogin();
 
@@ -73,19 +75,19 @@ export const LoginForm = ({
           className="mb-2 w-[100px] flex-row items-center gap-2 active:opacity-50"
         >
           <FontAwesome6 name="arrow-left" size={20} color="#000" />
-          <Text className="text-base font-semibold">Quay lại</Text>
+          <Text className="text-base font-semibold">{t('auth.back')}</Text>
         </Pressable>
 
         <CustomInput
           name="phoneNumber"
-          label="Số điện thoại"
-          placeholder="Nhập số điện thoại"
+          label={t('auth.phone_number')}
+          placeholder={t('auth.enter_phone_number')}
           type="phone"
           autoFocus
           required
         />
         <CustomButton
-          text="Đăng nhập"
+          text={t('auth.login')}
           onPress={handleSubmit(onSubmit)}
           disabled={watchedValue.length === 0 || userStatus === 'pending'}
         />

@@ -11,6 +11,7 @@ import useLogin from '@features/auth/hooks/useLogin';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import { useEffect, useRef, useState, type JSX } from 'react';
@@ -18,6 +19,7 @@ import { Alert, Animated, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const AuthScreen = (): JSX.Element => {
+  const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
   const navigation =
@@ -53,7 +55,7 @@ export const AuthScreen = (): JSX.Element => {
       if (err?.code === 'CANCELLED') {
         console.log(err);
       } else {
-        Alert.alert('Lỗi', 'Đăng nhập Google thất bại');
+        Alert.alert(t('auth.error'), t('auth.google_login_failed'));
       }
     }
   };
@@ -66,7 +68,7 @@ export const AuthScreen = (): JSX.Element => {
       if (err?.code === 'CANCELLED') {
         console.log(err);
       } else {
-        Alert.alert('Lỗi', 'Đăng nhập Facebook thất bại');
+        Alert.alert(t('auth.error'), t('auth.facebook_login_failed'));
       }
     }
   };
@@ -161,7 +163,9 @@ export const AuthScreen = (): JSX.Element => {
                   height={20}
                   style={{ position: 'absolute', left: 12 }}
                 />
-                <Text className="font-semibold">Đăng nhập với Google</Text>
+                <Text className="font-semibold">
+                  {t('auth.login_with_google')}
+                </Text>
               </Pressable>
             </View>
             <View className="flex-row justify-center gap-10">
@@ -177,7 +181,7 @@ export const AuthScreen = (): JSX.Element => {
                   style={{ position: 'absolute', left: 12 }}
                 />
                 <Text className="font-semibold text-white">
-                  Đăng nhập với Facebook
+                  {t('auth.login_with_facebook')}
                 </Text>
               </Pressable>
             </View>
@@ -195,7 +199,7 @@ export const AuthScreen = (): JSX.Element => {
                   style={{ position: 'absolute', left: 12 }}
                 />
                 <Text className="font-semibold text-white">
-                  Đăng nhập với Số điện thoại
+                  {t('auth.login_with_phone')}
                 </Text>
               </Pressable>
             </View>
