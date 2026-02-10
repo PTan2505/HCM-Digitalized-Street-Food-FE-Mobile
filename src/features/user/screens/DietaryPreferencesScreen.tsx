@@ -2,33 +2,88 @@ import { CustomButton } from '@components/CustomButton';
 import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
 import useDietaryPreference from '@features/user/hooks/dietaryPreference/useDietaryPreference';
 import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
+import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectDietaryPreferences, selectDietaryState } from '@slices/dietary';
+import TranslationModule from '@modules/translation-module';
 import React, { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DietaryPreferencesScreen = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [focusOptionId, setFocusOptionId] = useState<number | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+  const [translatedOptions, setTranslatedOptions] = useState<
+    DietaryPreference[]
+  >([]);
+  const [isTranslating, setIsTranslating] = useState(false);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const dietaryOptions = useAppSelector(selectDietaryPreferences);
   const isSubmitting = dietaryStatus === 'pending';
   const { onGetAllDietaryPreferences } = useDietaryPreference();
   const { onCreateOrUpdateUserDietaryPreferences } = useUserDietary();
   const navigation = useNavigation();
+  const currentLanguage = i18n.language;
 
   useEffect(() => {
     onGetAllDietaryPreferences();
   }, [onGetAllDietaryPreferences]);
 
+  // Translate dietary options when language is English
+  useEffect(() => {
+    const translateOptions = async (): Promise<void> => {
+      if (dietaryOptions.length === 0) {
+        return;
+      }
+
+      if (currentLanguage !== 'en') {
+        setTranslatedOptions(dietaryOptions);
+        return;
+      }
+
+      setIsTranslating(true);
+      try {
+        const translated = await Promise.all(
+          dietaryOptions.map(async (option) => {
+            const [translatedName, translatedDescription] = await Promise.all([
+              TranslationModule.translate(option.name, 'vi', 'en'),
+              option.description
+                ? TranslationModule.translate(option.description, 'vi', 'en')
+                : Promise.resolve(undefined),
+            ]);
+
+            return {
+              ...option,
+              name: translatedName,
+              description: translatedDescription,
+            };
+          })
+        );
+        setTranslatedOptions(translated);
+      } catch (error) {
+        console.error('Translation error:', error);
+        setTranslatedOptions(dietaryOptions);
+      } finally {
+        setIsTranslating(false);
+      }
+    };
+
+    translateOptions();
+  }, [currentLanguage, dietaryOptions]);
+
+  // Use translated options for display
+  const displayOptions =
+    translatedOptions.length > 0 ? translatedOptions : dietaryOptions;
+
+  // Show loading when fetching or translating
+  const isLoading = dietaryStatus === 'pending' || isTranslating;
+
   const handleSubmit = async (): Promise<void> => {
     try {
-      const response =
-        await onCreateOrUpdateUserDietaryPreferences(selectedOptions);
+      await onCreateOrUpdateUserDietaryPreferences(selectedOptions);
       Alert.alert(
         t('dietary.success_title') ?? 'Success',
         t('dietary.success_message') ??
@@ -53,22 +108,30 @@ const DietaryPreferencesScreen = (): JSX.Element => {
       <Text className="mb-6 text-base text-gray-600">
         {t('dietary.preferences_description')}
       </Text>
-      <DietaryList
-        dietaryOptions={dietaryOptions}
-        setFocusOptionId={setFocusOptionId}
-        selectedOptions={selectedOptions}
-        setSelectedOptions={setSelectedOptions}
-      />
-      {focusOptionId && (
-        <View className="px-6 py-8">
-          <Text className="text-base leading-6 text-gray-600">
-            {
-              dietaryOptions.find(
-                (option) => option.dietaryPreferenceId === focusOptionId
-              )?.description
-            }
-          </Text>
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#a1d973" />
         </View>
+      ) : (
+        <>
+          <DietaryList
+            dietaryOptions={displayOptions}
+            setFocusOptionId={setFocusOptionId}
+            selectedOptions={selectedOptions}
+            setSelectedOptions={setSelectedOptions}
+          />
+          {focusOptionId && (
+            <View className="px-6 py-8">
+              <Text className="text-base leading-6 text-gray-600">
+                {
+                  displayOptions.find(
+                    (option) => option.dietaryPreferenceId === focusOptionId
+                  )?.description
+                }
+              </Text>
+            </View>
+          )}
+        </>
       )}
       <View className="mt-auto pb-4">
         <CustomButton
