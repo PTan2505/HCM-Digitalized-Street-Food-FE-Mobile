@@ -4,17 +4,23 @@ import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StaticScreenProps } from '@react-navigation/native';
 import SamplePlace from '@assets/SamplePlace.jpg';
-import ReviewsTab, { type Review } from '@features/home/components/ReviewsTab';
+import ReviewsTab, {
+  type Review,
+} from '@features/home/components/restaurantDetails/ReviewsTab';
 import RestaurantsMayLikeTab, {
   type NearbyRestaurant,
-} from '@features/home/components/RestaurantsMayLikeTab';
-import MenuTab, { type MenuItem } from '@features/home/components/MenuTab';
-import TabsBar, { type TabType } from '@features/home/components/TabsBar';
+} from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
+import MenuTab, {
+  type MenuItem,
+} from '@features/home/components/restaurantDetails/MenuTab';
+import TabsBar, {
+  type TabType,
+} from '@features/home/components/restaurantDetails/TabsBar';
 import RestaurantInfo, {
   type RestaurantInfoData,
-} from '@features/home/components/RestaurantInfo';
-import HeaderImage from '@features/home/components/HeaderImage';
-import FixedHeaderControls from '@features/home/components/FixedHeaderControls';
+} from '@features/home/components/common/RestaurantInfo';
+import HeaderImage from '@features/home/components/restaurantDetails/HeaderImage';
+import FixedHeaderControls from '@features/home/components/restaurantDetails/FixedHeaderControls';
 import { useSharedValue } from 'react-native-reanimated';
 import i18n from '@utils/i18n';
 

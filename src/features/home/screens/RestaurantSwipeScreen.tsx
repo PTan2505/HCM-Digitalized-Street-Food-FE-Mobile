@@ -2,13 +2,13 @@ import type { JSX } from 'react';
 import { View, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import ImageCarouselWithProgress from '@features/home/components/ImageCarouselWithProgress';
+import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import RestaurantInfo, {
   type RestaurantInfoData,
-} from '@features/home/components/RestaurantInfo';
-import ActionButtons from '@features/home/components/ActionButtons';
-import SwipeUpPrompt from '@features/home/components/SwipeUpPrompt';
-import SimilarRestaurantCard from '@features/home/components/SimilarRestaurantCard';
+} from '@features/home/components/common/RestaurantInfo';
+import ActionButtons from '@features/home/components/restaurantSwipe/ActionButtons';
+import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
+import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
 
 interface RestaurantSwipeScreenProps {
   restaurantData?: RestaurantInfoData & { images?: string[] };

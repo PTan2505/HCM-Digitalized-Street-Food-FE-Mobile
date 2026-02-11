@@ -1,10 +1,10 @@
 import type { JSX } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import ImageCarouselWithProgress from '@features/home/components/ImageCarouselWithProgress';
+import ImageCarouselWithProgress from './ImageCarouselWithProgress';
 import RestaurantInfo, {
   type RestaurantInfoData,
-} from '@features/home/components/RestaurantInfo';
-import ActionButtons from '@features/home/components/ActionButtons';
+} from '@features/home/components/common/RestaurantInfo';
+import ActionButtons from './ActionButtons';
 
 interface SimilarRestaurantCardProps {
   restaurant: RestaurantInfoData;
