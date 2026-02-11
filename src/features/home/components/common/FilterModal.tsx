@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import CategoryCard from './CategoryCard';
-import { FOOD_CATEGORIES } from '../constants/categories';
+import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 
 interface FilterModalProps {
   visible: boolean;

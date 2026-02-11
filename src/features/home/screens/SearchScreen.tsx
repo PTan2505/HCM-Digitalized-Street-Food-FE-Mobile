@@ -1,9 +1,9 @@
 import SamplePlace from '@assets/SamplePlace.jpg';
-import CurrentPickCard from '@features/home/components/CurrentPickCard';
-import SearchBar from '@features/home/components/SearchBar';
+import CurrentPickCard from '@features/home/components/common/CurrentPickCard';
+import SearchBar from '@features/home/components/common/SearchBar';
 import FilterModal, {
   type FilterState,
-} from '@features/home/components/FilterModal';
+} from '@features/home/components/common/FilterModal';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

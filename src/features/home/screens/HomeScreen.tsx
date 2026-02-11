@@ -1,6 +1,6 @@
 import SamplePlace from '@assets/SamplePlace.jpg';
-import BannerCarousel from '@features/home/components/BannerCarousel';
-import { PlaceCard } from '@features/home/components/PlaceCard';
+import BannerCarousel from '@features/home/components/home/BannerCarousel';
+import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -21,11 +21,13 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import CategoryCard from '../components/CategoryCard';
-import FilterModal, { type FilterState } from '../components/FilterModal';
-import HomeHeader from '../components/HomeHeader';
-import SearchBar from '../components/SearchBar';
-import Title from '../components/Title';
+import CategoryCard from '../components/common/CategoryCard';
+import FilterModal, {
+  type FilterState,
+} from '../components/common/FilterModal';
+import HomeHeader from '../components/home/HomeHeader';
+import SearchBar from '../components/common/SearchBar';
+import Title from '../components/common/Title';
 
 interface PlaceItem {
   id: string;
