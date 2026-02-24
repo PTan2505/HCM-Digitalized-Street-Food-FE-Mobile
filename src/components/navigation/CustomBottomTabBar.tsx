@@ -1,6 +1,7 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { PlatformPressable, Text } from '@react-navigation/elements';
 import { useLinkBuilder, useTheme } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { JSX } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,9 +16,25 @@ export const CustomBottomTabBar = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      className="absolute w-full flex-row items-center justify-center"
-      style={{ bottom: 8 + insets.bottom }}
+    <LinearGradient
+      colors={[
+        'rgba(255, 255, 255, 0)',
+        'rgba(255, 255, 255, 0.6)',
+        'rgba(255, 255, 255, 0.95)',
+      ]}
+      locations={[0, 0.4, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 32,
+        paddingBottom: insets.bottom + 8,
+      }}
     >
       <View className="flex-row items-center justify-between rounded-full bg-white p-[8px] shadow-[0_4px_2px_rgba(0,0,0,0.2)]">
         {state.routes.map((route, index) => {
@@ -103,6 +120,6 @@ export const CustomBottomTabBar = ({
           );
         })}
       </View>
-    </View>
+    </LinearGradient>
   );
 };
