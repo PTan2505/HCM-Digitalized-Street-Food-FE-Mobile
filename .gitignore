@@ -13,6 +13,7 @@ expo-env.d.ts
 .kotlin/
 *.orig.*
 *.jks
+!development.jks
 *.p8
 *.p12
 *.key
@@ -40,3 +41,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Expo modules
+modules/*/android/build/
+modules/*/android/.gradle/
+modules/*/android/.cxx/
+modules/*/android/local.properties
+modules/*/ios/build/
+modules/*/.gradle/
+modules/*/node_modules/

@@ -1,6 +1,8 @@
 import { CustomTheme } from '@app/navigation/customNavigationTheme';
 import { Navigation } from '@app/navigation/stackNavigator';
+import { AppProvider } from '@app/provider';
 import { Nunito_400Regular, useFonts } from '@expo-google-fonts/nunito';
+import '@utils/i18n';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -20,5 +22,9 @@ export default function App(): ReactNode {
     );
   }
 
-  return <Navigation theme={CustomTheme} />;
+  return (
+    <AppProvider>
+      <Navigation theme={CustomTheme} />
+    </AppProvider>
+  );
 }

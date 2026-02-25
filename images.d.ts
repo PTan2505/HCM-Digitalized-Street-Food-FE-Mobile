@@ -13,11 +13,6 @@ declare module '*.jpeg' {
   export default value;
 }
 
-declare module '*.svg' {
-  const value: number;
-  export default value;
-}
-
 declare module '*.gif' {
   const value: number;
   export default value;
