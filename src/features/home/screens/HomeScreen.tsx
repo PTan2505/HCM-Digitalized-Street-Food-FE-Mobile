@@ -1,6 +1,6 @@
 import SamplePlace from '@assets/SamplePlace.jpg';
-import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
+import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -25,9 +25,9 @@ import CategoryCard from '../components/common/CategoryCard';
 import FilterModal, {
   type FilterState,
 } from '../components/common/FilterModal';
-import HomeHeader from '../components/home/HomeHeader';
 import SearchBar from '../components/common/SearchBar';
 import Title from '../components/common/Title';
+import HomeHeader from '../components/home/HomeHeader';
 
 interface PlaceItem {
   id: string;
@@ -90,7 +90,7 @@ const HomeScreen = (): JSX.Element => {
           <LinearGradient
             colors={['#B8E986', '#FFFFFF']}
             locations={[0, 0.4]}
-            style={{ paddingTop: insets.top }}
+            style={{ paddingTop: insets.top, paddingBottom: 100 }}
           >
             <HomeHeader />
 

@@ -51,7 +51,7 @@ const ProfileScreen = (): JSX.Element => {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
         <View className="flex-row items-center justify-end px-4">
           <TouchableOpacity
             onPress={() => navigation.navigate('SetupUserInfo')}
