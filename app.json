@@ -38,7 +38,10 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "locales": {
       "vi": {
@@ -90,7 +93,10 @@
       [
         "expo-localization",
         {
-          "supportedLocales": ["en", "vi"]
+          "supportedLocales": [
+            "en",
+            "vi"
+          ]
         }
       ],
       [
@@ -103,7 +109,8 @@
       ],
       "expo-font",
       "expo-system-ui",
-      "./plugins/withAndroidDebugKeystore.cjs"
+      "./plugins/withAndroidDebugKeystore.cjs",
+      "@maplibre/maplibre-react-native"
     ]
   }
 }

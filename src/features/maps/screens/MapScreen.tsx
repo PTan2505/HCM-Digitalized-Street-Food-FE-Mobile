@@ -1,105 +1,85 @@
-import { Maps } from '@features/maps/components/Maps';
-import {
-  CARD_SPACING,
-  CARD_WIDTH,
-  VendorList,
-} from '@features/maps/components/VendorList';
+import { DetailCard } from '@features/maps/components/DetailCard';
+import { CAMERA_BOTTOM_PADDING, Maps } from '@features/maps/components/Maps';
 import MOCK_VENDORS from '@features/maps/constants/mockData';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
+import { type CameraRef } from '@maplibre/maplibre-react-native';
 import type { JSX } from 'react';
-import React, { useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewToken,
-} from 'react-native';
-import MapView from 'react-native-maps';
+import React, { useCallback, useRef, useState } from 'react';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-// Approximate card height: 192 (image) + 64 (gallery) + 120 (info) + 24 (padding) = 400
-const CARD_HEIGHT = 400;
-
+// ---------------------------------------------------------------------------
+// MapScreen
+// ---------------------------------------------------------------------------
 export const MapScreen = (): JSX.Element => {
-  const mapRef = useRef<MapView>(null);
-  const flatListRef = useRef<FlatList>(null);
+  const cameraRef = useRef<CameraRef>(null);
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
-  const isMarkerPressRef = useRef(false);
+  const [isPeeked, setIsPeeked] = useState(false);
   const { permissionStatus, retryPermission } = useLocationPermission();
 
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0) {
-        const vendor = viewableItems[0].item;
-        setSelectedVendorId(vendor.vendorId);
+  // ── Marker press handler ──────────────────────────────────
+  const onMarkerPress = useCallback((vendorId: string) => {
+    const vendor = MOCK_VENDORS.find((v) => v.vendorId === vendorId);
+    if (!vendor) return;
 
-        // Only animate map if it's not from a marker press
-        if (!isMarkerPressRef.current) {
-          // Calculate offset to center marker in visible map area
-          const latitudeDelta = 0.02;
-          // Offset the latitude so marker appears centered in visible area
-          const latitudeOffset =
-            (latitudeDelta * CARD_HEIGHT) / (SCREEN_HEIGHT * 2);
+    setSelectedVendorId(vendorId);
+    setIsPeeked(false);
 
-          mapRef.current?.animateToRegion(
-            {
-              latitude: vendor.lat - latitudeOffset,
-              longitude: vendor.long,
-              latitudeDelta: latitudeDelta,
-              longitudeDelta: 0.02,
-            },
-            350
-          );
-        }
-      }
-    }
-  ).current;
+    /**
+     * Camera Padding / Offset Explanation:
+     * ------------------------------------
+     * When a Detail Card (~300pt tall) slides up from the bottom, the marker
+     * would be hidden behind it if we simply center the camera on the marker.
+     *
+     * Using `padding.paddingBottom` tells MapLibre to shift its logical viewport
+     * upward — the marker ends up in the visible area ABOVE the card, while
+     * the camera smoothly animates with a cinematic `flyTo`.
+     *
+     * paddingBottom = CAMERA_BOTTOM_PADDING (320pt)  →  marker sits above card
+     * paddingTop / Left / Right = 0  →  no offset on other edges
+     */
+    cameraRef.current?.setCamera({
+      centerCoordinate: [vendor.long, vendor.lat],
+      zoomLevel: 16,
+      animationDuration: 700,
+      animationMode: 'flyTo',
+      padding: {
+        paddingTop: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        paddingBottom: CAMERA_BOTTOM_PADDING,
+      },
+    });
+  }, []);
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  }).current;
+  // ── Detail card close ─────────────────────────────────────
+  const onCloseDetail = useCallback(() => {
+    setSelectedVendorId(null);
+    setIsPeeked(false);
 
-  const onMarkerPress = (vendorId: string): void => {
-    const index = MOCK_VENDORS.findIndex((v) => v.vendorId === vendorId);
-    if (index !== -1) {
-      const vendor = MOCK_VENDORS[index];
-      setSelectedVendorId(vendorId);
+    // Reset camera padding so map re-centers normally
+    cameraRef.current?.setCamera({
+      padding: {
+        paddingTop: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+        paddingBottom: 0,
+      },
+      animationDuration: 400,
+      animationMode: 'easeTo',
+    });
+  }, []);
 
-      // Set flag to prevent onViewableItemsChanged from animating the map
-      isMarkerPressRef.current = true;
+  // ── User drag → peek card (keep marker selected) ─────────
+  const onUserDrag = useCallback(() => {
+    setIsPeeked(true);
+  }, []);
 
-      // Calculate offset to center marker in visible map area
-      const latitudeDelta = 0.02;
-      const latitudeOffset =
-        (latitudeDelta * CARD_HEIGHT) / (SCREEN_HEIGHT * 2);
+  // ── Expand card back from peek ────────────────────────────
+  const onExpand = useCallback(() => {
+    setIsPeeked(false);
+  }, []);
 
-      // Animate map directly to the vendor with offset
-      mapRef.current?.animateToRegion(
-        {
-          latitude: vendor.lat - latitudeOffset,
-          longitude: vendor.long,
-          latitudeDelta: latitudeDelta,
-          longitudeDelta: 0.02,
-        },
-        350
-      );
-
-      const offset = index * (CARD_WIDTH + CARD_SPACING);
-      flatListRef.current?.scrollToOffset({
-        offset,
-        animated: true,
-      });
-
-      // Reset flag after scroll completes
-      setTimeout(() => {
-        isMarkerPressRef.current = false;
-      }, 500);
-    }
-  };
-
+  // ── Permission states ─────────────────────────────────────
   if (permissionStatus === 'loading') {
     return (
       <View className="flex-1 items-center justify-center bg-white">
@@ -133,19 +113,30 @@ export const MapScreen = (): JSX.Element => {
     );
   }
 
+  // ── Resolve selected vendor for detail card ───────────────
+  const selectedVendor = selectedVendorId
+    ? (MOCK_VENDORS.find((v) => v.vendorId === selectedVendorId) ?? null)
+    : null;
+
   return (
     <View className="flex-1">
+      {/* Map layer */}
       <Maps
-        mapRef={mapRef}
+        cameraRef={cameraRef}
         selectedVendorId={selectedVendorId}
         onMarkerPress={onMarkerPress}
+        onUserDrag={onUserDrag}
       />
-      <VendorList
-        ref={flatListRef}
-        selectedVendorId={selectedVendorId}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-      />
+
+      {/* Detail card — slides up when a vendor is selected */}
+      {selectedVendor && (
+        <DetailCard
+          vendor={selectedVendor}
+          isPeeked={isPeeked}
+          onClose={onCloseDetail}
+          onExpand={onExpand}
+        />
+      )}
     </View>
   );
 };
