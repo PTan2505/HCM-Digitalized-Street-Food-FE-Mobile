@@ -11,8 +11,13 @@ import {
   type CameraRef,
   type MapViewRef,
 } from '@maplibre/maplibre-react-native';
-import React, { JSX, useCallback, useRef, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** Shape of the location object from MapLibre's UserLocation onUpdate */
@@ -163,14 +168,19 @@ const VendorMarker = ({
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
   selectedVendorId: string | null;
+  isPeeked: boolean;
   onMarkerPress: (vendorId: string) => void;
   /** Called when user manually drags the map (to dismiss detail card) */
   onUserDrag?: () => void;
 }
 
+/** Height of the peek bar (py-3 top+bottom ~24 + content ~20) + card outer pb-8 (32) + gap */
+const PEEK_BAR_OFFSET = 20;
+
 export const Maps = ({
   cameraRef,
   selectedVendorId,
+  isPeeked,
   onMarkerPress,
   onUserDrag,
 }: MapsProps): JSX.Element => {
@@ -179,6 +189,22 @@ export const Maps = ({
   const userLocationRef = useRef<[number, number] | null>(null);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const hasCenteredOnUser = useRef(false);
+
+  // Animated FAB position — slides smoothly like the DetailCard
+  const fabBottom = useSharedValue(insets.bottom + 40);
+
+  useEffect(() => {
+    const target = selectedVendorId
+      ? isPeeked
+        ? PEEK_BAR_OFFSET + 20
+        : CAMERA_BOTTOM_PADDING + 20
+      : 40;
+    fabBottom.value = withTiming(insets.bottom + target, { duration: 250 });
+  }, [selectedVendorId, isPeeked, insets.bottom, fabBottom]);
+
+  const fabAnimatedStyle = useAnimatedStyle(() => ({
+    bottom: fabBottom.value,
+  }));
 
   // Track user location — on first fix, fly camera to user position
   const handleUserLocationUpdate = useCallback(
@@ -295,14 +321,10 @@ export const Maps = ({
         })}
       </MapView>
 
-      {/* ── Locate Me FAB — shifts up when detail card is open ── */}
-      <View
+      {/* ── Locate Me FAB — animates position with detail card ── */}
+      <Animated.View
         className="absolute right-4"
-        style={{
-          bottom:
-            insets.bottom +
-            (selectedVendorId ? CAMERA_BOTTOM_PADDING + 20 : 40),
-        }}
+        style={fabAnimatedStyle}
         pointerEvents="box-none"
       >
         <Pressable
@@ -311,7 +333,7 @@ export const Maps = ({
         >
           <Ionicons name="navigate-circle" size={48} color="#333" />
         </Pressable>
-      </View>
+      </Animated.View>
     </View>
   );
 };

@@ -124,6 +124,7 @@ export const MapScreen = (): JSX.Element => {
       <Maps
         cameraRef={cameraRef}
         selectedVendorId={selectedVendorId}
+        isPeeked={isPeeked}
         onMarkerPress={onMarkerPress}
         onUserDrag={onUserDrag}
       />
