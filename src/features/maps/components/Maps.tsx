@@ -4,6 +4,7 @@ import {
   Camera,
   CircleLayer,
   FillLayer,
+  LineLayer,
   MapView,
   MarkerView,
   ShapeSource,
@@ -83,10 +84,67 @@ const HIDDEN_SYMBOL_LAYERS = [
   'building-label',
   'label-housenum',
   'traffic_signals',
+
+  'place-suburb', // Ẩn tên Phường, Quận
+  'place-village', // Ẩn tên Xã, Thôn
+  'place-town', // Ẩn tên Thị trấn
+  'place-other', // Ẩn các địa danh khu dân cư nhỏ khác
 ] as const;
 
 const HIDDEN_BUILDING_LAYERS = ['building'] as const;
 
+const FADED_CASING_LAYERS = [
+  // ── 1. ĐƯỜNG HẦM (TUNNELS) ──
+  'tunnel-service-track-casing',
+  'tunnel-minor-casing',
+  'tunnel-secondary-tertiary-casing',
+  'tunnel-trunk-primary-casing',
+  'tunnel-motorway-casing',
+
+  // ── 2. ĐƯỜNG BỘ MẶT ĐẤT (HIGHWAYS) ──
+  'highway-motorway-link-casing',
+  'highway-link-casing',
+  'highway-minor-casing',
+  'highway-minor-casing-service',
+  'highway-trunk-casing',
+  'highway-secondary-tertiary-casing',
+  'highway-primary-casing',
+  'highway-motorway-casing',
+
+  // ── 3. CẦU VÀ CẦU VƯỢT (BRIDGES) ──
+  'bridge-link-casing',
+  'bridge-secondary-tertiary-casing',
+  'bridge-trunk-primary-casing',
+  'bridge-motorway-casing',
+  'bridge-path-casing', // Viền cầu dành cho người đi bộ/xe đạp
+] as const;
+
+const FADED_ROAD_LAYERS = [
+  // ── 1. RUỘT ĐƯỜNG HẦM ──
+  'tunnel-service-track',
+  'tunnel-minor',
+  'tunnel-secondary-tertiary',
+  'tunnel-trunk-primary',
+  'tunnel-motorway',
+  'tunnel-path',
+
+  // ── 2. RUỘT ĐƯỜNG BỘ ──
+  'highway-motorway-link',
+  'highway-link',
+  'highway-minor-service',
+  'highway-minor',
+  'highway-secondary-tertiary',
+  'highway-trunk',
+  'highway-primary',
+  'highway-motorway',
+  'highway-path',
+
+  // ── 3. RUỘT CẦU ──
+  'bridge-link',
+  'bridge-secondary-tertiary',
+  'bridge-trunk-primary',
+  'bridge-path',
+] as const;
 // ── Priority Mapping ──
 // 1 = Premium (always pill), 2 = Standard (pill at z≥13), 3 = Basic (pill at z≥15)
 const tierToPriority = (tierId: string): number => {
@@ -161,11 +219,11 @@ const CIRCLE_STYLE = {
     ['linear'],
     ['zoom'],
     10,
-    5,
+    7,
     14,
-    8,
-    18,
     10,
+    18,
+    12,
   ] as unknown as number,
 
   circleColor: '#a1d973',
@@ -508,6 +566,26 @@ export const Maps = ({
                 key={layerId}
                 id={layerId}
                 style={{ visibility: 'none' }}
+              />
+            ))}
+            {FADED_CASING_LAYERS.map((layerId) => (
+              <LineLayer
+                key={layerId}
+                id={layerId}
+                style={{
+                  lineColor: '#e0e0e0', // Màu xám nhạt
+                  lineOpacity: 0.6,
+                }}
+              />
+            ))}
+            {FADED_ROAD_LAYERS.map((layerId) => (
+              <LineLayer
+                key={layerId}
+                id={layerId}
+                style={{
+                  lineColor: '#ffffff',
+                  lineOpacity: 0.7,
+                }}
               />
             ))}
           </>

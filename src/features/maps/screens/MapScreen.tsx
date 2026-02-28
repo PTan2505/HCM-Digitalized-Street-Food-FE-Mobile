@@ -27,19 +27,10 @@ export const MapScreen = (): JSX.Element => {
     /**
      * Camera Padding / Offset Explanation:
      * ------------------------------------
-     * When a Detail Card (~300pt tall) slides up from the bottom, the marker
-     * would be hidden behind it if we simply center the camera on the marker.
-     *
-     * Using `padding.paddingBottom` tells MapLibre to shift its logical viewport
-     * upward — the marker ends up in the visible area ABOVE the card, while
-     * the camera smoothly animates with a cinematic `flyTo`.
-     *
-     * paddingBottom = CAMERA_BOTTOM_PADDING (320pt)  →  marker sits above card
-     * paddingTop / Left / Right = 0  →  no offset on other edges
      */
     cameraRef.current?.setCamera({
       centerCoordinate: [vendor.long, vendor.lat],
-      zoomLevel: 16,
+      zoomLevel: 14,
       animationDuration: 700,
       animationMode: 'flyTo',
       padding: {
