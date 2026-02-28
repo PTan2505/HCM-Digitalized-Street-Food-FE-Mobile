@@ -4,6 +4,7 @@ import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
 import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
 import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
 import SearchScreen from '@features/home/screens/SearchScreen';
+import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
 import {
@@ -57,6 +58,9 @@ const RootStack = createNativeStackNavigator({
     },
     Map: {
       screen: MapScreen,
+    },
+    LocationPicker: {
+      screen: LocationPickerScreen,
     },
   },
 });
