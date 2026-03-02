@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const API_KEY = process.env.EXPO_PUBLIC_OPENMAP_API_KEY ?? '';
 const BASE = 'https://mapapis.openmap.vn/v1';
 
@@ -50,8 +52,8 @@ export const searchAddress = async (
   }
 
   try {
-    const res = await fetch(`${BASE}/autocomplete?${params.toString()}`);
-    const data = (await res.json()) as {
+    const res = await axios.get(`${BASE}/autocomplete?${params.toString()}`);
+    const data = res.data as {
       status: string;
       predictions?: Array<{
         description: string;
@@ -89,8 +91,8 @@ export const getPlaceDetail = async (
   });
 
   try {
-    const res = await fetch(`${BASE}/place?${params.toString()}`);
-    const data = (await res.json()) as {
+    const res = await axios.get(`${BASE}/place?${params.toString()}`);
+    const data = res.data as {
       status: string;
       result?: {
         formatted_address: string;
@@ -125,8 +127,8 @@ export const forwardGeocode = async (
   });
 
   try {
-    const res = await fetch(`${BASE}/geocode/forward?${params.toString()}`);
-    const data = (await res.json()) as {
+    const res = await axios.get(`${BASE}/geocode/forward?${params.toString()}`);
+    const data = res.data as {
       status: string;
       results?: Array<{
         formatted_address: string;
@@ -160,8 +162,8 @@ export const reverseGeocode = async (
   });
 
   try {
-    const res = await fetch(`${BASE}/geocode/reverse?${params.toString()}`);
-    const data = (await res.json()) as {
+    const res = await axios.get(`${BASE}/geocode/reverse?${params.toString()}`);
+    const data = res.data as {
       status: string;
       results?: Array<{
         address: string;

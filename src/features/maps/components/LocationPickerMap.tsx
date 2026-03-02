@@ -9,6 +9,7 @@ import {
   Camera,
   FillLayer,
   LineLayer,
+  Logger,
   MapView,
   SymbolLayer,
   UserLocation,
@@ -16,12 +17,12 @@ import {
   type CameraRef,
   type MapViewRef,
 } from '@maplibre/maplibre-react-native';
+import * as Location from 'expo-location';
 import React, {
   JSX,
   useCallback,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -39,6 +40,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // ── Config ──
 setAccessToken(null);
+
+// Suppress 429 rate-limit errors from the tile server so they don't pollute the console.
+// Returning `true` from the callback tells MapLibre's Logger to skip default console.error.
+Logger.setLogCallback((log) => {
+  if (log.level === 'error' && log.message?.includes('status code 429')) {
+    return true; // swallow — tile will be retried automatically
+  }
+  return false; // let all other logs pass through normally
+});
 
 const HCMC_CENTER: [number, number] = [106.6297, 10.8231];
 const DEFAULT_ZOOM = 16;
@@ -161,11 +171,68 @@ const useDebouncedValue = <T,>(value: T, delayMs: number): T => {
   return debounced;
 };
 
-// ── Component ──
+// ── Wrapper: resolve user location before rendering the map ──
 export const LocationPickerMap = React.forwardRef<
   LocationPickerMapRef,
   LocationPickerMapProps
->(function LocationPickerMap(
+>(function LocationPickerMapWrapper(props, ref): JSX.Element {
+  const [resolvedCoord, setResolvedCoord] = useState<[number, number] | null>(
+    props.initialCoordinate ?? null
+  );
+
+  useEffect(() => {
+    // If an explicit initialCoordinate was provided, use it directly
+    if (props.initialCoordinate) return;
+
+    void (async (): Promise<void> => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== Location.PermissionStatus.GRANTED) {
+          setResolvedCoord(HCMC_CENTER);
+          return;
+        }
+
+        // Try cached position first (instant)
+        const cached = await Location.getLastKnownPositionAsync();
+        if (cached) {
+          setResolvedCoord([cached.coords.longitude, cached.coords.latitude]);
+          return;
+        }
+
+        // No cache — actively get current position (with timeout)
+        const current = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        setResolvedCoord([current.coords.longitude, current.coords.latitude]);
+      } catch {
+        setResolvedCoord(HCMC_CENTER);
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!resolvedCoord) {
+    // Brief loading state while resolving user location (typically <50ms)
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <ActivityIndicator size="large" color="#a1d973" />
+      </View>
+    );
+  }
+
+  return (
+    <LocationPickerMapInner
+      {...props}
+      ref={ref}
+      initialCoordinate={resolvedCoord}
+    />
+  );
+});
+
+// ── Inner Component (map always renders with a known coordinate) ──
+const LocationPickerMapInner = React.forwardRef<
+  LocationPickerMapRef,
+  LocationPickerMapProps & { initialCoordinate: [number, number] }
+>(function LocationPickerMapInner(
   { initialCoordinate, onLocationChange, onConfirm, onBack },
   ref
 ): JSX.Element {
@@ -175,13 +242,11 @@ export const LocationPickerMap = React.forwardRef<
   const userLocationRef = useRef<[number, number] | null>(null);
   const hasCenteredOnUser = useRef(false);
 
-  const startCoord = useMemo<[number, number]>(
-    () => initialCoordinate ?? HCMC_CENTER,
-    [initialCoordinate]
-  );
+  const startCoord = initialCoordinate;
 
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [centerCoord, setCenterCoord] = useState<[number, number]>(startCoord);
+  const centerCoordRef = useRef<[number, number]>(startCoord);
   const [address, setAddress] = useState('');
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -262,7 +327,7 @@ export const LocationPickerMap = React.forwardRef<
     [onLocationChange]
   );
 
-  // Initial reverse geocode
+  // Initial reverse geocode (coordinate is already resolved by wrapper)
   useEffect(() => {
     void reverseGeocodeCenter(startCoord);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -280,25 +345,34 @@ export const LocationPickerMap = React.forwardRef<
       const detail = await getPlaceDetail(prediction.placeId);
       if (detail) {
         const coord: [number, number] = [detail.lng, detail.lat];
+
+        // Far destinations: stepped camera to avoid 429 rate-limit from tile bursts
+        // Strategy: zoom out → teleport at low zoom → zoom in (spreads tile requests)
+        const prev = centerCoordRef.current;
+        const dLat = Math.abs(coord[1] - prev[1]);
+        const dLng = Math.abs(coord[0] - prev[0]);
+
         setCenterCoord(coord);
+        centerCoordRef.current = coord;
         setAddress(detail.formattedAddress);
         onLocationChange?.({
           coordinate: coord,
           address: detail.formattedAddress,
         });
+        const isFar = dLat > 0.05 || dLng > 0.05; // ~5 km threshold
 
         cameraRef.current?.setCamera({
           centerCoordinate: coord,
           zoomLevel: 17,
-          animationDuration: 800,
-          animationMode: 'flyTo',
+          animationDuration: isFar ? 1500 : 800,
+          animationMode: isFar ? 'flyTo' : 'easeTo',
         });
       }
     },
     [onLocationChange]
   );
 
-  // ── User location ──
+  // ── User location ── (center on first GPS fix, like Maps.tsx)
   const handleUserLocationUpdate = useCallback(
     (location: MapLibreLocation) => {
       userLocationRef.current = [
@@ -306,23 +380,27 @@ export const LocationPickerMap = React.forwardRef<
         location.coords.latitude,
       ];
 
-      if (!hasCenteredOnUser.current && !initialCoordinate) {
+      if (!hasCenteredOnUser.current) {
         hasCenteredOnUser.current = true;
         const coord: [number, number] = [
           location.coords.longitude,
           location.coords.latitude,
         ];
         setCenterCoord(coord);
+        centerCoordRef.current = coord;
+
         cameraRef.current?.setCamera({
           centerCoordinate: coord,
           zoomLevel: DEFAULT_ZOOM,
           animationDuration: 1000,
           animationMode: 'easeTo',
         });
+
+        // Reverse geocode the user's actual location
         void reverseGeocodeCenter(coord);
       }
     },
-    [initialCoordinate, reverseGeocodeCenter]
+    [reverseGeocodeCenter]
   );
 
   // ── Locate me ──
@@ -355,6 +433,7 @@ export const LocationPickerMap = React.forwardRef<
       const center = await mapRef.current.getCenter();
       const coord: [number, number] = [center[0], center[1]];
       setCenterCoord(coord);
+      centerCoordRef.current = coord;
 
       if (isDragging) {
         setIsDragging(false);

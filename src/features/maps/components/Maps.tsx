@@ -5,6 +5,7 @@ import {
   CircleLayer,
   FillLayer,
   LineLayer,
+  Logger,
   MapView,
   MarkerView,
   ShapeSource,
@@ -60,7 +61,14 @@ interface RegionPayloadFeature {
 // ── Config ──
 setAccessToken(null);
 
-const HCMC_CENTER: [number, number] = [106.6297, 10.8231];
+// Suppress 429 rate-limit errors from the tile server.
+Logger.setLogCallback((log) => {
+  if (log.level === 'error' && log.message?.includes('status code 429')) {
+    return true;
+  }
+  return false;
+});
+
 const DEFAULT_ZOOM = 14;
 
 /** Camera bottom padding to offset the marker above the Detail Card (~300pt). */
@@ -369,6 +377,7 @@ const ActivePill = ({ label, rating }: ActivePillProps): JSX.Element => {
 
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
+  initialCenter: [number, number];
   selectedVendorId: string | null;
   isPeeked: boolean;
   onMarkerPress: (vendorId: string) => void;
@@ -379,6 +388,7 @@ const PEEK_BAR_OFFSET = 20;
 
 export const Maps = ({
   cameraRef,
+  initialCenter,
   selectedVendorId,
   isPeeked,
   onMarkerPress,
@@ -389,7 +399,6 @@ export const Maps = ({
   const userLocationRef = useRef<[number, number] | null>(null);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
-  const hasCenteredOnUser = useRef(false);
 
   const vendorGeoJSON = useMemo(() => buildVendorGeoJSON(), []);
 
@@ -410,25 +419,12 @@ export const Maps = ({
   }));
 
   // ── User location ──
-  const handleUserLocationUpdate = useCallback(
-    (location: MapLibreLocation) => {
-      userLocationRef.current = [
-        location.coords.longitude,
-        location.coords.latitude,
-      ];
-
-      if (!hasCenteredOnUser.current) {
-        hasCenteredOnUser.current = true;
-        cameraRef.current?.setCamera({
-          centerCoordinate: userLocationRef.current,
-          zoomLevel: 14,
-          animationDuration: 1000,
-          animationMode: 'easeTo',
-        });
-      }
-    },
-    [cameraRef]
-  );
+  const handleUserLocationUpdate = useCallback((location: MapLibreLocation) => {
+    userLocationRef.current = [
+      location.coords.longitude,
+      location.coords.latitude,
+    ];
+  }, []);
 
   const handleLocateMe = useCallback(() => {
     const coords = userLocationRef.current;
@@ -544,7 +540,7 @@ export const Maps = ({
         <Camera
           ref={cameraRef}
           defaultSettings={{
-            centerCoordinate: HCMC_CENTER,
+            centerCoordinate: initialCenter,
             zoomLevel: DEFAULT_ZOOM,
           }}
         />

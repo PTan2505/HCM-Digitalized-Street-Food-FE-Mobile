@@ -3,9 +3,12 @@ import { CAMERA_BOTTOM_PADDING, Maps } from '@features/maps/components/Maps';
 import MOCK_VENDORS from '@features/maps/constants/mockData';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
+import * as Location from 'expo-location';
 import type { JSX } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+
+const HCMC_CENTER: [number, number] = [106.6297, 10.8231];
 
 // ---------------------------------------------------------------------------
 // MapScreen
@@ -14,7 +17,32 @@ export const MapScreen = (): JSX.Element => {
   const cameraRef = useRef<CameraRef>(null);
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
   const [isPeeked, setIsPeeked] = useState(false);
+  const [userCenter, setUserCenter] = useState<[number, number] | null>(null);
   const { permissionStatus, retryPermission } = useLocationPermission();
+
+  // Resolve user location once permission is granted
+  useEffect(() => {
+    if (permissionStatus !== 'granted') return;
+
+    void (async (): Promise<void> => {
+      try {
+        // Try cached position first (instant)
+        const cached = await Location.getLastKnownPositionAsync();
+        if (cached) {
+          setUserCenter([cached.coords.longitude, cached.coords.latitude]);
+          return;
+        }
+
+        // No cache — get current position
+        const current = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        setUserCenter([current.coords.longitude, current.coords.latitude]);
+      } catch {
+        setUserCenter(HCMC_CENTER);
+      }
+    })();
+  }, [permissionStatus]);
 
   // ── Marker press handler ──────────────────────────────────
   const onMarkerPress = useCallback((vendorId: string) => {
@@ -71,7 +99,10 @@ export const MapScreen = (): JSX.Element => {
   }, []);
 
   // ── Permission states ─────────────────────────────────────
-  if (permissionStatus === 'loading') {
+  if (
+    permissionStatus === 'loading' ||
+    (permissionStatus === 'granted' && !userCenter)
+  ) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color="#a1d973" />
@@ -114,6 +145,7 @@ export const MapScreen = (): JSX.Element => {
       {/* Map layer */}
       <Maps
         cameraRef={cameraRef}
+        initialCenter={userCenter!}
         selectedVendorId={selectedVendorId}
         isPeeked={isPeeked}
         onMarkerPress={onMarkerPress}
