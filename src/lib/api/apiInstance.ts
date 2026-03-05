@@ -2,7 +2,9 @@ import { AxiosApiService } from '@config/axiosApiService';
 import { ForgetPasswordApi } from '@features/auth/api/forgetPasswordApi';
 import { LoginApi } from '@features/auth/api/loginApi';
 import { RegisterApi } from '@features/auth/api/registerApi';
+import { BranchApi } from '@features/home/api/branchApi';
 import { CategoryApi } from '@features/home/api/categoryApi';
+import { VendorApi } from '@features/home/api/vendorApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
@@ -20,4 +22,6 @@ export const axiosApi = {
   dietaryPreferenceApi: new DietaryPreferenceApi(axiosClient),
   userDietaryApi: new UserDietaryApi(axiosClient),
   categoryApi: new CategoryApi(axiosClient),
+  vendorApi: new VendorApi(axiosClient),
+  branchApi: new BranchApi(axiosClient),
 };

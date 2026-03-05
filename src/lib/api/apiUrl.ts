@@ -19,6 +19,13 @@ export const apiUrl = {
   category: {
     getAll: '/categories',
   },
+  vendor: {
+    getAll: '/Vendor',
+  },
+  branch: {
+    active: '/Branch/active',
+    byVendor: '/Branch/vendor',
+  },
   userDietary: {
     userDietary: '/UserDietary/user',
   },

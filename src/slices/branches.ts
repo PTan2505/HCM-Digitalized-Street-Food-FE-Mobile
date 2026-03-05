@@ -1,0 +1,143 @@
+import type { RootState } from '@app/store';
+import { createAppAsyncThunk } from '@hooks/reduxHooks';
+import { axiosApi } from '@lib/api/apiInstance';
+import { createSlice } from '@reduxjs/toolkit';
+
+import type { ActiveBranch } from '@features/home/types/branch';
+
+export interface BranchesState {
+  branches: ActiveBranch[];
+  /** vendorIds that have more than 1 branch — used for display name formatting */
+  multiBranchVendorIds: number[];
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  hasNext: boolean;
+  status: 'idle' | 'pending' | 'succeeded' | 'failed';
+  loadingMore: boolean;
+  error: unknown;
+}
+
+const initialState: BranchesState = {
+  branches: [],
+  multiBranchVendorIds: [],
+  currentPage: 0,
+  totalPages: 0,
+  totalCount: 0,
+  hasNext: false,
+  status: 'idle',
+  loadingMore: false,
+  error: null,
+};
+
+export const fetchActiveBranches = createAppAsyncThunk(
+  'branches/fetchActive',
+  async (
+    { page = 1, pageSize = 10 }: { page?: number; pageSize?: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const paginatedBranches = await axiosApi.branchApi.getActiveBranches(
+        page,
+        pageSize
+      );
+
+      // For each unique vendorId in this page, check if the vendor has > 1 branch.
+      const uniqueVendorIds = [
+        ...new Set(paginatedBranches.items.map((b) => b.vendorId)),
+      ];
+
+      const vendorChecks = await Promise.all(
+        uniqueVendorIds.map((vendorId) =>
+          axiosApi.branchApi
+            .getBranchesByVendor(vendorId, 1, 2)
+            .then((res) => ({ vendorId, totalCount: res.totalCount }))
+            .catch(() => ({ vendorId, totalCount: 1 }))
+        )
+      );
+
+      const multiBranchVendorIds = vendorChecks
+        .filter((v) => v.totalCount > 1)
+        .map((v) => v.vendorId);
+
+      return {
+        ...paginatedBranches,
+        requestedPage: page,
+        multiBranchVendorIds,
+      };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+const branchesSlice = createSlice({
+  name: 'branches',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchActiveBranches.pending, (state, action) => {
+        const page = action.meta.arg?.page ?? 1;
+        if (page === 1) {
+          state.status = 'pending';
+        } else {
+          state.loadingMore = true;
+        }
+        state.error = null;
+      })
+      .addCase(fetchActiveBranches.fulfilled, (state, action) => {
+        const requestedPage = action.meta.arg?.page ?? 1;
+        const { items, totalPages, totalCount, hasNext, multiBranchVendorIds } =
+          action.payload;
+
+        if (requestedPage === 1) {
+          state.branches = items;
+          state.multiBranchVendorIds = multiBranchVendorIds;
+        } else {
+          // Deduplicate by branchId
+          const existingIds = new Set(state.branches.map((b) => b.branchId));
+          const newItems = items.filter((b) => !existingIds.has(b.branchId));
+          state.branches = [...state.branches, ...newItems];
+          // Merge new multi-branch vendorIds
+          const existingMulti = new Set(state.multiBranchVendorIds);
+          multiBranchVendorIds.forEach((id) => existingMulti.add(id));
+          state.multiBranchVendorIds = [...existingMulti];
+        }
+
+        state.currentPage = requestedPage;
+        state.totalPages = totalPages;
+        state.totalCount = totalCount;
+        state.hasNext = hasNext;
+        state.status = 'succeeded';
+        state.loadingMore = false;
+      })
+      .addCase(fetchActiveBranches.rejected, (state, action) => {
+        state.status = 'failed';
+        state.loadingMore = false;
+        state.error = action.payload;
+      });
+  },
+});
+
+export default branchesSlice.reducer;
+
+// ── Selectors ──
+export const selectBranches = (state: RootState): ActiveBranch[] =>
+  state.branches.branches;
+
+export const selectMultiBranchVendorIds = (state: RootState): number[] =>
+  state.branches.multiBranchVendorIds;
+
+export const selectBranchesStatus = (
+  state: RootState
+): BranchesState['status'] => state.branches.status;
+
+export const selectBranchesHasNext = (state: RootState): boolean =>
+  state.branches.hasNext;
+
+export const selectBranchesLoadingMore = (state: RootState): boolean =>
+  state.branches.loadingMore;
+
+export const selectBranchesCurrentPage = (state: RootState): number =>
+  state.branches.currentPage;
