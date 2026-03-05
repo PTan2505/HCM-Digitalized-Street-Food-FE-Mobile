@@ -1,8 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import { DetailCard } from '@features/maps/components/DetailCard';
 import { CAMERA_BOTTOM_PADDING, Maps } from '@features/maps/components/Maps';
 import MOCK_VENDORS from '@features/maps/constants/mockData';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
+import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import type { JSX } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,6 +21,7 @@ export const MapScreen = (): JSX.Element => {
   const [isPeeked, setIsPeeked] = useState(false);
   const [userCenter, setUserCenter] = useState<[number, number] | null>(null);
   const { permissionStatus, retryPermission } = useLocationPermission();
+  const navigation = useNavigation();
 
   // Resolve user location once permission is granted
   useEffect(() => {
@@ -143,6 +146,14 @@ export const MapScreen = (): JSX.Element => {
   return (
     <View className="flex-1">
       {/* Map layer */}
+      <View className="absolute left-3 top-[60px] z-10">
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          className="h-9 w-9 items-center justify-center rounded-full bg-black/50"
+        >
+          <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
       <Maps
         cameraRef={cameraRef}
         initialCenter={userCenter!}
