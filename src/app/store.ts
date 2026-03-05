@@ -1,12 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { combineReducers } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '@slices/auth';
+import categoriesReducer from '@slices/categories';
 import dietaryReducer from '@slices/dietary';
 
 const rootReducer = combineReducers({
   user: authReducer,
   dietary: dietaryReducer,
+  categories: categoriesReducer,
 });
 
 export const store = configureStore({

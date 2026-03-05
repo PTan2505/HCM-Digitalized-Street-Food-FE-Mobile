@@ -1,17 +1,22 @@
 import SamplePlace from '@assets/SamplePlace.jpg';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
-import { FOOD_CATEGORIES } from '@features/home/constants/categories';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
+import {
+  fetchCategories,
+  selectCategories,
+  selectCategoriesStatus,
+} from '@slices/categories';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   FlatList,
   ScrollView,
   View,
@@ -42,9 +47,12 @@ interface PlaceItem {
 const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
+  const categories = useAppSelector(selectCategories);
+  const categoriesStatus = useAppSelector(selectCategoriesStatus);
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
@@ -70,6 +78,10 @@ const HomeScreen = (): JSX.Element => {
     'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=400&fit=crop',
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
   ];
+
+  useEffect(() => {
+    void dispatch(fetchCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     console.log('User Status:', userStatus, 'User:', user);
@@ -106,25 +118,31 @@ const HomeScreen = (): JSX.Element => {
             </View>
 
             <View className="flex-row px-4 pt-2">
-              <FlatList
-                data={FOOD_CATEGORIES}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingHorizontal: 16,
-                  paddingTop: 8,
-                  paddingBottom: 4,
-                }}
-                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-                renderItem={({ item }) => (
-                  <CategoryCard
-                    title={t(item.titleKey)}
-                    image={item.image}
-                    onPress={() => console.log(`Selected ${t(item.titleKey)}`)}
-                  />
-                )}
-              />
+              {categoriesStatus === 'pending' ? (
+                <View className="flex-1 items-center py-4">
+                  <ActivityIndicator color="#a1d973" />
+                </View>
+              ) : (
+                <FlatList
+                  data={categories}
+                  keyExtractor={(item) => String(item.categoryId)}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{
+                    paddingHorizontal: 16,
+                    paddingTop: 8,
+                    paddingBottom: 4,
+                  }}
+                  ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                  renderItem={({ item }) => (
+                    <CategoryCard
+                      title={item.name}
+                      image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
+                      onPress={() => console.log(`Selected ${item.name}`)}
+                    />
+                  )}
+                />
+              )}
             </View>
 
             <View className="px-4 pb-2 pt-6">

@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
 import type { JSX } from 'react';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 interface CategoryCardProps {
   title: string;
@@ -32,7 +32,7 @@ const CategoryCard = ({
         />
       </View>
       <Text className="text-center text-sm font-medium text-gray-900">
-        {title}
+        {title.toUpperCase()}
       </Text>
     </TouchableOpacity>
   );

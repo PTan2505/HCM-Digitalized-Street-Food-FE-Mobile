@@ -16,6 +16,9 @@ export const apiUrl = {
   dietaryPreference: {
     getAll: '/DietaryPreference',
   },
+  category: {
+    getAll: '/categories',
+  },
   userDietary: {
     userDietary: '/UserDietary/user',
   },
