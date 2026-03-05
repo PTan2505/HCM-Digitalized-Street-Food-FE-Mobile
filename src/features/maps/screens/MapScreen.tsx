@@ -25,7 +25,7 @@ export const MapScreen = (): JSX.Element => {
 
   // Resolve user location once permission is granted
   useEffect(() => {
-    if (permissionStatus !== 'granted') return;
+    if (permissionStatus !== Location.PermissionStatus.GRANTED) return;
 
     void (async (): Promise<void> => {
       try {
@@ -103,8 +103,8 @@ export const MapScreen = (): JSX.Element => {
 
   // ── Permission states ─────────────────────────────────────
   if (
-    permissionStatus === 'loading' ||
-    (permissionStatus === 'granted' && !userCenter)
+    permissionStatus === Location.PermissionStatus.UNDETERMINED ||
+    (permissionStatus === Location.PermissionStatus.GRANTED && !userCenter)
   ) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
@@ -116,7 +116,7 @@ export const MapScreen = (): JSX.Element => {
     );
   }
 
-  if (permissionStatus === 'denied') {
+  if (permissionStatus === Location.PermissionStatus.DENIED) {
     return (
       <View className="flex-1 items-center justify-center bg-white px-6">
         <Text className="mb-2 text-xl font-bold text-[#333]">

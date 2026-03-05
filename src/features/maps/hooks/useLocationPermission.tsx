@@ -1,44 +1,43 @@
 import * as Location from 'expo-location';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Platform } from 'react-native';
 
 export const useLocationPermission = (): {
-  permissionStatus: 'granted' | 'denied' | 'loading';
+  permissionStatus: Location.PermissionStatus;
   retryPermission: () => void;
 } => {
-  const [permissionStatus, setPermissionStatus] = useState<
-    'granted' | 'denied' | 'loading'
-  >('loading');
+  const [permissionStatus, setPermissionStatus] =
+    useState<Location.PermissionStatus>(Location.PermissionStatus.UNDETERMINED);
 
-  useEffect(() => {
-    requestLocationPermission();
-  }, []);
-
-  const requestLocationPermission = async (): Promise<void> => {
+  const requestLocationPermission = useCallback(async (): Promise<void> => {
     try {
       const { status: existingStatus } =
         await Location.getForegroundPermissionsAsync();
 
-      if (existingStatus === 'granted') {
-        setPermissionStatus('granted');
+      if (existingStatus === Location.PermissionStatus.GRANTED) {
+        setPermissionStatus(Location.PermissionStatus.GRANTED);
         return;
       }
 
       const { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status === 'granted') {
-        setPermissionStatus('granted');
+      if (status === Location.PermissionStatus.GRANTED) {
+        setPermissionStatus(Location.PermissionStatus.GRANTED);
       } else {
-        setPermissionStatus('denied');
+        setPermissionStatus(Location.PermissionStatus.DENIED);
         showPermissionDeniedAlert();
       }
     } catch (error) {
       console.error('Error requesting location permission:', error);
-      setPermissionStatus('denied');
+      setPermissionStatus(Location.PermissionStatus.DENIED);
     }
-  };
+  }, []);
 
-  const showPermissionDeniedAlert = () => {
+  useEffect(() => {
+    requestLocationPermission();
+  }, [requestLocationPermission]);
+
+  const showPermissionDeniedAlert = (): void => {
     Alert.alert(
       'Quyền truy cập vị trí',
       'Ứng dụng cần quyền truy cập vị trí để hiển thị các quán ăn gần bạn. Vui lòng cấp quyền trong cài đặt.',
