@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useAppSelector } from '@hooks/reduxHooks';
 import Slider from '@react-native-community/slider';
+import { selectCategories } from '@slices/categories';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +14,6 @@ import {
   View,
 } from 'react-native';
 import CategoryCard from './CategoryCard';
-import { FOOD_CATEGORIES } from '@features/home/constants/categories';
 
 interface FilterModalProps {
   visible: boolean;
@@ -43,6 +44,7 @@ const FilterModal = ({
   const [hasParking, setHasParking] = useState<boolean>(false);
   const [openNow, setOpenNow] = useState<boolean>(false);
   const [amenities, setAmenities] = useState<string[]>([]);
+  const categories = useAppSelector(selectCategories);
 
   const toggleSelection = (
     item: string,
@@ -167,20 +169,17 @@ const FilterModal = ({
                 {t('dish_type')}
               </Text>
               <FlatList
-                data={FOOD_CATEGORIES}
-                keyExtractor={(item) => item.id}
+                data={categories}
+                keyExtractor={(item) => item.categoryId.toString()}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 24 }}
                 ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
                 renderItem={({ item }) => (
                   <CategoryCard
-                    title={t(item.titleKey)}
-                    image={item.image}
-                    selected={dishTypes.includes(item.id)}
-                    onPress={() =>
-                      toggleSelection(item.id, dishTypes, setDishTypes)
-                    }
+                    title={item.name}
+                    image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
+                    onPress={() => console.log(`Selected ${item.name}`)}
                   />
                 )}
               />
