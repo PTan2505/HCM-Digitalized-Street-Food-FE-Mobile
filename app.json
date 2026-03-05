@@ -16,12 +16,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "deploymentTarget": "16.0",
       "bundleIdentifier": "com.hcmstreetfood.mobile",
-      "icon": {
-        "light": "./assets/ios-light.png"
-      },
+      "deploymentTarget": "16.0",
+      "icon": "./assets/ios-light.png",
       "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location to show nearby street food vendors.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location to show nearby street food vendors.",
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
@@ -37,7 +37,17 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "locales": {
+      "vi": {
+        "NSLocationWhenInUseUsageDescription": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn."
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -83,15 +93,24 @@
       [
         "expo-localization",
         {
-          "supportedLocales": {
-            "ios": ["en", "vi"],
-            "android": ["en", "vi"]
-          }
+          "supportedLocales": [
+            "en",
+            "vi"
+          ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+          "locationWhenInUsePermission": "Cho phép $(PRODUCT_NAME) truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+          "isAndroidBackgroundLocationEnabled": false
         }
       ],
       "expo-font",
       "expo-system-ui",
-      "./plugins/withAndroidDebugKeystore.cjs"
+      "./plugins/withAndroidDebugKeystore.cjs",
+      "@maplibre/maplibre-react-native"
     ]
   }
 }

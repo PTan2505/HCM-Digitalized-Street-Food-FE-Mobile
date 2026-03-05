@@ -6,12 +6,13 @@ import { User } from '@custom-types/user';
 import { UpdateProfileSchema } from '@features/auth/utils/updateUserProfileSchema';
 import useProfile from '@features/user/hooks/profile/useProfile';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
 import getHighResAvatar from '@utils/getHighResAvatar';
 import { JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   Image,
   KeyboardAvoidingView,
@@ -21,12 +22,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 
 const UserProfileForm = (): JSX.Element => {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
-  const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const { updateUserProfile } = useProfile();
 

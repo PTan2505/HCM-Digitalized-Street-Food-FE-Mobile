@@ -1,10 +1,10 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import type { JSX } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import LanguageButton from './LanguageButton';
 import lowcaLogo from '@assets/logos/lowcaLogo.svg';
 import SvgIcon from '@components/SvgIcon';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { JSX } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import LanguageButton from './LanguageButton';
 
 const HomeHeader = (): JSX.Element => {
   const navigation = useNavigation();
@@ -16,7 +16,16 @@ const HomeHeader = (): JSX.Element => {
       <View className="flex-row gap-3">
         <LanguageButton />
 
-        <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm">
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Map')}
+          className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+        >
+          <Ionicons name="map-outline" size={20} color="#588d22" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('LocationPicker')}
+          className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+        >
           <Ionicons name="map-outline" size={20} color="#588d22" />
         </TouchableOpacity>
 
