@@ -1,16 +1,16 @@
 import type { JSX } from 'react';
-import { Dimensions, Image, View } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
-import Carousel, {
-  type ICarouselInstance,
-} from 'react-native-reanimated-carousel';
 import { useRef } from 'react';
+import { Dimensions, Image, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
+  useSharedValue,
   type SharedValue,
 } from 'react-native-reanimated';
+import Carousel, {
+  type ICarouselInstance,
+} from 'react-native-reanimated-carousel';
 
 const width = Dimensions.get('window').width;
 const PAGE_WIDTH = width;
@@ -29,8 +29,7 @@ const ImageCarouselWithProgress = ({
     <View className="relative">
       <Carousel
         ref={ref}
-        width={PAGE_WIDTH}
-        height={PAGE_WIDTH * 1.1}
+        style={{ width: PAGE_WIDTH, height: PAGE_WIDTH * 1.1 }}
         data={images}
         onProgressChange={progress}
         pagingEnabled={true}
@@ -46,7 +45,7 @@ const ImageCarouselWithProgress = ({
         )}
       />
       {/* Progress Indicator Bar at Top */}
-      <View className="absolute left-0 right-0 top-10 flex-row gap-1 px-3">
+      <View className="absolute left-0 right-0 top-20 flex-row gap-1 px-3">
         {images.map((_, index) => {
           return (
             <PaginationItem

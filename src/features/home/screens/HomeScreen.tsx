@@ -84,7 +84,7 @@ const HomeScreen = (): JSX.Element => {
   // latest values — closing over Redux state causes stale closures where
   // branchesCurrentPage is still 1 even after page 2 has been stored in Redux.
   const hasNextRef = useRef(branchesHasNext);
-  const currentPageRef = useRef(branchesCurrentPage);
+  const currentPageRef = useRef<number>(branchesCurrentPage);
   const branchesStatusRef = useRef(branchesStatus);
   hasNextRef.current = branchesHasNext;
   currentPageRef.current = branchesCurrentPage;
@@ -261,9 +261,14 @@ const HomeScreen = (): JSX.Element => {
                   <PlaceCard
                     branch={item}
                     displayName={displayName}
-                    imageUri={branchImageMap[item.branchId]}
+                    imageUri={branchImageMap[item.branchId]?.[0]}
                     userCoords={userCoords}
-                    onPress={() => navigation.navigate('RestaurantSwipe')}
+                    onPress={() =>
+                      navigation.navigate('RestaurantSwipe', {
+                        branch: item,
+                        displayName,
+                      })
+                    }
                   />
                 </View>
               );

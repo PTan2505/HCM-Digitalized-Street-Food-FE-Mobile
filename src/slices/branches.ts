@@ -9,8 +9,8 @@ export interface BranchesState {
   branches: ActiveBranch[];
   /** vendorIds that have more than 1 branch — used for display name formatting */
   multiBranchVendorIds: number[];
-  /** branchId → first image URL */
-  branchImageMap: Record<number, string>;
+  /** branchId → image URLs (1 item on home load, all items after RestaurantSwipe opens) */
+  branchImageMap: Record<number, string[]>;
   currentPage: number;
   totalPages: number;
   totalCount: number;
@@ -77,13 +77,13 @@ export const fetchActiveBranches = createAppAsyncThunk(
         .filter((v) => v.totalCount > 1)
         .map((v) => v.vendorId);
 
-      const branchImageMap: Record<number, string> = Object.fromEntries(
+      const branchImageMap: Record<number, string[]> = Object.fromEntries(
         imageResults
           .filter(
             (r): r is { branchId: number; imageUrl: string } =>
               r.imageUrl !== null
           )
-          .map((r) => [r.branchId, r.imageUrl])
+          .map((r) => [r.branchId, [r.imageUrl]])
       );
 
       return {
@@ -92,6 +92,19 @@ export const fetchActiveBranches = createAppAsyncThunk(
         multiBranchVendorIds,
         branchImageMap,
       };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchBranchAllImages = createAppAsyncThunk(
+  'branches/fetchBranchAllImages',
+  async (branchId: number, { rejectWithValue }) => {
+    try {
+      const res = await axiosApi.branchApi.getBranchImages(branchId, 1, 100);
+      const urls = res.items?.map((img) => img.imageUrl) ?? [];
+      return { branchId, urls };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -152,6 +165,10 @@ const branchesSlice = createSlice({
         state.status = 'failed';
         state.loadingMore = false;
         state.error = action.payload;
+      })
+      .addCase(fetchBranchAllImages.fulfilled, (state, action) => {
+        const { branchId, urls } = action.payload;
+        state.branchImageMap[branchId] = urls;
       });
   },
 });
@@ -180,4 +197,4 @@ export const selectBranchesCurrentPage = (state: RootState): number =>
 
 export const selectBranchImageMap = (
   state: RootState
-): Record<number, string> => state.branches.branchImageMap;
+): Record<number, string[]> => state.branches.branchImageMap;
