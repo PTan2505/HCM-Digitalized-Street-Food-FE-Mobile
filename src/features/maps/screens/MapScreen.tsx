@@ -7,10 +7,8 @@ import { type CameraRef } from '@maplibre/maplibre-react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import type { JSX } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-
-const HCMC_CENTER: [number, number] = [106.6297, 10.8231];
 
 // ---------------------------------------------------------------------------
 // MapScreen
@@ -19,33 +17,11 @@ export const MapScreen = (): JSX.Element => {
   const cameraRef = useRef<CameraRef>(null);
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
   const [isPeeked, setIsPeeked] = useState(false);
-  const [userCenter, setUserCenter] = useState<[number, number] | null>(null);
-  const { permissionStatus, retryPermission } = useLocationPermission();
+  const { permissionStatus, retryPermission, coords } = useLocationPermission();
+  const userCenter = coords
+    ? ([coords.longitude, coords.latitude] as [number, number])
+    : null;
   const navigation = useNavigation();
-
-  // Resolve user location once permission is granted
-  useEffect(() => {
-    if (permissionStatus !== Location.PermissionStatus.GRANTED) return;
-
-    void (async (): Promise<void> => {
-      try {
-        // Try cached position first (instant)
-        const cached = await Location.getLastKnownPositionAsync();
-        if (cached) {
-          setUserCenter([cached.coords.longitude, cached.coords.latitude]);
-          return;
-        }
-
-        // No cache — get current position
-        const current = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-        setUserCenter([current.coords.longitude, current.coords.latitude]);
-      } catch {
-        setUserCenter(HCMC_CENTER);
-      }
-    })();
-  }, [permissionStatus]);
 
   // ── Marker press handler ──────────────────────────────────
   const onMarkerPress = useCallback((vendorId: string) => {

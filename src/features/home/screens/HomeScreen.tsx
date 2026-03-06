@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import {
   fetchActiveBranches,
+  selectBranchImageMap,
   selectBranches,
   selectBranchesCurrentPage,
   selectBranchesHasNext,
@@ -53,6 +54,7 @@ const HomeScreen = (): JSX.Element => {
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
   const branches = useAppSelector(selectBranches);
   const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
+  const branchImageMap = useAppSelector(selectBranchImageMap);
   const branchesStatus = useAppSelector(selectBranchesStatus);
   const branchesHasNext = useAppSelector(selectBranchesHasNext);
   const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
@@ -244,13 +246,14 @@ const HomeScreen = (): JSX.Element => {
             }}
             renderItem={({ item }) => {
               const displayName = multiBranchSet.has(item.vendorId)
-                ? `${item.vendorName ?? item.name} - Chi Nhánh ${item.name}`
+                ? `${item.vendorName ?? item.name} - ${item.name}`
                 : item.name;
               return (
                 <View className="w-[49%]">
                   <PlaceCard
                     branch={item}
                     displayName={displayName}
+                    imageUri={branchImageMap[item.branchId]}
                     onPress={() => navigation.navigate('RestaurantSwipe')}
                   />
                 </View>

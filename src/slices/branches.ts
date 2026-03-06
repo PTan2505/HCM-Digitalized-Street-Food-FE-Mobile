@@ -9,6 +9,8 @@ export interface BranchesState {
   branches: ActiveBranch[];
   /** vendorIds that have more than 1 branch — used for display name formatting */
   multiBranchVendorIds: number[];
+  /** branchId → first image URL */
+  branchImageMap: Record<number, string>;
   currentPage: number;
   totalPages: number;
   totalCount: number;
@@ -21,6 +23,7 @@ export interface BranchesState {
 const initialState: BranchesState = {
   branches: [],
   multiBranchVendorIds: [],
+  branchImageMap: {},
   currentPage: 0,
   totalPages: 0,
   totalCount: 0,
@@ -43,27 +46,51 @@ export const fetchActiveBranches = createAppAsyncThunk(
       );
 
       // For each unique vendorId in this page, check if the vendor has > 1 branch.
+      // Simultaneously fetch the first image for every branch in the page.
       const uniqueVendorIds = [
         ...new Set(paginatedBranches.items.map((b) => b.vendorId)),
       ];
 
-      const vendorChecks = await Promise.all(
-        uniqueVendorIds.map((vendorId) =>
-          axiosApi.branchApi
-            .getBranchesByVendor(vendorId, 1, 2)
-            .then((res) => ({ vendorId, totalCount: res.totalCount }))
-            .catch(() => ({ vendorId, totalCount: 1 }))
-        )
-      );
+      const [vendorChecks, imageResults] = await Promise.all([
+        Promise.all(
+          uniqueVendorIds.map((vendorId) =>
+            axiosApi.branchApi
+              .getBranchesByVendor(vendorId, 1, 2)
+              .then((res) => ({ vendorId, totalCount: res.totalCount }))
+              .catch(() => ({ vendorId, totalCount: 1 }))
+          )
+        ),
+        Promise.all(
+          paginatedBranches.items.map((branch) =>
+            axiosApi.branchApi
+              .getBranchImages(branch.branchId, 1, 1)
+              .then((res) => ({
+                branchId: branch.branchId,
+                imageUrl: res.items[0]?.imageUrl ?? null,
+              }))
+              .catch(() => ({ branchId: branch.branchId, imageUrl: null }))
+          )
+        ),
+      ]);
 
       const multiBranchVendorIds = vendorChecks
         .filter((v) => v.totalCount > 1)
         .map((v) => v.vendorId);
 
+      const branchImageMap: Record<number, string> = Object.fromEntries(
+        imageResults
+          .filter(
+            (r): r is { branchId: number; imageUrl: string } =>
+              r.imageUrl !== null
+          )
+          .map((r) => [r.branchId, r.imageUrl])
+      );
+
       return {
         ...paginatedBranches,
         requestedPage: page,
         multiBranchVendorIds,
+        branchImageMap,
       };
     } catch (error) {
       return rejectWithValue(error);
@@ -88,12 +115,19 @@ const branchesSlice = createSlice({
       })
       .addCase(fetchActiveBranches.fulfilled, (state, action) => {
         const requestedPage = action.meta.arg?.page ?? 1;
-        const { items, totalPages, totalCount, hasNext, multiBranchVendorIds } =
-          action.payload;
+        const {
+          items,
+          totalPages,
+          totalCount,
+          hasNext,
+          multiBranchVendorIds,
+          branchImageMap,
+        } = action.payload;
 
         if (requestedPage === 1) {
           state.branches = items;
           state.multiBranchVendorIds = multiBranchVendorIds;
+          state.branchImageMap = branchImageMap;
         } else {
           // Deduplicate by branchId
           const existingIds = new Set(state.branches.map((b) => b.branchId));
@@ -103,6 +137,8 @@ const branchesSlice = createSlice({
           const existingMulti = new Set(state.multiBranchVendorIds);
           multiBranchVendorIds.forEach((id) => existingMulti.add(id));
           state.multiBranchVendorIds = [...existingMulti];
+          // Merge new image URLs
+          Object.assign(state.branchImageMap, branchImageMap);
         }
 
         state.currentPage = requestedPage;
@@ -141,3 +177,7 @@ export const selectBranchesLoadingMore = (state: RootState): boolean =>
 
 export const selectBranchesCurrentPage = (state: RootState): number =>
   state.branches.currentPage;
+
+export const selectBranchImageMap = (
+  state: RootState
+): Record<number, string> => state.branches.branchImageMap;

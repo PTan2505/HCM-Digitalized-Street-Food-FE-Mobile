@@ -27,3 +27,19 @@ export interface PaginatedBranches {
   hasNext: boolean;
   items: ActiveBranch[];
 }
+
+export interface BranchImage {
+  branchImageId: number;
+  branchId: number;
+  imageUrl: string;
+}
+
+export interface PaginatedBranchImages {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: BranchImage[];
+}
