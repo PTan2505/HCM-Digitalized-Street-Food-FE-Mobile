@@ -1,6 +1,5 @@
 import * as Location from 'expo-location';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Linking, Platform } from 'react-native';
 
 export interface UserCoords {
   latitude: number;
@@ -56,7 +55,6 @@ export const useLocationPermission = (): {
         await fetchCoords();
       } else {
         setPermissionStatus(Location.PermissionStatus.DENIED);
-        showPermissionDeniedAlert();
       }
     } catch (error) {
       console.error('Error requesting location permission:', error);
@@ -67,29 +65,6 @@ export const useLocationPermission = (): {
   useEffect(() => {
     requestLocationPermission();
   }, [requestLocationPermission]);
-
-  const showPermissionDeniedAlert = (): void => {
-    Alert.alert(
-      'Quyền truy cập vị trí',
-      'Ứng dụng cần quyền truy cập vị trí để hiển thị các quán ăn gần bạn. Vui lòng cấp quyền trong cài đặt.',
-      [
-        {
-          text: 'Hủy',
-          style: 'cancel',
-        },
-        {
-          text: 'Mở cài đặt',
-          onPress: (): void => {
-            if (Platform.OS === 'ios') {
-              Linking.openURL('app-settings:');
-            } else {
-              Linking.openSettings();
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const retryPermission = (): void => {
     requestLocationPermission();

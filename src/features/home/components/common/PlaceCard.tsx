@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
-import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
+import type { UserCoords } from '@features/maps/hooks/useLocationPermission';
 import { haversineKm } from '@utils/haversineFormula';
 import type { JSX } from 'react';
 import { useMemo } from 'react';
@@ -10,6 +10,7 @@ interface PlaceCardProps {
   branch: ActiveBranch;
   displayName: string;
   imageUri?: string;
+  userCoords?: UserCoords | null;
   onPress?: () => void;
 }
 
@@ -17,23 +18,23 @@ export const PlaceCard = ({
   branch,
   displayName,
   imageUri,
+  userCoords,
   onPress,
 }: PlaceCardProps): JSX.Element => {
-  const { coords } = useLocationPermission();
   const resolvedImageUri =
     imageUri ??
     `https://ui-avatars.com/api/?name=${encodeURIComponent(branch.name)}&background=a1d973&color=fff&size=300`;
 
   const distanceLabel = useMemo(() => {
-    if (!coords) return null;
+    if (!userCoords) return null;
     const km = haversineKm(
-      coords.latitude,
-      coords.longitude,
+      userCoords.latitude,
+      userCoords.longitude,
       branch.lat,
       branch.long
     );
     return km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`;
-  }, [coords, branch.lat, branch.long]);
+  }, [userCoords, branch.lat, branch.long]);
 
   return (
     <TouchableOpacity

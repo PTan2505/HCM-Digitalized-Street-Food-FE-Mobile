@@ -1,5 +1,6 @@
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
+import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -59,6 +60,7 @@ const HomeScreen = (): JSX.Element => {
   const branchesHasNext = useAppSelector(selectBranchesHasNext);
   const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
   const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
+  const { coords: userCoords } = useLocationPermission();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
@@ -89,13 +91,16 @@ const HomeScreen = (): JSX.Element => {
   branchesStatusRef.current = branchesStatus;
 
   const handleLoadMore = useCallback(() => {
-    const currentPage = currentPageRef.current;
+    // Guard: skip if already fetching or no more pages
+    if (isFetchingMoreRef.current) return;
+    if (!hasNextRef.current) return;
 
+    const currentPage = currentPageRef.current;
     const nextPage = currentPage + 1;
     console.log('[handleLoadMore] fetching page', nextPage);
     isFetchingMoreRef.current = true;
-    currentPageRef.current = nextPage;
     canTriggerNextLoad.current = false;
+    currentPageRef.current = nextPage;
 
     dispatch(fetchActiveBranches({ page: nextPage }))
       .then((result) => {
@@ -122,8 +127,11 @@ const HomeScreen = (): JSX.Element => {
       const distanceFromBottom =
         contentSize.height - layoutMeasurement.height - contentOffset.y;
 
-      // Re-arm the trigger once user scrolls far enough from the bottom.
-      if (distanceFromBottom > 600) {
+      // Re-arm only when the user has scrolled well away from the bottom AND
+      // no fetch is in-flight. Guarding against in-flight prevents the
+      // content-growth scroll event (new items added → contentSize expands →
+      // distanceFromBottom jumps > 600) from immediately re-arming the gate.
+      if (distanceFromBottom > 600 && !isFetchingMoreRef.current) {
         canTriggerNextLoad.current = true;
       }
 
@@ -131,6 +139,7 @@ const HomeScreen = (): JSX.Element => {
         isScrollable &&
         hasUserDragged.current &&
         canTriggerNextLoad.current &&
+        !isFetchingMoreRef.current &&
         distanceFromBottom < 300
       ) {
         handleLoadMore();
@@ -151,7 +160,6 @@ const HomeScreen = (): JSX.Element => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('User Status:', userStatus, 'User:', user);
     if (userStatus === 'succeeded' && user) {
       if (!user?.userInfoSetup) {
         navigation.replace('SetupUserInfo');
@@ -254,6 +262,7 @@ const HomeScreen = (): JSX.Element => {
                     branch={item}
                     displayName={displayName}
                     imageUri={branchImageMap[item.branchId]}
+                    userCoords={userCoords}
                     onPress={() => navigation.navigate('RestaurantSwipe')}
                   />
                 </View>
