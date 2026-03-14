@@ -2,7 +2,7 @@ export interface ActiveBranch {
   branchId: number;
   vendorId: number;
   vendorName: string | null;
-  userId: number;
+  managerId: number;
   name: string;
   phoneNumber: string;
   email: string;

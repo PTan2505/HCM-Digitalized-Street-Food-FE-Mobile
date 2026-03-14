@@ -49,10 +49,10 @@ const RestaurantSwipeScreen = ({
       .join(', '),
     isOpen: branch.isActive,
     // —— fields not yet in API response, placeholder until updated ——
-    priceRange: 'Đang cập nhật',
+    priceRange: 'Đang cập nhật priceRange',
     isVegetarian: false,
-    cuisine: 'Đang cập nhật',
-    hours: 'Đang cập nhật',
+    cuisine: 'Đang cập nhật cuisine',
+    hours: 'Đang cập nhật hours',
   };
 
   const similarRestaurants = [

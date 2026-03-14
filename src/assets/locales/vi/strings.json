@@ -88,7 +88,7 @@
     "votes": "Lượt vote"
   },
   "actions": {
-    "add_to_current_pick": "Thêm vào Current Pick",
+    "view_detail": "Xem chi tiết",
     "swipe_up": "Vuốt lên",
     "to_see_similar": "Để xem các quán tương tự",
     "sort_by": "Sắp xếp theo",
