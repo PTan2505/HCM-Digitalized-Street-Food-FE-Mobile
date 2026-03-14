@@ -1,9 +1,0 @@
-{
-  "platforms": ["apple", "android", "web"],
-  "apple": {
-    "modules": ["TranslationModule"]
-  },
-  "android": {
-    "modules": ["expo.modules.translationmodule.TranslationModule"]
-  }
-}
