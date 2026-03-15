@@ -1,5 +1,5 @@
 import type { LoginWithPhoneNumberRequest } from '@auth/types/login';
-import { LoginWithPhoneNumberSchema } from '@auth/utils/loginFormSchema';
+import { getLoginWithPhoneNumberSchema } from '@auth/utils/loginFormSchema';
 import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -7,10 +7,10 @@ import useLogin from '@features/auth/hooks/useLogin';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUserStatus } from '@slices/auth';
-import { RefObject, type JSX } from 'react';
+import { RefObject, useMemo, type JSX } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Pressable, Text, View } from 'react-native';
 
 const initialValues: LoginWithPhoneNumberRequest = {
   phoneNumber: '',
@@ -31,9 +31,10 @@ export const LoginForm = ({
   const userStatus = useAppSelector(selectUserStatus);
   const { onPhoneNumberLoginSubmit } = useLogin();
 
+  const schema = useMemo(() => getLoginWithPhoneNumberSchema(t), [t]);
   const methods = useForm<LoginWithPhoneNumberRequest>({
     defaultValues: initialValues,
-    resolver: zodResolver(LoginWithPhoneNumberSchema),
+    resolver: zodResolver(schema),
   });
 
   const { handleSubmit, control } = methods;

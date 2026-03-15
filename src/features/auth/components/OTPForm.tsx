@@ -1,18 +1,18 @@
 import { CustomButton } from '@components/CustomButton';
 import { CustomOTPInput } from '@components/CustomOTPInput';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { LoginWithPhoneNumberRequest } from '@features/auth/types/login';
 import useLogin from '@features/auth/hooks/useLogin';
-import { LoginWithPhoneNumberSchema } from '@features/auth/utils/loginFormSchema';
+import { LoginWithPhoneNumberRequest } from '@features/auth/types/login';
+import { getLoginWithPhoneNumberSchema } from '@features/auth/utils/loginFormSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUserStatus } from '@slices/auth';
 import { formatCountDownTime } from '@utils/formatCountDownTime';
-import { useEffect, useRef, useState, type JSX } from 'react';
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { OtpInputRef } from 'react-native-otp-entry';
-import { useTranslation } from 'react-i18next';
 
 const initialValues: LoginWithPhoneNumberRequest = {
   phoneNumber: '',
@@ -64,9 +64,10 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
   const [isResending, setIsResending] = useState(false);
 
+  const schema = useMemo(() => getLoginWithPhoneNumberSchema(t), [t]);
   const methods = useForm<LoginWithPhoneNumberRequest>({
     defaultValues: { ...initialValues, phoneNumber: props.phoneNumber },
-    resolver: zodResolver(LoginWithPhoneNumberSchema),
+    resolver: zodResolver(schema),
   });
   const {
     handleSubmit,

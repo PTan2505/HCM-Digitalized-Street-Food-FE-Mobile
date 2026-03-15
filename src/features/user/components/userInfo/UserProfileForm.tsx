@@ -3,14 +3,14 @@ import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
 import { APIErrorResponse } from '@custom-types/apiResponse';
 import { User } from '@custom-types/user';
-import { UpdateProfileSchema } from '@features/auth/utils/updateUserProfileSchema';
+import { getUpdateProfileSchema } from '@features/auth/utils/updateUserProfileSchema';
 import useProfile from '@features/user/hooks/profile/useProfile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
 import getHighResAvatar from '@utils/getHighResAvatar';
-import { JSX } from 'react';
+import { JSX, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,6 +29,7 @@ const UserProfileForm = (): JSX.Element => {
   const navigation = useNavigation();
   const { updateUserProfile } = useProfile();
 
+  const schema = useMemo(() => getUpdateProfileSchema(t), [t]);
   const methods = useForm<Partial<User>>({
     defaultValues: {
       username: user?.username ?? null,
@@ -37,7 +38,7 @@ const UserProfileForm = (): JSX.Element => {
       lastName: user?.lastName ?? null,
       phoneNumber: user?.phoneNumber ?? null,
     },
-    resolver: zodResolver(UpdateProfileSchema),
+    resolver: zodResolver(schema),
   });
 
   const { handleSubmit, setError } = methods;
