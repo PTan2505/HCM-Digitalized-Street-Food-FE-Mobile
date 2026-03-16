@@ -29,7 +29,7 @@ interface Location {
   isTopPick?: boolean;
 }
 
-const CurrentPickDetailsScreen = (): JSX.Element => {
+export const CurrentPickDetailsScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const [sortBy, setSortBy] = useState('distance');
@@ -201,4 +201,3 @@ const CurrentPickDetailsScreen = (): JSX.Element => {
   );
 };
 
-export default CurrentPickDetailsScreen;

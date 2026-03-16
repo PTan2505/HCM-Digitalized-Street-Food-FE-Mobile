@@ -25,6 +25,7 @@ export const apiUrl = {
   branch: {
     active: '/Branch/active',
     byVendor: '/Branch/vendor',
+    workSchedules: (id: number) => `/Branch/${id}/work-schedules`,
   },
   userDietary: {
     userDietary: '/UserDietary/user',

@@ -1,83 +1,103 @@
-import SamplePlace from '@assets/SamplePlace.jpg';
-import CurrentPickCard from '@features/home/components/common/CurrentPickCard';
-import SearchBar from '@features/home/components/common/SearchBar';
+import { Ionicons } from '@expo/vector-icons';
+import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import FilterModal, {
   type FilterState,
 } from '@features/home/components/common/FilterModal';
+import SearchBar from '@features/home/components/common/SearchBar';
+import { useStallSearch } from '@features/home/hooks/useStallSearch';
+import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import type { JSX } from 'react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   FlatList,
   Text,
   TouchableOpacity,
   View,
-  type ImageSourcePropType,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 
 interface FilterButton {
   id: string;
   label: string;
-  type: 'toggle' | 'modal';
 }
 
-interface RestaurantItem {
-  id: string;
-  name: string;
-  rating: number;
-  distance: string;
-  priceRange: string;
-  tag: string;
-  image: ImageSourcePropType;
-  likes: number;
-  comments: number;
-  isTopPick?: boolean;
-}
-
-const SAMPLE_RESTAURANTS: RestaurantItem[] = [
-  {
-    id: '1',
-    name: 'Tiệm mỳ Chan Chan',
-    rating: 4.5,
-    distance: '1.2 km',
-    priceRange: 'Từ 150k đến 200k',
-    tag: 'Món chay',
-    image: SamplePlace,
-    likes: 120,
-    comments: 45,
-    isTopPick: false,
-  },
-  // Thêm các mẫu khác nếu cần
-];
-
-const SearchScreen = (): JSX.Element => {
+export const SearchScreen = (): JSX.Element => {
   const { t } = useTranslation();
+  const [keyword, setKeyword] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [filteredRestaurants] = useState<RestaurantItem[]>(SAMPLE_RESTAURANTS);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+
+  const { coords } = useLocationPermission();
+  const { stalls, isLoading, error, search, clearError } = useStallSearch();
 
   const filterButtons: FilterButton[] = [
-    { id: 'all', label: t('actions.all'), type: 'toggle' },
-    { id: 'vegetarian', label: t('vegetarian_dish'), type: 'toggle' },
-    { id: 'space', label: t('space'), type: 'toggle' },
-    { id: 'dish', label: t('dish_type'), type: 'toggle' },
+    { id: 'all', label: t('actions.all') },
+    { id: 'spicy', label: t('taste_tags.spicy') },
+    { id: 'sweet', label: t('taste_tags.sweet') },
+    { id: 'vegetarian', label: t('amenities.vegetarian') },
   ];
 
+  const priceRangeToParams = (
+    keys: string[]
+  ): { MinPrice?: number; MaxPrice?: number } => {
+    const key = keys[0];
+    if (!key || key === 'any') return {};
+    if (key === 'under_50') return { MaxPrice: 50000 };
+    if (key === 'range_50_150') return { MinPrice: 50000, MaxPrice: 150000 };
+    if (key === 'range_150_300') return { MinPrice: 150000, MaxPrice: 300000 };
+    if (key === 'over_300') return { MinPrice: 300000 };
+    return {};
+  };
+
+  const triggerSearch = useCallback(
+    (kw: string, filters: FilterState | null) => {
+      if (!coords) return;
+      search({
+        Lat: coords.latitude,
+        Long: coords.longitude,
+        Keyword: kw || undefined,
+        Distance: filters?.distance,
+        // TODO: map string keys to numeric IDs once backend IDs are confirmed
+        // TasteIds: filters?.tasteTags → numeric ids
+        // DietaryIds: filters?.dietaryTags → numeric ids
+        ...priceRangeToParams(filters?.priceRange ?? []),
+      });
+    },
+    [coords, search]
+  );
+
   const handleSearch = (text: string): void => {
-    // TODO: Implement search logic
-    console.log('Searching for:', text);
+    setKeyword(text);
+    triggerSearch(text, activeFilters);
   };
 
   const handleFilterPress = (filterId: string): void => {
     setSelectedFilter(filterId);
-    console.log('Selected filter:', filterId);
+    if (filterId === 'all') {
+      triggerSearch(keyword, activeFilters);
+    } else {
+      const quickFilters: FilterState = {
+        spaceTypes: [],
+        dishTypes: [],
+        priceRange: [],
+        distance: 5,
+        hasParking: false,
+        openNow: false,
+        amenities: [],
+        tasteTags: ['spicy', 'sweet'].includes(filterId) ? [filterId] : [],
+        dietaryTags: filterId === 'vegetarian' ? ['vegetarian'] : [],
+      };
+      triggerSearch(keyword, quickFilters);
+    }
   };
 
   const handleFilterApply = (filters: FilterState): void => {
-    console.log('Applied filters:', filters);
+    setActiveFilters(filters);
     setFilterModalVisible(false);
+    triggerSearch(keyword, filters);
   };
 
   const renderFilterButton = ({
@@ -86,7 +106,6 @@ const SearchScreen = (): JSX.Element => {
     item: FilterButton;
   }): JSX.Element => {
     const isSelected = item.id === selectedFilter;
-
     return (
       <TouchableOpacity
         onPress={() => handleFilterPress(item.id)}
@@ -105,33 +124,52 @@ const SearchScreen = (): JSX.Element => {
     );
   };
 
-  const renderRestaurant = ({
-    item,
-  }: {
-    item: RestaurantItem;
-  }): JSX.Element => {
-    return (
-      <CurrentPickCard
-        id={item.id}
-        name={item.name}
-        rating={item.rating}
-        distance={item.distance}
-        priceRange={item.priceRange}
-        tag={item.tag}
-        image={item.image}
-        likes={item.likes}
-        comments={item.comments}
-        isTopPick={item.isTopPick}
-        onPress={() => console.log('Restaurant pressed:', item.id)}
-        onBookmarkPress={() => console.log('Bookmark pressed:', item.id)}
-      />
-    );
+  const renderEmptyOrError = (): JSX.Element => {
+    if (isLoading) {
+      return (
+        <View className="flex-1 items-center justify-center py-20">
+          <ActivityIndicator size="large" color="#06AA4C" />
+        </View>
+      );
+    }
+    if (error) {
+      return (
+        <View className="flex-1 items-center justify-center px-6 py-20">
+          <Ionicons name="wifi-outline" size={48} color="#D1D5DB" />
+          <Text className="mt-4 text-center text-base text-gray-500">
+            {t('search.error')}
+          </Text>
+          <TouchableOpacity
+            onPress={() => { clearError(); triggerSearch(keyword, activeFilters); }}
+            className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+          >
+            <Text className="text-sm font-semibold text-white">
+              {t('search.retry')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    if (stalls.length === 0 && keyword.length > 0) {
+      return (
+        <View className="flex-1 items-center justify-center px-6 py-20">
+          <Ionicons name="search-outline" size={48} color="#D1D5DB" />
+          <Text className="mt-4 text-center text-base font-medium text-gray-500">
+            {t('search.empty')}
+          </Text>
+          <Text className="mt-1 text-center text-sm text-gray-400">
+            {t('search.empty_hint')}
+          </Text>
+        </View>
+      );
+    }
+    return <View />;
   };
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       <View className="flex-1">
-        {/* Search Bar with icons */}
+        {/* Search Bar */}
         <View className="mb-4 flex-row items-center gap-3 px-4 pt-2">
           <View className="flex-1">
             <SearchBar
@@ -148,7 +186,7 @@ const SearchScreen = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
-        {/* Filter Buttons */}
+        {/* Quick Filter Buttons */}
         <View className="px-4">
           <FlatList
             data={filterButtons}
@@ -160,26 +198,21 @@ const SearchScreen = (): JSX.Element => {
           />
         </View>
 
-        {/* Restaurant List */}
+        {/* Results List */}
         <View className="flex-1 px-4">
           <FlatList
-            data={filteredRestaurants}
+            data={stalls}
             keyExtractor={(item) => item.id}
-            renderItem={renderRestaurant}
+            renderItem={({ item }) => (
+              <SearchResultCard branch={item} />
+            )}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingTop: 16 }}
-            ListEmptyComponent={
-              <View className="flex-1 items-center justify-center py-20">
-                <Text className="text-gray-400">
-                  Không tìm thấy kết quả nào
-                </Text>
-              </View>
-            }
+            contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
+            ListEmptyComponent={renderEmptyOrError}
           />
         </View>
       </View>
 
-      {/* Modals */}
       <FilterModal
         visible={filterModalVisible}
         onClose={() => setFilterModalVisible(false)}
@@ -189,4 +222,3 @@ const SearchScreen = (): JSX.Element => {
   );
 };
 
-export default SearchScreen;

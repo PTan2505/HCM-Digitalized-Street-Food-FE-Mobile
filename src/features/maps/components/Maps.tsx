@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import MOCK_VENDORS from '@features/maps/constants/mockData';
+import type { MapVendor } from '@features/home/types/stall';
 import {
   Camera,
   CircleLayer,
@@ -178,9 +178,9 @@ const tierToPrice = (tierId: string): string => {
 };
 
 // ── GeoJSON FeatureCollection Builder ──
-const buildVendorGeoJSON = (): GeoJSON.FeatureCollection => ({
+const buildVendorGeoJSON = (vendors: MapVendor[]): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
-  features: MOCK_VENDORS.map((v) => ({
+  features: vendors.map((v) => ({
     type: 'Feature' as const,
     id: v.vendorId,
     geometry: {
@@ -194,6 +194,7 @@ const buildVendorGeoJSON = (): GeoJSON.FeatureCollection => ({
       price: tierToPrice(v.tierId),
       rating: v.avgRating,
       isActive: v.isActive,
+      isVerified: v.isVerified,
     },
   })),
 });
@@ -211,16 +212,10 @@ const shouldShowFullMarker = (priority: number, zoom: number): boolean => {
   return zoom >= ZOOM_THRESHOLD_BASIC; // Basic
 };
 
-const VENDOR_MARKERS = MOCK_VENDORS.map((v) => ({
-  vendorId: v.vendorId,
-  coordinate: [v.long, v.lat] as [number, number],
-  priority: tierToPriority(v.tierId),
-  label: tierToPrice(v.tierId),
-  rating: v.avgRating,
-}));
+// Built dynamically from props in the component via useMemo
 
 // ── CircleLayer Style (dot representation) ──
-// Opacity per priority: P1 always hidden, P2 hidden at z≥13, P3 hidden at z≥15
+// Ghost Pins (isVerified=false) render as gray dashed-border dots; verified = green
 const CIRCLE_STYLE = {
   circleRadius: [
     'interpolate',
@@ -234,7 +229,12 @@ const CIRCLE_STYLE = {
     12,
   ] as unknown as number,
 
-  circleColor: '#a1d973',
+  circleColor: [
+    'case',
+    ['==', ['get', 'isVerified'], false],
+    '#9CA3AF',
+    '#a1d973',
+  ] as unknown as string,
   circleStrokeWidth: 2,
   circleStrokeColor: '#ffffff',
 
@@ -382,6 +382,7 @@ interface MapsProps {
   isPeeked: boolean;
   onMarkerPress: (vendorId: string) => void;
   onUserDrag?: () => void;
+  vendors?: MapVendor[];
 }
 
 const PEEK_BAR_OFFSET = 20;
@@ -393,6 +394,7 @@ export const Maps = ({
   isPeeked,
   onMarkerPress,
   onUserDrag,
+  vendors = [],
 }: MapsProps): JSX.Element => {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapViewRef>(null);
@@ -400,7 +402,20 @@ export const Maps = ({
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
 
-  const vendorGeoJSON = useMemo(() => buildVendorGeoJSON(), []);
+  const vendorGeoJSON = useMemo(() => buildVendorGeoJSON(vendors), [vendors]);
+
+  const vendorMarkers = useMemo(
+    () =>
+      vendors.map((v) => ({
+        vendorId: v.vendorId,
+        coordinate: [v.long, v.lat] as [number, number],
+        priority: tierToPriority(v.tierId),
+        label: tierToPrice(v.tierId),
+        rating: v.avgRating,
+        isVerified: v.isVerified,
+      })),
+    [vendors]
+  );
 
   // ── FAB position ──
   const fabBottom = useSharedValue(insets.bottom + 40);
@@ -497,15 +512,16 @@ export const Maps = ({
     [updateZoomBucket]
   );
 
-  // ── Visible pill markers (selected vendor always included) ──
+  // ── Visible pill markers (selected vendor always included; Ghost Pins excluded) ──
   const visibleMarkers = useMemo(
     () =>
-      VENDOR_MARKERS.filter(
+      vendorMarkers.filter(
         (v) =>
-          v.vendorId === selectedVendorId ||
-          shouldShowFullMarker(v.priority, zoomLevel)
+          v.isVerified &&
+          (v.vendorId === selectedVendorId ||
+            shouldShowFullMarker(v.priority, zoomLevel))
       ),
-    [zoomLevel, selectedVendorId]
+    [vendorMarkers, zoomLevel, selectedVendorId]
   );
 
   // ── ShapeSource press → select vendor ──

@@ -29,6 +29,8 @@ export interface FilterState {
   hasParking: boolean;
   openNow: boolean;
   amenities: string[];
+  tasteTags: string[];
+  dietaryTags: string[];
 }
 
 const FilterModal = ({
@@ -44,6 +46,8 @@ const FilterModal = ({
   const [hasParking, setHasParking] = useState<boolean>(false);
   const [openNow, setOpenNow] = useState<boolean>(false);
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [tasteTags, setTasteTags] = useState<string[]>([]);
+  const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const categories = useAppSelector(selectCategories);
 
   const toggleSelection = (
@@ -66,6 +70,8 @@ const FilterModal = ({
     setHasParking(false);
     setOpenNow(false);
     setAmenities([]);
+    setTasteTags([]);
+    setDietaryTags([]);
   };
 
   const handleApply = (): void => {
@@ -77,6 +83,8 @@ const FilterModal = ({
       hasParking,
       openNow,
       amenities,
+      tasteTags,
+      dietaryTags,
     });
     onClose();
   };
@@ -96,6 +104,19 @@ const FilterModal = ({
     { key: 'range_50_150', label: t('price_options.range_50_150') },
     { key: 'range_150_300', label: t('price_options.range_150_300') },
     { key: 'over_300', label: t('price_options.over_300') },
+  ];
+
+  const tasteOptions = [
+    { key: 'spicy', label: t('taste_tags.spicy') },
+    { key: 'sweet', label: t('taste_tags.sweet') },
+    { key: 'sour', label: t('taste_tags.sour') },
+    { key: 'savory', label: t('taste_tags.savory') },
+  ];
+
+  const dietaryOptions = [
+    { key: 'vegetarian', label: t('dietary_tags.vegetarian') },
+    { key: 'halal', label: t('dietary_tags.halal') },
+    { key: 'nut_free', label: t('dietary_tags.nut_free') },
   ];
 
   const amenityOptions = [
@@ -133,6 +154,38 @@ const FilterModal = ({
             style={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
           >
+            {/* Taste Profile */}
+            <View className="border-b border-gray-100 px-6 py-5">
+              <Text className="mb-3 text-base font-semibold text-gray-900">
+                {t('taste_profile')}
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {tasteOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.key}
+                    onPress={() =>
+                      toggleSelection(option.key, tasteTags, setTasteTags)
+                    }
+                    className={`rounded-full border px-4 py-2 ${
+                      tasteTags.includes(option.key)
+                        ? 'border-[#06AA4C] bg-[#06AA4C]'
+                        : 'border-gray-300 bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm ${
+                        tasteTags.includes(option.key)
+                          ? 'text-white'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
                 {t('space')}
@@ -310,6 +363,38 @@ const FilterModal = ({
                   )}
                 </View>
               </TouchableOpacity>
+            </View>
+
+            {/* Dietary Preferences */}
+            <View className="border-b border-gray-100 px-6 py-5">
+              <Text className="mb-3 text-base font-semibold text-gray-900">
+                {t('dietary_preferences')}
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {dietaryOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.key}
+                    onPress={() =>
+                      toggleSelection(option.key, dietaryTags, setDietaryTags)
+                    }
+                    className={`rounded-full border px-4 py-2 ${
+                      dietaryTags.includes(option.key)
+                        ? 'border-[#06AA4C] bg-[#06AA4C]'
+                        : 'border-gray-300 bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm ${
+                        dietaryTags.includes(option.key)
+                          ? 'text-white'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <View className="px-6 py-5">

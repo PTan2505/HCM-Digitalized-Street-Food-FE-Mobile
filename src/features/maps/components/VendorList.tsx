@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import MOCK_VENDORS from '@features/maps/constants/mockData';
+import type { MapVendor } from '@features/home/types/stall';
 import React, { forwardRef, JSX } from 'react';
 import {
   Dimensions,
@@ -17,6 +17,7 @@ export const CARD_WIDTH = width * 0.9;
 export const CARD_SPACING = 16;
 
 interface VendorListProps {
+  vendors: MapVendor[];
   selectedVendorId: string | null;
   onViewableItemsChanged: (info: { viewableItems: ViewToken[] }) => void;
   viewabilityConfig: {
@@ -25,39 +26,30 @@ interface VendorListProps {
 }
 
 export const VendorList = forwardRef<FlatList, VendorListProps>(
-  ({ onViewableItemsChanged, viewabilityConfig }, ref) => {
+  ({ vendors, onViewableItemsChanged, viewabilityConfig }, ref) => {
     const renderVendorCard = ({
       item,
     }: {
-      item: (typeof MOCK_VENDORS)[0];
+      item: MapVendor;
     }): JSX.Element => {
-      // Mock multiple images (in real app, this would come from item.images)
-      const images = [
-        item.imageUrl,
-        item.imageUrl,
-        item.imageUrl,
-        item.imageUrl,
-      ];
+      const images = [item.imageUrl, item.imageUrl, item.imageUrl, item.imageUrl];
 
       return (
         <View
           className="mx-2 overflow-hidden rounded-2xl bg-white shadow-lg"
           style={{ width: CARD_WIDTH }}
         >
-          {/* Main Thumbnail Image */}
           <View className="relative h-48 w-full bg-gray-200">
             <Image
               source={{ uri: item.imageUrl }}
               className="h-full w-full"
               resizeMode="cover"
             />
-            {/* Bookmark Button on Image */}
             <TouchableOpacity className="absolute right-3 top-3 rounded-full bg-white p-2 shadow-md">
               <MaterialIcons name="bookmark-border" size={22} color="#FF6B35" />
             </TouchableOpacity>
           </View>
 
-          {/* Small Image Gallery */}
           <View className="px-3 py-2">
             <ScrollView
               horizontal
@@ -76,7 +68,6 @@ export const VendorList = forwardRef<FlatList, VendorListProps>(
             </ScrollView>
           </View>
 
-          {/* Vendor Info */}
           <View className="px-3 pb-3">
             <Text
               className="mb-1 text-lg font-bold text-[#333]"
@@ -88,17 +79,10 @@ export const VendorList = forwardRef<FlatList, VendorListProps>(
             <View className="mb-2 flex-row items-center">
               <MaterialIcons name="star" size={18} color="#FFB800" />
               <Text className="ml-1 text-sm font-semibold text-[#333]">
-                {item.avgRating}
+                {item.avgRating.toFixed(1)}
               </Text>
               <Text className="mx-2 text-[#999]">•</Text>
               <Text className="text-sm text-[#999]">{item.ward}</Text>
-            </View>
-
-            <View className="mb-2 flex-row items-center">
-              <MaterialIcons name="local-offer" size={16} color="#00B14F" />
-              <Text className="ml-1 text-sm font-semibold text-[#00B14F]">
-                Từ 150k đến 200k
-              </Text>
             </View>
 
             <View className="flex-row flex-wrap gap-2">
@@ -107,11 +91,13 @@ export const VendorList = forwardRef<FlatList, VendorListProps>(
                   Món Việt
                 </Text>
               </View>
-              <View className="rounded-full bg-[#FFF3E0] px-3 py-1">
-                <Text className="text-xs font-medium text-[#FF6B35]">
-                  Phổ biến
-                </Text>
-              </View>
+              {!item.isVerified && (
+                <View className="rounded-full bg-[#FEF3C7] px-3 py-1">
+                  <Text className="text-xs font-medium text-[#92400E]">
+                    Chưa xác minh
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -122,7 +108,7 @@ export const VendorList = forwardRef<FlatList, VendorListProps>(
       <View className="absolute bottom-0 left-0 right-0 bg-transparent pb-4 pt-2">
         <FlatList
           ref={ref}
-          data={MOCK_VENDORS}
+          data={vendors}
           renderItem={renderVendorCard}
           keyExtractor={(item) => item.vendorId}
           horizontal

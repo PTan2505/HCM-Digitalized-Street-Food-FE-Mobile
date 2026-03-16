@@ -1,9 +1,9 @@
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
-import CurrentPickDetailsScreen from '@features/home/screens/CurrentPickDetailsScreen';
-import CurrentPicksScreen from '@features/home/screens/CurrentPicksScreen';
-import RestaurantDetailsScreen from '@features/home/screens/RestaurantDetailsScreen';
-import RestaurantSwipeScreen from '@features/home/screens/RestaurantSwipeScreen';
-import SearchScreen from '@features/home/screens/SearchScreen';
+import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
+import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
+import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
+import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
+import { SearchScreen } from '@features/home/screens/SearchScreen';
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -19,9 +19,9 @@ import { ActivityIndicator, View } from 'react-native';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { ActiveBranch } from '@features/home/types/branch';
-import DietaryPreferencesScreen from '@features/user/screens/DietaryPreferencesScreen';
-import EditUserInfoScreen from '@features/user/screens/EditUserProfileScreen';
-import ProfileScreen from '@features/user/screens/ProfileScreen';
+import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
+import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
+import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',

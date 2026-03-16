@@ -30,6 +30,8 @@ import {
   FlatList,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {
@@ -44,7 +46,7 @@ import SearchBar from '../components/common/SearchBar';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
 
-const HomeScreen = (): JSX.Element => {
+export const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -239,6 +241,23 @@ const HomeScreen = (): JSX.Element => {
               <ActivityIndicator size="large" color="#a1d973" />
             </View>
           </>
+        ) : branchesStatus === 'failed' ? (
+          <>
+            {ListHeader}
+            <View className="flex-1 items-center justify-center px-6">
+              <Text className="text-center text-base text-gray-500">
+                {t('search.error')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => dispatch(fetchActiveBranches({ page: 1 }))}
+                className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+              >
+                <Text className="text-sm font-semibold text-white">
+                  {t('search.retry')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
         ) : (
           <FlatList
             data={branches}
@@ -273,6 +292,13 @@ const HomeScreen = (): JSX.Element => {
                 </View>
               );
             }}
+            ListEmptyComponent={
+              <View className="items-center px-6 py-12">
+                <Text className="text-center text-base text-gray-400">
+                  {t('search.empty')}
+                </Text>
+              </View>
+            }
             onScroll={handleScroll}
             onScrollBeginDrag={() => {
               hasUserDragged.current = true;
@@ -298,4 +324,3 @@ const HomeScreen = (): JSX.Element => {
   );
 };
 
-export default HomeScreen;

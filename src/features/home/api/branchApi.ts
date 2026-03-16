@@ -4,6 +4,7 @@ import { apiUrl } from '@lib/api/apiUrl';
 import type {
   PaginatedBranchImages,
   PaginatedBranches,
+  WorkSchedule,
 } from '@features/home/types/branch';
 
 export class BranchApi {
@@ -32,6 +33,13 @@ export class BranchApi {
     const res = await this.apiClient.get<PaginatedBranches>({
       url: `${apiUrl.branch.byVendor}/${vendorId}`,
       params: { pageNumber, pageSize },
+    });
+    return res.data;
+  }
+
+  async getWorkSchedules(branchId: number): Promise<WorkSchedule[]> {
+    const res = await this.apiClient.get<WorkSchedule[]>({
+      url: apiUrl.branch.workSchedules(branchId),
     });
     return res.data;
   }

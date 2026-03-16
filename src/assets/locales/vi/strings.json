@@ -49,6 +49,25 @@
   "other_amenities": "Tiện ích khác",
   "reset": "Thiết lập lại",
   "apply": "Áp dụng",
+  "taste_profile": "Khẩu vị",
+  "taste_tags": {
+    "spicy": "Cay",
+    "sweet": "Ngọt",
+    "sour": "Chua",
+    "savory": "Mặn"
+  },
+  "dietary_preferences": "Chế độ ăn uống",
+  "dietary_tags": {
+    "vegetarian": "Chay",
+    "halal": "Halal",
+    "nut_free": "Không đậu phộng"
+  },
+  "search": {
+    "empty": "Không tìm thấy kết quả nào",
+    "empty_hint": "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm",
+    "error": "Không thể tải kết quả. Vui lòng thử lại.",
+    "retry": "Thử lại"
+  },
   "sort_by": "Sắp xếp theo",
   "categories": {
     "rice": "Cơm",

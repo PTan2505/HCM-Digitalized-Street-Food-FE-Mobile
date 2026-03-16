@@ -20,6 +20,7 @@ interface CurrentPickCardProps {
   likes: number;
   comments: number;
   isTopPick?: boolean;
+  openStatus?: 'open' | 'closed';
   onPress?: () => void;
   onBookmarkPress?: () => void;
 }
@@ -34,6 +35,7 @@ const CurrentPickCard = ({
   likes,
   comments,
   isTopPick,
+  openStatus,
   onBookmarkPress,
 }: CurrentPickCardProps): JSX.Element => {
   const { t } = useTranslation();
@@ -99,10 +101,21 @@ const CurrentPickCard = ({
           </Text>
         </View>
 
-        <View className="flex-row">
+        <View className="flex-row items-center gap-2">
           <View className="rounded-[16px] bg-[#06AA4C] px-2.5 py-1">
             <Text className="text-[11px] font-medium text-white">{tag}</Text>
           </View>
+          {openStatus && (
+            <View
+              className={`rounded-full px-2 py-0.5 ${openStatus === 'open' ? 'bg-[#E8F5E9]' : 'bg-[#F3F4F6]'}`}
+            >
+              <Text
+                className={`text-[10px] font-semibold ${openStatus === 'open' ? 'text-[#06AA4C]' : 'text-[#6B7280]'}`}
+              >
+                {openStatus === 'open' ? t('actions.open') : t('actions.closed')}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 

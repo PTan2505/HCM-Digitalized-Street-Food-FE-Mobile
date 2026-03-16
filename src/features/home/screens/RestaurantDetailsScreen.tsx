@@ -26,7 +26,7 @@ import i18n from '@utils/i18n';
 
 type RestaurantDetailsScreenProps = StaticScreenProps<{ tab: TabType }>;
 
-const RestaurantDetailsScreen = ({
+export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
   const { tab } = route.params;
@@ -215,4 +215,3 @@ const RestaurantDetailsScreen = ({
   );
 };
 
-export default RestaurantDetailsScreen;

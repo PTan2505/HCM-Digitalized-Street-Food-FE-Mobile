@@ -49,6 +49,25 @@
   "other_amenities": "Other Amenities",
   "reset": "Reset",
   "apply": "Apply",
+  "taste_profile": "Taste Profile",
+  "taste_tags": {
+    "spicy": "Spicy",
+    "sweet": "Sweet",
+    "sour": "Sour",
+    "savory": "Savory"
+  },
+  "dietary_preferences": "Dietary Preferences",
+  "dietary_tags": {
+    "vegetarian": "Vegetarian",
+    "halal": "Halal",
+    "nut_free": "Nut-Free"
+  },
+  "search": {
+    "empty": "No results found",
+    "empty_hint": "Try changing your filters or search keyword",
+    "error": "Could not load results. Please try again.",
+    "retry": "Retry"
+  },
   "sort_by": "Sort By",
   "categories": {
     "rice": "Rice",

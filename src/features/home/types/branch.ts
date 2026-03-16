@@ -1,3 +1,27 @@
+export interface WorkSchedule {
+  workScheduleId: number;
+  branchId: number;
+  /** 0 = Sunday, 1 = Monday, …, 6 = Saturday — matches JS Date.getDay() */
+  weekday: number;
+  weekdayName: string;
+  /** 24-hour format "HH:mm:ss" */
+  openTime: string;
+  /** 24-hour format "HH:mm:ss" */
+  closeTime: string;
+}
+
+export interface Dish {
+  dishId: number;
+  name: string;
+  price: number;
+  description?: string;
+  imageUrl?: string;
+  isSoldOut: boolean;
+  categoryName?: string;
+  tasteNames: string[];
+  dietaryPreferenceNames: string[];
+}
+
 export interface ActiveBranch {
   branchId: number;
   vendorId: number;
@@ -16,6 +40,9 @@ export interface ActiveBranch {
   isVerified: boolean;
   avgRating: number;
   isActive: boolean;
+  /** Populated when Lat/Long params are passed to the search endpoint */
+  distanceKm: number | null;
+  dishes: Dish[];
 }
 
 export interface PaginatedBranches {
