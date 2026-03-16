@@ -6,8 +6,8 @@ import ActionButtons from '@features/home/components/restaurantSwipe/ActionButto
 import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
 import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
-import type { ActiveBranch } from '@features/home/types/branch';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
+import type { ActiveBranch } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
@@ -143,7 +143,7 @@ export const RestaurantSwipeScreen = ({
 
           <View className="overflow-hidden rounded-b-3xl bg-white">
             <RestaurantInfo restaurant={restaurantInfo} />
-            <ActionButtons />
+            <ActionButtons branch={branch} displayName={displayName} />
           </View>
 
           <SwipeUpPrompt />
@@ -168,4 +168,3 @@ export const RestaurantSwipeScreen = ({
     </GestureHandlerRootView>
   );
 };
-

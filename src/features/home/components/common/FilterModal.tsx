@@ -1,9 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import Slider from '@react-native-community/slider';
 import { selectCategories } from '@slices/categories';
+import {
+  getAllDietaryPreferences,
+  selectDietaryPreferences,
+  selectDietaryState,
+  selectUserDietaryPreferences,
+} from '@slices/dietary';
+import { fetchTastes, selectTastes, selectTastesStatus } from '@slices/tastes';
 import type { JSX } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -39,6 +46,7 @@ const FilterModal = ({
   onApply,
 }: FilterModalProps): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const [spaceTypes, setSpaceTypes] = useState<string[]>([]);
   const [dishTypes, setDishTypes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<string[]>([]);
@@ -49,6 +57,29 @@ const FilterModal = ({
   const [tasteTags, setTasteTags] = useState<string[]>([]);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const categories = useAppSelector(selectCategories);
+  const tastes = useAppSelector(selectTastes);
+  const tastesStatus = useAppSelector(selectTastesStatus);
+  const dietaryPreferences = useAppSelector(selectDietaryPreferences);
+  const dietaryStatus = useAppSelector(selectDietaryState);
+  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+
+  // Pre-select the user's saved dietary prefs each time the modal opens
+  useEffect(() => {
+    if (visible) {
+      setDietaryTags(
+        userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
+      );
+    }
+  }, [visible, userDietaryPreferences]);
+
+  useEffect(() => {
+    if (tastesStatus === 'idle') {
+      dispatch(fetchTastes());
+    }
+    if (dietaryPreferences.length === 0 && dietaryStatus !== 'pending') {
+      dispatch(getAllDietaryPreferences());
+    }
+  }, [dispatch, tastesStatus, dietaryStatus, dietaryPreferences.length]);
 
   const toggleSelection = (
     item: string,
@@ -71,7 +102,10 @@ const FilterModal = ({
     setOpenNow(false);
     setAmenities([]);
     setTasteTags([]);
-    setDietaryTags([]);
+    // Restore to user's profile dietary prefs, not empty
+    setDietaryTags(
+      userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
+    );
   };
 
   const handleApply = (): void => {
@@ -106,18 +140,15 @@ const FilterModal = ({
     { key: 'over_300', label: t('price_options.over_300') },
   ];
 
-  const tasteOptions = [
-    { key: 'spicy', label: t('taste_tags.spicy') },
-    { key: 'sweet', label: t('taste_tags.sweet') },
-    { key: 'sour', label: t('taste_tags.sour') },
-    { key: 'savory', label: t('taste_tags.savory') },
-  ];
+  const tasteOptions = tastes.map((taste) => ({
+    key: taste.tasteId.toString(),
+    label: taste.name,
+  }));
 
-  const dietaryOptions = [
-    { key: 'vegetarian', label: t('dietary_tags.vegetarian') },
-    { key: 'halal', label: t('dietary_tags.halal') },
-    { key: 'nut_free', label: t('dietary_tags.nut_free') },
-  ];
+  const dietaryOptions = dietaryPreferences.map((pref) => ({
+    key: pref.dietaryPreferenceId.toString(),
+    label: pref.name,
+  }));
 
   const amenityOptions = [
     { key: 'vegetarian', label: t('amenities.vegetarian') },

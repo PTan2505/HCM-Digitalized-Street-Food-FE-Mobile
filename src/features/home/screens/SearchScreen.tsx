@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import FilterModal, {
   type FilterState,
 } from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
+import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import type { JSX } from 'react';
@@ -60,9 +60,12 @@ export const SearchScreen = (): JSX.Element => {
         Long: coords.longitude,
         Keyword: kw || undefined,
         Distance: filters?.distance,
-        // TODO: map string keys to numeric IDs once backend IDs are confirmed
-        // TasteIds: filters?.tasteTags → numeric ids
-        // DietaryIds: filters?.dietaryTags → numeric ids
+        TasteIds: filters?.tasteTags
+          .map(Number)
+          .filter((n) => !isNaN(n) && n > 0),
+        DietaryIds: filters?.dietaryTags
+          .map(Number)
+          .filter((n) => !isNaN(n) && n > 0),
         ...priceRangeToParams(filters?.priceRange ?? []),
       });
     },
@@ -140,7 +143,10 @@ export const SearchScreen = (): JSX.Element => {
             {t('search.error')}
           </Text>
           <TouchableOpacity
-            onPress={() => { clearError(); triggerSearch(keyword, activeFilters); }}
+            onPress={() => {
+              clearError();
+              triggerSearch(keyword, activeFilters);
+            }}
             className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
           >
             <Text className="text-sm font-semibold text-white">
@@ -202,10 +208,8 @@ export const SearchScreen = (): JSX.Element => {
         <View className="flex-1 px-4">
           <FlatList
             data={stalls}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <SearchResultCard branch={item} />
-            )}
+            keyExtractor={(item) => String(item.branchId)}
+            renderItem={({ item }) => <SearchResultCard branch={item} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
             ListEmptyComponent={renderEmptyOrError}
@@ -221,4 +225,3 @@ export const SearchScreen = (): JSX.Element => {
     </SafeAreaView>
   );
 };
-

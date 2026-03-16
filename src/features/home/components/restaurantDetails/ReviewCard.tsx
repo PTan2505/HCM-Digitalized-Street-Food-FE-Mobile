@@ -1,13 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Image,
-  ScrollView,
-  Text,
-  View,
-  type ImageSourcePropType,
-} from 'react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
 
 export interface Review {
   id: string;
@@ -15,7 +9,7 @@ export interface Review {
   date: string;
   rating: number;
   comment: string;
-  images: ImageSourcePropType[];
+  imageUris: string[];
 }
 
 interface ReviewCardProps {
@@ -64,10 +58,10 @@ const ReviewCard = ({ review }: ReviewCardProps): JSX.Element => {
         showsHorizontalScrollIndicator={false}
         className="flex-row"
       >
-        {review.images.map((img, index) => (
+        {review.imageUris.map((uri, index) => (
           <Image
             key={index}
-            source={img}
+            source={{ uri }}
             className="mr-2 h-20 w-20 rounded-lg"
           />
         ))}

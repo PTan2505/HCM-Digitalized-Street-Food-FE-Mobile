@@ -18,6 +18,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
+import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
@@ -45,6 +46,11 @@ const RootStack = createNativeStackNavigator({
     },
     RestaurantDetails: {
       screen: RestaurantDetailsScreen,
+      params: {} as {
+        branch: ActiveBranch;
+        displayName: string;
+        tab?: TabType;
+      },
     },
     CurrentPicks: {
       screen: CurrentPicksScreen,

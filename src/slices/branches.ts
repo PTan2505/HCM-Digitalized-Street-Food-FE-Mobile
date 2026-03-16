@@ -36,13 +36,33 @@ const initialState: BranchesState = {
 export const fetchActiveBranches = createAppAsyncThunk(
   'branches/fetchActive',
   async (
-    { page = 1, pageSize = 10 }: { page?: number; pageSize?: number },
+    {
+      page = 1,
+      pageSize = 10,
+      lat,
+      lng,
+      distance,
+      dietaryIds,
+    }: {
+      page?: number;
+      pageSize?: number;
+      lat?: number;
+      lng?: number;
+      distance?: number;
+      dietaryIds?: number[];
+    },
     { rejectWithValue }
   ) => {
     try {
       const paginatedBranches = await axiosApi.branchApi.getActiveBranches(
         page,
-        pageSize
+        pageSize,
+        {
+          Lat: lat,
+          Long: lng,
+          Distance: distance,
+          DietaryIds: dietaryIds?.length ? dietaryIds : undefined,
+        }
       );
 
       // For each unique vendorId in this page, check if the vendor has > 1 branch.

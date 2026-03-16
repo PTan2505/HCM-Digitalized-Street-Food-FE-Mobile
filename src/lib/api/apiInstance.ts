@@ -4,7 +4,9 @@ import { LoginApi } from '@features/auth/api/loginApi';
 import { RegisterApi } from '@features/auth/api/registerApi';
 import { BranchApi } from '@features/home/api/branchApi';
 import { CategoryApi } from '@features/home/api/categoryApi';
+import { FeedbackApi } from '@features/home/api/feedbackApi';
 import { StallSearchApi } from '@features/home/api/stallSearchApi';
+import { TasteApi } from '@features/home/api/tasteApi';
 import { VendorApi } from '@features/home/api/vendorApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 
@@ -26,4 +28,6 @@ export const axiosApi = {
   vendorApi: new VendorApi(axiosClient),
   branchApi: new BranchApi(axiosClient),
   stallSearchApi: new StallSearchApi(axiosClient),
+  tasteApi: new TasteApi(axiosClient),
+  feedbackApi: new FeedbackApi(axiosClient),
 };
