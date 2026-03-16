@@ -1,42 +1,58 @@
-import type { JSX } from 'react';
-import { View, TouchableOpacity, StatusBar, ScrollView } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/common/RestaurantInfo';
 import ActionButtons from '@features/home/components/restaurantSwipe/ActionButtons';
-import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
+import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
+import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
+import type { ActiveBranch } from '@features/home/types/branch';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
+import type { JSX } from 'react';
+import { useEffect } from 'react';
+import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-interface RestaurantSwipeScreenProps {
-  restaurantData?: RestaurantInfoData & { images?: string[] };
-  onClose?: () => void;
-}
+type RestaurantSwipeScreenProps = StaticScreenProps<{
+  branch: ActiveBranch;
+  displayName: string;
+}>;
+
+const PLACEHOLDER_IMAGE =
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
 
 const RestaurantSwipeScreen = ({
-  restaurantData,
-  onClose,
-}: RestaurantSwipeScreenProps = {}): JSX.Element => {
-  const restaurantImages = restaurantData?.images ?? [
-    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200',
-    'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&h=1200',
-    'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=1200',
-  ];
+  route,
+}: RestaurantSwipeScreenProps): JSX.Element => {
+  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  const branchImageMap = useAppSelector(selectBranchImageMap);
+  const { branch, displayName } = route.params;
+
+  useEffect(() => {
+    dispatch(fetchBranchAllImages(branch.branchId));
+  }, [branch.branchId, dispatch]);
+
+  const restaurantImages =
+    (branchImageMap[branch.branchId] ?? []).length > 0
+      ? branchImageMap[branch.branchId]
+      : [PLACEHOLDER_IMAGE];
 
   const restaurantInfo: RestaurantInfoData = {
-    name: restaurantData?.name ?? 'Tiem mi Chan Chan',
-    priceRange: restaurantData?.priceRange ?? '200k - 500k',
-    rating: restaurantData?.rating ?? 4.5,
-    reviewCount: restaurantData?.reviewCount ?? 0,
-    isVegetarian: restaurantData?.isVegetarian ?? true,
-    cuisine: restaurantData?.cuisine ?? 'Món Hoa',
-    address:
-      restaurantData?.address ??
-      '25A Ngo Quang Huy, Phuong An Khanh, Ho Chi Minh',
-    hours: restaurantData?.hours ?? '8:00 - 23:00 (Thứ 2 - Thứ 7)',
-    isOpen: restaurantData?.isOpen ?? true,
+    name: displayName,
+    rating: branch.avgRating,
+    reviewCount: 0, // TODO: fetch from reviews API
+    address: [branch.addressDetail, branch.ward, branch.city]
+      .filter(Boolean)
+      .join(', '),
+    isOpen: branch.isActive,
+    // —— fields not yet in API response, placeholder until updated ——
+    priceRange: 'Đang cập nhật priceRange',
+    isVegetarian: false,
+    cuisine: 'Đang cập nhật cuisine',
+    hours: 'Đang cập nhật hours',
   };
 
   const similarRestaurants = [
@@ -107,16 +123,14 @@ const RestaurantSwipeScreen = ({
       <View className="flex-1 bg-gray-100">
         <StatusBar barStyle="light-content" />
 
-        {onClose && (
-          <View className="absolute left-4 top-12 z-20">
-            <TouchableOpacity
-              className="h-10 w-10 items-center justify-center rounded-full bg-black/40"
-              onPress={onClose}
-            >
-              <Ionicons name="chevron-back" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        )}
+        <View className="absolute left-4 top-12 z-20">
+          <TouchableOpacity
+            className="h-10 w-10 items-center justify-center rounded-full bg-black/40"
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <View style={{ height: 450 }}>

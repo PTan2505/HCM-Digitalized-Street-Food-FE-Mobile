@@ -1,6 +1,7 @@
 import App from '@app/App';
 import { registerRootComponent } from 'expo';
 import './index.css';
+import './ReactotronConfig';
 import './src/utils/i18n';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

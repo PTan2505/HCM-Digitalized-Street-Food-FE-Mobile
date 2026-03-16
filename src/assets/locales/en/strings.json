@@ -72,7 +72,7 @@
     "votes": "Votes"
   },
   "actions": {
-    "add_to_current_pick": "Add to Current Pick",
+    "view_detail": "View detail",
     "swipe_up": "Swipe up",
     "to_see_similar": "To see similar restaurants",
     "sort_by": "Sort by",
