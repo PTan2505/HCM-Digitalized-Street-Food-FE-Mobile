@@ -26,6 +26,23 @@ const mutatorConfig = {
  *     });
  */
 export default defineConfig({
+  directOrdering: {
+    input: {
+      target: './openapi.json',
+      filters: {
+        tags: ['DirectOrdering'],
+      },
+    },
+    output: {
+      target: './src/features/direct-ordering/api/generated.ts',
+      schemas: './src/features/direct-ordering/types/generated',
+      client: 'axios',
+      override: {
+        mutator: mutatorConfig,
+      },
+    },
+  },
+
   groupOrdering: {
     input: {
       target: './openapi.json',
