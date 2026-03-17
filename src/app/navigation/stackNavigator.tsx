@@ -36,6 +36,10 @@ const RootStack = createNativeStackNavigator({
     },
     Search: {
       screen: SearchScreen,
+      params: {} as {
+        autoFocus?: boolean;
+        openFilter?: boolean;
+      },
     },
     RestaurantSwipe: {
       screen: RestaurantSwipeScreen,

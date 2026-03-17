@@ -1,7 +1,7 @@
-import { View, TextInput, TouchableOpacity } from 'react-native';
-import type { JSX } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TextInput, TouchableOpacity, View } from 'react-native';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -10,6 +10,7 @@ interface SearchBarProps {
   onPress?: () => void;
   editable?: boolean;
   noMargin?: boolean;
+  autoFocus?: boolean;
 }
 
 const SearchBar = ({
@@ -19,6 +20,7 @@ const SearchBar = ({
   onPress,
   editable = true,
   noMargin = false,
+  autoFocus = false,
 }: SearchBarProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -40,6 +42,7 @@ const SearchBar = ({
             editable={editable && !onPress}
             pointerEvents={onPress ? 'none' : 'auto'}
             textAlignVertical="center"
+            autoFocus={autoFocus}
           />
 
           <TouchableOpacity className="ml-2" onPress={onFilterPress}>
