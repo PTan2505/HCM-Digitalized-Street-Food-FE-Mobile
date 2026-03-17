@@ -8,11 +8,12 @@ import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { StaticScreenProps } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
+  InteractionManager,
   Text,
   TouchableOpacity,
   View,
@@ -34,10 +35,17 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { autoFocus, openFilter } = route.params ?? {};
   const [keyword, setKeyword] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [filterModalVisible, setFilterModalVisible] = useState(
-    openFilter ?? false
-  );
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+
+  useEffect(() => {
+    if (openFilter) {
+      const task = InteractionManager.runAfterInteractions(() => {
+        setFilterModalVisible(true);
+      });
+      return () => task.cancel();
+    }
+  }, [openFilter]);
 
   const { coords } = useLocationPermission();
   const { stalls, isLoading, error, search, clearError } = useStallSearch();
