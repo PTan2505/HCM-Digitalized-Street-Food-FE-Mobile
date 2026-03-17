@@ -6,6 +6,7 @@ import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
+import { StaticScreenProps } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,11 +24,19 @@ interface FilterButton {
   label: string;
 }
 
-export const SearchScreen = (): JSX.Element => {
+type SearchScreenProps = StaticScreenProps<{
+  autoFocus?: boolean;
+  openFilter?: boolean;
+}>;
+
+export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { t } = useTranslation();
+  const { autoFocus, openFilter } = route.params ?? {};
   const [keyword, setKeyword] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(
+    openFilter ?? false
+  );
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
 
   const { coords } = useLocationPermission();
@@ -182,6 +191,7 @@ export const SearchScreen = (): JSX.Element => {
               onSearch={handleSearch}
               onFilterPress={() => setFilterModalVisible(true)}
               noMargin
+              autoFocus={autoFocus}
             />
           </View>
           <TouchableOpacity className="items-center justify-center">

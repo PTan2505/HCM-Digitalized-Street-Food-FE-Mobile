@@ -226,8 +226,10 @@ export const HomeScreen = (): JSX.Element => {
         <HomeHeader />
 
         <SearchBar
-          onPress={() => navigation.navigate('Search')}
-          onFilterPress={() => navigation.navigate('Search')}
+          onPress={() => navigation.navigate('Search', { autoFocus: true })}
+          onFilterPress={() =>
+            navigation.navigate('Search', { openFilter: true })
+          }
         />
         <BannerCarousel banners={banners} />
 
