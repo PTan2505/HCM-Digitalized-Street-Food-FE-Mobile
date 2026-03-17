@@ -6,9 +6,12 @@ import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
+import { useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps } from '@react-navigation/native';
+import { selectBranchImageMap, selectBranches } from '@slices/branches';
+import { selectUserDietaryPreferences } from '@slices/dietary';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -37,6 +40,27 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const branches = useAppSelector(selectBranches);
+  const branchImageMap = useAppSelector(selectBranchImageMap);
+  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+
+  const filteredBranches = useMemo(() => {
+    if (userDietaryPreferences.length === 0) return branches;
+    const preferenceNames = new Set(
+      userDietaryPreferences.map((p) => p.name.toLowerCase())
+    );
+    return branches.filter(
+      (branch) =>
+        branch.dishes.length === 0 ||
+        branch.dishes.some((dish) =>
+          dish.dietaryPreferenceNames.some((name) =>
+            preferenceNames.has(name.toLowerCase())
+          )
+        )
+    );
+  }, [branches, userDietaryPreferences]);
 
   useEffect(() => {
     if (!openFilter) return;
@@ -83,6 +107,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
   const handleSearch = (text: string): void => {
     setKeyword(text);
+    if (!text.trim() && !activeFilters) {
+      setHasSearched(false);
+      return;
+    }
+    setHasSearched(true);
     triggerSearch(text, activeFilters);
   };
 
@@ -109,6 +138,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const handleFilterApply = (filters: FilterState): void => {
     setActiveFilters(filters);
     setFilterModalVisible(false);
+    setHasSearched(true);
     triggerSearch(keyword, filters);
   };
 
@@ -137,6 +167,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   };
 
   const renderEmptyOrError = (): JSX.Element => {
+    if (!hasSearched) return <View />;
     if (isLoading) {
       return (
         <View className="flex-1 items-center justify-center py-20">
@@ -165,7 +196,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         </View>
       );
     }
-    if (stalls.length === 0 && keyword.length > 0) {
+    if (stalls.length === 0) {
       return (
         <View className="flex-1 items-center justify-center px-6 py-20">
           <Ionicons name="search-outline" size={48} color="#D1D5DB" />
@@ -205,9 +236,14 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         {/* Results List */}
         <View className="flex-1 px-4">
           <FlatList
-            data={stalls}
+            data={hasSearched ? stalls : filteredBranches}
             keyExtractor={(item) => String(item.branchId)}
-            renderItem={({ item }) => <SearchResultCard branch={item} />}
+            renderItem={({ item }) => (
+              <SearchResultCard
+                branch={item}
+                imageUri={branchImageMap[item.branchId]?.[0]}
+              />
+            )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
             ListEmptyComponent={renderEmptyOrError}
