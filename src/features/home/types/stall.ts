@@ -1,5 +1,4 @@
-/** Tier badge — backend format TBD; used for UI display only until decided */
-export type VendorTier = 'diamond' | 'gold' | 'silver' | 'warning';
+export type { VendorTier } from '@custom-types/vendor';
 
 /** Maps to GET /api/Branch/active query params */
 export interface StallSearchParams {

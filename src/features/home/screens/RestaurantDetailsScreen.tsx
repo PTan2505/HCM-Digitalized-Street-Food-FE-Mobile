@@ -16,6 +16,9 @@ import type { ActiveBranch } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps } from '@react-navigation/native';
 import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
+import type { BranchTier } from '@features/reputation/types/generated';
+import { getLowcaAPIUnimplementedEndpoints } from '@features/reputation/api/generated';
+import type { VendorTier } from '@custom-types/vendor';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
@@ -42,6 +45,8 @@ export const RestaurantDetailsScreen = ({
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
 
+  const [branchTier, setBranchTier] = useState<BranchTier | null>(null);
+
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
   const { feedbacks, averageRating, totalCount } = useBranchFeedback(
     branch.branchId
@@ -55,6 +60,13 @@ export const RestaurantDetailsScreen = ({
   useEffect(() => {
     dispatch(fetchBranchAllImages(branch.branchId));
   }, [branch.branchId, dispatch]);
+
+  useEffect(() => {
+    const { getBranchTier } = getLowcaAPIUnimplementedEndpoints();
+    getBranchTier(String(branch.branchId))
+      .then(setBranchTier)
+      .catch(() => {});
+  }, [branch.branchId]);
 
   useEffect(() => {
     if (tab) setActiveTab(tab);
@@ -79,6 +91,8 @@ export const RestaurantDetailsScreen = ({
     hours: 'Đang cập nhật',
     isOpen,
     schedules,
+    tier: branchTier?.tier as VendorTier | undefined,
+    isTierPaused: branchTier?.isBombingShieldActive,
   };
 
   const reviews: Review[] = feedbacks.map((f) => ({

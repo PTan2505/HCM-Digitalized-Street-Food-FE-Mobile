@@ -325,7 +325,7 @@ export const HomeScreen = (): JSX.Element => {
           renderItem={({ item }) => {
             const displayName = multiBranchSet.has(item.vendorId)
               ? `${item.vendorName ?? item.name} - ${item.name}`
-              : item.name;
+              : item.vendorName;
             return (
               <View className="w-[49%]">
                 <PlaceCard

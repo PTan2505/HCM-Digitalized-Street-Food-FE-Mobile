@@ -1,3 +1,5 @@
+import type { VendorTier } from '@custom-types/vendor';
+
 export interface WorkSchedule {
   workScheduleId: number;
   branchId: number;
@@ -25,7 +27,7 @@ export interface Dish {
 export interface ActiveBranch {
   branchId: number;
   vendorId: number;
-  vendorName: string | null;
+  vendorName: string;
   managerId: number;
   name: string;
   phoneNumber: string;
@@ -43,6 +45,8 @@ export interface ActiveBranch {
   /** Populated when Lat/Long params are passed to the search endpoint */
   distanceKm: number | null;
   dishes: Dish[];
+  /** Optional tier from GET /api/Branch/:id/tier — not included in search response */
+  tier?: VendorTier;
 }
 
 export interface PaginatedBranches {

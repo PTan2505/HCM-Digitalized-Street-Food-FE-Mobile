@@ -1,31 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { WorkSchedule } from '@features/home/types/branch';
 import type { VendorTier } from '@features/home/types/stall';
+import { TierBadge } from '@components/TierBadge';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
-
-const TIER_LABEL: Record<VendorTier, string> = {
-  diamond: '💎 Diamond',
-  gold: '🥇 Gold',
-  silver: '🥈 Silver',
-  warning: '⚠️ Warning',
-};
-
-const TIER_BG: Record<VendorTier, string> = {
-  diamond: '#DBEAFE',
-  gold: '#FEF3C7',
-  silver: '#F3F4F6',
-  warning: '#FEE2E2',
-};
-
-const TIER_TEXT: Record<VendorTier, string> = {
-  diamond: '#1D4ED8',
-  gold: '#92400E',
-  silver: '#374151',
-  warning: '#991B1B',
-};
 
 // Mon–Sat then Sun
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -63,6 +43,7 @@ export interface RestaurantInfoData {
   hours: string;
   isOpen: boolean;
   tier?: VendorTier;
+  isTierPaused?: boolean;
   schedules?: WorkSchedule[];
 }
 
@@ -116,19 +97,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
         <View className="rounded-2xl bg-[#F1FAEA] px-2 py-1">
           <Text className="text-xs text-gray-600">{restaurant.cuisine}</Text>
         </View>
-        {restaurant.tier && (
-          <View
-            className="rounded-2xl px-2 py-1"
-            style={{ backgroundColor: TIER_BG[restaurant.tier] }}
-          >
-            <Text
-              className="text-xs font-semibold"
-              style={{ color: TIER_TEXT[restaurant.tier] }}
-            >
-              {TIER_LABEL[restaurant.tier]}
-            </Text>
-          </View>
-        )}
+        <TierBadge tier={restaurant.tier} paused={restaurant.isTierPaused} />
       </View>
 
       <Text className="mb-4 text-sm leading-5 text-gray-600">

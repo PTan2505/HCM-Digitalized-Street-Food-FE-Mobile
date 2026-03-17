@@ -37,6 +37,7 @@ const SearchResultCard = ({
       comments={0}
       isTopPick={false}
       openStatus={openStatus}
+      tier={branch.tier}
       onPress={onPress}
     />
   );
