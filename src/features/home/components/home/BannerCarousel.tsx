@@ -13,7 +13,7 @@ const BannerCarousel = ({ banners }: BannerCarouselProps): JSX.Element => {
   const progress = useSharedValue<number>(0);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ height: width / 2, overflow: 'hidden' }}>
       <Carousel
         style={{ width, height: width / 2 }}
         data={banners}
