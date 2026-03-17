@@ -17,8 +17,8 @@ The `data` field contains the schema documented per endpoint.
 /**
  * push_marketing = GPS-triggered notification; voucher = direct-claim discount
  */
-export type NearbyCampaignCampaignType = typeof NearbyCampaignCampaignType[keyof typeof NearbyCampaignCampaignType];
-
+export type NearbyCampaignCampaignType =
+  (typeof NearbyCampaignCampaignType)[keyof typeof NearbyCampaignCampaignType];
 
 export const NearbyCampaignCampaignType = {
   push_marketing: 'push_marketing',

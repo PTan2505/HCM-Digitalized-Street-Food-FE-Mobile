@@ -36,7 +36,6 @@ export const PlaceCard = ({
   branch,
   displayName,
   imageUri,
-  userCoords,
   onPress,
   tier,
   isFlashBoosted,

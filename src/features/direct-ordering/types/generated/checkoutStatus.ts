@@ -17,8 +17,8 @@ The `data` field contains the schema documented per endpoint.
 /**
  * Status of the checkout / escrow flow
  */
-export type CheckoutStatus = typeof CheckoutStatus[keyof typeof CheckoutStatus];
-
+export type CheckoutStatus =
+  (typeof CheckoutStatus)[keyof typeof CheckoutStatus];
 
 export const CheckoutStatus = {
   pending: 'pending',

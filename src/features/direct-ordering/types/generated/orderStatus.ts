@@ -17,8 +17,7 @@ The `data` field contains the schema documented per endpoint.
 /**
  * Lifecycle status of a direct (solo) order
  */
-export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
-
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
 export const OrderStatus = {
   pending: 'pending',

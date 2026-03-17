@@ -15,6 +15,6 @@ The `data` field contains the schema documented per endpoint.
  */
 
 export type GetNearbyCampaignsParams = {
-lat: number;
-lng: number;
+  lat: number;
+  lng: number;
 };

@@ -6,7 +6,7 @@ export const useNearbyBranches = (
   lat: number,
   lng: number,
   excludeBranchId: number
-) => {
+): { branches: ActiveBranch[]; isLoading: boolean } => {
   const [branches, setBranches] = useState<ActiveBranch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,7 +28,7 @@ export const useNearbyBranches = (
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => {
+    return (): void => {
       cancelled = true;
     };
   }, [lat, lng, excludeBranchId]);

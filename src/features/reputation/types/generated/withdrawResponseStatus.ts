@@ -14,8 +14,8 @@ The `data` field contains the schema documented per endpoint.
  * OpenAPI spec version: 1.0.0
  */
 
-export type WithdrawResponseStatus = typeof WithdrawResponseStatus[keyof typeof WithdrawResponseStatus];
-
+export type WithdrawResponseStatus =
+  (typeof WithdrawResponseStatus)[keyof typeof WithdrawResponseStatus];
 
 export const WithdrawResponseStatus = {
   pending: 'pending',

@@ -18,100 +18,138 @@ import type {
   ClaimGhostPinRequest,
   CreateGhostPinRequest,
   GhostPin,
-  RejectGhostPinRequest
+  RejectGhostPinRequest,
 } from '../types/generated';
 
 import { orvalMutator } from '../../../lib/api/orvalMutator';
 export const getLowcaAPIUnimplementedEndpoints = () => {
-/**
- * Ghost Pins are hidden from standard search — visible only to the creator and moderators on the discovery map layer.
- * @summary Create an unverified Ghost Pin for an unknown stall
- */
-const createGhostPin = (
-    createGhostPinRequest: CreateGhostPinRequest,
- ) => {
-      return orvalMutator<GhostPin>(
-      {url: `/api/GhostPin`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createGhostPinRequest
-    },
-      );
-    }
-  
-/**
- * @summary Get Ghost Pin details
- */
-const getGhostPin = (
+  /**
+   * Ghost Pins are hidden from standard search — visible only to the creator and moderators on the discovery map layer.
+   * @summary Create an unverified Ghost Pin for an unknown stall
+   */
+  const createGhostPin = (createGhostPinRequest: CreateGhostPinRequest) => {
+    return orvalMutator<GhostPin>({
+      url: `/api/GhostPin`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: createGhostPinRequest,
+    });
+  };
+
+  /**
+   * @summary Get Ghost Pin details
+   */
+  const getGhostPin = (ghostPinId: string) => {
+    return orvalMutator<GhostPin>({
+      url: `/api/GhostPin/${ghostPinId}`,
+      method: 'GET',
+    });
+  };
+
+  /**
+   * @summary Moderator approves a Ghost Pin for the verification pipeline
+   */
+  const approveGhostPin = (ghostPinId: string) => {
+    return orvalMutator<GhostPin>({
+      url: `/api/GhostPin/${ghostPinId}/approve`,
+      method: 'POST',
+    });
+  };
+
+  /**
+   * @summary Moderator rejects a Ghost Pin
+   */
+  const rejectGhostPin = (
     ghostPinId: string,
- ) => {
-      return orvalMutator<GhostPin>(
-      {url: `/api/GhostPin/${ghostPinId}`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Moderator approves a Ghost Pin for the verification pipeline
- */
-const approveGhostPin = (
+    rejectGhostPinRequest: RejectGhostPinRequest
+  ) => {
+    return orvalMutator<GhostPin>({
+      url: `/api/GhostPin/${ghostPinId}/reject`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: rejectGhostPinRequest,
+    });
+  };
+
+  /**
+   * @summary Vendor claims ownership of an approved Ghost Pin
+   */
+  const claimGhostPin = (
     ghostPinId: string,
- ) => {
-      return orvalMutator<GhostPin>(
-      {url: `/api/GhostPin/${ghostPinId}/approve`, method: 'POST'
-    },
-      );
-    }
-  
-/**
- * @summary Moderator rejects a Ghost Pin
- */
-const rejectGhostPin = (
+    claimGhostPinRequest: ClaimGhostPinRequest
+  ) => {
+    return orvalMutator<GhostPin>({
+      url: `/api/GhostPin/${ghostPinId}/claim`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: claimGhostPinRequest,
+    });
+  };
+
+  /**
+   * Requires moderator GPS within 10 metres of the stall. On success sets `isVerified = true` on the linked Branch, unlocking full menu/schedule features.
+   * @summary Moderator completes physical on-site audit
+   */
+  const completeAudit = (
     ghostPinId: string,
-    rejectGhostPinRequest: RejectGhostPinRequest,
- ) => {
-      return orvalMutator<GhostPin>(
-      {url: `/api/GhostPin/${ghostPinId}/reject`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: rejectGhostPinRequest
-    },
-      );
-    }
-  
-/**
- * @summary Vendor claims ownership of an approved Ghost Pin
- */
-const claimGhostPin = (
-    ghostPinId: string,
-    claimGhostPinRequest: ClaimGhostPinRequest,
- ) => {
-      return orvalMutator<GhostPin>(
-      {url: `/api/GhostPin/${ghostPinId}/claim`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: claimGhostPinRequest
-    },
-      );
-    }
-  
-/**
- * Requires moderator GPS within 10 metres of the stall. On success sets `isVerified = true` on the linked Branch, unlocking full menu/schedule features.
- * @summary Moderator completes physical on-site audit
- */
-const completeAudit = (
-    ghostPinId: string,
-    auditGhostPinRequest: AuditGhostPinRequest,
- ) => {
-      return orvalMutator<GhostPin>(
-      {url: `/api/GhostPin/${ghostPinId}/audit`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: auditGhostPinRequest
-    },
-      );
-    }
-  
-return {createGhostPin,getGhostPin,approveGhostPin,rejectGhostPin,claimGhostPin,completeAudit}};
-export type CreateGhostPinResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['createGhostPin']>>>
-export type GetGhostPinResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getGhostPin']>>>
-export type ApproveGhostPinResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['approveGhostPin']>>>
-export type RejectGhostPinResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['rejectGhostPin']>>>
-export type ClaimGhostPinResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['claimGhostPin']>>>
-export type CompleteAuditResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['completeAudit']>>>
+    auditGhostPinRequest: AuditGhostPinRequest
+  ) => {
+    return orvalMutator<GhostPin>({
+      url: `/api/GhostPin/${ghostPinId}/audit`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: auditGhostPinRequest,
+    });
+  };
+
+  return {
+    createGhostPin,
+    getGhostPin,
+    approveGhostPin,
+    rejectGhostPin,
+    claimGhostPin,
+    completeAudit,
+  };
+};
+export type CreateGhostPinResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['createGhostPin']
+    >
+  >
+>;
+export type GetGhostPinResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getGhostPin']
+    >
+  >
+>;
+export type ApproveGhostPinResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['approveGhostPin']
+    >
+  >
+>;
+export type RejectGhostPinResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['rejectGhostPin']
+    >
+  >
+>;
+export type ClaimGhostPinResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['claimGhostPin']
+    >
+  >
+>;
+export type CompleteAuditResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['completeAudit']
+    >
+  >
+>;

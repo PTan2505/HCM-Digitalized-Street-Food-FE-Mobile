@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import validator from 'validator';
 import { z } from 'zod';
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getRegisterSchema = (t: TFunction) =>
   z
     .object({
@@ -14,7 +15,7 @@ export const getRegisterSchema = (t: TFunction) =>
       email: z
         .string()
         .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_EMAIL))
-        .refine((value) => validator.isEmail(value), {
+        .refine((value): boolean => validator.isEmail(value), {
           message: t(VALIDATE_ERROR_MESSAGES.INVALID_EMAIL),
         }),
       password: z
@@ -38,25 +39,26 @@ export const getRegisterSchema = (t: TFunction) =>
       phoneNumber: z
         .string()
         .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_PHONE_NUMBER))
-        .refine((value) => validator.isMobilePhone(value, 'vi-VN'), {
+        .refine((value): boolean => validator.isMobilePhone(value, 'vi-VN'), {
           message: t(VALIDATE_ERROR_MESSAGES.INVALID_PHONE_NUMBER),
         }),
       confirmPassword: z
         .string()
         .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_CONFIRM_PASSWORD)),
     })
-    .refine((data) => data.password === data.confirmPassword, {
+    .refine((data): boolean => data.password === data.confirmPassword, {
       message: t(VALIDATE_ERROR_MESSAGES.PASSWORD_MISMATCH),
       path: ['confirmPassword'],
     });
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getVerifyRegistrationSchema = (t: TFunction) =>
   z.object({
     // username: z.string().nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_USERNAME)),
     email: z
       .string()
       .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_EMAIL))
-      .refine((value) => validator.isEmail(value), {
+      .refine((value): boolean => validator.isEmail(value), {
         message: t(VALIDATE_ERROR_MESSAGES.INVALID_EMAIL),
       }),
     // password: z
@@ -66,17 +68,18 @@ export const getVerifyRegistrationSchema = (t: TFunction) =>
     otp: z
       .string()
       .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_OTP))
-      .refine((value) => /^\d{6}$/.test(value), {
+      .refine((value): boolean => /^\d{6}$/.test(value), {
         message: t(VALIDATE_ERROR_MESSAGES.INVALID_OTP),
       }),
   });
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getResendRegistrationOTPSchema = (t: TFunction) =>
   z.object({
     email: z
       .string()
       .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_EMAIL))
-      .refine((value) => validator.isEmail(value), {
+      .refine((value): boolean => validator.isEmail(value), {
         message: t(VALIDATE_ERROR_MESSAGES.INVALID_EMAIL),
       }),
     username: z.string().nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_USERNAME)),

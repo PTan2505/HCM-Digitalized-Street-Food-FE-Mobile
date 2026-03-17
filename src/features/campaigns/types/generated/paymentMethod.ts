@@ -17,8 +17,7 @@ The `data` field contains the schema documented per endpoint.
 /**
  * Supported payment methods for group checkout
  */
-export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
-
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 
 export const PaymentMethod = {
   wallet: 'wallet',

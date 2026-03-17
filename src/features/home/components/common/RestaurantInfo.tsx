@@ -30,7 +30,7 @@ const WEEKDAY_SHORT: Record<number, string> = {
   6: 'T7',
 };
 
-const formatTime = (t: string) => t.slice(0, 5);
+const formatTime = (t: string): string => t.slice(0, 5);
 
 export interface RestaurantInfoData {
   name: string;

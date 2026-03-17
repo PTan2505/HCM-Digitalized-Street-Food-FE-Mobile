@@ -23,11 +23,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-interface FilterButton {
-  id: string;
-  label: string;
-}
-
 type SearchScreenProps = StaticScreenProps<{
   autoFocus?: boolean;
   openFilter?: boolean;
@@ -37,7 +32,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { t } = useTranslation();
   const { autoFocus, openFilter } = route.params ?? {};
   const [keyword, setKeyword] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -115,55 +109,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     triggerSearch(text, activeFilters);
   };
 
-  const handleFilterPress = (filterId: string): void => {
-    setSelectedFilter(filterId);
-    if (filterId === 'all') {
-      triggerSearch(keyword, activeFilters);
-    } else {
-      const quickFilters: FilterState = {
-        spaceTypes: [],
-        dishTypes: [],
-        priceRange: [],
-        distance: 5,
-        hasParking: false,
-        openNow: false,
-        amenities: [],
-        tasteTags: ['spicy', 'sweet'].includes(filterId) ? [filterId] : [],
-        dietaryTags: filterId === 'vegetarian' ? ['vegetarian'] : [],
-      };
-      triggerSearch(keyword, quickFilters);
-    }
-  };
-
   const handleFilterApply = (filters: FilterState): void => {
     setActiveFilters(filters);
     setFilterModalVisible(false);
     setHasSearched(true);
     triggerSearch(keyword, filters);
-  };
-
-  const renderFilterButton = ({
-    item,
-  }: {
-    item: FilterButton;
-  }): JSX.Element => {
-    const isSelected = item.id === selectedFilter;
-    return (
-      <TouchableOpacity
-        onPress={() => handleFilterPress(item.id)}
-        className={`mr-2 flex-row items-center rounded-[50px] px-4 py-2 ${
-          isSelected ? 'bg-[#06AA4C]' : 'border border-gray-300 bg-white'
-        }`}
-      >
-        <Text
-          className={`text-sm font-medium ${
-            isSelected ? 'text-white' : 'text-gray-700'
-          }`}
-        >
-          {item.label}
-        </Text>
-      </TouchableOpacity>
-    );
   };
 
   const renderEmptyOrError = (): JSX.Element => {

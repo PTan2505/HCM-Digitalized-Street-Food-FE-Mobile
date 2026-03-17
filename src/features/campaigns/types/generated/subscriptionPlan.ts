@@ -14,8 +14,8 @@ The `data` field contains the schema documented per endpoint.
  * OpenAPI spec version: 1.0.0
  */
 
-export type SubscriptionPlan = typeof SubscriptionPlan[keyof typeof SubscriptionPlan];
-
+export type SubscriptionPlan =
+  (typeof SubscriptionPlan)[keyof typeof SubscriptionPlan];
 
 export const SubscriptionPlan = {
   monthly: 'monthly',

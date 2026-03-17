@@ -17,8 +17,8 @@ The `data` field contains the schema documented per endpoint.
 /**
  * Lifecycle status of a Ghost Pin
  */
-export type GhostPinStatus = typeof GhostPinStatus[keyof typeof GhostPinStatus];
-
+export type GhostPinStatus =
+  (typeof GhostPinStatus)[keyof typeof GhostPinStatus];
 
 export const GhostPinStatus = {
   pending: 'pending',

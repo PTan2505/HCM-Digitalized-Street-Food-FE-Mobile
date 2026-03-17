@@ -15,6 +15,6 @@ The `data` field contains the schema documented per endpoint.
  */
 
 export type GetMyOrdersParams = {
-pageNumber?: number;
-pageSize?: number;
+  pageNumber?: number;
+  pageSize?: number;
 };

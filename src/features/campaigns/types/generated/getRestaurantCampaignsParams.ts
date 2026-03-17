@@ -15,12 +15,12 @@ The `data` field contains the schema documented per endpoint.
  */
 
 export type GetRestaurantCampaignsParams = {
-/**
- * User latitude for proximity filtering
- */
-lat?: number;
-/**
- * User longitude for proximity filtering
- */
-lng?: number;
+  /**
+   * User latitude for proximity filtering
+   */
+  lat?: number;
+  /**
+   * User longitude for proximity filtering
+   */
+  lng?: number;
 };

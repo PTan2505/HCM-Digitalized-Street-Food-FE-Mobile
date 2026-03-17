@@ -19,82 +19,115 @@ import type {
   GetRestaurantCampaignsParams,
   NearbyCampaign,
   RestaurantCampaign,
-  SystemCampaign
+  SystemCampaign,
 } from '../types/generated';
 
 import { orvalMutator } from '../../../lib/api/orvalMutator';
 export const getLowcaAPIUnimplementedEndpoints = () => {
-/**
- * Only available to Silver tier or higher vendors. Diamond vendors are auto-enrolled.
- * @summary List active system (platform-wide) campaigns
- */
-const getSystemCampaigns = (
-    
- ) => {
-      return orvalMutator<SystemCampaign[]>(
-      {url: `/api/Campaign/system`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Opt in to a system campaign
- */
-const joinSystemCampaign = (
-    campaignId: string,
- ) => {
-      return orvalMutator<SystemCampaign>(
-      {url: `/api/Campaign/system/${campaignId}/join`, method: 'POST'
-    },
-      );
-    }
-  
-/**
- * Returns active voucher campaigns from verified vendors near the user (or all if no location provided).
- * @summary List available restaurant (vendor) voucher campaigns
- */
-const getRestaurantCampaigns = (
-    params?: GetRestaurantCampaignsParams,
- ) => {
-      return orvalMutator<RestaurantCampaign[]>(
-      {url: `/api/Campaign/restaurant`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * Requires active subscription and verified vendor status.
- * @summary Vendor creates a direct-claim voucher campaign
- */
-const createRestaurantCampaign = (
-    createRestaurantCampaignRequest: CreateRestaurantCampaignRequest,
- ) => {
-      return orvalMutator<RestaurantCampaign>(
-      {url: `/api/Campaign/restaurant`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createRestaurantCampaignRequest
-    },
-      );
-    }
-  
-/**
- * Returns paid push campaigns from vendors within range of the user's current location.
- * @summary Get GPS-triggered nearby push campaigns
- */
-const getNearbyCampaigns = (
-    params: GetNearbyCampaignsParams,
- ) => {
-      return orvalMutator<NearbyCampaign[]>(
-      {url: `/api/Campaign/nearby`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-return {getSystemCampaigns,joinSystemCampaign,getRestaurantCampaigns,createRestaurantCampaign,getNearbyCampaigns}};
-export type GetSystemCampaignsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getSystemCampaigns']>>>
-export type JoinSystemCampaignResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['joinSystemCampaign']>>>
-export type GetRestaurantCampaignsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getRestaurantCampaigns']>>>
-export type CreateRestaurantCampaignResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['createRestaurantCampaign']>>>
-export type GetNearbyCampaignsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getNearbyCampaigns']>>>
+  /**
+   * Only available to Silver tier or higher vendors. Diamond vendors are auto-enrolled.
+   * @summary List active system (platform-wide) campaigns
+   */
+  const getSystemCampaigns = () => {
+    return orvalMutator<SystemCampaign[]>({
+      url: `/api/Campaign/system`,
+      method: 'GET',
+    });
+  };
+
+  /**
+   * @summary Opt in to a system campaign
+   */
+  const joinSystemCampaign = (campaignId: string) => {
+    return orvalMutator<SystemCampaign>({
+      url: `/api/Campaign/system/${campaignId}/join`,
+      method: 'POST',
+    });
+  };
+
+  /**
+   * Returns active voucher campaigns from verified vendors near the user (or all if no location provided).
+   * @summary List available restaurant (vendor) voucher campaigns
+   */
+  const getRestaurantCampaigns = (params?: GetRestaurantCampaignsParams) => {
+    return orvalMutator<RestaurantCampaign[]>({
+      url: `/api/Campaign/restaurant`,
+      method: 'GET',
+      params,
+    });
+  };
+
+  /**
+   * Requires active subscription and verified vendor status.
+   * @summary Vendor creates a direct-claim voucher campaign
+   */
+  const createRestaurantCampaign = (
+    createRestaurantCampaignRequest: CreateRestaurantCampaignRequest
+  ) => {
+    return orvalMutator<RestaurantCampaign>({
+      url: `/api/Campaign/restaurant`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: createRestaurantCampaignRequest,
+    });
+  };
+
+  /**
+   * Returns paid push campaigns from vendors within range of the user's current location.
+   * @summary Get GPS-triggered nearby push campaigns
+   */
+  const getNearbyCampaigns = (params: GetNearbyCampaignsParams) => {
+    return orvalMutator<NearbyCampaign[]>({
+      url: `/api/Campaign/nearby`,
+      method: 'GET',
+      params,
+    });
+  };
+
+  return {
+    getSystemCampaigns,
+    joinSystemCampaign,
+    getRestaurantCampaigns,
+    createRestaurantCampaign,
+    getNearbyCampaigns,
+  };
+};
+export type GetSystemCampaignsResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getSystemCampaigns']
+    >
+  >
+>;
+export type JoinSystemCampaignResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['joinSystemCampaign']
+    >
+  >
+>;
+export type GetRestaurantCampaignsResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<
+        typeof getLowcaAPIUnimplementedEndpoints
+      >['getRestaurantCampaigns']
+    >
+  >
+>;
+export type CreateRestaurantCampaignResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<
+        typeof getLowcaAPIUnimplementedEndpoints
+      >['createRestaurantCampaign']
+    >
+  >
+>;
+export type GetNearbyCampaignsResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getNearbyCampaigns']
+    >
+  >
+>;

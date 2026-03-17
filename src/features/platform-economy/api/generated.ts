@@ -20,83 +20,112 @@ import type {
   SubscriptionStatus,
   WalletBalance,
   WithdrawRequest,
-  WithdrawResponse
+  WithdrawResponse,
 } from '../types/generated';
 
 import { orvalMutator } from '../../../lib/api/orvalMutator';
 export const getLowcaAPIUnimplementedEndpoints = () => {
-/**
- * @summary Get the current vendor subscription status
- */
-const getSubscriptionStatus = (
-    
- ) => {
-      return orvalMutator<SubscriptionStatus>(
-      {url: `/api/Subscription/status`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * Active subscription required for search visibility and Pro features. 403 is returned on protected endpoints when subscription is inactive.
- * @summary Subscribe or renew a vendor subscription
- */
-const subscribe = (
-    subscribeRequest: SubscribeRequest,
- ) => {
-      return orvalMutator<SubscriptionStatus>(
-      {url: `/api/Subscription`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: subscribeRequest
-    },
-      );
-    }
-  
-/**
- * Pins the branch to the top 3 search results for nearby users (within 2 km) matching the branch's filters for the specified duration.
- * @summary Purchase a Flash Boost ad placement
- */
-const purchaseFlashBoost = (
-    flashBoostRequest: FlashBoostRequest,
- ) => {
-      return orvalMutator<FlashBoostStatus>(
-      {url: `/api/FlashBoost`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: flashBoostRequest
-    },
-      );
-    }
-  
-/**
- * @summary Get vendor wallet balance
- */
-const getWalletBalance = (
-    
- ) => {
-      return orvalMutator<WalletBalance>(
-      {url: `/api/Wallet/balance`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * Platform charges a flat 5,000 VND withdrawal fee.
- * @summary Withdraw funds to vendor bank account
- */
-const withdrawFromWallet = (
-    withdrawRequest: WithdrawRequest,
- ) => {
-      return orvalMutator<WithdrawResponse>(
-      {url: `/api/Wallet/withdraw`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: withdrawRequest
-    },
-      );
-    }
-  
-return {getSubscriptionStatus,subscribe,purchaseFlashBoost,getWalletBalance,withdrawFromWallet}};
-export type GetSubscriptionStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getSubscriptionStatus']>>>
-export type SubscribeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['subscribe']>>>
-export type PurchaseFlashBoostResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['purchaseFlashBoost']>>>
-export type GetWalletBalanceResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getWalletBalance']>>>
-export type WithdrawFromWalletResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['withdrawFromWallet']>>>
+  /**
+   * @summary Get the current vendor subscription status
+   */
+  const getSubscriptionStatus = () => {
+    return orvalMutator<SubscriptionStatus>({
+      url: `/api/Subscription/status`,
+      method: 'GET',
+    });
+  };
+
+  /**
+   * Active subscription required for search visibility and Pro features. 403 is returned on protected endpoints when subscription is inactive.
+   * @summary Subscribe or renew a vendor subscription
+   */
+  const subscribe = (subscribeRequest: SubscribeRequest) => {
+    return orvalMutator<SubscriptionStatus>({
+      url: `/api/Subscription`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: subscribeRequest,
+    });
+  };
+
+  /**
+   * Pins the branch to the top 3 search results for nearby users (within 2 km) matching the branch's filters for the specified duration.
+   * @summary Purchase a Flash Boost ad placement
+   */
+  const purchaseFlashBoost = (flashBoostRequest: FlashBoostRequest) => {
+    return orvalMutator<FlashBoostStatus>({
+      url: `/api/FlashBoost`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: flashBoostRequest,
+    });
+  };
+
+  /**
+   * @summary Get vendor wallet balance
+   */
+  const getWalletBalance = () => {
+    return orvalMutator<WalletBalance>({
+      url: `/api/Wallet/balance`,
+      method: 'GET',
+    });
+  };
+
+  /**
+   * Platform charges a flat 5,000 VND withdrawal fee.
+   * @summary Withdraw funds to vendor bank account
+   */
+  const withdrawFromWallet = (withdrawRequest: WithdrawRequest) => {
+    return orvalMutator<WithdrawResponse>({
+      url: `/api/Wallet/withdraw`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: withdrawRequest,
+    });
+  };
+
+  return {
+    getSubscriptionStatus,
+    subscribe,
+    purchaseFlashBoost,
+    getWalletBalance,
+    withdrawFromWallet,
+  };
+};
+export type GetSubscriptionStatusResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<
+        typeof getLowcaAPIUnimplementedEndpoints
+      >['getSubscriptionStatus']
+    >
+  >
+>;
+export type SubscribeResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['subscribe']
+    >
+  >
+>;
+export type PurchaseFlashBoostResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['purchaseFlashBoost']
+    >
+  >
+>;
+export type GetWalletBalanceResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getWalletBalance']
+    >
+  >
+>;
+export type WithdrawFromWalletResult = NonNullable<
+  Awaited<
+    ReturnType<
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['withdrawFromWallet']
+    >
+  >
+>;

@@ -17,8 +17,8 @@ The `data` field contains the schema documented per endpoint.
 /**
  * Vendor tier derived from the last 20 reviews. TierWeight: diamond=1.5, gold/silver=1.0, warning=0.5
  */
-export type VendorTierLevel = typeof VendorTierLevel[keyof typeof VendorTierLevel];
-
+export type VendorTierLevel =
+  (typeof VendorTierLevel)[keyof typeof VendorTierLevel];
 
 export const VendorTierLevel = {
   diamond: 'diamond',

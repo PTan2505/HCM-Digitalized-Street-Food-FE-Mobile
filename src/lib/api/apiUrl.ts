@@ -20,12 +20,29 @@ export const apiUrl = {
     getAll: '/tastes',
   },
   feedback: {
-    byBranch: (branchId: number) => `/Feedback/branch/${branchId}`,
-    averageRating: (branchId: number) =>
-      `/Feedback/branch/${branchId}/average-rating`,
-    count: (branchId: number) => `/Feedback/branch/${branchId}/count`,
-    ratingRange: (branchId: number) =>
+    // CRUD
+    submit: '/Feedback',
+    byId: (id: number): string => `/Feedback/${id}`,
+    // Listing
+    byBranch: (branchId: number): string => `/Feedback/branch/${branchId}`,
+    byRatingRange: (branchId: number): string =>
       `/Feedback/branch/${branchId}/rating-range`,
+    byUser: (userId: number): string => `/Feedback/user/${userId}`,
+    myFeedback: '/Feedback/my-feedback',
+    // Stats
+    averageRating: (branchId: number): string =>
+      `/Feedback/branch/${branchId}/average-rating`,
+    count: (branchId: number): string => `/Feedback/branch/${branchId}/count`,
+    // Images
+    images: (feedbackId: number): string => `/Feedback/${feedbackId}/images`,
+    imageById: (feedbackId: number, imageId: number): string =>
+      `/Feedback/${feedbackId}/images/${imageId}`,
+    // Voting
+    vote: (feedbackId: number): string => `/Feedback/${feedbackId}/vote`,
+    // Vendor reply
+    reply: (feedbackId: number): string => `/Feedback/${feedbackId}/reply`,
+    // Velocity
+    velocityCheck: '/Feedback/velocity/check',
   },
   category: {
     getAll: '/categories',
@@ -36,7 +53,7 @@ export const apiUrl = {
   branch: {
     active: '/Branch/active',
     byVendor: '/Branch/vendor',
-    workSchedules: (id: number) => `/Branch/${id}/work-schedules`,
+    workSchedules: (id: number): string => `/Branch/${id}/work-schedules`,
   },
   userDietary: {
     userDietary: '/UserDietary/user',

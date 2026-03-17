@@ -1,8 +1,23 @@
+import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dimensions, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+/** Outer padding applied by the parent tab container */
+const CONTAINER_PADDING = 32;
+const CONTAINER_WIDTH = SCREEN_WIDTH - CONTAINER_PADDING;
+/** Each card is 78% of the container → ~1.28 cards visible at once */
+const CARD_WIDTH = Math.round(CONTAINER_WIDTH * 0.78);
+const CARD_HEIGHT = 290;
 import type { Review } from './ReviewCard';
 import ReviewCard from './ReviewCard';
 
@@ -12,14 +27,35 @@ interface ReviewsTabProps {
   reviews: Review[];
   averageRating: number;
   totalCount: number;
+  canReview: boolean;
+  reviewIneligibilityReason: ReviewIneligibilityReason | null;
+  isEligibilityLoading: boolean;
+  /** Set when the current user already has a review for this branch */
+  ownFeedbackId?: number;
+  onWriteReview: () => void;
+  onEditOwnReview: () => void;
+  onDeleteReview: (feedbackId: number) => void;
 }
 
-const width = Dimensions.get('window').width;
+const INELIGIBILITY_MESSAGES: Record<ReviewIneligibilityReason, string> = {
+  permission_denied: 'Cần quyền truy cập vị trí để đánh giá',
+  too_far: 'Bạn cần ở gần quán hơn để đánh giá',
+  daily_limit_reached: 'Bạn đã đánh giá đủ 3 lần hôm nay',
+  already_reviewed_today: 'Bạn đã đánh giá quán này hôm nay',
+  loading: '',
+};
 
 const ReviewsTab = ({
   reviews,
   averageRating,
   totalCount,
+  canReview,
+  reviewIneligibilityReason,
+  isEligibilityLoading,
+  ownFeedbackId,
+  onWriteReview,
+  onEditOwnReview,
+  onDeleteReview,
 }: ReviewsTabProps): JSX.Element => {
   const { t } = useTranslation();
   const progress = useSharedValue<number>(0);
@@ -115,22 +151,65 @@ const ReviewsTab = ({
         </View>
       </View>
 
+      {/* Write / Edit Review */}
+      <View className="mb-4">
+        {ownFeedbackId != null ? (
+          <TouchableOpacity
+            onPress={onEditOwnReview}
+            className="items-center rounded-xl bg-primary py-3"
+          >
+            <Text className="text-sm font-semibold text-white">
+              Chỉnh sửa đánh giá của bạn
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity
+              onPress={onWriteReview}
+              disabled={!canReview || isEligibilityLoading}
+              className={`items-center rounded-xl py-3 ${canReview && !isEligibilityLoading ? 'bg-primary' : 'bg-gray-200'}`}
+            >
+              {isEligibilityLoading ? (
+                <ActivityIndicator size="small" color="#7AB82D" />
+              ) : (
+                <Text
+                  className={`text-sm font-semibold ${canReview ? 'text-white' : 'text-gray-400'}`}
+                >
+                  Viết đánh giá
+                </Text>
+              )}
+            </TouchableOpacity>
+            {!canReview &&
+              !isEligibilityLoading &&
+              reviewIneligibilityReason &&
+              reviewIneligibilityReason !== 'loading' && (
+                <Text className="mt-1.5 text-center text-xs text-gray-500">
+                  {INELIGIBILITY_MESSAGES[reviewIneligibilityReason]}
+                </Text>
+              )}
+          </>
+        )}
+      </View>
+
       {/* Reviews Carousel */}
-      <View className="mt-2">
+      <View className="mt-2" style={{ overflow: 'visible' }}>
         <Carousel
+          itemWidth={CARD_WIDTH}
           style={{
-            width: width - 32,
-            height: 260,
+            width: CONTAINER_WIDTH,
+            height: CARD_HEIGHT,
+            overflow: 'visible',
           }}
           data={reviews}
           onProgressChange={progress}
-          mode="parallax"
-          modeConfig={{
-            parallaxScrollingScale: 0.95,
-            parallaxScrollingOffset: 30,
-          }}
-          loop={true}
-          renderItem={({ item }) => <ReviewCard review={item} />}
+          loop={false}
+          renderItem={({ item }) => (
+            <ReviewCard
+              review={item}
+              onEdit={onEditOwnReview}
+              onDelete={onDeleteReview}
+            />
+          )}
         />
         <Pagination.Basic
           progress={progress}

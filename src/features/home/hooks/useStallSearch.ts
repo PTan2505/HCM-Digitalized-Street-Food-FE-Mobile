@@ -3,7 +3,13 @@ import { axiosApi } from '@lib/api/apiInstance';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { StallSearchParams } from '@features/home/types/stall';
 
-export const useStallSearch = () => {
+export const useStallSearch = (): {
+  stalls: ActiveBranch[];
+  isLoading: boolean;
+  error: string | null;
+  search: (params: StallSearchParams) => Promise<void>;
+  clearError: () => void;
+} => {
   const [stalls, setStalls] = useState<ActiveBranch[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

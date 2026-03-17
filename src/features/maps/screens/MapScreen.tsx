@@ -27,30 +27,33 @@ export const MapScreen = (): JSX.Element => {
   const navigation = useNavigation();
 
   // ── Marker press handler ──────────────────────────────────
-  const onMarkerPress = useCallback((vendorId: string) => {
-    const vendor = vendors.find((v) => v.vendorId === vendorId);
-    if (!vendor) return;
+  const onMarkerPress = useCallback(
+    (vendorId: string) => {
+      const vendor = vendors.find((v) => v.vendorId === vendorId);
+      if (!vendor) return;
 
-    setSelectedVendorId(vendorId);
-    setIsPeeked(false);
+      setSelectedVendorId(vendorId);
+      setIsPeeked(false);
 
-    /**
-     * Camera Padding / Offset Explanation:
-     * ------------------------------------
-     */
-    cameraRef.current?.setCamera({
-      centerCoordinate: [vendor.long, vendor.lat],
-      zoomLevel: 14,
-      animationDuration: 700,
-      animationMode: 'flyTo',
-      padding: {
-        paddingTop: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
-        paddingBottom: CAMERA_BOTTOM_PADDING,
-      },
-    });
-  }, []);
+      /**
+       * Camera Padding / Offset Explanation:
+       * ------------------------------------
+       */
+      cameraRef.current?.setCamera({
+        centerCoordinate: [vendor.long, vendor.lat],
+        zoomLevel: 14,
+        animationDuration: 700,
+        animationMode: 'flyTo',
+        padding: {
+          paddingTop: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
+          paddingBottom: CAMERA_BOTTOM_PADDING,
+        },
+      });
+    },
+    [vendors]
+  );
 
   // ── Detail card close ─────────────────────────────────────
   const onCloseDetail = useCallback(() => {

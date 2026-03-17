@@ -33,7 +33,7 @@ export const useWorkSchedule = (
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => {
+    return (): void => {
       cancelled = true;
     };
   }, [branchId]);

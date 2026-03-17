@@ -3,7 +3,16 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Feedback } from '@features/home/types/feedback';
 import { axiosApi } from '@lib/api/apiInstance';
 
-export const useBranchFeedback = (branchId: number) => {
+export interface BranchFeedbackResult {
+  feedbacks: Feedback[];
+  averageRating: number;
+  totalCount: number;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => void;
+}
+
+export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [averageRating, setAverageRating] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -31,5 +40,12 @@ export const useBranchFeedback = (branchId: number) => {
     load();
   }, [load]);
 
-  return { feedbacks, averageRating, totalCount, isLoading, error };
+  return {
+    feedbacks,
+    averageRating,
+    totalCount,
+    isLoading,
+    error,
+    refetch: load,
+  };
 };

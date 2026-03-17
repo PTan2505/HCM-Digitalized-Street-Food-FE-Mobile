@@ -14,8 +14,7 @@ The `data` field contains the schema documented per endpoint.
  * OpenAPI spec version: 1.0.0
  */
 
-export type DiscountType = typeof DiscountType[keyof typeof DiscountType];
-
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType];
 
 export const DiscountType = {
   percentage: 'percentage',

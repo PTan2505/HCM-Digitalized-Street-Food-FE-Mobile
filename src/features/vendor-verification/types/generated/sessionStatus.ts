@@ -17,8 +17,7 @@ The `data` field contains the schema documented per endpoint.
 /**
  * Lifecycle status of a group session
  */
-export type SessionStatus = typeof SessionStatus[keyof typeof SessionStatus];
-
+export type SessionStatus = (typeof SessionStatus)[keyof typeof SessionStatus];
 
 export const SessionStatus = {
   lobby: 'lobby',
