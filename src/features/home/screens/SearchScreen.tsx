@@ -39,12 +39,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
 
   useEffect(() => {
-    if (openFilter) {
-      const task = InteractionManager.runAfterInteractions(() => {
-        setFilterModalVisible(true);
-      });
-      return () => task.cancel();
-    }
+    if (!openFilter) return;
+    const task = InteractionManager.runAfterInteractions(() => {
+      setFilterModalVisible(true);
+    });
+    return (): void => task.cancel();
   }, [openFilter]);
 
   const { coords } = useLocationPermission();

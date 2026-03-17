@@ -43,6 +43,10 @@ export const fetchActiveBranches = createAppAsyncThunk(
       lng,
       distance,
       dietaryIds,
+      tasteIds,
+      minPrice,
+      maxPrice,
+      CategoryIds,
     }: {
       page?: number;
       pageSize?: number;
@@ -50,6 +54,10 @@ export const fetchActiveBranches = createAppAsyncThunk(
       lng?: number;
       distance?: number;
       dietaryIds?: number[];
+      tasteIds?: number[];
+      minPrice?: number;
+      maxPrice?: number;
+      CategoryIds?: number;
     },
     { rejectWithValue }
   ) => {
@@ -62,6 +70,10 @@ export const fetchActiveBranches = createAppAsyncThunk(
           Long: lng,
           Distance: distance,
           DietaryIds: dietaryIds?.length ? dietaryIds : undefined,
+          TasteIds: tasteIds?.length ? tasteIds : undefined,
+          MinPrice: minPrice,
+          MaxPrice: maxPrice,
+          CategoryIds: CategoryIds,
         }
       );
 

@@ -20,7 +20,10 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from '@slices/categories';
-import { selectUserDietaryPreferences } from '@slices/dietary';
+import {
+  selectDietaryState,
+  selectUserDietaryPreferences,
+} from '@slices/dietary';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
@@ -60,6 +63,7 @@ export const HomeScreen = (): JSX.Element => {
   const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
   const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+  const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords } = useLocationPermission();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
@@ -161,46 +165,42 @@ export const HomeScreen = (): JSX.Element => {
     void dispatch(fetchCategories());
   }, [dispatch]);
 
-  // Two refs track whether we've done the GPS fetch and the dietary-enriched fetch.
-  // No fetch happens until GPS is available — this handles the race between GPS
-  // permission resolution and dietary prefs loading.
-  const hasFetchedWithGPS = useRef(false);
-  const hasFetchedWithDietary = useRef(false);
+  // Single ref: flips true once the initial page-1 fetch has been dispatched.
+  // We never fire a fetch until dietary status is settled so that FETCH-A
+  // (no dietary) can never race against and overwrite FETCH-B (with dietary).
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     if (!userCoords) return;
-    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
-
-    if (!hasFetchedWithGPS.current) {
-      // First time coords are available — first fetch, always with GPS + dietary if ready
-      hasFetchedWithGPS.current = true;
-      if (dietaryIds.length > 0) hasFetchedWithDietary.current = true;
-      void dispatch(
-        fetchActiveBranches({
-          page: 1,
-          lat: userCoords.latitude,
-          lng: userCoords.longitude,
-          distance: 5,
-          dietaryIds,
-        })
-      );
+    // If the user completed dietary setup, wait until prefs are loaded.
+    // This prevents dispatching a fetch without DietaryIds that could complete
+    // *after* the dietary-enriched fetch and overwrite the empty result.
+    if (
+      user?.dietarySetup &&
+      dietaryStatus !== 'succeeded' &&
+      dietaryStatus !== 'failed'
+    )
       return;
-    }
+    if (hasFetchedRef.current) return;
 
-    // GPS fetch already done but dietary just became available — re-fetch once
-    if (!hasFetchedWithDietary.current && dietaryIds.length > 0) {
-      hasFetchedWithDietary.current = true;
-      void dispatch(
-        fetchActiveBranches({
-          page: 1,
-          lat: userCoords.latitude,
-          lng: userCoords.longitude,
-          distance: 5,
-          dietaryIds,
-        })
-      );
-    }
-  }, [userCoords, dispatch, userDietaryPreferences]);
+    hasFetchedRef.current = true;
+    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
+    void dispatch(
+      fetchActiveBranches({
+        page: 1,
+        lat: userCoords.latitude,
+        lng: userCoords.longitude,
+        distance: 5,
+        dietaryIds,
+      })
+    );
+  }, [
+    userCoords,
+    user?.dietarySetup,
+    dietaryStatus,
+    userDietaryPreferences,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
@@ -213,6 +213,22 @@ export const HomeScreen = (): JSX.Element => {
   }, [user, userStatus, navigation]);
 
   const multiBranchSet = new Set(multiBranchVendorIds);
+
+  const filteredBranches = useMemo(() => {
+    if (userDietaryPreferences.length === 0) return branches;
+    const preferenceNames = new Set(
+      userDietaryPreferences.map((p) => p.name.toLowerCase())
+    );
+    return branches.filter(
+      (branch) =>
+        branch.dishes.length === 0 ||
+        branch.dishes.some((dish) =>
+          dish.dietaryPreferenceNames.some((name) =>
+            preferenceNames.has(name.toLowerCase())
+          )
+        )
+    );
+  }, [branches, userDietaryPreferences]);
 
   // useMemo prevents a new JSX reference on every render, which would cause
   // FlatList to remount the header and re-trigger onEndReached in a loop.
@@ -313,7 +329,7 @@ export const HomeScreen = (): JSX.Element => {
         </>
       ) : (
         <FlatList
-          data={branches}
+          data={filteredBranches}
           keyExtractor={(item) => String(item.branchId)}
           numColumns={2}
           showsVerticalScrollIndicator={false}

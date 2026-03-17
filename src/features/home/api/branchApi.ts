@@ -22,6 +22,10 @@ export class BranchApi {
       Long?: number;
       Distance?: number;
       DietaryIds?: number[];
+      TasteIds?: number[];
+      MinPrice?: number;
+      MaxPrice?: number;
+      CategoryIds?: number;
     }
   ): Promise<PaginatedBranches> {
     const res = await this.apiClient.get<PaginatedBranches>({
