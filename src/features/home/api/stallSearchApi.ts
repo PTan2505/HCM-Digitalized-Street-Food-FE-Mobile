@@ -1,6 +1,9 @@
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
-import type { ActiveBranch, PaginatedBranches } from '@features/home/types/branch';
+import type {
+  ActiveBranch,
+  PaginatedBranches,
+} from '@features/home/types/branch';
 import type { StallSearchParams } from '@features/home/types/stall';
 
 export class StallSearchApi {

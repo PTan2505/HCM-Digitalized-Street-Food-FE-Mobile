@@ -200,4 +200,3 @@ export const CurrentPickDetailsScreen = (): JSX.Element => {
     </SafeAreaView>
   );
 };
-

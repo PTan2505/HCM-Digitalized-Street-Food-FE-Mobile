@@ -17,7 +17,12 @@ export class BranchApi {
   async getActiveBranches(
     pageNumber = 1,
     pageSize = 10,
-    extra?: { Lat?: number; Long?: number; Distance?: number; DietaryIds?: number[] }
+    extra?: {
+      Lat?: number;
+      Long?: number;
+      Distance?: number;
+      DietaryIds?: number[];
+    }
   ): Promise<PaginatedBranches> {
     const res = await this.apiClient.get<PaginatedBranches>({
       url: apiUrl.branch.active,

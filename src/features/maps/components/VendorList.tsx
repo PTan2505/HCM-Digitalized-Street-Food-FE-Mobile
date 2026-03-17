@@ -27,12 +27,13 @@ interface VendorListProps {
 
 export const VendorList = forwardRef<FlatList, VendorListProps>(
   ({ vendors, onViewableItemsChanged, viewabilityConfig }, ref) => {
-    const renderVendorCard = ({
-      item,
-    }: {
-      item: MapVendor;
-    }): JSX.Element => {
-      const images = [item.imageUrl, item.imageUrl, item.imageUrl, item.imageUrl];
+    const renderVendorCard = ({ item }: { item: MapVendor }): JSX.Element => {
+      const images = [
+        item.imageUrl,
+        item.imageUrl,
+        item.imageUrl,
+        item.imageUrl,
+      ];
 
       return (
         <View

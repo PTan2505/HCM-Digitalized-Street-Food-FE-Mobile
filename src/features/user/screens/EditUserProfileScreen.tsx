@@ -9,4 +9,3 @@ export const EditUserInfoScreen = (): JSX.Element => {
     </SafeAreaView>
   );
 };
-

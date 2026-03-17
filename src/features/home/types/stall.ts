@@ -29,4 +29,5 @@ export interface MapVendor {
   isActive: boolean;
   imageUrl: string;
   ward: string;
+  addressDetail?: string;
 }

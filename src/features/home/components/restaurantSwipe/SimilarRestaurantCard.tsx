@@ -5,15 +5,18 @@ import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/common/RestaurantInfo';
 import ActionButtons from './ActionButtons';
+import type { ActiveBranch } from '@features/home/types/branch';
 
 interface SimilarRestaurantCardProps {
   restaurant: RestaurantInfoData;
+  branch?: ActiveBranch;
   images: string[];
   onPress: () => void;
 }
 
 const SimilarRestaurantCard = ({
   restaurant,
+  branch,
   images,
   onPress,
 }: SimilarRestaurantCardProps): JSX.Element => {
@@ -27,7 +30,9 @@ const SimilarRestaurantCard = ({
 
           <View className="overflow-hidden rounded-b-3xl bg-white">
             <RestaurantInfo restaurant={restaurant} />
-            <ActionButtons />
+            {branch && (
+              <ActionButtons branch={branch} displayName={restaurant.name} />
+            )}
           </View>
         </View>
       </View>

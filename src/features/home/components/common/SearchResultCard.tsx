@@ -16,11 +16,7 @@ const SearchResultCard = ({
     branch.isActive ? branch.branchId : null
   );
 
-  const openStatus = isLoading
-    ? undefined
-    : isOpen
-      ? 'open'
-      : 'closed';
+  const openStatus = isLoading ? undefined : isOpen ? 'open' : 'closed';
 
   return (
     <CurrentPickCard
@@ -28,9 +24,7 @@ const SearchResultCard = ({
       name={branch.name}
       rating={branch.avgRating}
       distance={
-        branch.distanceKm != null
-          ? `${branch.distanceKm.toFixed(1)} km`
-          : '-'
+        branch.distanceKm != null ? `${branch.distanceKm.toFixed(1)} km` : '-'
       }
       priceRange={
         branch.dishes[0]?.price != null
@@ -42,7 +36,7 @@ const SearchResultCard = ({
       likes={0}
       comments={0}
       isTopPick={false}
-      openStatus={openStatus as 'open' | 'closed' | undefined}
+      openStatus={openStatus}
       onPress={onPress}
     />
   );

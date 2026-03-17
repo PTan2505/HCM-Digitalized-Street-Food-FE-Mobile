@@ -1,5 +1,5 @@
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import MOCK_VENDORS from '@features/maps/constants/mockData';
+import type { MapVendor } from '@features/home/types/stall';
 import React, { JSX, useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import Animated, {
@@ -13,10 +13,8 @@ import Animated, {
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-type Vendor = (typeof MOCK_VENDORS)[0];
-
 interface DetailCardProps {
-  vendor: Vendor;
+  vendor: MapVendor;
   /** true = only peek bar visible; false = full card */
   isPeeked: boolean;
   onClose: () => void;

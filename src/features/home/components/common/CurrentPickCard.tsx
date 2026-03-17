@@ -112,7 +112,9 @@ const CurrentPickCard = ({
               <Text
                 className={`text-[10px] font-semibold ${openStatus === 'open' ? 'text-[#06AA4C]' : 'text-[#6B7280]'}`}
               >
-                {openStatus === 'open' ? t('actions.open') : t('actions.closed')}
+                {openStatus === 'open'
+                  ? t('actions.open')
+                  : t('actions.closed')}
               </Text>
             </View>
           )}

@@ -92,4 +92,3 @@ export const CurrentPicksScreen = (): JSX.Element => {
     </GestureHandlerRootView>
   );
 };
-

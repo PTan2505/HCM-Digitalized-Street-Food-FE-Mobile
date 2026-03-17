@@ -178,7 +178,9 @@ const tierToPrice = (tierId: string): string => {
 };
 
 // ── GeoJSON FeatureCollection Builder ──
-const buildVendorGeoJSON = (vendors: MapVendor[]): GeoJSON.FeatureCollection => ({
+const buildVendorGeoJSON = (
+  vendors: MapVendor[]
+): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
   features: vendors.map((v) => ({
     type: 'Feature' as const,

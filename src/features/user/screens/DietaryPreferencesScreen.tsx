@@ -89,4 +89,3 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
     </SafeAreaView>
   );
 };
-
