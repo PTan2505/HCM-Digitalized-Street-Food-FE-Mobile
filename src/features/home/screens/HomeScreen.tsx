@@ -20,16 +20,19 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from '@slices/categories';
+import { selectUserDietaryPreferences } from '@slices/dietary';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {
@@ -37,18 +40,14 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import CategoryCard from '../components/common/CategoryCard';
-import FilterModal, {
-  type FilterState,
-} from '../components/common/FilterModal';
 import SearchBar from '../components/common/SearchBar';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
 
-const HomeScreen = (): JSX.Element => {
+export const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
   const categories = useAppSelector(selectCategories);
@@ -60,14 +59,10 @@ const HomeScreen = (): JSX.Element => {
   const branchesHasNext = useAppSelector(selectBranchesHasNext);
   const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
   const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
+  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const { coords: userCoords } = useLocationPermission();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-
-  const handleFilterApply = (filters: FilterState): void => {
-    console.log('Applied filters:', filters);
-    // TODO: Apply filters to the branch list
-  };
 
   // useRef gives an immediate lock that prevents double-fires from onEndReached
   // before Redux has time to flip loadingMore / status in state.
@@ -102,7 +97,15 @@ const HomeScreen = (): JSX.Element => {
     canTriggerNextLoad.current = false;
     currentPageRef.current = nextPage;
 
-    dispatch(fetchActiveBranches({ page: nextPage }))
+    dispatch(
+      fetchActiveBranches({
+        page: nextPage,
+        lat: userCoords?.latitude,
+        lng: userCoords?.longitude,
+        distance: userCoords ? 5 : undefined,
+        dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
+      })
+    )
       .then((result) => {
         console.log('[handleLoadMore] page', nextPage, 'result:', result.type);
       })
@@ -116,7 +119,7 @@ const HomeScreen = (): JSX.Element => {
         console.log('[handleLoadMore] lock released');
       });
     // dispatch is stable — no other deps needed since we read state via refs.
-  }, [dispatch]);
+  }, [dispatch, userCoords, userDietaryPreferences]);
 
   // Manual scroll-position check — far more reliable than onEndReached,
   // which fires on layout changes even without user interaction.
@@ -156,8 +159,48 @@ const HomeScreen = (): JSX.Element => {
 
   useEffect(() => {
     void dispatch(fetchCategories());
-    void dispatch(fetchActiveBranches({ page: 1 }));
   }, [dispatch]);
+
+  // Two refs track whether we've done the GPS fetch and the dietary-enriched fetch.
+  // No fetch happens until GPS is available — this handles the race between GPS
+  // permission resolution and dietary prefs loading.
+  const hasFetchedWithGPS = useRef(false);
+  const hasFetchedWithDietary = useRef(false);
+
+  useEffect(() => {
+    if (!userCoords) return;
+    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
+
+    if (!hasFetchedWithGPS.current) {
+      // First time coords are available — first fetch, always with GPS + dietary if ready
+      hasFetchedWithGPS.current = true;
+      if (dietaryIds.length > 0) hasFetchedWithDietary.current = true;
+      void dispatch(
+        fetchActiveBranches({
+          page: 1,
+          lat: userCoords.latitude,
+          lng: userCoords.longitude,
+          distance: 5,
+          dietaryIds,
+        })
+      );
+      return;
+    }
+
+    // GPS fetch already done but dietary just became available — re-fetch once
+    if (!hasFetchedWithDietary.current && dietaryIds.length > 0) {
+      hasFetchedWithDietary.current = true;
+      void dispatch(
+        fetchActiveBranches({
+          page: 1,
+          lat: userCoords.latitude,
+          lng: userCoords.longitude,
+          distance: 5,
+          dietaryIds,
+        })
+      );
+    }
+  }, [userCoords, dispatch, userDietaryPreferences]);
 
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
@@ -184,7 +227,7 @@ const HomeScreen = (): JSX.Element => {
 
         <SearchBar
           onPress={() => navigation.navigate('Search')}
-          onFilterPress={() => setFilterModalVisible(true)}
+          onFilterPress={() => navigation.navigate('Search')}
         />
         <BannerCarousel banners={banners} />
 
@@ -230,72 +273,97 @@ const HomeScreen = (): JSX.Element => {
   );
 
   return (
-    <>
-      <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
-        {branchesStatus === 'pending' ? (
-          <>
-            {ListHeader}
-            <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#a1d973" />
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
+      {branchesStatus === 'pending' ? (
+        <>
+          {ListHeader}
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#a1d973" />
+          </View>
+        </>
+      ) : branchesStatus === 'failed' ? (
+        <>
+          {ListHeader}
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-center text-base text-gray-500">
+              {t('search.error')}
+            </Text>
+            <TouchableOpacity
+              onPress={() =>
+                dispatch(
+                  fetchActiveBranches({
+                    page: 1,
+                    lat: userCoords?.latitude,
+                    lng: userCoords?.longitude,
+                    dietaryIds: userDietaryPreferences.map(
+                      (p) => p.dietaryPreferenceId
+                    ),
+                  })
+                )
+              }
+              className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+            >
+              <Text className="text-sm font-semibold text-white">
+                {t('search.retry')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <FlatList
+          data={branches}
+          keyExtractor={(item) => String(item.branchId)}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            marginBottom: 12,
+          }}
+          renderItem={({ item }) => {
+            const displayName = multiBranchSet.has(item.vendorId)
+              ? `${item.vendorName ?? item.name} - ${item.name}`
+              : item.name;
+            return (
+              <View className="w-[49%]">
+                <PlaceCard
+                  branch={item}
+                  displayName={displayName}
+                  imageUri={branchImageMap[item.branchId]?.[0]}
+                  userCoords={userCoords}
+                  onPress={() =>
+                    navigation.navigate('RestaurantSwipe', {
+                      branch: item,
+                      displayName,
+                    })
+                  }
+                />
+              </View>
+            );
+          }}
+          ListEmptyComponent={
+            <View className="items-center px-6 py-12">
+              <Text className="text-center text-base text-gray-400">
+                {t('search.empty')}
+              </Text>
             </View>
-          </>
-        ) : (
-          <FlatList
-            data={branches}
-            keyExtractor={(item) => String(item.branchId)}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={ListHeader}
-            contentContainerStyle={{ paddingBottom: 100 }}
-            columnWrapperStyle={{
-              justifyContent: 'space-between',
-              paddingHorizontal: 16,
-              marginBottom: 12,
-            }}
-            renderItem={({ item }) => {
-              const displayName = multiBranchSet.has(item.vendorId)
-                ? `${item.vendorName ?? item.name} - ${item.name}`
-                : item.name;
-              return (
-                <View className="w-[49%]">
-                  <PlaceCard
-                    branch={item}
-                    displayName={displayName}
-                    imageUri={branchImageMap[item.branchId]?.[0]}
-                    userCoords={userCoords}
-                    onPress={() =>
-                      navigation.navigate('RestaurantSwipe', {
-                        branch: item,
-                        displayName,
-                      })
-                    }
-                  />
-                </View>
-              );
-            }}
-            onScroll={handleScroll}
-            onScrollBeginDrag={() => {
-              hasUserDragged.current = true;
-            }}
-            scrollEventThrottle={400}
-            ListFooterComponent={
-              branchesLoadingMore ? (
-                <View className="items-center py-4">
-                  <ActivityIndicator color="#a1d973" />
-                </View>
-              ) : null
-            }
-          />
-        )}
-      </SafeAreaView>
-
-      <FilterModal
-        visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        onApply={handleFilterApply}
-      />
-    </>
+          }
+          onScroll={handleScroll}
+          onScrollBeginDrag={() => {
+            hasUserDragged.current = true;
+          }}
+          scrollEventThrottle={400}
+          ListFooterComponent={
+            branchesLoadingMore ? (
+              <View className="items-center py-4">
+                <ActivityIndicator color="#a1d973" />
+              </View>
+            ) : null
+          }
+        />
+      )}
+    </SafeAreaView>
   );
 };
-
-export default HomeScreen;

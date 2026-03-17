@@ -6,10 +6,12 @@ import ActionButtons from '@features/home/components/restaurantSwipe/ActionButto
 import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
 import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
+import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
+import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useEffect } from 'react';
 import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
@@ -23,13 +25,14 @@ type RestaurantSwipeScreenProps = StaticScreenProps<{
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
 
-const RestaurantSwipeScreen = ({
+export const RestaurantSwipeScreen = ({
   route,
 }: RestaurantSwipeScreenProps): JSX.Element => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const { branch, displayName } = route.params;
+  const { isOpen, schedules } = useWorkSchedule(branch.branchId);
 
   useEffect(() => {
     dispatch(fetchBranchAllImages(branch.branchId));
@@ -47,12 +50,13 @@ const RestaurantSwipeScreen = ({
     address: [branch.addressDetail, branch.ward, branch.city]
       .filter(Boolean)
       .join(', '),
-    isOpen: branch.isActive,
+    isOpen,
     // —— fields not yet in API response, placeholder until updated ——
-    priceRange: 'Đang cập nhật priceRange',
+    priceRange: getPriceRange(branch.dishes),
     isVegetarian: false,
     cuisine: 'Đang cập nhật cuisine',
     hours: 'Đang cập nhật hours',
+    schedules,
   };
 
   const similarRestaurants = [
@@ -139,7 +143,7 @@ const RestaurantSwipeScreen = ({
 
           <View className="overflow-hidden rounded-b-3xl bg-white">
             <RestaurantInfo restaurant={restaurantInfo} />
-            <ActionButtons />
+            <ActionButtons branch={branch} displayName={displayName} />
           </View>
 
           <SwipeUpPrompt />
@@ -164,5 +168,3 @@ const RestaurantSwipeScreen = ({
     </GestureHandlerRootView>
   );
 };
-
-export default RestaurantSwipeScreen;

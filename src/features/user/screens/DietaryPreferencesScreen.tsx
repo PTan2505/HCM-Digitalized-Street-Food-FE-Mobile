@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const DietaryPreferencesScreen = (): JSX.Element => {
+export const DietaryPreferencesScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const [focusOptionId, setFocusOptionId] = useState<number | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
@@ -89,5 +89,3 @@ const DietaryPreferencesScreen = (): JSX.Element => {
     </SafeAreaView>
   );
 };
-
-export default DietaryPreferencesScreen;

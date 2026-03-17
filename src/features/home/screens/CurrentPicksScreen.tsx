@@ -20,7 +20,7 @@ interface PickItem {
   image: ImageSourcePropType;
 }
 
-const CurrentPicksScreen = (): JSX.Element => {
+export const CurrentPicksScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
 
@@ -92,5 +92,3 @@ const CurrentPicksScreen = (): JSX.Element => {
     </GestureHandlerRootView>
   );
 };
-
-export default CurrentPicksScreen;

@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const ProfileScreen = (): JSX.Element => {
+export const ProfileScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
@@ -137,5 +137,3 @@ const ProfileScreen = (): JSX.Element => {
     </SafeAreaView>
   );
 };
-
-export default ProfileScreen;

@@ -50,3 +50,11 @@ modules/*/android/local.properties
 modules/*/ios/build/
 modules/*/.gradle/
 modules/*/node_modules/
+
+# OpenSpec & Claude (local only)
+openspec/
+.claude/
+.github/prompts/
+.github/skills/
+
+CLAUDE.md

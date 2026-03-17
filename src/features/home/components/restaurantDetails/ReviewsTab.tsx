@@ -1,20 +1,26 @@
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, Dimensions } from 'react-native';
+import { Dimensions, Text, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
+import type { Review } from './ReviewCard';
 import ReviewCard from './ReviewCard';
 
 export type { Review } from './ReviewCard';
-import type { Review } from './ReviewCard';
 
 interface ReviewsTabProps {
   reviews: Review[];
+  averageRating: number;
+  totalCount: number;
 }
 
 const width = Dimensions.get('window').width;
 
-const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
+const ReviewsTab = ({
+  reviews,
+  averageRating,
+  totalCount,
+}: ReviewsTabProps): JSX.Element => {
   const { t } = useTranslation();
   const progress = useSharedValue<number>(0);
 
@@ -29,13 +35,15 @@ const ReviewsTab = ({ reviews }: ReviewsTabProps): JSX.Element => {
             </Text>
           </View>
           <View className="flex-row content-around items-baseline justify-around">
-            <Text className="text-[50px] font-bold text-[#06AA4C]">4.5</Text>
+            <Text className="text-[50px] font-bold text-[#06AA4C]">
+              {averageRating.toFixed(1)}
+            </Text>
             <Text className="text-base text-gray-600">
               {t('actions.rating_out_of')}
             </Text>
           </View>
           <Text className="text-black-400 ml-2 mt-1 text-xs">
-            10 {t('actions.reviews')}
+            {totalCount} {t('actions.reviews')}
           </Text>
         </View>
 

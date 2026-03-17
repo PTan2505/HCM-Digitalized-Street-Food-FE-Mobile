@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import type { MapVendor } from '@features/home/types/stall';
 import { DetailCard } from '@features/maps/components/DetailCard';
 import { CAMERA_BOTTOM_PADDING, Maps } from '@features/maps/components/Maps';
 import MOCK_VENDORS from '@features/maps/constants/mockData';
@@ -16,6 +17,8 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 export const MapScreen = (): JSX.Element => {
   const cameraRef = useRef<CameraRef>(null);
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
+  // TODO: Replace with axiosApi.stallSearchApi.getMapVendors() when API is ready
+  const [vendors] = useState<MapVendor[]>(MOCK_VENDORS);
   const [isPeeked, setIsPeeked] = useState(false);
   const { permissionStatus, retryPermission, coords } = useLocationPermission();
   const userCenter = coords
@@ -25,7 +28,7 @@ export const MapScreen = (): JSX.Element => {
 
   // ── Marker press handler ──────────────────────────────────
   const onMarkerPress = useCallback((vendorId: string) => {
-    const vendor = MOCK_VENDORS.find((v) => v.vendorId === vendorId);
+    const vendor = vendors.find((v) => v.vendorId === vendorId);
     if (!vendor) return;
 
     setSelectedVendorId(vendorId);
@@ -116,7 +119,7 @@ export const MapScreen = (): JSX.Element => {
 
   // ── Resolve selected vendor for detail card ───────────────
   const selectedVendor = selectedVendorId
-    ? (MOCK_VENDORS.find((v) => v.vendorId === selectedVendorId) ?? null)
+    ? (vendors.find((v) => v.vendorId === selectedVendorId) ?? null)
     : null;
 
   return (
@@ -137,6 +140,7 @@ export const MapScreen = (): JSX.Element => {
         isPeeked={isPeeked}
         onMarkerPress={onMarkerPress}
         onUserDrag={onUserDrag}
+        vendors={vendors}
       />
 
       {/* Detail card — slides up when a vendor is selected */}

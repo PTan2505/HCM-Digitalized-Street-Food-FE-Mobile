@@ -16,6 +16,17 @@ export const apiUrl = {
   dietaryPreference: {
     getAll: '/DietaryPreference',
   },
+  taste: {
+    getAll: '/tastes',
+  },
+  feedback: {
+    byBranch: (branchId: number) => `/Feedback/branch/${branchId}`,
+    averageRating: (branchId: number) =>
+      `/Feedback/branch/${branchId}/average-rating`,
+    count: (branchId: number) => `/Feedback/branch/${branchId}/count`,
+    ratingRange: (branchId: number) =>
+      `/Feedback/branch/${branchId}/rating-range`,
+  },
   category: {
     getAll: '/categories',
   },
@@ -25,6 +36,7 @@ export const apiUrl = {
   branch: {
     active: '/Branch/active',
     byVendor: '/Branch/vendor',
+    workSchedules: (id: number) => `/Branch/${id}/work-schedules`,
   },
   userDietary: {
     userDietary: '/UserDietary/user',

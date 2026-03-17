@@ -1,13 +1,10 @@
-import type { JSX } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  type ImageSourcePropType,
-} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
+
+const PLACEHOLDER_IMAGE =
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=400';
 
 export interface NearbyRestaurant {
   id: string;
@@ -16,7 +13,7 @@ export interface NearbyRestaurant {
   distance: string;
   priceRange: string;
   badge?: string;
-  image: ImageSourcePropType;
+  imageUri?: string;
 }
 
 interface RestaurantsMayLikeTabProps {
@@ -36,7 +33,7 @@ const RestaurantsMayLikeTab = ({
       className="mb-4 flex-row rounded-lg border border-gray-200 bg-white p-3"
     >
       <Image
-        source={restaurant.image}
+        source={{ uri: restaurant.imageUri ?? PLACEHOLDER_IMAGE }}
         className="mr-3 h-[90px] w-[90px] rounded-lg"
       />
       <View className="flex-1">

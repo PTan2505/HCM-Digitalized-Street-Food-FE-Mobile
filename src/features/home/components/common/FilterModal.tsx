@@ -1,9 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import Slider from '@react-native-community/slider';
 import { selectCategories } from '@slices/categories';
+import {
+  getAllDietaryPreferences,
+  selectDietaryPreferences,
+  selectDietaryState,
+  selectUserDietaryPreferences,
+} from '@slices/dietary';
+import { fetchTastes, selectTastes, selectTastesStatus } from '@slices/tastes';
 import type { JSX } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
@@ -29,6 +36,8 @@ export interface FilterState {
   hasParking: boolean;
   openNow: boolean;
   amenities: string[];
+  tasteTags: string[];
+  dietaryTags: string[];
 }
 
 const FilterModal = ({
@@ -37,6 +46,7 @@ const FilterModal = ({
   onApply,
 }: FilterModalProps): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const [spaceTypes, setSpaceTypes] = useState<string[]>([]);
   const [dishTypes, setDishTypes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<string[]>([]);
@@ -44,7 +54,32 @@ const FilterModal = ({
   const [hasParking, setHasParking] = useState<boolean>(false);
   const [openNow, setOpenNow] = useState<boolean>(false);
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [tasteTags, setTasteTags] = useState<string[]>([]);
+  const [dietaryTags, setDietaryTags] = useState<string[]>([]);
   const categories = useAppSelector(selectCategories);
+  const tastes = useAppSelector(selectTastes);
+  const tastesStatus = useAppSelector(selectTastesStatus);
+  const dietaryPreferences = useAppSelector(selectDietaryPreferences);
+  const dietaryStatus = useAppSelector(selectDietaryState);
+  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+
+  // Pre-select the user's saved dietary prefs each time the modal opens
+  useEffect(() => {
+    if (visible) {
+      setDietaryTags(
+        userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
+      );
+    }
+  }, [visible, userDietaryPreferences]);
+
+  useEffect(() => {
+    if (tastesStatus === 'idle') {
+      dispatch(fetchTastes());
+    }
+    if (dietaryPreferences.length === 0 && dietaryStatus !== 'pending') {
+      dispatch(getAllDietaryPreferences());
+    }
+  }, [dispatch, tastesStatus, dietaryStatus, dietaryPreferences.length]);
 
   const toggleSelection = (
     item: string,
@@ -66,6 +101,11 @@ const FilterModal = ({
     setHasParking(false);
     setOpenNow(false);
     setAmenities([]);
+    setTasteTags([]);
+    // Restore to user's profile dietary prefs, not empty
+    setDietaryTags(
+      userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
+    );
   };
 
   const handleApply = (): void => {
@@ -77,6 +117,8 @@ const FilterModal = ({
       hasParking,
       openNow,
       amenities,
+      tasteTags,
+      dietaryTags,
     });
     onClose();
   };
@@ -97,6 +139,16 @@ const FilterModal = ({
     { key: 'range_150_300', label: t('price_options.range_150_300') },
     { key: 'over_300', label: t('price_options.over_300') },
   ];
+
+  const tasteOptions = tastes.map((taste) => ({
+    key: taste.tasteId.toString(),
+    label: taste.name,
+  }));
+
+  const dietaryOptions = dietaryPreferences.map((pref) => ({
+    key: pref.dietaryPreferenceId.toString(),
+    label: pref.name,
+  }));
 
   const amenityOptions = [
     { key: 'vegetarian', label: t('amenities.vegetarian') },
@@ -133,6 +185,38 @@ const FilterModal = ({
             style={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
           >
+            {/* Taste Profile */}
+            <View className="border-b border-gray-100 px-6 py-5">
+              <Text className="mb-3 text-base font-semibold text-gray-900">
+                {t('taste_profile')}
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {tasteOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.key}
+                    onPress={() =>
+                      toggleSelection(option.key, tasteTags, setTasteTags)
+                    }
+                    className={`rounded-full border px-4 py-2 ${
+                      tasteTags.includes(option.key)
+                        ? 'border-[#06AA4C] bg-[#06AA4C]'
+                        : 'border-gray-300 bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm ${
+                        tasteTags.includes(option.key)
+                          ? 'text-white'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
                 {t('space')}
@@ -310,6 +394,38 @@ const FilterModal = ({
                   )}
                 </View>
               </TouchableOpacity>
+            </View>
+
+            {/* Dietary Preferences */}
+            <View className="border-b border-gray-100 px-6 py-5">
+              <Text className="mb-3 text-base font-semibold text-gray-900">
+                {t('dietary_preferences')}
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {dietaryOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.key}
+                    onPress={() =>
+                      toggleSelection(option.key, dietaryTags, setDietaryTags)
+                    }
+                    className={`rounded-full border px-4 py-2 ${
+                      dietaryTags.includes(option.key)
+                        ? 'border-[#06AA4C] bg-[#06AA4C]'
+                        : 'border-gray-300 bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm ${
+                        dietaryTags.includes(option.key)
+                          ? 'text-white'
+                          : 'text-gray-700'
+                      }`}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <View className="px-6 py-5">
