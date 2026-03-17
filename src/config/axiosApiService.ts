@@ -25,7 +25,7 @@ export interface ApiService {
   isApiError(error: unknown): boolean;
 }
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
 });
 
