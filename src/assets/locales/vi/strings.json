@@ -119,14 +119,14 @@
     "location_list": "Danh sách địa điểm",
     "no_items": "Không có món ăn nào",
     "reviews": "đánh giá",
-    "vegetarian_food": "Món Chay",
     "open": "Mở cửa",
     "closed": "Đóng cửa",
     "top_pick": "TOP PICK",
     "you_may_like": "Bạn có thể thích",
     "see_original": "Xem bản gốc",
     "see_translation": "Xem bản dịch",
-    "add_new": "Thêm mới"
+    "add_new": "Thêm mới",
+    "updating": "Đang cập nhật..."
   },
   "tabs": {
     "menu": "Menu Quán",

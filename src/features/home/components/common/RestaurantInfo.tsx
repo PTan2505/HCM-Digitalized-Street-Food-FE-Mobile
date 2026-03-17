@@ -1,7 +1,7 @@
+import { TierBadge } from '@components/TierBadge';
 import { Ionicons } from '@expo/vector-icons';
 import type { WorkSchedule } from '@features/home/types/branch';
 import type { VendorTier } from '@features/home/types/stall';
-import { TierBadge } from '@components/TierBadge';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,11 +36,10 @@ export interface RestaurantInfoData {
   name: string;
   priceRange: string;
   rating: number;
-  reviewCount: number;
+  totalReviewCount: number;
   isVegetarian?: boolean;
-  cuisine: string;
+  dietaryPreferenceNames: string[];
   address: string;
-  hours: string;
   isOpen: boolean;
   tier?: VendorTier;
   isTierPaused?: boolean;
@@ -60,7 +59,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
   const todaySchedule = schedules?.find((s) => s.weekday === todayWeekday);
   const hoursLabel = todaySchedule
     ? `${WEEKDAY_SHORT[todayWeekday]}: ${formatTime(todaySchedule.openTime)} - ${formatTime(todaySchedule.closeTime)}`
-    : restaurant.hours;
+    : t('actions.updating');
 
   return (
     <View className="p-4">
@@ -79,23 +78,22 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             {restaurant.rating}
           </Text>
         </View>
-        {restaurant.reviewCount > 0 && (
-          <Text className="text-sm text-gray-600">
-            {restaurant.reviewCount} {t('actions.reviews')}
-          </Text>
-        )}
+        <Text className="text-sm text-gray-600">
+          {restaurant.totalReviewCount} {t('actions.reviews')}
+        </Text>
       </View>
 
       <View className="mb-3 flex-row flex-wrap items-center gap-2">
-        {restaurant.isVegetarian && (
-          <View className="rounded-2xl bg-[#00B14F] px-2 py-1">
-            <Text className="text-xs font-semibold text-white">
-              {t('actions.vegetarian_food')}
-            </Text>
-          </View>
-        )}
-        <View className="rounded-2xl bg-[#F1FAEA] px-2 py-1">
-          <Text className="text-xs text-gray-600">{restaurant.cuisine}</Text>
+        <View className="flex-row flex-wrap gap-3 ">
+          {restaurant.dietaryPreferenceNames.length > 0 &&
+            restaurant.dietaryPreferenceNames.map((name, index) => (
+              <Text
+                key={index}
+                className="rounded-2xl bg-[#F1FAEA]  px-2 py-1 text-xs text-gray-600"
+              >
+                {name}
+              </Text>
+            ))}
         </View>
         <TierBadge tier={restaurant.tier} paused={restaurant.isTierPaused} />
       </View>
@@ -122,13 +120,15 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             </TouchableOpacity>
           )}
         </View>
-        <Text
-          className={`text-sm font-semibold ${
-            restaurant.isOpen ? 'text-[#00B14F]' : 'text-red-500'
-          }`}
-        >
-          {restaurant.isOpen ? t('actions.open') : t('actions.closed')}
-        </Text>
+        {schedules && schedules.length > 0 && (
+          <Text
+            className={`text-sm font-semibold ${
+              restaurant.isOpen ? 'text-[#00B14F]' : 'text-red-500'
+            }`}
+          >
+            {restaurant.isOpen ? t('actions.open') : t('actions.closed')}
+          </Text>
+        )}
       </View>
 
       {/* Expanded full schedule */}

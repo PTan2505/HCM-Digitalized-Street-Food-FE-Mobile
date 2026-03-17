@@ -1,3 +1,4 @@
+import type { VendorTier } from '@custom-types/vendor';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
 import FixedHeaderControls from '@features/home/components/restaurantDetails/FixedHeaderControls';
@@ -13,12 +14,11 @@ import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
+import { getLowcaAPIUnimplementedEndpoints } from '@features/reputation/api/generated';
+import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps } from '@react-navigation/native';
 import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
-import type { BranchTier } from '@features/reputation/types/generated';
-import { getLowcaAPIUnimplementedEndpoints } from '@features/reputation/api/generated';
-import type { VendorTier } from '@custom-types/vendor';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
@@ -82,13 +82,12 @@ export const RestaurantDetailsScreen = ({
     name: displayName,
     priceRange: getPriceRange(branch.dishes),
     rating: averageRating,
-    reviewCount: totalCount,
+    totalReviewCount: totalCount,
     isVegetarian: false,
-    cuisine: branch.dishes[0]?.categoryName ?? 'Đang cập nhật',
+    dietaryPreferenceNames: branch.dietaryPreferenceNames,
     address: [branch.addressDetail, branch.ward, branch.city]
       .filter(Boolean)
       .join(', '),
-    hours: 'Đang cập nhật',
     isOpen,
     schedules,
     tier: branchTier?.tier as VendorTier | undefined,

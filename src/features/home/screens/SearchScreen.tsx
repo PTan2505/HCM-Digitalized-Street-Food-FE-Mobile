@@ -49,13 +49,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { coords } = useLocationPermission();
   const { stalls, isLoading, error, search, clearError } = useStallSearch();
 
-  const filterButtons: FilterButton[] = [
-    { id: 'all', label: t('actions.all') },
-    { id: 'spicy', label: t('taste_tags.spicy') },
-    { id: 'sweet', label: t('taste_tags.sweet') },
-    { id: 'vegetarian', label: t('amenities.vegetarian') },
-  ];
-
   const priceRangeToParams = (
     keys: string[]
   ): { MinPrice?: number; MaxPrice?: number } => {
@@ -207,18 +200,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           <TouchableOpacity className="items-center justify-center">
             <Ionicons name="bookmark-outline" size={20} color="#666" />
           </TouchableOpacity>
-        </View>
-
-        {/* Quick Filter Buttons */}
-        <View className="px-4">
-          <FlatList
-            data={filterButtons}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id}
-            renderItem={renderFilterButton}
-            contentContainerStyle={{ paddingBottom: 8 }}
-          />
         </View>
 
         {/* Results List */}

@@ -119,14 +119,14 @@
     "location_list": "Location List",
     "no_items": "No items available",
     "reviews": "reviews",
-    "vegetarian_food": "Vegetarian",
     "open": "Open",
     "closed": "Closed",
     "top_pick": "TOP PICK",
     "you_may_like": "You May Like",
     "see_original": "See original",
     "see_translation": "See translation",
-    "add_new": "Add New"
+    "add_new": "Add New",
+    "updating": "Updating..."
   },
   "tabs": {
     "menu": "Menu",

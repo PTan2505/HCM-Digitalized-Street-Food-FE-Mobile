@@ -38,6 +38,8 @@ export interface ActiveBranch {
   lat: number;
   long: number;
   createdAt: string;
+  totalReviewCount: number;
+  dietaryPreferenceNames: string[];
   updatedAt: string | null;
   isVerified: boolean;
   avgRating: number;
