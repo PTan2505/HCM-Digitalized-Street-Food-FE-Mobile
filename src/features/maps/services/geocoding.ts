@@ -149,6 +149,60 @@ export const forwardGeocode = async (
   }
 };
 
+// ── Place Detail OSM format (coordinates → structured address) ──
+
+export interface PlaceOSMResult {
+  shortAddress: string;
+  locality: string;
+  region: string;
+  lat: number;
+  lng: number;
+}
+
+interface PlaceOSMFeature {
+  geometry: { coordinates: [number, number]; type: string };
+  properties: {
+    short_address?: string;
+    locality?: string;
+    region?: string;
+    label?: string;
+    [key: string]: unknown;
+  };
+}
+
+export const getPlaceOSM = async (
+  lat: number,
+  lng: number
+): Promise<PlaceOSMResult | null> => {
+  const params = new URLSearchParams({
+    latlng: `${lat},${lng}`,
+    apikey: API_KEY,
+  });
+
+  try {
+    const res = await axios.get(`${BASE}/place?${params.toString()}`);
+    const data = res.data as {
+      errors: unknown;
+      features?: PlaceOSMFeature[];
+      type: string;
+    };
+
+    const feature = data.features?.[0];
+    if (!feature) return null;
+
+    const props = feature.properties;
+    return {
+      shortAddress: props.short_address ?? props.label ?? '',
+      locality: props.locality ?? '',
+      region: props.region ?? '',
+      lat: feature.geometry.coordinates[1],
+      lng: feature.geometry.coordinates[0],
+    };
+  } catch {
+    return null;
+  }
+};
+
 // ── Reverse Geocode (coordinates → address) ──
 
 export const reverseGeocode = async (

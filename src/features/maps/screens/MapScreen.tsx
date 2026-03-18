@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import type { MapVendor } from '@features/home/types/stall';
 import { DetailCard } from '@features/maps/components/DetailCard';
 import { CAMERA_BOTTOM_PADDING, Maps } from '@features/maps/components/Maps';
@@ -25,6 +26,9 @@ export const MapScreen = (): JSX.Element => {
     ? ([coords.longitude, coords.latitude] as [number, number])
     : null;
   const navigation = useNavigation();
+
+  // ── Ghost Pin state ─────────────────────────────────────
+  const [ghostPins] = useState<GhostPinResponse[]>([]);
 
   // ── Marker press handler ──────────────────────────────────
   const onMarkerPress = useCallback(
@@ -144,6 +148,7 @@ export const MapScreen = (): JSX.Element => {
         onMarkerPress={onMarkerPress}
         onUserDrag={onUserDrag}
         vendors={vendors}
+        ghostPins={ghostPins}
       />
 
       {/* Detail card — slides up when a vendor is selected */}

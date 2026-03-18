@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
@@ -272,6 +273,28 @@ export const HomeScreen = (): JSX.Element => {
               )}
             />
           )}
+        </View>
+
+        {/* Ghost Pin creation entry point */}
+        <View className="px-4 pt-4">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('GhostPinCreation')}
+            className="flex-row items-center rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm"
+            activeOpacity={0.7}
+          >
+            <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#a1d973]/15">
+              <Ionicons name="add-circle-outline" size={22} color="#a1d973" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-sm font-bold text-gray-800">
+                Thêm quán ăn mới
+              </Text>
+              <Text className="text-xs text-gray-500">
+                Ghim quán ăn đường phố chưa có trên bản đồ
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+          </TouchableOpacity>
         </View>
 
         <View className="px-4 pb-2 pt-6">

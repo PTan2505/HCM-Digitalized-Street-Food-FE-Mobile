@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { MapVendor } from '@features/home/types/stall';
+import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import {
   Camera,
   CircleLayer,
@@ -377,6 +378,48 @@ const ActivePill = ({ label, rating }: ActivePillProps): JSX.Element => {
 
 // ── Maps Component ──
 
+interface GhostPinMarkerCalloutProps {
+  name: string;
+  status: GhostPinResponse['status'];
+}
+
+const STATUS_LABEL: Record<GhostPinResponse['status'], string> = {
+  pending: 'Đang chờ duyệt',
+  approved: 'Đã được duyệt',
+  claimed: 'Đã nhận',
+  verified: 'Đã xác minh',
+  rejected: 'Bị từ chối',
+};
+
+const GhostPinCallout = ({
+  name,
+  status,
+}: GhostPinMarkerCalloutProps): JSX.Element => (
+  <View className="items-center">
+    <View className="rounded-xl border border-gray-300 bg-white px-3 py-2 shadow-md">
+      <Text className="text-xs font-bold text-gray-700" numberOfLines={1}>
+        {name}
+      </Text>
+      <Text className="mt-0.5 text-[10px] text-gray-500">
+        {STATUS_LABEL[status]}
+      </Text>
+    </View>
+    <View
+      style={{
+        width: 0,
+        height: 0,
+        borderLeftWidth: 5,
+        borderRightWidth: 5,
+        borderTopWidth: 6,
+        borderLeftColor: 'transparent',
+        borderRightColor: 'transparent',
+        borderTopColor: '#D1D5DB',
+        marginTop: -1,
+      }}
+    />
+  </View>
+);
+
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
   initialCenter: [number, number];
@@ -385,6 +428,7 @@ interface MapsProps {
   onMarkerPress: (vendorId: string) => void;
   onUserDrag?: () => void;
   vendors?: MapVendor[];
+  ghostPins?: GhostPinResponse[];
 }
 
 const PEEK_BAR_OFFSET = 20;
@@ -397,6 +441,7 @@ export const Maps = ({
   onMarkerPress,
   onUserDrag,
   vendors = [],
+  ghostPins = [],
 }: MapsProps): JSX.Element => {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapViewRef>(null);
@@ -630,6 +675,18 @@ export const Maps = ({
                 <VendorMarker label={vendor.label} rating={vendor.rating} />
               </Pressable>
             )}
+          </MarkerView>
+        ))}
+
+        {/* Ghost Pin Markers — grey unverified markers with status callout */}
+        {ghostPins.map((pin) => (
+          <MarkerView
+            key={`ghost-${pin.ghostPinId}`}
+            coordinate={[pin.long, pin.lat]}
+            anchor={{ x: 0.5, y: 1 }}
+            allowOverlap
+          >
+            <GhostPinCallout name={pin.name} status={pin.status} />
           </MarkerView>
         ))}
       </MapView>
