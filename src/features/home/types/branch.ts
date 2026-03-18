@@ -21,7 +21,6 @@ export interface Dish {
   isSoldOut: boolean;
   categoryName?: string;
   tasteNames: string[];
-  dietaryPreferenceNames: string[];
 }
 
 export interface ActiveBranch {

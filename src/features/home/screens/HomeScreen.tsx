@@ -214,22 +214,6 @@ export const HomeScreen = (): JSX.Element => {
 
   const multiBranchSet = new Set(multiBranchVendorIds);
 
-  const filteredBranches = useMemo(() => {
-    if (userDietaryPreferences.length === 0) return branches;
-    const preferenceNames = new Set(
-      userDietaryPreferences.map((p) => p.name.toLowerCase())
-    );
-    return branches.filter(
-      (branch) =>
-        branch.dishes.length === 0 ||
-        branch.dishes.some((dish) =>
-          dish.dietaryPreferenceNames.some((name) =>
-            preferenceNames.has(name.toLowerCase())
-          )
-        )
-    );
-  }, [branches, userDietaryPreferences]);
-
   // useMemo prevents a new JSX reference on every render, which would cause
   // FlatList to remount the header and re-trigger onEndReached in a loop.
   const ListHeader = useMemo(
@@ -329,7 +313,7 @@ export const HomeScreen = (): JSX.Element => {
         </>
       ) : (
         <FlatList
-          data={filteredBranches}
+          data={branches}
           keyExtractor={(item) => String(item.branchId)}
           numColumns={2}
           showsVerticalScrollIndicator={false}

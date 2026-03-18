@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Image,
+  Modal,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -35,8 +38,31 @@ const ReviewCard = ({
   onDelete,
 }: ReviewCardProps): JSX.Element => {
   const { t } = useTranslation();
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<View>(null);
+
+  const handleOpenMenu = (): void => {
+    buttonRef.current?.measure(
+      (
+        fx: number,
+        fy: number,
+        width: number,
+        height: number,
+        px: number,
+        py: number
+      ) => {
+        setMenuPosition({
+          x: px + width,
+          y: py + height + 4,
+        });
+        setShowMenu(true);
+      }
+    );
+  };
 
   const handleDelete = (): void => {
+    setShowMenu(false);
     Alert.alert('Xoá đánh giá', 'Bạn có chắc muốn xoá đánh giá này?', [
       { text: 'Huỷ', style: 'cancel' },
       {
@@ -45,6 +71,11 @@ const ReviewCard = ({
         onPress: (): void => onDelete?.(review.feedbackId),
       },
     ]);
+  };
+
+  const handleEdit = (): void => {
+    setShowMenu(false);
+    onEdit?.();
   };
 
   return (
@@ -102,13 +133,85 @@ const ReviewCard = ({
             <Ionicons name="star" size={14} color="#FFA500" />
           </View>
           {review.isOwn && (
-            <View className="flex-row gap-2">
-              <TouchableOpacity onPress={() => onEdit?.()} hitSlop={6}>
-                <Ionicons name="pencil-outline" size={16} color="#6B7280" />
+            <View ref={buttonRef} collapsable={false}>
+              <TouchableOpacity
+                onPress={handleOpenMenu}
+                hitSlop={8}
+                className="rounded-full p-1"
+              >
+                <Ionicons
+                  name="ellipsis-horizontal"
+                  size={18}
+                  color="#6B7280"
+                />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete} hitSlop={6}>
-                <Ionicons name="trash-outline" size={16} color="#EF4444" />
-              </TouchableOpacity>
+
+              {/* Dropdown Menu Modal */}
+              <Modal
+                visible={showMenu}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowMenu(false)}
+              >
+                <View className="flex-1">
+                  {/* Backdrop */}
+                  <Pressable
+                    className="absolute inset-0"
+                    onPress={() => setShowMenu(false)}
+                  />
+
+                  {/* Dropdown positioned next to button */}
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: menuPosition.y,
+                      right: 16,
+                    }}
+                  >
+                    <View
+                      className="rounded-xl bg-white"
+                      style={{
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 8,
+                        elevation: 5,
+                        minWidth: 140,
+                      }}
+                    >
+                      {/* Edit Option */}
+                      <TouchableOpacity
+                        onPress={handleEdit}
+                        className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-3"
+                      >
+                        <Ionicons
+                          name="pencil-outline"
+                          size={18}
+                          color="#6B7280"
+                        />
+                        <Text className="text-sm font-medium text-gray-700">
+                          Chỉnh sửa
+                        </Text>
+                      </TouchableOpacity>
+
+                      {/* Delete Option */}
+                      <TouchableOpacity
+                        onPress={handleDelete}
+                        className="flex-row items-center gap-3 px-4 py-3"
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={18}
+                          color="#EF4444"
+                        />
+                        <Text className="text-sm font-medium text-red-500">
+                          Xoá
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </Modal>
             </View>
           )}
         </View>

@@ -9,9 +9,8 @@ import { useLocationPermission } from '@features/maps/hooks/useLocationPermissio
 import { useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps } from '@react-navigation/native';
 import { selectBranchImageMap, selectBranches } from '@slices/branches';
-import { selectUserDietaryPreferences } from '@slices/dietary';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -38,23 +37,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
   const branches = useAppSelector(selectBranches);
   const branchImageMap = useAppSelector(selectBranchImageMap);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
-
-  const filteredBranches = useMemo(() => {
-    if (userDietaryPreferences.length === 0) return branches;
-    const preferenceNames = new Set(
-      userDietaryPreferences.map((p) => p.name.toLowerCase())
-    );
-    return branches.filter(
-      (branch) =>
-        branch.dishes.length === 0 ||
-        branch.dishes.some((dish) =>
-          dish.dietaryPreferenceNames.some((name) =>
-            preferenceNames.has(name.toLowerCase())
-          )
-        )
-    );
-  }, [branches, userDietaryPreferences]);
 
   useEffect(() => {
     if (!openFilter) return;
@@ -186,7 +168,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         {/* Results List */}
         <View className="flex-1 px-4">
           <FlatList
-            data={hasSearched ? stalls : filteredBranches}
+            data={hasSearched ? stalls : branches}
             keyExtractor={(item) => String(item.branchId)}
             renderItem={({ item }) => (
               <SearchResultCard
