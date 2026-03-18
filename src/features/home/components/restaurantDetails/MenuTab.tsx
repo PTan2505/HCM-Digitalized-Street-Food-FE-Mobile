@@ -13,18 +13,16 @@ interface MenuTabProps {
 
 const MenuTab = ({ dishes }: MenuTabProps): JSX.Element => {
   const { t } = useTranslation();
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<string | undefined>(
+    'all'
+  );
 
-  const categories = [
-    ...new Set(dishes.map((d) => d.categoryName ?? t('actions.other'))),
-  ];
+  const categories = ['all', ...new Set(dishes.map((d) => d.categoryName))];
 
   const filteredDishes =
     activeCategory === 'all'
       ? dishes
-      : dishes.filter(
-          (d) => (d.categoryName ?? t('actions.other')) === activeCategory
-        );
+      : dishes.filter((d) => d.categoryName === activeCategory);
 
   const renderDish = (dish: Dish): JSX.Element => (
     <View key={dish.dishId} className="mb-4 flex-row">
@@ -60,7 +58,7 @@ const MenuTab = ({ dishes }: MenuTabProps): JSX.Element => {
         showsHorizontalScrollIndicator={false}
         className="border-b border-gray-200 px-4 pt-4"
       >
-        {['all', ...categories].map((cat) => (
+        {categories.map((cat) => (
           <TouchableOpacity
             key={cat}
             className={`mr-2 flex-row items-center justify-center border-b-2 px-3 py-2 ${
@@ -69,7 +67,7 @@ const MenuTab = ({ dishes }: MenuTabProps): JSX.Element => {
             onPress={() => setActiveCategory(cat)}
           >
             <Text
-              className={`text-sm ${
+              className={`text-sm capitalize ${
                 activeCategory === cat
                   ? 'font-semibold text-[#FF6B35]'
                   : 'text-black-400'
@@ -91,7 +89,9 @@ const MenuTab = ({ dishes }: MenuTabProps): JSX.Element => {
             if (group.length === 0) return null;
             return (
               <View key={cat} className="border-b border-gray-200 p-4">
-                <Text className="mb-4 text-lg font-bold text-black">{cat}</Text>
+                <Text className="mb-4 text-lg font-bold capitalize text-black">
+                  {cat}
+                </Text>
                 {group.map(renderDish)}
               </View>
             );
@@ -106,9 +106,6 @@ const MenuTab = ({ dishes }: MenuTabProps): JSX.Element => {
         </>
       ) : (
         <View className="border-b border-gray-200 p-4">
-          <Text className="mb-4 text-lg font-bold text-black">
-            {activeCategory}
-          </Text>
           {filteredDishes.length > 0 ? (
             filteredDishes.map(renderDish)
           ) : (
