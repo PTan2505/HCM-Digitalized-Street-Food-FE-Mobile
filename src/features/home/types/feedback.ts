@@ -128,6 +128,14 @@ export interface UploadImagesResponse {
   data: Feedback;
 }
 
+// ── Feedback tag ──────────────────────────────────────────────────────────────
+
+export interface FeedbackTagDto {
+  tagId: number;
+  tagName: string;
+  description: string | null;
+}
+
 // ── Velocity check ────────────────────────────────────────────────────────────
 
 export interface VelocityCheckResponse {

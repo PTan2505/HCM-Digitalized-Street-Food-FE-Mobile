@@ -13,6 +13,11 @@ import {
   View,
 } from 'react-native';
 
+export interface ReviewTag {
+  id: number;
+  name: string;
+}
+
 export interface Review {
   id: string;
   feedbackId: number;
@@ -23,6 +28,7 @@ export interface Review {
   rating: number;
   comment: string;
   imageUris: string[];
+  tags: ReviewTag[];
   isOwn: boolean;
 }
 
@@ -243,8 +249,26 @@ const ReviewCard = ({
         </View>
       </View>
 
+      {/* Stars */}
+      <View className="mb-2 flex-row items-center gap-1">{renderStars()}</View>
+
+      {/* Tags */}
+      {review.tags.length > 0 && (
+        <View className="mb-2 flex-row flex-wrap gap-1.5">
+          {review.tags.map((tag) => (
+            <View
+              key={tag.id}
+              className="rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5"
+            >
+              <Text className="text-[11px] font-medium text-primary-dark">
+                {tag.name}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+
       {/* Comment */}
-      <View className="mb-3 flex-row items-center gap-1">{renderStars()}</View>
       <Text className="mb-3 text-sm leading-5 text-gray-700">
         {review.comment}
       </Text>

@@ -44,6 +44,9 @@ export const apiUrl = {
     // Velocity
     velocityCheck: '/Feedback/velocity/check',
   },
+  feedbackTag: {
+    getAll: '/FeedbackTag',
+  },
   category: {
     getAll: '/categories',
   },

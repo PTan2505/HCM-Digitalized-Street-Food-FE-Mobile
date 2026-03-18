@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Dish } from '@features/home/types/branch';
 import type {
   Feedback,
+  FeedbackTag,
   SubmitFeedbackRequest,
   UpdateFeedbackRequest,
 } from '@features/home/types/feedback';
@@ -64,10 +65,22 @@ export const ReviewFormModal = ({
   const [newImages, setNewImages] = useState<PickedImage[]>([]);
   /** Existing images kept in edit mode; removed ones will be deleted via API */
   const [keptImages, setKeptImages] = useState<KeptImage[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
+    existingFeedback?.tags?.map((t) => t.id) ?? []
+  );
+  const [availableTags, setAvailableTags] = useState<FeedbackTag[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isCheckingLimit, setIsCheckingLimit] = useState(false);
   const [canSubmitReview, setCanSubmitReview] = useState(true);
+
+  // Fetch available tags once
+  useEffect(() => {
+    axiosApi.feedbackTagApi
+      .getTags()
+      .then(setAvailableTags)
+      .catch(() => {});
+  }, []);
 
   // Sync fields when the modal opens or switches between write/edit mode
   useEffect(() => {
@@ -75,6 +88,7 @@ export const ReviewFormModal = ({
       setRating(existingFeedback?.rating ?? 0);
       setComment(existingFeedback?.comment ?? '');
       setSelectedDishId(existingFeedback?.dishId ?? null);
+      setSelectedTagIds(existingFeedback?.tags?.map((t) => t.id) ?? []);
       setKeptImages(
         existingFeedback?.images?.map((img) => ({
           id: img.id,
@@ -111,6 +125,7 @@ export const ReviewFormModal = ({
     setRating(0);
     setComment('');
     setSelectedDishId(null);
+    setSelectedTagIds([]);
     setNewImages([]);
     setKeptImages([]);
     setSubmitError(null);
@@ -223,6 +238,7 @@ export const ReviewFormModal = ({
           dishId: selectedDishId ?? undefined,
           rating,
           comment: comment.trim() || undefined,
+          tagIds: selectedTagIds,
         };
         feedback = await axiosApi.feedbackApi.updateFeedback(
           existingFeedback.id,
@@ -236,7 +252,7 @@ export const ReviewFormModal = ({
           orderId: null,
           rating,
           comment: comment.trim() || null,
-          tagIds: [],
+          tagIds: selectedTagIds,
         };
         console.log('[ReviewFormModal] Submitting new feedback');
         feedback = await axiosApi.feedbackApi.submitFeedback(payload);
@@ -496,6 +512,45 @@ export const ReviewFormModal = ({
                   );
                 })}
               </ScrollView>
+            </View>
+          )}
+
+          {/* Tags */}
+          {availableTags.length > 0 && (
+            <View className="mb-5">
+              <Text className="mb-3 text-sm font-medium text-gray-700">
+                Nhãn (Tuỳ chọn)
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {availableTags.map((tag) => {
+                  const isSelected = selectedTagIds.includes(tag.id);
+                  return (
+                    <TouchableOpacity
+                      key={tag.id}
+                      onPress={() =>
+                        setSelectedTagIds((prev) =>
+                          isSelected
+                            ? prev.filter((id) => id !== tag.id)
+                            : [...prev, tag.id]
+                        )
+                      }
+                      className={`rounded-full border px-3 py-1.5 ${
+                        isSelected
+                          ? 'border-primary bg-primary'
+                          : 'border-gray-200 bg-white'
+                      }`}
+                    >
+                      <Text
+                        className={`text-xs font-medium ${
+                          isSelected ? 'text-white' : 'text-gray-600'
+                        }`}
+                      >
+                        {tag.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
           )}
 

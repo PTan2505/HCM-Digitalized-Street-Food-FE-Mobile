@@ -211,6 +211,7 @@ export const RestaurantDetailsScreen = ({
       rating: f.rating,
       comment: f.comment ?? '',
       imageUris: f.images?.map((img) => img.url) ?? [],
+      tags: f.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
       isOwn: f.id === ownFeedback?.id,
     };
   });
