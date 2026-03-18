@@ -42,7 +42,7 @@ interface ReviewFormModalProps {
   /** Pass to open in edit mode */
   existingFeedback?: Feedback;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (feedback: Feedback, isEdit: boolean) => void;
 }
 
 export const ReviewFormModal = ({
@@ -178,7 +178,7 @@ export const ReviewFormModal = ({
     setSubmitError(null);
 
     try {
-      let feedbackId: number;
+      let feedback: Feedback;
 
       if (isEditMode) {
         const payload: UpdateFeedbackRequest = {
@@ -186,12 +186,11 @@ export const ReviewFormModal = ({
           rating,
           comment: comment.trim() || undefined,
         };
-        const updated = await axiosApi.feedbackApi.updateFeedback(
+        feedback = await axiosApi.feedbackApi.updateFeedback(
           existingFeedback.id,
           payload
         );
-        feedbackId = updated.id;
-        await deleteRemovedImages(feedbackId);
+        await deleteRemovedImages(feedback.id);
       } else {
         const payload: SubmitFeedbackRequest = {
           branchId,
@@ -201,14 +200,18 @@ export const ReviewFormModal = ({
           comment: comment.trim() || null,
           tagIds: [],
         };
-        const created = await axiosApi.feedbackApi.submitFeedback(payload);
-        feedbackId = created.id;
+        feedback = await axiosApi.feedbackApi.submitFeedback(payload);
       }
 
-      await uploadImages(feedbackId);
+      await uploadImages(feedback.id);
+
+      // Fetch updated feedback with images after upload
+      const updatedFeedback = await axiosApi.feedbackApi.getFeedback(
+        feedback.id
+      );
 
       if (!isEditMode) reset();
-      onSuccess();
+      onSuccess(updatedFeedback, isEditMode);
     } catch (err: unknown) {
       const apiErr = err as { status?: number; message?: string };
       if (apiErr?.status === 400) {

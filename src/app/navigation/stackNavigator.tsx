@@ -54,6 +54,7 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
+        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
       },
     },
     CurrentPicks: {

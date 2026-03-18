@@ -10,12 +10,14 @@ interface ActionButtonsProps {
   onBookmark?: () => void;
   onShare?: () => void;
   onAddToCurrentPick?: () => void;
+  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
 }
 
 const ActionButtons = ({
   branch,
   displayName,
   onBookmark,
+  onRatingUpdate,
 }: ActionButtonsProps): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -29,6 +31,7 @@ const ActionButtons = ({
             branch,
             displayName,
             tab: 'menu',
+            onRatingUpdate,
           });
         }}
         className="h-14 flex-1 items-center justify-center rounded-full bg-[#FF6B2C]"

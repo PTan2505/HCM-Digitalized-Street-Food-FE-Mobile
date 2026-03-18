@@ -6,6 +6,7 @@ export interface OwnBranchFeedbackResult {
   ownFeedback: Feedback | undefined;
   isLoading: boolean;
   refetch: () => void;
+  setOwnFeedback: (feedback: Feedback | undefined) => void;
 }
 
 /**
@@ -46,5 +47,17 @@ export const useOwnBranchFeedback = (
     fetch();
   }, [fetch]);
 
-  return { ownFeedback, isLoading, refetch: fetch };
+  const setOwnFeedbackManually = useCallback(
+    (feedback: Feedback | undefined) => {
+      setOwnFeedback(feedback);
+    },
+    []
+  );
+
+  return {
+    ownFeedback,
+    isLoading,
+    refetch: fetch,
+    setOwnFeedback: setOwnFeedbackManually,
+  };
 };

@@ -13,7 +13,7 @@ import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -32,6 +32,19 @@ export const RestaurantSwipeScreen = ({
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const { branch, displayName } = route.params;
+  const [avgRating, setAvgRating] = useState(branch.avgRating);
+  const [totalReviewCount, setTotalReviewCount] = useState(
+    branch.totalReviewCount
+  );
+
+  const handleRatingUpdate = useCallback(
+    (newAvgRating: number, newTotalReviewCount: number) => {
+      setAvgRating(newAvgRating);
+      setTotalReviewCount(newTotalReviewCount);
+    },
+    []
+  );
+
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
 
   useEffect(() => {
@@ -45,8 +58,8 @@ export const RestaurantSwipeScreen = ({
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,
-    rating: branch.avgRating,
-    totalReviewCount: branch.totalReviewCount,
+    rating: avgRating,
+    totalReviewCount,
     address: [branch.addressDetail, branch.ward, branch.city]
       .filter(Boolean)
       .join(', '),
@@ -142,7 +155,11 @@ export const RestaurantSwipeScreen = ({
 
           <View className="overflow-hidden rounded-b-3xl bg-white">
             <RestaurantInfo restaurant={restaurantInfo} />
-            <ActionButtons branch={branch} displayName={displayName} />
+            <ActionButtons
+              branch={branch}
+              displayName={displayName}
+              onRatingUpdate={handleRatingUpdate}
+            />
           </View>
 
           <SwipeUpPrompt />

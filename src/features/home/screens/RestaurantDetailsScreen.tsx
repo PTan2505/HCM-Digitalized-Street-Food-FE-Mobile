@@ -1,7 +1,6 @@
 import type { VendorTier } from '@custom-types/vendor';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
-import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import FixedHeaderControls from '@features/home/components/restaurantDetails/FixedHeaderControls';
 import HeaderImage from '@features/home/components/restaurantDetails/HeaderImage';
 import MenuTab from '@features/home/components/restaurantDetails/MenuTab';
@@ -11,6 +10,7 @@ import type { Review } from '@features/home/components/restaurantDetails/Reviews
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import TabsBar from '@features/home/components/restaurantDetails/TabsBar';
+import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
@@ -38,12 +38,13 @@ type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
   tab?: TabType;
+  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
 }>;
 
 export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
-  const { branch, displayName, tab } = route.params;
+  const { branch, displayName, tab, onRatingUpdate } = route.params;
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
 
@@ -61,11 +62,11 @@ export const RestaurantDetailsScreen = ({
     feedbacks,
     averageRating,
     totalCount,
-    refetch: refetchFeedback,
+    addFeedback,
+    updateFeedback,
+    removeFeedback,
   } = useBranchFeedback(branch.branchId);
-  const { ownFeedback, refetch: refetchOwnFeedback } = useOwnBranchFeedback(
-    branch.branchId
-  );
+  const { ownFeedback, setOwnFeedback } = useOwnBranchFeedback(branch.branchId);
   const {
     canReview,
     reason: reviewIneligibilityReason,
@@ -98,15 +99,15 @@ export const RestaurantDetailsScreen = ({
       axiosApi.feedbackApi
         .deleteFeedback(feedbackId)
         .then(() => {
-          refetchFeedback();
-          refetchOwnFeedback();
+          removeFeedback(feedbackId);
+          setOwnFeedback(undefined);
           refetchVelocity();
         })
         .catch(() => {
           Alert.alert('Lỗi', 'Không thể xoá đánh giá. Vui lòng thử lại.');
         });
     },
-    [refetchFeedback, refetchOwnFeedback, refetchVelocity]
+    [removeFeedback, setOwnFeedback, refetchVelocity]
   );
 
   const handleEditReview = useCallback(() => {
@@ -118,6 +119,38 @@ export const RestaurantDetailsScreen = ({
     setEditingFeedback(undefined);
     setShowReviewModal(true);
   };
+
+  const handleReviewSuccess = useCallback(
+    (feedback: Feedback, isEdit: boolean) => {
+      setShowReviewModal(false);
+      if (isEdit) {
+        updateFeedback(feedback);
+        const oldRating = ownFeedback?.rating ?? feedback.rating;
+        const newAvg =
+          (averageRating * totalCount - oldRating + feedback.rating) /
+          totalCount;
+        onRatingUpdate?.(newAvg, totalCount);
+      } else {
+        addFeedback(feedback);
+        refetchVelocity();
+        const newCount = totalCount + 1;
+        const newAvg =
+          (averageRating * totalCount + feedback.rating) / newCount;
+        onRatingUpdate?.(newAvg, newCount);
+      }
+      setOwnFeedback(feedback);
+    },
+    [
+      addFeedback,
+      updateFeedback,
+      setOwnFeedback,
+      refetchVelocity,
+      averageRating,
+      totalCount,
+      ownFeedback,
+      onRatingUpdate,
+    ]
+  );
 
   const rawImageUrls = branchImageMap[branch.branchId] ?? [];
   const restaurantBanners =
@@ -211,12 +244,7 @@ export const RestaurantDetailsScreen = ({
         dishes={branch.dishes}
         existingFeedback={editingFeedback}
         onClose={() => setShowReviewModal(false)}
-        onSuccess={() => {
-          setShowReviewModal(false);
-          refetchFeedback();
-          refetchOwnFeedback();
-          refetchVelocity();
-        }}
+        onSuccess={handleReviewSuccess}
       />
     </SafeAreaView>
   );
