@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { Dish } from '@features/home/types/branch';
 import type {
   Feedback,
@@ -5,13 +6,12 @@ import type {
   UpdateFeedbackRequest,
 } from '@features/home/types/feedback';
 import { axiosApi } from '@lib/api/apiInstance';
+import type { PickedImage } from '@utils/imagePicker';
 import {
   compressImageForUpload,
   pickImagesFromLibrary,
   takePhotoWithCamera,
 } from '@utils/imagePicker';
-import type { PickedImage } from '@utils/imagePicker';
-import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import {
@@ -256,7 +256,7 @@ export const ReviewFormModal = ({
           {/* Star rating */}
           <View className="mb-6 mt-5 items-center">
             <Text className="mb-3 text-sm font-medium text-gray-700">
-              Đánh giá của bạn *
+              Đánh giá của bạn
             </Text>
             <View className="flex-row gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -278,8 +278,8 @@ export const ReviewFormModal = ({
           {/* Dish selector */}
           {dishes.length > 0 && (
             <View className="mb-5">
-              <Text className="mb-2 text-sm font-medium text-gray-700">
-                Món ăn (tuỳ chọn)
+              <Text className="mb-3 text-sm font-medium text-gray-700">
+                Món ăn (Tuỳ chọn)
               </Text>
               <ScrollView
                 horizontal
@@ -294,17 +294,160 @@ export const ReviewFormModal = ({
                       onPress={() =>
                         setSelectedDishId(isSelected ? null : dish.dishId)
                       }
-                      className={`mx-1 rounded-full border px-3 py-1.5 ${
+                      className={`mx-1 w-40 overflow-hidden rounded-2xl border ${
                         isSelected
-                          ? 'border-primary bg-primary'
+                          ? 'border-primary bg-primary-light/20'
                           : 'border-gray-200 bg-white'
                       }`}
+                      style={{
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 1 },
+                        shadowOpacity: 0.05,
+                        shadowRadius: 3,
+                        elevation: 2,
+                      }}
+                      disabled={dish.isSoldOut}
                     >
-                      <Text
-                        className={`text-xs font-medium ${isSelected ? 'text-white' : 'text-gray-700'}`}
-                      >
-                        {dish.name}
-                      </Text>
+                      {/* Dish Image */}
+                      {dish.imageUrl ? (
+                        <View className="relative">
+                          <Image
+                            source={{ uri: dish.imageUrl }}
+                            className="h-24 w-full"
+                            resizeMode="cover"
+                          />
+                          {dish.isSoldOut && (
+                            <View className="absolute inset-0 items-center justify-center bg-black/50">
+                              <Text className="text-xs font-semibold text-white">
+                                HẾT HÀNG
+                              </Text>
+                            </View>
+                          )}
+                          {isSelected && (
+                            <View className="absolute right-2 top-2 rounded-full bg-primary p-1">
+                              <Ionicons
+                                name="checkmark"
+                                size={14}
+                                color="#fff"
+                              />
+                            </View>
+                          )}
+                        </View>
+                      ) : (
+                        <View
+                          className={`h-24 w-full items-center justify-center ${
+                            dish.isSoldOut ? 'bg-gray-200' : 'bg-gray-100'
+                          }`}
+                        >
+                          <Ionicons
+                            name="restaurant-outline"
+                            size={32}
+                            color={dish.isSoldOut ? '#9CA3AF' : '#D1D5DB'}
+                          />
+                          {dish.isSoldOut && (
+                            <Text className="mt-1 text-xs font-semibold text-gray-500">
+                              HẾT HÀNG
+                            </Text>
+                          )}
+                          {isSelected && !dish.isSoldOut && (
+                            <View className="absolute right-2 top-2 rounded-full bg-primary p-1">
+                              <Ionicons
+                                name="checkmark"
+                                size={14}
+                                color="#fff"
+                              />
+                            </View>
+                          )}
+                        </View>
+                      )}
+
+                      {/* Dish Details */}
+                      <View className="p-3">
+                        <Text
+                          className={`mb-1 text-sm font-semibold ${
+                            dish.isSoldOut
+                              ? 'text-gray-400'
+                              : isSelected
+                                ? 'text-primary-dark'
+                                : 'text-gray-900'
+                          }`}
+                          numberOfLines={1}
+                        >
+                          {dish.name}
+                        </Text>
+
+                        <Text
+                          className={`mb-2 text-xs font-medium ${
+                            dish.isSoldOut ? 'text-gray-400' : 'text-primary'
+                          }`}
+                        >
+                          {dish.price.toLocaleString('vi-VN')}đ
+                        </Text>
+
+                        {dish.description && (
+                          <Text
+                            className={`mb-2 text-xs ${
+                              dish.isSoldOut ? 'text-gray-400' : 'text-gray-600'
+                            }`}
+                            numberOfLines={2}
+                          >
+                            {dish.description}
+                          </Text>
+                        )}
+
+                        {/* Taste Tags */}
+                        {dish.tasteNames.length > 0 && (
+                          <View className="flex-row flex-wrap gap-1">
+                            {dish.tasteNames.slice(0, 2).map((taste, idx) => (
+                              <View
+                                key={idx}
+                                className={`rounded-full px-2 py-0.5 ${
+                                  dish.isSoldOut
+                                    ? 'bg-gray-100'
+                                    : isSelected
+                                      ? 'bg-primary/20'
+                                      : 'bg-gray-100'
+                                }`}
+                              >
+                                <Text
+                                  className={`text-[10px] ${
+                                    dish.isSoldOut
+                                      ? 'text-gray-400'
+                                      : isSelected
+                                        ? 'text-primary-dark'
+                                        : 'text-gray-600'
+                                  }`}
+                                >
+                                  {taste}
+                                </Text>
+                              </View>
+                            ))}
+                            {dish.tasteNames.length > 2 && (
+                              <View
+                                className={`rounded-full px-2 py-0.5 ${
+                                  dish.isSoldOut
+                                    ? 'bg-gray-100'
+                                    : isSelected
+                                      ? 'bg-primary/20'
+                                      : 'bg-gray-100'
+                                }`}
+                              >
+                                <Text
+                                  className={`text-[10px] ${
+                                    dish.isSoldOut
+                                      ? 'text-gray-400'
+                                      : isSelected
+                                        ? 'text-primary-dark'
+                                        : 'text-gray-600'
+                                  }`}
+                                >
+                                  +{dish.tasteNames.length - 2}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        )}
+                      </View>
                     </TouchableOpacity>
                   );
                 })}
@@ -315,7 +458,7 @@ export const ReviewFormModal = ({
           {/* Comment */}
           <View className="mb-5">
             <Text className="mb-2 text-sm font-medium text-gray-700">
-              Nhận xét (tuỳ chọn)
+              Nhận xét
             </Text>
             <TextInput
               value={comment}
