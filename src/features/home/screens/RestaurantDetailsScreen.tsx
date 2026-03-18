@@ -96,18 +96,40 @@ export const RestaurantDetailsScreen = ({
 
   const handleDeleteReview = useCallback(
     (feedbackId: number) => {
+      const deletedFeedback = feedbacks.find((f) => f.id === feedbackId);
+      if (!deletedFeedback) return;
+
       axiosApi.feedbackApi
         .deleteFeedback(feedbackId)
         .then(() => {
           removeFeedback(feedbackId);
           setOwnFeedback(undefined);
           refetchVelocity();
+
+          // Recalculate rating after deletion
+          if (totalCount > 1) {
+            const newCount = totalCount - 1;
+            const newAvg =
+              (averageRating * totalCount - deletedFeedback.rating) / newCount;
+            onRatingUpdate?.(newAvg, newCount);
+          } else {
+            // If this was the only review, reset to 0
+            onRatingUpdate?.(0, 0);
+          }
         })
         .catch(() => {
           Alert.alert('Lỗi', 'Không thể xoá đánh giá. Vui lòng thử lại.');
         });
     },
-    [removeFeedback, setOwnFeedback, refetchVelocity]
+    [
+      feedbacks,
+      removeFeedback,
+      setOwnFeedback,
+      refetchVelocity,
+      averageRating,
+      totalCount,
+      onRatingUpdate,
+    ]
   );
 
   const handleEditReview = useCallback(() => {

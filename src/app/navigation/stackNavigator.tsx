@@ -46,6 +46,7 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branch: ActiveBranch;
         displayName: string;
+        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
       },
     },
     RestaurantDetails: {

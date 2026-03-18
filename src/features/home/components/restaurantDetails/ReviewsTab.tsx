@@ -41,7 +41,7 @@ interface ReviewsTabProps {
 const INELIGIBILITY_MESSAGES: Record<ReviewIneligibilityReason, string> = {
   permission_denied: 'Cần quyền truy cập vị trí để đánh giá',
   too_far: 'Bạn cần ở gần quán hơn để đánh giá',
-  daily_limit_reached: 'Bạn đã đánh giá đủ 3 lần hôm nay',
+  daily_limit_reached: 'Bạn đã đánh giá đủ số lần cho phép hôm nay',
   already_reviewed_today: 'Bạn đã đánh giá quán này hôm nay',
   loading: '',
 };

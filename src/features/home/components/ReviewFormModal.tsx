@@ -66,6 +66,8 @@ export const ReviewFormModal = ({
   const [keptImages, setKeptImages] = useState<KeptImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isCheckingLimit, setIsCheckingLimit] = useState(false);
+  const [canSubmitReview, setCanSubmitReview] = useState(true);
 
   // Sync fields when the modal opens or switches between write/edit mode
   useEffect(() => {
@@ -81,8 +83,29 @@ export const ReviewFormModal = ({
       );
       setNewImages([]);
       setSubmitError(null);
+
+      // Check if user can submit a new review (only in write mode)
+      if (!isEditMode) {
+        setIsCheckingLimit(true);
+        setCanSubmitReview(true);
+        axiosApi.feedbackApi
+          .checkVelocity()
+          .then((velocityData) => {
+            console.log('[ReviewFormModal] Velocity check:', velocityData);
+            if (velocityData.remainingTotalToday === 0) {
+              setCanSubmitReview(false);
+              setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
+            }
+          })
+          .catch((error) => {
+            console.log('[ReviewFormModal] Velocity check failed:', error);
+            // On error, allow submission (fail open)
+            setCanSubmitReview(true);
+          })
+          .finally(() => setIsCheckingLimit(false));
+      }
     }
-  }, [visible, existingFeedback]);
+  }, [visible, existingFeedback, isEditMode]);
 
   const reset = (): void => {
     setRating(0);
@@ -91,6 +114,8 @@ export const ReviewFormModal = ({
     setNewImages([]);
     setKeptImages([]);
     setSubmitError(null);
+    setIsCheckingLimit(false);
+    setCanSubmitReview(true);
   };
 
   const handleClose = (): void => {
@@ -169,8 +194,21 @@ export const ReviewFormModal = ({
   };
 
   const handleSubmit = async (): Promise<void> => {
+    console.log('[ReviewFormModal] Submit attempt:', {
+      isEditMode,
+      canSubmitReview,
+      rating,
+    });
+
     if (rating === 0) {
       setSubmitError('Vui lòng chọn số sao đánh giá');
+      return;
+    }
+
+    // Check daily limit (only in write mode)
+    if (!isEditMode && !canSubmitReview) {
+      console.log('[ReviewFormModal] Blocked: daily limit reached');
+      setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
       return;
     }
 
@@ -200,6 +238,7 @@ export const ReviewFormModal = ({
           comment: comment.trim() || null,
           tagIds: [],
         };
+        console.log('[ReviewFormModal] Submitting new feedback');
         feedback = await axiosApi.feedbackApi.submitFeedback(payload);
       }
 
@@ -213,6 +252,7 @@ export const ReviewFormModal = ({
       if (!isEditMode) reset();
       onSuccess(updatedFeedback, isEditMode);
     } catch (err: unknown) {
+      console.log('[ReviewFormModal] Submit error:', err);
       const apiErr = err as { status?: number; message?: string };
       if (apiErr?.status === 400) {
         setSubmitError(
@@ -221,6 +261,7 @@ export const ReviewFormModal = ({
         );
       } else if (apiErr?.status === 429) {
         setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
+        setCanSubmitReview(false); // Prevent retry
       } else {
         setSubmitError('Gửi đánh giá thất bại. Vui lòng thử lại.');
       }
@@ -560,16 +601,30 @@ export const ReviewFormModal = ({
         <View className="border-t border-gray-100 px-4 py-3">
           <TouchableOpacity
             onPress={handleSubmit}
-            disabled={isSubmitting || rating === 0}
+            disabled={
+              isSubmitting ||
+              isCheckingLimit ||
+              rating === 0 ||
+              (!isEditMode && !canSubmitReview)
+            }
             className={`items-center rounded-xl py-3.5 ${
-              isSubmitting || rating === 0 ? 'bg-gray-200' : 'bg-primary'
+              isSubmitting ||
+              isCheckingLimit ||
+              rating === 0 ||
+              (!isEditMode && !canSubmitReview)
+                ? 'bg-gray-200'
+                : 'bg-primary'
             }`}
           >
-            {isSubmitting ? (
+            {isSubmitting || isCheckingLimit ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <Text
-                className={`text-sm font-semibold ${rating === 0 ? 'text-gray-400' : 'text-white'}`}
+                className={`text-sm font-semibold ${
+                  rating === 0 || (!isEditMode && !canSubmitReview)
+                    ? 'text-gray-400'
+                    : 'text-white'
+                }`}
               >
                 {isEditMode ? 'Lưu thay đổi' : 'Gửi đánh giá'}
               </Text>

@@ -14,6 +14,7 @@ import {
   selectBranchesLoadingMore,
   selectBranchesStatus,
   selectMultiBranchVendorIds,
+  updateBranchRating,
 } from '@slices/branches';
 import {
   fetchCategories,
@@ -212,6 +213,14 @@ export const HomeScreen = (): JSX.Element => {
     }
   }, [user, userStatus, navigation]);
 
+  // Callback to update branch rating in Redux when navigating back from detail screens
+  const handleRatingUpdate = useCallback(
+    (branchId: number, avgRating: number, totalReviewCount: number) => {
+      dispatch(updateBranchRating({ branchId, avgRating, totalReviewCount }));
+    },
+    [dispatch]
+  );
+
   const multiBranchSet = new Set(multiBranchVendorIds);
 
   // useMemo prevents a new JSX reference on every render, which would cause
@@ -339,6 +348,12 @@ export const HomeScreen = (): JSX.Element => {
                     navigation.navigate('RestaurantSwipe', {
                       branch: item,
                       displayName,
+                      onRatingUpdate: (avgRating, totalReviewCount) =>
+                        handleRatingUpdate(
+                          item.branchId,
+                          avgRating,
+                          totalReviewCount
+                        ),
                     })
                   }
                 />

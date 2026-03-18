@@ -146,7 +146,25 @@ export const fetchBranchAllImages = createAppAsyncThunk(
 const branchesSlice = createSlice({
   name: 'branches',
   initialState,
-  reducers: {},
+  reducers: {
+    updateBranchRating: (
+      state,
+      action: {
+        payload: {
+          branchId: number;
+          avgRating: number;
+          totalReviewCount: number;
+        };
+      }
+    ) => {
+      const { branchId, avgRating, totalReviewCount } = action.payload;
+      const branch = state.branches.find((b) => b.branchId === branchId);
+      if (branch) {
+        branch.avgRating = avgRating;
+        branch.totalReviewCount = totalReviewCount;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchActiveBranches.pending, (state, action) => {
@@ -204,6 +222,8 @@ const branchesSlice = createSlice({
       });
   },
 });
+
+export const { updateBranchRating } = branchesSlice.actions;
 
 export default branchesSlice.reducer;
 

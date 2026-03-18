@@ -20,6 +20,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 type RestaurantSwipeScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
+  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
 }>;
 
 const PLACEHOLDER_IMAGE =
@@ -31,7 +32,7 @@ export const RestaurantSwipeScreen = ({
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
-  const { branch, displayName } = route.params;
+  const { branch, displayName, onRatingUpdate } = route.params;
   const [avgRating, setAvgRating] = useState(branch.avgRating);
   const [totalReviewCount, setTotalReviewCount] = useState(
     branch.totalReviewCount
@@ -39,10 +40,13 @@ export const RestaurantSwipeScreen = ({
 
   const handleRatingUpdate = useCallback(
     (newAvgRating: number, newTotalReviewCount: number) => {
+      // Update local state for immediate UI feedback
       setAvgRating(newAvgRating);
       setTotalReviewCount(newTotalReviewCount);
+      // Update Redux state so HomeScreen sees the change
+      onRatingUpdate?.(newAvgRating, newTotalReviewCount);
     },
-    []
+    [onRatingUpdate]
   );
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
