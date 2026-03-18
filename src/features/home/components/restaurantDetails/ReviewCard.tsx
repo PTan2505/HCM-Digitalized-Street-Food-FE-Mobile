@@ -78,6 +78,42 @@ const ReviewCard = ({
     onEdit?.();
   };
 
+  // Render star icons based on rating
+  const renderStars = (): JSX.Element[] => {
+    const stars: JSX.Element[] = [];
+    const fullStars = Math.floor(review.rating);
+    const hasHalfStar = review.rating % 1 >= 0.5;
+
+    // Full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <Ionicons key={`full-${i}`} name="star" size={14} color="#FFA500" />
+      );
+    }
+
+    // Half star
+    if (hasHalfStar && fullStars < 5) {
+      stars.push(
+        <Ionicons key="half" name="star-half" size={14} color="#FFA500" />
+      );
+    }
+
+    // Empty stars
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <Ionicons
+          key={`empty-${i}`}
+          name="star-outline"
+          size={14}
+          color="#FFA500"
+        />
+      );
+    }
+
+    return stars;
+  };
+
   return (
     <View
       className="mx-2 rounded-2xl bg-white p-4"
@@ -126,12 +162,6 @@ const ReviewCard = ({
 
         {/* Rating + own actions */}
         <View className="items-end gap-1.5">
-          <View className="flex-row items-center gap-1">
-            <Text className="text-sm font-semibold text-black">
-              {review.rating}
-            </Text>
-            <Ionicons name="star" size={14} color="#FFA500" />
-          </View>
           {review.isOwn && (
             <View ref={buttonRef} collapsable={false}>
               <TouchableOpacity
@@ -139,11 +169,7 @@ const ReviewCard = ({
                 hitSlop={8}
                 className="rounded-full p-1"
               >
-                <Ionicons
-                  name="ellipsis-horizontal"
-                  size={18}
-                  color="#6B7280"
-                />
+                <Ionicons name="ellipsis-vertical" size={18} color="#6B7280" />
               </TouchableOpacity>
 
               {/* Dropdown Menu Modal */}
@@ -218,6 +244,7 @@ const ReviewCard = ({
       </View>
 
       {/* Comment */}
+      <View className="mb-3 flex-row items-center gap-1">{renderStars()}</View>
       <Text className="mb-3 text-sm leading-5 text-gray-700">
         {review.comment}
       </Text>
