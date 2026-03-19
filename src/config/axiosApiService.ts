@@ -61,13 +61,6 @@ axiosInstance.interceptors.request.use(
       );
     }
 
-    const query = config.params
-      ? `?${serializeParams(config.params as Record<string, unknown>)}`
-      : '';
-    console.log(
-      `[API] ${config.method?.toUpperCase()} ${config.baseURL ?? ''}${config.url ?? ''}${query}`
-    );
-
     return config;
   },
   (error) => {

@@ -75,7 +75,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
         <View className="flex-row items-center gap-0.5">
           <Ionicons name="star" size={16} color="#FACC15" />
           <Text className="text-sm font-semibold text-[#FACC15]">
-            {restaurant.rating}
+            {restaurant.rating.toFixed(1)}
           </Text>
         </View>
         <Text className="text-sm text-gray-600">

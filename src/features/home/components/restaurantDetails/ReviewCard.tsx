@@ -30,18 +30,24 @@ export interface Review {
   imageUris: string[];
   tags: ReviewTag[];
   isOwn: boolean;
+  dishName?: string;
+  upVotes: number;
+  downVotes: number;
+  userVote: 'up' | 'down' | null;
 }
 
 interface ReviewCardProps {
   review: Review;
   onEdit?: () => void;
   onDelete?: (feedbackId: number) => void;
+  onVote?: (feedbackId: number, voteType: 'up' | 'down') => void;
 }
 
 const ReviewCard = ({
   review,
   onEdit,
   onDelete,
+  onVote,
 }: ReviewCardProps): JSX.Element => {
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
@@ -168,7 +174,7 @@ const ReviewCard = ({
 
         {/* Rating + own actions */}
         <View className="items-end gap-1.5">
-          {review.isOwn && (
+          {review.isOwn ? (
             <View ref={buttonRef} collapsable={false}>
               <TouchableOpacity
                 onPress={handleOpenMenu}
@@ -245,12 +251,60 @@ const ReviewCard = ({
                 </View>
               </Modal>
             </View>
+          ) : (
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                onPress={() => onVote?.(review.feedbackId, 'up')}
+                hitSlop={6}
+              >
+                <Ionicons
+                  name={
+                    review.userVote === 'up' ? 'thumbs-up' : 'thumbs-up-outline'
+                  }
+                  size={18}
+                  color={review.userVote === 'up' ? '#7AB82D' : '#9CA3AF'}
+                />
+              </TouchableOpacity>
+              <Text
+                className={`min-w-[16px] text-center text-xs font-semibold ${
+                  review.upVotes - review.downVotes > 0
+                    ? 'text-[#7AB82D]'
+                    : review.upVotes - review.downVotes < 0
+                      ? 'text-red-400'
+                      : 'text-gray-400'
+                }`}
+              >
+                {review.upVotes - review.downVotes}
+              </Text>
+              <TouchableOpacity
+                onPress={() => onVote?.(review.feedbackId, 'down')}
+                hitSlop={6}
+              >
+                <Ionicons
+                  name={
+                    review.userVote === 'down'
+                      ? 'thumbs-down'
+                      : 'thumbs-down-outline'
+                  }
+                  size={18}
+                  color={review.userVote === 'down' ? '#EF4444' : '#9CA3AF'}
+                />
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       </View>
 
       {/* Stars */}
       <View className="mb-2 flex-row items-center gap-1">{renderStars()}</View>
+
+      {/* Dish name */}
+      {review.dishName ? (
+        <View className="mb-2 flex-row items-center gap-1">
+          <Ionicons name="restaurant-outline" size={13} color="#9CA3AF" />
+          <Text className="text-xs text-gray-400">{review.dishName}</Text>
+        </View>
+      ) : null}
 
       {/* Tags */}
       {review.tags.length > 0 && (

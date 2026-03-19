@@ -105,14 +105,12 @@ export const ReviewFormModal = ({
         axiosApi.feedbackApi
           .checkVelocity()
           .then((velocityData) => {
-            console.log('[ReviewFormModal] Velocity check:', velocityData);
             if (velocityData.remainingTotalToday === 0) {
               setCanSubmitReview(false);
               setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
             }
           })
-          .catch((error) => {
-            console.log('[ReviewFormModal] Velocity check failed:', error);
+          .catch(() => {
             // On error, allow submission (fail open)
             setCanSubmitReview(true);
           })
@@ -209,12 +207,6 @@ export const ReviewFormModal = ({
   };
 
   const handleSubmit = async (): Promise<void> => {
-    console.log('[ReviewFormModal] Submit attempt:', {
-      isEditMode,
-      canSubmitReview,
-      rating,
-    });
-
     if (rating === 0) {
       setSubmitError('Vui lòng chọn số sao đánh giá');
       return;
@@ -222,7 +214,6 @@ export const ReviewFormModal = ({
 
     // Check daily limit (only in write mode)
     if (!isEditMode && !canSubmitReview) {
-      console.log('[ReviewFormModal] Blocked: daily limit reached');
       setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
       return;
     }
@@ -254,7 +245,6 @@ export const ReviewFormModal = ({
           comment: comment.trim() || null,
           tagIds: selectedTagIds,
         };
-        console.log('[ReviewFormModal] Submitting new feedback');
         feedback = await axiosApi.feedbackApi.submitFeedback(payload);
       }
 
@@ -268,7 +258,6 @@ export const ReviewFormModal = ({
       if (!isEditMode) reset();
       onSuccess(updatedFeedback, isEditMode);
     } catch (err: unknown) {
-      console.log('[ReviewFormModal] Submit error:', err);
       const apiErr = err as { status?: number; message?: string };
       if (apiErr?.status === 400) {
         setSubmitError(
@@ -581,7 +570,7 @@ export const ReviewFormModal = ({
           <View className="mb-5">
             <View className="mb-2 flex-row items-center justify-between">
               <Text className="text-sm font-medium text-gray-700">
-                Hình ảnh (tuỳ chọn)
+                Hình ảnh (Tuỳ chọn)
               </Text>
               <Text className="text-xs text-gray-400">
                 {totalImageCount}/{MAX_IMAGES}

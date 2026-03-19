@@ -36,6 +36,7 @@ interface ReviewsTabProps {
   onWriteReview: () => void;
   onEditOwnReview: () => void;
   onDeleteReview: (feedbackId: number) => void;
+  onVoteReview: (feedbackId: number, voteType: 'up' | 'down') => void;
 }
 
 const INELIGIBILITY_MESSAGES: Record<ReviewIneligibilityReason, string> = {
@@ -57,6 +58,7 @@ const ReviewsTab = ({
   onWriteReview,
   onEditOwnReview,
   onDeleteReview,
+  onVoteReview,
 }: ReviewsTabProps): JSX.Element => {
   const { t } = useTranslation();
   const progress = useSharedValue<number>(0);
@@ -219,6 +221,7 @@ const ReviewsTab = ({
               review={item}
               onEdit={onEditOwnReview}
               onDelete={onDeleteReview}
+              onVote={onVoteReview}
             />
           )}
         />

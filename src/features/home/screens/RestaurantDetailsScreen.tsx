@@ -180,6 +180,48 @@ export const RestaurantDetailsScreen = ({
     ]
   );
 
+  const handleVoteReview = useCallback(
+    (feedbackId: number, voteType: 'up' | 'down') => {
+      const feedback = feedbacks.find((f) => f.id === feedbackId);
+      if (!feedback) return;
+
+      // Optimistic update
+      const isSameVote = feedback.userVote === voteType;
+      const optimistic = { ...feedback };
+      if (isSameVote) {
+        // Toggle off
+        optimistic.userVote = null;
+        if (voteType === 'up') optimistic.upVotes -= 1;
+        else optimistic.downVotes -= 1;
+      } else {
+        // Undo previous vote if any
+        if (feedback.userVote === 'up') optimistic.upVotes -= 1;
+        if (feedback.userVote === 'down') optimistic.downVotes -= 1;
+        // Apply new vote
+        optimistic.userVote = voteType;
+        if (voteType === 'up') optimistic.upVotes += 1;
+        else optimistic.downVotes += 1;
+      }
+      updateFeedback(optimistic);
+
+      axiosApi.feedbackApi
+        .voteFeedback(feedbackId, isSameVote ? voteType : voteType)
+        .then((res) => {
+          updateFeedback({
+            ...feedback,
+            upVotes: res.upVotes,
+            downVotes: res.downVotes,
+            userVote: res.userVote,
+          });
+        })
+        .catch(() => {
+          // Revert on failure
+          updateFeedback(feedback);
+        });
+    },
+    [feedbacks, updateFeedback]
+  );
+
   const rawImageUrls = branchImageMap[branch.branchId] ?? [];
   const restaurantBanners =
     rawImageUrls.length > 0
@@ -203,6 +245,7 @@ export const RestaurantDetailsScreen = ({
   };
 
   const reviews: Review[] = feedbacks.map((f): Review => {
+    const dishName = branch.dishes.find((d) => d.dishId === f.dishId)?.name;
     const createdAt = new Date(f.createdAt);
     return {
       id: String(f.id),
@@ -219,6 +262,10 @@ export const RestaurantDetailsScreen = ({
       imageUris: f.images?.map((img) => img.url) ?? [],
       tags: f.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
       isOwn: f.id === ownFeedback?.id,
+      dishName: dishName,
+      upVotes: f.upVotes,
+      downVotes: f.downVotes,
+      userVote: f.userVote,
     };
   });
 
@@ -265,6 +312,7 @@ export const RestaurantDetailsScreen = ({
             onWriteReview={handleOpenWriteReview}
             onEditOwnReview={handleEditReview}
             onDeleteReview={handleDeleteReview}
+            onVoteReview={handleVoteReview}
           />
         )}
 
