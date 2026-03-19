@@ -208,7 +208,11 @@
     "total": "Total",
     "items_count": "{{count}} items",
     "stall_closed": "Stall Closed",
-    "add": "Add"
+    "cancel": "Cancel",
+    "add": "Add",
+    "replace_title": "Change stall?",
+    "replace_message": "Your current cart will be cleared when you add items from a different stall.",
+    "replace_confirm": "Confirm"
   },
   "checkout": {
     "title": "Checkout",

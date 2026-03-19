@@ -1,17 +1,18 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { Dish } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import {
   addCartItemThunk,
+  clearCartThunk,
   removeCartItemThunk,
   selectCart,
-  selectCartLoading,
   updateCartItemThunk,
 } from '@slices/directOrdering';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -32,10 +33,22 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
-  const cartLoading = useAppSelector(selectCartLoading);
   const [activeCategory, setActiveCategory] = useState<string | undefined>(
     'all'
   );
+
+  // Optimistic quantity overrides — updated instantly on press, cleared when cart syncs
+  const [optimisticQty, setOptimisticQty] = useState<Record<number, number>>(
+    {}
+  );
+  const prevCartRef = useRef(cart);
+
+  useEffect(() => {
+    if (cart !== prevCartRef.current) {
+      prevCartRef.current = cart;
+      setOptimisticQty({});
+    }
+  }, [cart]);
 
   const categories = ['all', ...new Set(dishes.map((d) => d.categoryName))];
 
@@ -46,49 +59,88 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
 
   const getCartQuantity = useCallback(
     (dishId: number): number => {
-      return cart?.items.find((i) => i.dishId === dishId)?.quantity ?? 0;
+      if (dishId in optimisticQty) return optimisticQty[dishId];
+      if (cart?.branchId !== branchId) return 0;
+      return cart.items.find((i) => i.dishId === dishId)?.quantity ?? 0;
     },
-    [cart]
+    [cart, branchId, optimisticQty]
   );
 
-  const handleAdd = useCallback(
+  const getServerQuantity = useCallback(
+    (dishId: number): number => {
+      if (cart?.branchId !== branchId) return 0;
+      return cart.items.find((i) => i.dishId === dishId)?.quantity ?? 0;
+    },
+    [cart, branchId]
+  );
+
+  const addOrIncrement = useCallback(
     (dish: Dish) => {
-      const currentQty = getCartQuantity(dish.dishId);
-      if (currentQty === 0) {
+      const serverQty = getServerQuantity(dish.dishId);
+      const displayQty = getCartQuantity(dish.dishId);
+      const newQty = displayQty + 1;
+      setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
+
+      if (serverQty === 0) {
         dispatch(
           addCartItemThunk({
             branchId,
             dishId: dish.dishId,
-            quantity: 1,
+            quantity: newQty,
           })
         );
       } else {
         dispatch(
           updateCartItemThunk({
             dishId: dish.dishId,
-            quantity: currentQty + 1,
+            quantity: newQty,
           })
         );
       }
     },
-    [dispatch, branchId, getCartQuantity]
+    [dispatch, branchId, getCartQuantity, getServerQuantity]
+  );
+
+  const handleAdd = useCallback(
+    (dish: Dish) => {
+      if (cart && cart.items.length > 0 && cart.branchId !== branchId) {
+        Alert.alert(t('cart.replace_title'), t('cart.replace_message'), [
+          { text: t('cart.cancel'), style: 'cancel' },
+          {
+            text: t('cart.replace_confirm'),
+            style: 'destructive',
+            onPress: async (): Promise<void> => {
+              await dispatch(clearCartThunk()).unwrap();
+              addOrIncrement(dish);
+            },
+          },
+        ]);
+        return;
+      }
+      addOrIncrement(dish);
+    },
+    [cart, branchId, t, dispatch, addOrIncrement]
   );
 
   const handleDecrement = useCallback(
     (dish: Dish) => {
-      const currentQty = getCartQuantity(dish.dishId);
-      if (currentQty <= 1) {
+      const serverQty = getServerQuantity(dish.dishId);
+      const displayQty = getCartQuantity(dish.dishId);
+      const newQty = displayQty - 1;
+      setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
+
+      if (serverQty <= 1) {
         dispatch(removeCartItemThunk(dish.dishId));
       } else {
         dispatch(
           updateCartItemThunk({
             dishId: dish.dishId,
-            quantity: currentQty - 1,
+            quantity: newQty,
           })
         );
       }
     },
-    [dispatch, getCartQuantity]
+    [dispatch, getCartQuantity, getServerQuantity]
   );
 
   const renderDish = (dish: Dish): JSX.Element => {
@@ -124,35 +176,31 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
             ) : qty === 0 ? (
               <TouchableOpacity
                 onPress={() => handleAdd(dish)}
-                disabled={cartLoading}
+
                 className="rounded-full bg-[#a1d973] px-4 py-1.5"
               >
-                {cartLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text className="text-sm font-semibold text-white">
-                    {t('cart.add')}
-                  </Text>
-                )}
+                <Text className="text-sm font-semibold text-white">
+                  {t('cart.add')}
+                </Text>
               </TouchableOpacity>
             ) : (
               <View className="flex-row items-center rounded-full bg-gray-100">
                 <TouchableOpacity
                   onPress={() => handleDecrement(dish)}
-                  disabled={cartLoading}
-                  className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
+  
+                  className="h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <Text className="text-lg font-bold text-white">−</Text>
+                  <Ionicons name="remove-circle" size={32} color="#a1d973" />
                 </TouchableOpacity>
                 <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
                   {qty}
                 </Text>
                 <TouchableOpacity
                   onPress={() => handleAdd(dish)}
-                  disabled={cartLoading}
-                  className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
+  
+                  className="h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <Text className="text-lg font-bold text-white">+</Text>
+                  <Ionicons name="add-circle" size={32} color="#a1d973" />
                 </TouchableOpacity>
               </View>
             )}

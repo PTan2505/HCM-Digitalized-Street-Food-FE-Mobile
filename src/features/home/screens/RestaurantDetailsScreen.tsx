@@ -282,7 +282,7 @@ export const RestaurantDetailsScreen = ({
         onSuccess={handleReviewSuccess}
       />
 
-      {cart?.branchId === branch.branchId && cart.items.length > 0 && (
+      {cart && cart.items.length > 0 && (
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('PersonalCart', {

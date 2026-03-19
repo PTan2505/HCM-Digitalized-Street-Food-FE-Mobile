@@ -208,7 +208,11 @@
     "total": "Tổng cộng",
     "items_count": "{{count}} món",
     "stall_closed": "Đang đóng cửa",
-    "add": "Thêm"
+    "cancel": "Hủy",
+    "add": "Thêm",
+    "replace_title": "Thay đổi quán?",
+    "replace_message": "Giỏ hàng hiện tại sẽ bị xóa khi bạn thêm món từ quán khác.",
+    "replace_confirm": "Đồng ý"
   },
   "checkout": {
     "title": "Thanh toán",
