@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { useNavigation, StaticScreenProps } from '@react-navigation/native';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
   checkoutThunk,
   clearOrderError,
@@ -139,7 +139,7 @@ export const DirectCheckoutScreen = ({
                 {item.dishName} × {item.quantity}
               </Text>
               <Text className="text-sm font-semibold text-black">
-                {`${Math.round(item.lineTotal / 1000)}k`}
+                {`${item.lineTotal.toLocaleString('vi-VN')}đ`}
               </Text>
             </View>
           ))}

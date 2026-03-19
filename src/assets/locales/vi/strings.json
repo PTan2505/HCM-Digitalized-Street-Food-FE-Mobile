@@ -200,8 +200,8 @@
     "title": "Giỏ hàng",
     "empty": "Giỏ hàng trống",
     "empty_hint": "Hãy thêm món ăn từ menu",
-    "clear": "Xóa giỏ hàng",
-    "clear_confirm": "Bạn có chắc muốn xóa giỏ hàng?",
+    "clear": "Xoá giỏ hàng",
+    "clear_confirm": "Bạn có chắc muốn xoá giỏ hàng?",
     "place_order": "Đặt hàng",
     "note_placeholder": "Ghi chú cho quán (ví dụ: ít cay, không hành...)",
     "note_label": "Ghi chú",
@@ -212,7 +212,7 @@
     "cancel": "Hủy",
     "add": "Thêm",
     "replace_title": "Thay đổi quán?",
-    "replace_message": "Giỏ hàng hiện tại sẽ bị xóa khi bạn thêm món từ quán khác.",
+    "replace_message": "Giỏ hàng hiện tại sẽ bị xoá khi bạn thêm món từ quán khác.",
     "replace_confirm": "Đồng ý"
   },
   "checkout": {

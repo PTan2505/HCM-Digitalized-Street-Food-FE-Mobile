@@ -30,7 +30,12 @@ interface MenuTabProps {
   displayName: string;
 }
 
-const MenuTab = ({ dishes, branchId, isOpen, displayName }: MenuTabProps): JSX.Element => {
+const MenuTab = ({
+  dishes,
+  branchId,
+  isOpen,
+  displayName,
+}: MenuTabProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
@@ -181,7 +186,7 @@ const MenuTab = ({ dishes, branchId, isOpen, displayName }: MenuTabProps): JSX.E
           )}
           <View className="flex-row items-center justify-between">
             <Text className="text-base font-semibold text-[#00B14F]">
-              {`${dish.price.toLocaleString()}đ`}
+              {`${dish.price.toLocaleString('vi-VN')}đ`}
             </Text>
             {dish.isSoldOut ? (
               <Text className="text-xs text-red-400">

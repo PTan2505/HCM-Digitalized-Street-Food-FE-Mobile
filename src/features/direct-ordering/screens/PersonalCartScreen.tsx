@@ -18,6 +18,7 @@ import {
   Alert,
   Image,
   ScrollView,
+  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
@@ -87,6 +88,7 @@ export const PersonalCartScreen = ({
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+      <StatusBar barStyle="dark-content" />
       {/* Header */}
       <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -97,7 +99,7 @@ export const PersonalCartScreen = ({
         </Text>
         {!isEmpty && (
           <TouchableOpacity onPress={handleClearCart}>
-            <Text className="text-sm text-red-400">{t('cart.clear')}</Text>
+            <Ionicons name="trash-outline" size={18} color="#EF4444" />
           </TouchableOpacity>
         )}
       </View>
@@ -133,7 +135,7 @@ export const PersonalCartScreen = ({
                     {item.dishName}
                   </Text>
                   <Text className="mt-0.5 text-sm text-gray-400">
-                    {`${Math.round(item.unitPrice / 1000)}k`}
+                    {`${item.unitPrice.toLocaleString('vi-VN')}đ`}
                   </Text>
                 </View>
 
