@@ -1,6 +1,6 @@
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
 import type { JSX } from 'react';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -20,7 +20,7 @@ const CONTAINER_PADDING = 0;
 const CONTAINER_WIDTH = SCREEN_WIDTH - CONTAINER_PADDING;
 /** Each card is 78% of the container → ~1.28 cards visible at once */
 const CARD_WIDTH = Math.round(CONTAINER_WIDTH * 0.78);
-const CARD_HEIGHT = 290;
+const DEFAULT_CARD_HEIGHT = 300;
 
 export type { Review } from './ReviewCard';
 
@@ -79,6 +79,15 @@ const ReviewsTab = ({
 
   // Dynamic card width: full width if only 1 review, 78% if more than 1
   const cardWidth = displayReviews.length === 1 ? CONTAINER_WIDTH : CARD_WIDTH;
+
+  // Measure tallest card for dynamic carousel height
+  const [carouselHeight, setCarouselHeight] = useState(DEFAULT_CARD_HEIGHT);
+  const handleCardLayout = useCallback(
+    (height: number) => {
+      setCarouselHeight((prev) => Math.max(prev, height));
+    },
+    []
+  );
 
   return (
     <View>
@@ -210,19 +219,25 @@ const ReviewsTab = ({
           itemWidth={cardWidth}
           style={{
             width: CONTAINER_WIDTH,
-            height: CARD_HEIGHT,
+            height: carouselHeight,
             overflow: 'visible',
           }}
           data={displayReviews}
           onProgressChange={progress}
           loop={false}
           renderItem={({ item }) => (
-            <ReviewCard
-              review={item}
-              onEdit={onEditOwnReview}
-              onDelete={onDeleteReview}
-              onVote={onVoteReview}
-            />
+            <View
+              onLayout={(e): void =>
+                handleCardLayout(e.nativeEvent.layout.height)
+              }
+            >
+              <ReviewCard
+                review={item}
+                onEdit={onEditOwnReview}
+                onDelete={onDeleteReview}
+                onVote={onVoteReview}
+              />
+            </View>
           )}
         />
         <Pagination.Basic

@@ -266,6 +266,13 @@ export const RestaurantDetailsScreen = ({
       upVotes: f.upVotes,
       downVotes: f.downVotes,
       userVote: f.userVote,
+      vendorReply: f.vendorReply
+        ? {
+            content: f.vendorReply.content,
+            repliedBy: f.vendorReply.repliedBy,
+            createdAt: f.vendorReply.createdAt,
+          }
+        : undefined,
     };
   });
 

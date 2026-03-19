@@ -34,6 +34,11 @@ export interface Review {
   upVotes: number;
   downVotes: number;
   userVote: 'up' | 'down' | null;
+  vendorReply?: {
+    content: string;
+    repliedBy: string;
+    createdAt: string;
+  };
 }
 
 interface ReviewCardProps {
@@ -170,6 +175,17 @@ const ReviewCard = ({
             )}
           </View>
           <Text className="text-xs text-gray-400">{review.date}</Text>
+          <Text
+            className={`text-xs font-semibold ${
+              review.upVotes - review.downVotes > 0
+                ? 'text-[#7AB82D]'
+                : review.upVotes - review.downVotes < 0
+                  ? 'text-red-400'
+                  : 'text-gray-400'
+            }`}
+          >
+            {review.upVotes - review.downVotes} votes
+          </Text>
         </View>
 
         {/* Rating + own actions */}
@@ -332,7 +348,7 @@ const ReviewCard = ({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="flex-row"
+          className="mb-3 flex-row"
         >
           {review.imageUris.map((uri, index) => (
             <Image
@@ -343,6 +359,26 @@ const ReviewCard = ({
           ))}
         </ScrollView>
       )}
+
+      {/* Vendor Reply */}
+      {review.vendorReply ? (
+        <View className="rounded-xl bg-gray-50 p-3">
+          <View className="mb-1.5 flex-row items-center gap-1.5">
+            <Ionicons name="storefront-outline" size={14} color="#7AB82D" />
+            <Text className="text-xs font-bold text-[#7AB82D]">
+              {review.vendorReply.repliedBy}
+            </Text>
+            <Text className="text-[10px] text-gray-400">
+              {new Date(review.vendorReply.createdAt).toLocaleDateString(
+                'vi-VN'
+              )}
+            </Text>
+          </View>
+          <Text className="text-sm leading-4 text-gray-600">
+            {review.vendorReply.content}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 };
