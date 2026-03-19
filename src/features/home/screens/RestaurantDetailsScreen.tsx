@@ -266,6 +266,7 @@ export const RestaurantDetailsScreen = ({
       upVotes: f.upVotes,
       downVotes: f.downVotes,
       userVote: f.userVote,
+      vendorName: branch.vendorName,
       vendorReply: f.vendorReply
         ? {
             content: f.vendorReply.content,

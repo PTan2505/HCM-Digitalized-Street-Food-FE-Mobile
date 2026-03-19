@@ -87,17 +87,17 @@ export const PlaceCard = ({
 
         <View className="rounded-b-[14.71px] bg-white px-[8.41px] py-[4.2px]">
           <Text
-            className="font-nunito -mt-[1.05px] h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
+            className="font-nunito -mt-[1.05px] min-h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
             numberOfLines={2}
           >
+            {displayName}{' '}
             {branch.isVerified && (
               <MaterialCommunityIcons
                 name="check-decagram"
                 size={13}
                 color="#186bde"
               />
-            )}{' '}
-            {displayName}
+            )}
           </Text>
 
           <View className="flex-row items-center gap-[6px] py-1">

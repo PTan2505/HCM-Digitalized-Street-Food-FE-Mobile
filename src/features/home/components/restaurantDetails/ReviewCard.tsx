@@ -34,6 +34,7 @@ export interface Review {
   upVotes: number;
   downVotes: number;
   userVote: 'up' | 'down' | null;
+  vendorName?: string;
   vendorReply?: {
     content: string;
     repliedBy: string;
@@ -366,7 +367,7 @@ const ReviewCard = ({
           <View className="mb-1.5 flex-row items-center gap-1.5">
             <Ionicons name="storefront-outline" size={14} color="#7AB82D" />
             <Text className="text-xs font-bold text-[#7AB82D]">
-              {review.vendorReply.repliedBy}
+              {review.vendorName ?? review.vendorReply.repliedBy}
             </Text>
             <Text className="text-[10px] text-gray-400">
               {new Date(review.vendorReply.createdAt).toLocaleDateString(

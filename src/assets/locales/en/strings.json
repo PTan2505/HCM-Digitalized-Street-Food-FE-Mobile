@@ -208,6 +208,7 @@
     "total": "Total",
     "items_count": "{{count}} items",
     "stall_closed": "Stall Closed",
+    "stall_closed_notice": "You cannot place an order while the stall is closed or has not updated its schedule.",
     "cancel": "Cancel",
     "add": "Add",
     "replace_title": "Change stall?",

@@ -158,25 +158,36 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
             {dish.name}
           </Text>
           <Text
-            className="text-[13px] font-semibold leading-[18px] text-gray-400"
+            className="text-[13px] leading-[18px] text-gray-400"
             numberOfLines={2}
           >
             {dish.description}
           </Text>
+          {dish.tasteNames.length > 0 && (
+            <View className="my-1 flex-row flex-wrap gap-1">
+              {dish.tasteNames.map((taste) => (
+                <View
+                  key={taste}
+                  className="rounded-full bg-orange-50 px-2 py-0.5"
+                >
+                  <Text className="text-[10px] font-medium text-orange-400">
+                    {taste}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
           <View className="flex-row items-center justify-between">
             <Text className="text-base font-semibold text-[#00B14F]">
-              {`${Math.round(dish.price / 1000)}k`}
+              {`${dish.price.toLocaleString()}đ`}
             </Text>
-            {disabled ? (
+            {dish.isSoldOut ? (
               <Text className="text-xs text-red-400">
-                {dish.isSoldOut
-                  ? t('actions.sold_out')
-                  : t('cart.stall_closed')}
+                {t('actions.sold_out')}
               </Text>
-            ) : qty === 0 ? (
+            ) : disabled ? null : qty === 0 ? (
               <TouchableOpacity
                 onPress={() => handleAdd(dish)}
-
                 className="rounded-full bg-[#a1d973] px-4 py-1.5"
               >
                 <Text className="text-sm font-semibold text-white">
@@ -187,7 +198,6 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
               <View className="flex-row items-center rounded-full bg-gray-100">
                 <TouchableOpacity
                   onPress={() => handleDecrement(dish)}
-  
                   className="h-10 w-10 items-center justify-center rounded-full"
                 >
                   <Ionicons name="remove-circle" size={32} color="#a1d973" />
@@ -197,7 +207,6 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
                 </Text>
                 <TouchableOpacity
                   onPress={() => handleAdd(dish)}
-  
                   className="h-10 w-10 items-center justify-center rounded-full"
                 >
                   <Ionicons name="add-circle" size={32} color="#a1d973" />
@@ -212,6 +221,16 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
 
   return (
     <>
+      {/* Closed notice */}
+      {!isOpen && (
+        <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-amber-50 px-4 py-3">
+          <Ionicons name="information-circle" size={20} color="#f59e0b" />
+          <Text className="flex-1 text-xs leading-4 text-amber-700">
+            {t('cart.stall_closed_notice')}
+          </Text>
+        </View>
+      )}
+
       {/* Category Tabs */}
       <ScrollView
         horizontal
