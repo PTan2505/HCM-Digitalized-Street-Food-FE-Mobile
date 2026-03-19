@@ -27,9 +27,10 @@ interface MenuTabProps {
   dishes: Dish[];
   branchId: number;
   isOpen: boolean;
+  displayName: string;
 }
 
-const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
+const MenuTab = ({ dishes, branchId, isOpen, displayName }: MenuTabProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
@@ -87,6 +88,7 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
             branchId,
             dishId: dish.dishId,
             quantity: newQty,
+            displayName,
           })
         );
       } else {
@@ -98,7 +100,7 @@ const MenuTab = ({ dishes, branchId, isOpen }: MenuTabProps): JSX.Element => {
         );
       }
     },
-    [dispatch, branchId, getCartQuantity, getServerQuantity]
+    [dispatch, branchId, displayName, getCartQuantity, getServerQuantity]
   );
 
   const handleAdd = useCallback(

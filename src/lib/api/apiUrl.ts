@@ -54,9 +54,11 @@ export const apiUrl = {
   },
   vendor: {
     getAll: '/api/Vendor',
+    byId: (id: number): string => `/api/Vendor/${id}`,
   },
   branch: {
     active: '/api/Branch/active',
+    byId: (id: number): string => `/api/Branch/${id}`,
     byVendor: '/api/Branch/vendor',
     workSchedules: (id: number): string => `/api/Branch/${id}/work-schedules`,
   },

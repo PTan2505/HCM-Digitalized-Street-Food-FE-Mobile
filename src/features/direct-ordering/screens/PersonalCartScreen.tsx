@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { useNavigation, StaticScreenProps } from '@react-navigation/native';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
   clearCartThunk,
   fetchCartThunk,
   removeCartItemThunk,
   selectCart,
+  selectCartDisplayName,
   selectCartLoading,
   updateCartItemThunk,
 } from '@slices/directOrdering';
@@ -40,6 +41,7 @@ export const PersonalCartScreen = ({
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const cart = useAppSelector(selectCart);
+  const cartDisplayName = useAppSelector(selectCartDisplayName);
   const cartLoading = useAppSelector(selectCartLoading);
   const [note, setNote] = useState('');
 
@@ -76,10 +78,10 @@ export const PersonalCartScreen = ({
 
   const handlePlaceOrder = useCallback(() => {
     navigation.navigate('DirectCheckout', {
-      branchName,
+      branchName: cartDisplayName ?? branchName,
       note,
     });
-  }, [navigation, branchName, note]);
+  }, [navigation, cartDisplayName, branchName, note]);
 
   const isEmpty = !cart || cart.items.length === 0;
 
@@ -91,7 +93,7 @@ export const PersonalCartScreen = ({
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text className="ml-3 flex-1 text-lg font-bold text-black">
-          {branchName}
+          {cartDisplayName ?? branchName}
         </Text>
         {!isEmpty && (
           <TouchableOpacity onPress={handleClearCart}>

@@ -23,6 +23,28 @@ export interface Dish {
   tasteNames: string[];
 }
 
+export interface BranchDetail {
+  branchId: number;
+  vendorId: number;
+  managerId: number;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  addressDetail: string;
+  ward: string;
+  city: string;
+  lat: number;
+  long: number;
+  createdAt: string;
+  updatedAt: string | null;
+  isVerified: boolean;
+  avgRating: number;
+  totalReviewCount: number;
+  isActive: boolean;
+  tierId: number;
+  tierName: string | null;
+}
+
 export interface ActiveBranch {
   branchId: number;
   vendorId: number;

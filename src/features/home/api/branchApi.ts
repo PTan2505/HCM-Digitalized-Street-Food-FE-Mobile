@@ -2,6 +2,7 @@ import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 
 import type {
+  BranchDetail,
   PaginatedBranchImages,
   PaginatedBranches,
   WorkSchedule,
@@ -12,6 +13,13 @@ export class BranchApi {
 
   constructor(apiClient: ApiClient) {
     this.apiClient = apiClient;
+  }
+
+  async getBranchById(branchId: number): Promise<BranchDetail> {
+    const res = await this.apiClient.get<BranchDetail>({
+      url: apiUrl.branch.byId(branchId),
+    });
+    return res.data;
   }
 
   async getActiveBranches(

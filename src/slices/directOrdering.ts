@@ -11,6 +11,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export interface DirectOrderingState {
   cart: CartResponse | null;
+  /** Formatted display name for the cart's branch (vendorName or vendorName - branchName) */
+  cartDisplayName: string | null;
   cartLoading: boolean;
   cartError: string | null;
   activeOrder: OrderResponse | null;
@@ -23,6 +25,7 @@ export interface DirectOrderingState {
 
 const initialState: DirectOrderingState = {
   cart: null,
+  cartDisplayName: null,
   cartLoading: false,
   cartError: null,
   activeOrder: null,
@@ -38,7 +41,32 @@ export const fetchCartThunk = createAppAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axiosApi.cartApi.getMyCart();
-      return res.data;
+      const cart = res.data;
+
+      // Resolve display name: fetch branch → vendor to build
+      // "vendorName - chi nhánh branchName" (or just vendorName for single-branch)
+      let displayName: string | null = null;
+      if (cart.branchId) {
+        try {
+          const branch = await axiosApi.branchApi.getBranchById(cart.branchId);
+          const vendor = await axiosApi.vendorApi.getVendorById(
+            branch.vendorId
+          );
+          // Check if vendor has multiple branches
+          const vendorBranches =
+            await axiosApi.branchApi.getBranchesByVendor(branch.vendorId);
+          if (vendorBranches.totalCount > 1) {
+            displayName = `${vendor.name} - chi nhánh ${branch.name}`;
+          } else {
+            displayName = vendor.name;
+          }
+        } catch {
+          // Fallback to branchName from cart if additional fetches fail
+          displayName = cart.branchName ?? null;
+        }
+      }
+
+      return { cart, displayName };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -52,7 +80,13 @@ export const addCartItemThunk = createAppAsyncThunk(
       dishId,
       quantity,
       branchId,
-    }: { dishId: number; quantity: number; branchId: number },
+      displayName,
+    }: {
+      dishId: number;
+      quantity: number;
+      branchId: number;
+      displayName?: string;
+    },
     { rejectWithValue }
   ) => {
     try {
@@ -61,7 +95,7 @@ export const addCartItemThunk = createAppAsyncThunk(
         quantity,
         branchId,
       });
-      return res.data;
+      return { cart: res.data, displayName };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -157,6 +191,7 @@ const directOrderingSlice = createSlice({
   reducers: {
     clearCart: (state) => {
       state.cart = null;
+      state.cartDisplayName = null;
     },
     clearActiveOrder: (state) => {
       state.activeOrder = null;
@@ -175,7 +210,10 @@ const directOrderingSlice = createSlice({
       })
       .addCase(fetchCartThunk.fulfilled, (state, action) => {
         state.cartLoading = false;
-        state.cart = action.payload;
+        state.cart = action.payload.cart;
+        if (action.payload.displayName) {
+          state.cartDisplayName = action.payload.displayName;
+        }
       })
       .addCase(fetchCartThunk.rejected, (state, action) => {
         state.cartLoading = false;
@@ -189,7 +227,10 @@ const directOrderingSlice = createSlice({
       })
       .addCase(addCartItemThunk.fulfilled, (state, action) => {
         state.cartLoading = false;
-        state.cart = action.payload;
+        state.cart = action.payload.cart;
+        if (action.payload.displayName) {
+          state.cartDisplayName = action.payload.displayName;
+        }
       })
       .addCase(addCartItemThunk.rejected, (state, action) => {
         state.cartLoading = false;
@@ -228,6 +269,7 @@ const directOrderingSlice = createSlice({
 
       .addCase(clearCartThunk.fulfilled, (state) => {
         state.cart = null;
+        state.cartDisplayName = null;
         state.cartLoading = false;
       })
 
@@ -241,6 +283,7 @@ const directOrderingSlice = createSlice({
         state.activeOrder = action.payload.order;
         state.checkoutPaymentUrl = action.payload.payment.paymentUrl ?? null;
         state.cart = null;
+        state.cartDisplayName = null;
       })
       .addCase(checkoutThunk.rejected, (state, action) => {
         state.orderLoading = false;
@@ -276,6 +319,8 @@ export default directOrderingSlice.reducer;
 // Selectors
 export const selectCart = (state: RootState): CartResponse | null =>
   state.directOrdering.cart;
+export const selectCartDisplayName = (state: RootState): string | null =>
+  state.directOrdering.cartDisplayName;
 export const selectCartLoading = (state: RootState): boolean =>
   state.directOrdering.cartLoading;
 export const selectActiveOrder = (state: RootState): OrderResponse | null =>
