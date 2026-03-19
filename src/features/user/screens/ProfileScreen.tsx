@@ -126,6 +126,16 @@ export const ProfileScreen = (): JSX.Element => {
         </Pressable>
 
         <Pressable
+          onPress={() => navigation.navigate('OrderHistory')}
+          className="mx-6 mb-4 flex-row items-center justify-center rounded-2xl border-[1px] border-[#a1d973] py-4"
+        >
+          <Ionicons name="receipt-outline" size={20} color="#a1d973" />
+          <Text className="ml-2 text-base font-semibold text-[#a1d973]">
+            {t('order.my_orders')}
+          </Text>
+        </Pressable>
+
+        <Pressable
           onPress={onLogout}
           className="mx-6 mb-8 items-center rounded-2xl border-[1px] border-[#a1d973] py-4"
         >

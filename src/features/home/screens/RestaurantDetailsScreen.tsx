@@ -22,12 +22,14 @@ import { getLowcaAPIUnimplementedEndpoints } from '@features/reputation/api/gene
 import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { StaticScreenProps } from '@react-navigation/native';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
+import { fetchCartThunk, selectCart } from '@slices/directOrdering';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -47,9 +49,12 @@ export const RestaurantDetailsScreen = ({
   const { branch, displayName, tab, onRatingUpdate } = route.params;
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
+  const { t } = useTranslation();
+  const navigation = useNavigation();
 
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
+  const cart = useAppSelector(selectCart);
 
   const [branchTier, setBranchTier] = useState<BranchTier | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -81,6 +86,7 @@ export const RestaurantDetailsScreen = ({
 
   useEffect(() => {
     dispatch(fetchBranchAllImages(branch.branchId));
+    dispatch(fetchCartThunk());
   }, [branch.branchId, dispatch]);
 
   useEffect(() => {
@@ -239,7 +245,13 @@ export const RestaurantDetailsScreen = ({
 
         <TabsBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {activeTab === 'menu' && <MenuTab dishes={branch.dishes} />}
+        {activeTab === 'menu' && (
+          <MenuTab
+            dishes={branch.dishes}
+            branchId={branch.branchId}
+            isOpen={isOpen}
+          />
+        )}
 
         {activeTab === 'reviews' && (
           <ReviewsTab
@@ -269,6 +281,25 @@ export const RestaurantDetailsScreen = ({
         onClose={() => setShowReviewModal(false)}
         onSuccess={handleReviewSuccess}
       />
+
+      {cart?.branchId === branch.branchId && cart.items.length > 0 && (
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('PersonalCart', {
+              branchName: displayName,
+              isOpen,
+            })
+          }
+          className="absolute bottom-6 left-4 right-4 flex-row items-center justify-between rounded-2xl bg-[#a1d973] px-5 py-4 shadow-lg"
+        >
+          <Text className="text-base font-bold text-white">
+            {t('cart.items_count', { count: cart.items.length })}
+          </Text>
+          <Text className="text-base font-bold text-white">
+            {`${Math.round(cart.totalAmount / 1000)}k`}
+          </Text>
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 };

@@ -196,6 +196,58 @@
     "empty_first_name": "Vui lòng nhập tên!",
     "username_min_length": "Tên người dùng phải có ít nhất 3 ký tự!"
   },
+  "cart": {
+    "title": "Giỏ hàng",
+    "empty": "Giỏ hàng trống",
+    "empty_hint": "Hãy thêm món ăn từ menu",
+    "clear": "Xóa giỏ hàng",
+    "clear_confirm": "Bạn có chắc muốn xóa giỏ hàng?",
+    "place_order": "Đặt hàng",
+    "note_placeholder": "Ghi chú cho quán (ví dụ: ít cay, không hành...)",
+    "note_label": "Ghi chú",
+    "total": "Tổng cộng",
+    "items_count": "{{count}} món",
+    "stall_closed": "Đang đóng cửa",
+    "add": "Thêm"
+  },
+  "checkout": {
+    "title": "Thanh toán",
+    "payment_method": "Phương thức thanh toán",
+    "wallet": "Ví Lowca",
+    "bank_transfer": "Chuyển khoản",
+    "viet_qr": "VietQR",
+    "order_summary": "Tóm tắt đơn hàng",
+    "confirm": "Xác nhận đặt hàng",
+    "confirming": "Đang xử lý...",
+    "insufficient_balance": "Số dư ví không đủ — vui lòng chọn phương thức khác",
+    "empty_cart": "Giỏ hàng trống",
+    "error": "Không thể đặt hàng. Vui lòng thử lại."
+  },
+  "order": {
+    "status_title": "Trạng thái đơn hàng",
+    "history_title": "Lịch sử đơn hàng",
+    "my_orders": "Đơn hàng của tôi",
+    "no_orders": "Bạn chưa đặt đơn nào",
+    "cancel": "Huỷ đơn hàng",
+    "cancel_confirm": "Bạn có chắc muốn huỷ đơn hàng?",
+    "cancel_success": "Đơn đã huỷ — tiền đã được hoàn",
+    "cancel_blocked": "Không thể huỷ — quán đã xác nhận đơn hàng",
+    "cancel_error": "Không thể huỷ đơn hàng. Vui lòng thử lại.",
+    "confirmed_toast": "Quán đã xác nhận đơn hàng của bạn",
+    "rejected_message": "Quán đã từ chối đơn — tiền đã được hoàn",
+    "ready_banner": "Đơn hàng của bạn đã sẵn sàng!",
+    "status": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "preparing": "Đang chuẩn bị",
+      "ready": "Sẵn sàng",
+      "completed": "Hoàn thành",
+      "rejected": "Từ chối",
+      "cancelled": "Đã huỷ"
+    },
+    "placed_at": "Đặt lúc",
+    "payment_via": "Thanh toán qua"
+  },
   "edit_profile": {
     "username": "Tên người dùng",
     "enter_username": "Nhập tên người dùng",

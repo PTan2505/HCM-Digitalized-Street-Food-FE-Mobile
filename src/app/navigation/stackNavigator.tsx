@@ -1,4 +1,8 @@
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
+import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';
+import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
+import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
@@ -82,6 +86,31 @@ const RootStack = createNativeStackNavigator({
     },
     GhostPinCreation: {
       screen: GhostPinCreationScreen,
+    },
+    PersonalCart: {
+      screen: PersonalCartScreen,
+      params: {} as {
+        branchName: string;
+        isOpen: boolean;
+      },
+    },
+    DirectCheckout: {
+      screen: DirectCheckoutScreen,
+      params: {} as {
+        branchName: string;
+        note?: string;
+      },
+    },
+    OrderStatus: {
+      screen: OrderStatusScreen,
+      params: {} as {
+        orderId: number;
+        branchName: string;
+        readOnly?: boolean;
+      },
+    },
+    OrderHistory: {
+      screen: OrderHistoryScreen,
     },
   },
 });

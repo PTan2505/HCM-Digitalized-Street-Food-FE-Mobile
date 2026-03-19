@@ -72,4 +72,16 @@ export const apiUrl = {
   ghostPin: {
     create: '/api/GhostPin',
   },
+  cart: {
+    my: '/api/Cart/my',
+    items: '/api/Cart/items',
+    itemByDish: (dishId: number): string => `/api/Cart/items/${dishId}`,
+    clear: '/api/Cart/clear',
+    checkout: '/api/Cart/checkout',
+  },
+  order: {
+    byId: (id: number): string => `/api/Order/${id}`,
+    myOrders: '/api/Order/my-orders',
+    pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
+  },
 };
