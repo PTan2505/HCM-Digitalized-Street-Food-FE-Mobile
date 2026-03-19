@@ -60,7 +60,7 @@ export class BranchApi {
     pageSize = 1
   ): Promise<PaginatedBranchImages> {
     const res = await this.apiClient.get<PaginatedBranchImages>({
-      url: `/Branch/${branchId}/images`,
+      url: `/api/Branch/${branchId}/images`,
       params: { pageNumber, pageSize },
     });
     return res.data;

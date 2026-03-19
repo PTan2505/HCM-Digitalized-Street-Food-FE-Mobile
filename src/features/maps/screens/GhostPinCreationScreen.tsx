@@ -2,11 +2,15 @@ import type { APIErrorResponse } from '@custom-types/apiResponse';
 import { Ionicons } from '@expo/vector-icons';
 import type { PickedLocation } from '@features/maps/components/LocationPickerMap';
 import { LocationPickerMap } from '@features/maps/components/LocationPickerMap';
-import { getPlaceOSM } from '@features/maps/services/geocoding';
+import {
+  getPlaceDetail,
+  searchAddress,
+  type AutocompletePrediction,
+} from '@features/maps/services/geocoding';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -25,42 +29,85 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const navigation = useNavigation();
 
   const [name, setName] = useState('');
+  const [addressQuery, setAddressQuery] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
   const [ward, setWard] = useState('');
   const [city, setCity] = useState('');
   const [lat, setLat] = useState<number | null>(null);
   const [long, setLong] = useState<number | null>(null);
 
+  const [predictions, setPredictions] = useState<AutocompletePrediction[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
+
   const [nameError, setNameError] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Location picker modal
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
 
-  // ── Location picker confirm ──
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Address search ──
+  const handleAddressSearch = useCallback((text: string) => {
+    setAddressQuery(text);
+    // Clear confirmed location when user types again
+    setAddressDetail('');
+    setWard('');
+    setCity('');
+    setLat(null);
+    setLong(null);
+
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    if (!text.trim()) {
+      setPredictions([]);
+      return;
+    }
+    setIsSearching(true);
+    searchTimeout.current = setTimeout(async () => {
+      const results = await searchAddress(text);
+      setPredictions(results);
+      setIsSearching(false);
+    }, 400);
+  }, []);
+
+  // ── Prediction select ──
+  const handlePredictionSelect = useCallback(
+    async (prediction: AutocompletePrediction): Promise<void> => {
+      setPredictions([]);
+      setAddressQuery(prediction.mainText);
+      setIsGeocodingAddress(true);
+
+      const detail = await getPlaceDetail(prediction.placeId);
+      if (detail) {
+        setAddressDetail(detail.addressDetail);
+        setWard(detail.ward);
+        setCity(detail.city);
+        setLat(detail.lat);
+        setLong(detail.lng);
+        if (addressError) setAddressError(null);
+      }
+      setIsGeocodingAddress(false);
+    },
+    [addressError]
+  );
+
+  // ── Location picker confirm (map fallback) ──
   const handleLocationConfirm = useCallback(
-    async (location: PickedLocation): Promise<void> => {
+    (location: PickedLocation): void => {
       const [lng, pickedLat] = location.coordinate;
       setLat(pickedLat);
       setLong(lng);
+      setAddressQuery(
+        `${location.addressDetail ?? location.address} ${location.ward ? ', ' + location.ward : ''} ${location.city ? ', ' + location.city : ''}`
+      );
+      setAddressDetail(location.addressDetail ?? location.address);
+      setWard(location.ward ?? '');
+      setCity(location.city ?? '');
+      setPredictions([]);
       setShowLocationPicker(false);
-
-      // Reverse geocode with OSM format to fill address fields
-      setIsGeocodingAddress(true);
-      const result = await getPlaceOSM(pickedLat, lng);
-      if (result) {
-        setAddressDetail(result.shortAddress);
-        setWard(result.locality);
-        setCity(result.region);
-        if (addressError) setAddressError(null);
-      } else {
-        // Fallback: use the address from LocationPickerMap
-        setAddressDetail(location.address);
-      }
-      setIsGeocodingAddress(false);
+      if (addressError) setAddressError(null);
     },
     [addressError]
   );
@@ -75,7 +122,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
       setNameError(null);
     }
     if (!addressDetail.trim() || lat == null || long == null) {
-      setAddressError('Vui lòng chọn vị trí trên bản đồ');
+      setAddressError('Vui lòng chọn địa chỉ từ gợi ý hoặc bản đồ');
       valid = false;
     } else {
       setAddressError(null);
@@ -160,93 +207,79 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             )}
           </View>
 
-          {/* Address Detail (tap to open location picker) */}
+          {/* Address search with autocomplete */}
           <View className="mb-5">
             <Text className="mb-1.5 text-sm font-semibold text-gray-700">
               Địa chỉ <Text className="text-red-500">*</Text>
             </Text>
-            <TouchableOpacity
-              onPress={() => setShowLocationPicker(true)}
-              className={`flex-row items-center rounded-xl border px-4 py-3 ${
+            <View
+              className={`flex-row items-center rounded-xl border px-3 py-3 ${
                 addressError ? 'border-red-400' : 'border-gray-200'
               }`}
-              activeOpacity={0.7}
             >
               <Ionicons
                 name="location-outline"
                 size={18}
-                color={addressDetail ? '#a1d973' : '#9CA3AF'}
+                color={lat != null ? '#a1d973' : '#9CA3AF'}
                 style={{ marginRight: 8 }}
               />
-              {isGeocodingAddress ? (
-                <View className="flex-1 flex-row items-center">
-                  <ActivityIndicator size="small" color="#a1d973" />
-                  <Text className="ml-2 text-sm text-gray-400">
-                    Đang lấy địa chỉ...
-                  </Text>
-                </View>
+              <TextInput
+                className="flex-1 text-sm text-gray-800"
+                placeholder="Tìm kiếm địa chỉ..."
+                placeholderTextColor="#9CA3AF"
+                value={addressQuery}
+                onChangeText={handleAddressSearch}
+                returnKeyType="search"
+              />
+              {isSearching || isGeocodingAddress ? (
+                <ActivityIndicator size="small" color="#a1d973" />
               ) : (
-                <Text
-                  className={`flex-1 text-sm ${
-                    addressDetail ? 'text-gray-800' : 'text-gray-400'
-                  }`}
-                  numberOfLines={2}
+                <TouchableOpacity
+                  onPress={() => setShowLocationPicker(true)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  {addressDetail || 'Nhấn để chọn vị trí trên bản đồ'}
-                </Text>
+                  <Ionicons name="map-outline" size={18} color="#9CA3AF" />
+                </TouchableOpacity>
               )}
-              <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
-            </TouchableOpacity>
+            </View>
+
+            {/* Autocomplete predictions */}
+            {predictions.length > 0 && (
+              <View className="mt-1 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                {predictions.map((prediction, index) => (
+                  <TouchableOpacity
+                    key={prediction.placeId}
+                    onPress={() => handlePredictionSelect(prediction)}
+                    className={`px-4 py-3 ${
+                      index < predictions.length - 1
+                        ? 'border-b border-gray-100'
+                        : ''
+                    }`}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className="text-sm font-medium text-gray-800"
+                      numberOfLines={1}
+                    >
+                      {prediction.mainText}
+                    </Text>
+                    {prediction.secondaryText ? (
+                      <Text
+                        className="mt-0.5 text-xs text-gray-400"
+                        numberOfLines={1}
+                      >
+                        {prediction.secondaryText}
+                      </Text>
+                    ) : null}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
             {addressError && (
               <Text className="mt-1 text-xs text-red-500">{addressError}</Text>
             )}
           </View>
-
-          {/* Ward */}
-          {/* <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
-              Phường / Xã
-            </Text>
-            <TextInput
-              className="rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800"
-              placeholder="Nhập phường / xã"
-              placeholderTextColor="#9CA3AF"
-              value={ward}
-              onChangeText={setWard}
-              maxLength={100}
-              returnKeyType="next"
-            />
-          </View> */}
-
-          {/* City */}
-          {/* <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
-              Thành phố
-            </Text>
-            <TextInput
-              className="rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800"
-              placeholder="Nhập thành phố"
-              placeholderTextColor="#9CA3AF"
-              value={city}
-              onChangeText={setCity}
-              maxLength={100}
-              returnKeyType="done"
-            />
-          </View> */}
-
-          {/* Coordinates display (if selected) */}
-          {/* {lat != null && long != null && (
-            <View className="mb-5 flex-row gap-3">
-              <View className="flex-1 rounded-xl bg-gray-50 px-3 py-2.5">
-                <Text className="text-[10px] text-gray-400">Vĩ độ</Text>
-                <Text className="text-xs text-gray-600">{lat.toFixed(6)}</Text>
-              </View>
-              <View className="flex-1 rounded-xl bg-gray-50 px-3 py-2.5">
-                <Text className="text-[10px] text-gray-400">Kinh độ</Text>
-                <Text className="text-xs text-gray-600">{long.toFixed(6)}</Text>
-              </View>
-            </View>
-          )} */}
 
           {/* Error */}
           {submitError && (

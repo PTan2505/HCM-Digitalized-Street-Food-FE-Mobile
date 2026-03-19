@@ -16,6 +16,7 @@ export interface ReverseGeocodeResult {
   address: string;
   formattedAddress: string;
   name: string;
+  placeId: string;
   lat: number;
   lng: number;
 }
@@ -29,6 +30,9 @@ export interface ForwardGeocodeResult {
 export interface PlaceDetailResult {
   formattedAddress: string;
   name: string;
+  addressDetail: string;
+  ward: string;
+  city: string;
   lat: number;
   lng: number;
 }
@@ -78,6 +82,56 @@ export const searchAddress = async (
   }
 };
 
+// ── Shared: parse OSM FeatureCollection response from /place ──
+
+type PlaceFeatureCollection = {
+  errors: string | null;
+  features?: Array<{
+    type: 'Feature';
+    geometry: { coordinates: [number, number]; type: 'Point' };
+    properties: {
+      name?: string | null;
+      housenumber?: string | null;
+      street?: string | null;
+      short_address?: string | null;
+      postalcode?: string | null;
+      label?: string | null;
+      country?: string | null;
+      country_code?: string | null;
+      category?: string[];
+      website?: string | null;
+      opening_hours?: number[][][];
+      phone?: string | null;
+      region?: string | null;
+      county?: string | null;
+      locality?: string | null;
+      distance?: number | null;
+      id?: string;
+      continent?: string | null;
+      source?: string | null;
+    };
+  }>;
+  bbox: number[];
+  type: 'FeatureCollection';
+};
+
+const parsePlaceFeature = (
+  data: PlaceFeatureCollection
+): PlaceDetailResult | null => {
+  const feature = data.features?.[0];
+  if (!feature) return null;
+  const props = feature.properties;
+  return {
+    formattedAddress: props.label ?? props.short_address ?? '',
+    name: props.name ?? '',
+    addressDetail: `${props.housenumber ?? ''} ${props.street ?? ''}`.trim(),
+    ward: props.locality ?? '',
+    city: props.region ?? '',
+    lat: feature.geometry.coordinates[1],
+    lng: feature.geometry.coordinates[0],
+  };
+};
+
 // ── Place Detail (place_id → coordinates + address) ──
 
 export const getPlaceDetail = async (
@@ -85,31 +139,13 @@ export const getPlaceDetail = async (
 ): Promise<PlaceDetailResult | null> => {
   const params = new URLSearchParams({
     ids: placeId,
-    format: 'google',
     admin_v2: 'true',
     apikey: API_KEY,
   });
 
   try {
     const res = await axios.get(`${BASE}/place?${params.toString()}`);
-    const data = res.data as {
-      status: string;
-      result?: {
-        formatted_address: string;
-        name: string;
-        geometry: { location: { lat: number; lng: number } };
-      };
-    };
-
-    if (data.status !== 'OK' || !data.result) return null;
-
-    const r = data.result;
-    return {
-      formattedAddress: r.formatted_address,
-      name: r.name,
-      lat: r.geometry.location.lat,
-      lng: r.geometry.location.lng,
-    };
+    return parsePlaceFeature(res.data as PlaceFeatureCollection);
   } catch {
     return null;
   }
@@ -149,60 +185,6 @@ export const forwardGeocode = async (
   }
 };
 
-// ── Place Detail OSM format (coordinates → structured address) ──
-
-export interface PlaceOSMResult {
-  shortAddress: string;
-  locality: string;
-  region: string;
-  lat: number;
-  lng: number;
-}
-
-interface PlaceOSMFeature {
-  geometry: { coordinates: [number, number]; type: string };
-  properties: {
-    short_address?: string;
-    locality?: string;
-    region?: string;
-    label?: string;
-    [key: string]: unknown;
-  };
-}
-
-export const getPlaceOSM = async (
-  lat: number,
-  lng: number
-): Promise<PlaceOSMResult | null> => {
-  const params = new URLSearchParams({
-    latlng: `${lat},${lng}`,
-    apikey: API_KEY,
-  });
-
-  try {
-    const res = await axios.get(`${BASE}/place?${params.toString()}`);
-    const data = res.data as {
-      errors: unknown;
-      features?: PlaceOSMFeature[];
-      type: string;
-    };
-
-    const feature = data.features?.[0];
-    if (!feature) return null;
-
-    const props = feature.properties;
-    return {
-      shortAddress: props.short_address ?? props.label ?? '',
-      locality: props.locality ?? '',
-      region: props.region ?? '',
-      lat: feature.geometry.coordinates[1],
-      lng: feature.geometry.coordinates[0],
-    };
-  } catch {
-    return null;
-  }
-};
-
 // ── Reverse Geocode (coordinates → address) ──
 
 export const reverseGeocode = async (
@@ -223,6 +205,7 @@ export const reverseGeocode = async (
         address: string;
         formatted_address: string;
         name: string;
+        place_id: string;
         geometry: { location: { lat: number; lng: number } };
       }>;
     };
@@ -234,6 +217,7 @@ export const reverseGeocode = async (
       address: r.address,
       formattedAddress: r.formatted_address,
       name: r.name,
+      placeId: r.place_id,
       lat: r.geometry.location.lat,
       lng: r.geometry.location.lng,
     };
