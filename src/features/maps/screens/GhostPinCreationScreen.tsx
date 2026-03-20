@@ -72,7 +72,10 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    axiosApi.feedbackTagApi.getTags().then(setAvailableTags).catch(() => {});
+    axiosApi.feedbackTagApi
+      .getTags()
+      .then(setAvailableTags)
+      .catch(() => {});
   }, []);
 
   // ── Address search ──

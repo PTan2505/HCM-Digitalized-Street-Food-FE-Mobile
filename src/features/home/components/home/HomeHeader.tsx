@@ -23,13 +23,6 @@ const HomeHeader = (): JSX.Element => {
           <Ionicons name="map-outline" size={20} color="#588d22" />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate('LocationPicker')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
-        >
-          <Ionicons name="map-outline" size={20} color="#588d22" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
           onPress={() => navigation.navigate('CurrentPicks')}
           className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
         >

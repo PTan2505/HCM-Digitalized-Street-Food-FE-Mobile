@@ -33,14 +33,14 @@ const PLACEHOLDER_DISH =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200';
 
 type PersonalCartScreenProps = StaticScreenProps<{
-  branchName: string;
-  isOpen: boolean;
+  branchName?: string;
+  isOpen?: boolean;
 }>;
 
 export const PersonalCartScreen = ({
   route,
 }: PersonalCartScreenProps): JSX.Element => {
-  const { branchName, isOpen } = route.params;
+  const { branchName = '', isOpen = true } = route.params ?? {};
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -234,9 +234,21 @@ export const PersonalCartScreen = ({
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text className="ml-3 flex-1 text-lg font-bold text-black">
-          {cartDisplayName ?? branchName}
-        </Text>
+        <TouchableOpacity
+          className="ml-3 flex-1 flex-row items-center justify-start"
+          onPress={() =>
+            navigation.navigate('RestaurantDetails', {
+              branch: menuBranch as ActiveBranch,
+              displayName: cartDisplayName ?? branchName,
+              tab: 'menu' as const,
+            })
+          }
+        >
+          <Text className="ml-3 text-lg font-bold text-black">
+            {cartDisplayName ?? branchName}
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color="#333" />
+        </TouchableOpacity>
         {!isEmpty && (
           <TouchableOpacity onPress={handleClearCart}>
             <Ionicons name="trash-outline" size={18} color="#EF4444" />

@@ -131,6 +131,16 @@ export interface MyGhostPinBranch {
   licenseRejectReason: string | null;
 }
 
+export interface PaginatedMyGhostPinBranches {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: MyGhostPinBranch[];
+}
+
 export interface PaginatedBranchImages {
   currentPage: number;
   pageSize: number;

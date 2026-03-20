@@ -1,148 +1,162 @@
 import { Ionicons } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
-import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
-import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
+import { ProfileActionCards } from '@features/user/components/profile/ProfileActionCards';
+import { ProfileFeatureButtons } from '@features/user/components/profile/ProfileFeatureButtons';
+import { ProfileListItem } from '@features/user/components/profile/ProfileListItem';
+import { ProfileTabs } from '@features/user/components/profile/ProfileTabs';
+import { getProfileSections } from '@features/user/config/profileSections';
+import { ProfileSection } from '@features/user/types/profileConfig';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
-import { selectUserDietaryPreferences } from '@slices/dietary';
 import getHighResAvatar from '@utils/getHighResAvatar';
-import React, { JSX, useEffect } from 'react';
+import React, { JSX, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ProfileScreen = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const user = useAppSelector(selectUser);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const { onLogout } = useLogin();
   const navigation = useNavigation();
-  const { onGetUserDietaryPreferences } = useUserDietary();
 
-  useEffect(() => {
-    onGetUserDietaryPreferences();
-  }, [onGetUserDietaryPreferences]);
+  // Get profile sections configuration
+  const changeLanguage = useCallback(
+    async (lng: string): Promise<void> => {
+      await i18n.changeLanguage(lng);
+    },
+    [i18n]
+  );
 
-  const renderField = (
-    label: string,
-    icon: keyof typeof Ionicons.glyphMap,
-    value: string | undefined | null
-  ): JSX.Element => {
-    return (
-      <View className="mb-5">
-        <Text className="mb-2 text-sm font-semibold text-black">{label}</Text>
-        <View className="flex-row items-center rounded-xl border border-[#a1d973] px-4 py-3.5">
-          <Ionicons name={icon} size={20} color="#999" />
-          <Text className="ml-3 flex-1 text-sm text-[#999]">
-            {value ?? t('profile.not_updated')}
-          </Text>
-        </View>
-      </View>
-    );
+  const sections = useMemo(
+    () =>
+      getProfileSections(
+        t,
+        navigation,
+        onLogout,
+        user,
+        i18n.language,
+        changeLanguage
+      ),
+    [t, navigation, onLogout, user, i18n.language, changeLanguage]
+  );
+
+  const renderSection = (section: ProfileSection): JSX.Element | null => {
+    // Don't render if section is not visible
+    if (section.visible === false) {
+      return null;
+    }
+
+    const containerClass = section.containerClassName ?? '';
+
+    switch (section.type) {
+      case 'action-cards':
+        return section.actionCards ? (
+          <View key={section.id} className={containerClass}>
+            <ProfileActionCards cards={section.actionCards} />
+          </View>
+        ) : null;
+
+      case 'tabs':
+        return section.tabs ? (
+          <View key={section.id} className={containerClass}>
+            <ProfileTabs tabs={section.tabs} />
+          </View>
+        ) : null;
+
+      case 'feature-buttons':
+        return section.items ? (
+          <View key={section.id} className={containerClass}>
+            <ProfileFeatureButtons items={section.items} />
+          </View>
+        ) : null;
+
+      case 'list-items':
+        return (
+          <View key={section.id} className={containerClass}>
+            {section.title && (
+              <Text
+                className={
+                  section.titleClassName ??
+                  'mb-3 px-4 text-base font-bold text-gray-900'
+                }
+              >
+                {section.title}
+              </Text>
+            )}
+            <View className="overflow-hidden rounded-2xl bg-white">
+              {section.items?.map((item, index) => (
+                <ProfileListItem
+                  key={item.id}
+                  item={item}
+                  isLastItem={index === (section.items?.length ?? 0) - 1}
+                />
+              ))}
+            </View>
+          </View>
+        );
+
+      case 'custom':
+        return section.component ? (
+          <View key={section.id} className={containerClass}>
+            <section.component />
+          </View>
+        ) : null;
+
+      default:
+        return null;
+    }
   };
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <View className="flex-row items-center justify-end px-4">
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SetupUserInfo')}
-          >
-            <Ionicons name="pencil-outline" size={24} color="#a1d973" />
-          </TouchableOpacity>
-        </View>
-        <View className="mb-8 mt-5 items-center">
-          <View className="relative">
-            <Image
-              source={{ uri: getHighResAvatar(user?.avatarUrl) }}
-              style={{
-                width: 128,
-                height: 128,
-                borderRadius: 64,
-              }}
-              className="border-[2px] border-[#a1d973] shadow-2xl"
-              resizeMode="cover"
-            />
-            <View className="absolute bottom-0 right-0 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-[#a1d973] shadow-md">
-              <Ionicons name="beer" size={18} color="white" />
-            </View>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View className="mb-6 bg-white pb-6 pt-4">
+          <View className="mb-4 flex-row items-center justify-between px-4">
+            <Text className="text-xl font-bold text-gray-900">
+              {t('profile.title', 'Hồ sơ')}
+            </Text>
           </View>
 
-          <Text className="my-2 text-xl font-bold text-black">
-            {user?.username ?? t('profile.not_updated')}
-          </Text>
-          <Text className="text-[#ABABAB]">
-            {user?.point} {t('profile.points')}
-          </Text>
+          <View className="items-center">
+            <View className="relative">
+              <Image
+                source={{ uri: getHighResAvatar(user?.avatarUrl) }}
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 40,
+                }}
+                className="border-[3px] border-white shadow-sm"
+                resizeMode="cover"
+              />
+              <View className="absolute bottom-0 right-0 h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-primary shadow-sm">
+                <Ionicons name="checkmark-circle" size={16} color="white" />
+              </View>
+            </View>
+
+            <Text className="mt-3 text-lg font-bold text-gray-900">
+              {user?.username ?? t('profile.not_updated')}
+            </Text>
+            <Pressable
+              className="mt-1 flex-row items-center rounded-full bg-gray-100 px-3 py-1"
+              onPress={() => navigation.navigate('SetupUserInfo')}
+            >
+              <Text className="mr-1 text-sm text-gray-600">
+                {t('profile.view_profile', 'Xem hồ sơ')}
+              </Text>
+              <Ionicons name="chevron-forward" size={14} color="#666" />
+            </Pressable>
+          </View>
         </View>
 
-        <View className="px-6">
-          {renderField(
-            t('profile.last_name'),
-            'person-outline',
-            user?.lastName
-          )}
-          {renderField(
-            t('profile.first_name'),
-            'person-outline',
-            user?.firstName
-          )}
-          {renderField(t('profile.email'), 'mail-outline', user?.email)}
-          {renderField(
-            t('profile.phone_number'),
-            'call-outline',
-            user?.phoneNumber
-          )}
-        </View>
-
-        <View className="mb-4 px-6">
-          <Text className="mb-2 text-base font-semibold">
-            {t('profile.dietary_preferences')}
-          </Text>
-          <DietaryList
-            dietaryOptions={userDietaryPreferences}
-            selectedOptions={userDietaryPreferences.map(
-              (pref) => pref.dietaryPreferenceId
-            )}
-            setSelectedOptions={() => {}}
-          />
-        </View>
-
-        <Pressable
-          onPress={() => navigation.navigate('DietaryPreferences')}
-          className="mx-6 mb-4 items-center rounded-2xl bg-[#a1d973] py-4"
-        >
-          <Text className="text-base font-semibold text-white">
-            {t('profile.update_dietary_preferences')}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => navigation.navigate('OrderHistory')}
-          className="mx-6 mb-4 flex-row items-center justify-center rounded-2xl border-[1px] border-[#a1d973] py-4"
-        >
-          <Ionicons name="receipt-outline" size={20} color="#a1d973" />
-          <Text className="ml-2 text-base font-semibold text-[#a1d973]">
-            {t('order.my_orders')}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          onPress={onLogout}
-          className="mx-6 mb-8 items-center rounded-2xl border-[1px] border-[#a1d973] py-4"
-        >
-          <Text className="text-base font-semibold text-[#a1d973]">
-            {t('profile.logout')}
-          </Text>
-        </Pressable>
+        {/* Render all sections from config */}
+        {sections.map((section) => renderSection(section))}
       </ScrollView>
     </SafeAreaView>
   );

@@ -14,18 +14,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const STATUS_LABEL: Record<string, { label: string; color: string; bg: string }> =
-  {
-    Pending: { label: 'Chờ duyệt', color: '#D97706', bg: '#FEF3C7' },
-    Accept: { label: 'Đã duyệt', color: '#16A34A', bg: '#DCFCE7' },
-    Reject: { label: 'Từ chối', color: '#DC2626', bg: '#FEE2E2' },
-  };
+const STATUS_LABEL: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
+  Pending: { label: 'Chờ duyệt', color: '#D97706', bg: '#FEF3C7' },
+  Accept: { label: 'Đã duyệt', color: '#16A34A', bg: '#DCFCE7' },
+  Reject: { label: 'Từ chối', color: '#DC2626', bg: '#FEE2E2' },
+};
 
-const GhostPinCard = ({
-  item,
-}: {
-  item: MyGhostPinBranch;
-}): JSX.Element => {
+const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
   const status = STATUS_LABEL[item.licenseStatus] ?? STATUS_LABEL['Pending'];
   return (
     <View className="mb-3 overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -41,7 +39,10 @@ const GhostPinCard = ({
           className="rounded-full px-2.5 py-1"
           style={{ backgroundColor: status.bg }}
         >
-          <Text className="text-xs font-semibold" style={{ color: status.color }}>
+          <Text
+            className="text-xs font-semibold"
+            style={{ color: status.color }}
+          >
             {status.label}
           </Text>
         </View>
@@ -114,7 +115,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
     setError(null);
     try {
       const data = await axiosApi.branchApi.getMyGhostPins();
-      setBranches(data);
+      setBranches(data.items ?? []);
     } catch {
       setError('Không thể tải danh sách. Vui lòng thử lại.');
     } finally {
@@ -155,7 +156,9 @@ export const MyGhostPinsScreen = (): JSX.Element => {
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
           <Ionicons name="cloud-offline-outline" size={48} color="#D1D5DB" />
-          <Text className="mt-3 text-center text-sm text-gray-500">{error}</Text>
+          <Text className="mt-3 text-center text-sm text-gray-500">
+            {error}
+          </Text>
           <TouchableOpacity
             onPress={() => void load()}
             className="mt-4 rounded-xl bg-[#a1d973] px-6 py-3"

@@ -9,8 +9,10 @@
   "language": "Ngôn ngữ",
   "change_language": "Đổi ngôn ngữ",
   "dietary": {
-    "preferences_title": "Chọn chế độ ăn uống của bạn",
-    "preferences_description": "Điều này hỗ trợ hệ thống lọc món ăn dựa trên lựa chọn của bạn",
+    "preferences_title": "Chế độ ăn uống",
+    "preferences_description": "Cho Lowca biết nếu bạn có nhu cầu ăn kiêng cụ thể. Chúng tôi sẽ ưu tiên gợi ý những món ăn phù hợp với bạn.",
+    "ai_disclaimer": "Kết quả lọc được hỗ trợ bởi AI và có thể không chính xác hoàn toàn. Luôn kiểm tra với nhà hàng nếu bạn có lo ngại.",
+    "save": "Lưu",
     "confirm": "Xác nhận",
     "saving": "Đang lưu...",
     "success_title": "Thành công",
@@ -140,14 +142,36 @@
   },
   "user": "Người dùng",
   "profile": {
+    "title": "Hồ sơ",
     "not_updated": "Chưa cập nhật",
     "points": "điểm",
+    "select_language": "Chọn ngôn ngữ",
+    "my_points": "Điểm của tôi",
+    "view_profile": "Xem hồ sơ",
+    "view_history": "Xem lịch sử",
     "last_name": "Họ",
     "first_name": "Tên",
     "email": "Email",
     "phone_number": "Số điện thoại",
     "dietary_preferences": "Sở thích ăn uống",
     "update_dietary_preferences": "Cập nhật sở thích ăn uống",
+    "my_ghost_pins": "Ghost Pins của tôi",
+    "main_menu": "Mục chính",
+    "activity": "Hoạt động",
+    "payment_methods": "Phương thức thanh toán",
+    "benefits_savings": "Ưu đãi và tiết kiệm",
+    "new": "Mới",
+    "rewards": "Phần thưởng",
+    "challenges": "Thử thách",
+    "general": "Tổng quát",
+    "edit_profile": "Chỉnh sửa hồ sơ",
+    "notifications": "Thông báo",
+    "language": "Ngôn ngữ",
+    "help_support": "Trợ giúp & Hỗ trợ",
+    "help_center": "Trung tâm trợ giúp",
+    "contact_support": "Liên hệ hỗ trợ",
+    "terms_conditions": "Điều khoản & Điều kiện",
+    "privacy_policy": "Chính sách bảo mật",
     "logout": "Đăng xuất"
   },
   "bottom_tabs": {
@@ -268,5 +292,10 @@
     "phone_number": "Số điện thoại",
     "enter_phone_number": "Nhập số điện thoại",
     "save_changes": "Lưu thay đổi"
+  },
+  "common": {
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "cancel": "Hủy"
   }
 }

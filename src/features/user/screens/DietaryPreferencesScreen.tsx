@@ -4,26 +4,34 @@ import useDietaryPreference from '@features/user/hooks/dietaryPreference/useDiet
 import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
-import { selectDietaryPreferences, selectDietaryState } from '@slices/dietary';
+import {
+  selectDietaryPreferences,
+  selectDietaryState,
+  selectUserDietaryPreferences,
+} from '@slices/dietary';
 import React, { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const DietaryPreferencesScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const [focusOptionId, setFocusOptionId] = useState<number | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+  const [aiDisclaimerChecked, setAiDisclaimerChecked] = useState(false);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const dietaryOptions = useAppSelector(selectDietaryPreferences);
   const isSubmitting = dietaryStatus === 'pending';
+  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const { onGetAllDietaryPreferences } = useDietaryPreference();
   const { onCreateOrUpdateUserDietaryPreferences } = useUserDietary();
   const navigation = useNavigation();
 
   useEffect(() => {
+    setSelectedOptions(
+      userDietaryPreferences.map((pref) => pref.dietaryPreferenceId)
+    );
     onGetAllDietaryPreferences();
-  }, [onGetAllDietaryPreferences]);
+  }, [onGetAllDietaryPreferences, userDietaryPreferences]);
 
   const handleSubmit = async (): Promise<void> => {
     try {
@@ -45,42 +53,53 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
   };
 
   return (
-    <SafeAreaView className="flex-1 px-4">
-      <Text className="mb-4 text-lg font-semibold">
-        {t('dietary.preferences_title')}
-      </Text>
-      <Text className="mb-6 text-base text-gray-600">
-        {t('dietary.preferences_description')}
-      </Text>
-      {dietaryStatus === 'pending' ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
-        </View>
-      ) : (
-        <>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+        <Text className="mb-2 mt-4 text-2xl font-bold text-gray-900">
+          {t('dietary.preferences_title')}
+        </Text>
+        <Text className="mb-6 text-base leading-6 text-gray-600">
+          {t('dietary.preferences_description')}
+        </Text>
+
+        {dietaryStatus === 'pending' ? (
+          <View className="flex-1 items-center justify-center py-20">
+            <ActivityIndicator size="large" color="#a1d973" />
+          </View>
+        ) : (
           <DietaryList
             dietaryOptions={dietaryOptions}
-            setFocusOptionId={setFocusOptionId}
+            setFocusOptionId={() => {}}
             selectedOptions={selectedOptions}
             setSelectedOptions={setSelectedOptions}
           />
-          {focusOptionId && (
-            <View className="px-6 py-8">
-              <Text className="text-base leading-6 text-gray-600">
-                {
-                  dietaryOptions.find(
-                    (option) => option.dietaryPreferenceId === focusOptionId
-                  )?.description
-                }
-              </Text>
-            </View>
-          )}
-        </>
-      )}
-      <View className="mt-auto pb-4">
+        )}
+      </ScrollView>
+
+      <View className="px-4 pb-4">
+        {/* AI Disclaimer */}
+        {/* <Pressable
+          className="mb-6 mt-6 flex-row items-start"
+          onPress={() => setAiDisclaimerChecked(!aiDisclaimerChecked)}
+        >
+          <View
+            className={`mr-3 mt-0.5 h-5 w-5 items-center justify-center rounded border-2 ${
+              aiDisclaimerChecked
+                ? 'border-primary bg-primary'
+                : 'border-gray-300 bg-white'
+            }`}
+          >
+            {aiDisclaimerChecked && (
+              <MaterialCommunityIcons name="check" size={14} color="white" />
+            )}
+          </View>
+          <Text className="flex-1 text-sm leading-5 text-gray-600">
+            {t('dietary.ai_disclaimer')}
+          </Text>
+        </Pressable> */}
         <CustomButton
           onPress={handleSubmit}
-          text={t('dietary.confirm')}
+          text={t('dietary.save')}
           loadingText={t('dietary.saving')}
           isLoading={isSubmitting}
           disabled={selectedOptions.length === 0}

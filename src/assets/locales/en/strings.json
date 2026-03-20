@@ -9,8 +9,10 @@
   "language": "Language",
   "change_language": "Change Language",
   "dietary": {
-    "preferences_title": "Choose your dietary preferences",
-    "preferences_description": "This is support the system can filter food based on your choices",
+    "preferences_title": "Dietary Preferences",
+    "preferences_description": "Let Lowca know if you have specific dietary needs. We will prioritize suggesting dishes that suit you.",
+    "ai_disclaimer": "Filtering results are powered by AI and may not be completely accurate. Always verify with the restaurant if you have concerns.",
+    "save": "Save",
     "confirm": "Confirm",
     "saving": "Saving...",
     "success_title": "Success",
@@ -140,14 +142,36 @@
   },
   "user": "User",
   "profile": {
+    "title": "Profile",
     "not_updated": "Not updated yet",
     "points": "points",
+    "select_language": "Select Language",
+    "my_points": "My Points",
+    "view_profile": "View Profile",
+    "view_history": "View History",
     "last_name": "Last Name",
     "first_name": "First Name",
     "email": "Email",
     "phone_number": "Phone Number",
     "dietary_preferences": "Dietary Preferences",
     "update_dietary_preferences": "Update Dietary Preferences",
+    "my_ghost_pins": "My Ghost Pins",
+    "main_menu": "Main Menu",
+    "activity": "Activity",
+    "payment_methods": "Payment Methods",
+    "benefits_savings": "Benefits & Savings",
+    "new": "New",
+    "rewards": "Rewards",
+    "challenges": "Challenges",
+    "general": "General",
+    "edit_profile": "Edit Profile",
+    "notifications": "Notifications",
+    "language": "Language",
+    "help_support": "Help & Support",
+    "help_center": "Help Center",
+    "contact_support": "Contact Support",
+    "terms_conditions": "Terms & Conditions",
+    "privacy_policy": "Privacy Policy",
     "logout": "Logout"
   },
   "bottom_tabs": {
@@ -268,5 +292,10 @@
     "phone_number": "Phone Number",
     "enter_phone_number": "Enter phone number",
     "save_changes": "Save changes"
+  },
+  "common": {
+    "vietnamese": "Vietnamese",
+    "english": "English",
+    "cancel": "Cancel"
   }
 }
