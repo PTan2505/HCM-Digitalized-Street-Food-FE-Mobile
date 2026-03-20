@@ -1,7 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
 import type { Feedback } from '@features/home/types/feedback';
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+/**
+ * Shape of the combined feedback data we cache as a single query.
+ * Fetching feedbacks, average rating, and count in parallel then
+ * storing them together means one cache key = one consistent snapshot.
+ */
+interface BranchFeedbackData {
+  feedbacks: Feedback[];
+  averageRating: number;
+  totalCount: number;
+}
 
 export interface BranchFeedbackResult {
   feedbacks: Feedback[];
@@ -15,97 +28,123 @@ export interface BranchFeedbackResult {
   removeFeedback: (feedbackId: number) => void;
 }
 
+/**
+ * Fetches and caches branch feedback, average rating, and review count.
+ *
+ * HOW THE CACHE UPDATE HELPERS WORK (addFeedback / updateFeedback / removeFeedback):
+ *
+ * Instead of local useState, we use `queryClient.setQueryData()` to directly
+ * update the React Query cache. This is called an "optimistic update" — the UI
+ * updates instantly without waiting for a refetch.
+ *
+ * Why this is better than useState:
+ * 1. The data is shared — if another component reads the same cache key,
+ *    it sees the update too (no prop drilling needed).
+ * 2. Background refetches will eventually sync with the server,
+ *    self-correcting any drift.
+ * 3. Navigating away and back still shows the updated data (it's in the cache).
+ *
+ * `queryClient.setQueryData(key, updaterFn)` works like setState —
+ * the updater receives the current cached value and returns the new one.
+ */
 export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [averageRating, setAverageRating] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const queryKey = queryKeys.feedback.branch(branchId);
 
-  const load = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    Promise.all([
-      axiosApi.feedbackApi.getBranchFeedback(branchId),
-      axiosApi.feedbackApi.getAverageRating(branchId),
-      axiosApi.feedbackApi.getFeedbackCount(branchId),
-    ])
-      .then(([paginatedFeedback, ratingData, countData]) => {
-        setFeedbacks(paginatedFeedback.items);
-        setAverageRating(ratingData.averageRating);
-        setTotalCount(countData.feedbackCount);
-      })
-      .catch(() => setError('Không thể tải đánh giá. Vui lòng thử lại.'))
-      .finally(() => setIsLoading(false));
-  }, [branchId]);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey,
+    queryFn: async (): Promise<BranchFeedbackData> => {
+      const [paginatedFeedback, ratingData, countData] = await Promise.all([
+        axiosApi.feedbackApi.getBranchFeedback(branchId),
+        axiosApi.feedbackApi.getAverageRating(branchId),
+        axiosApi.feedbackApi.getFeedbackCount(branchId),
+      ]);
+      return {
+        feedbacks: paginatedFeedback.items,
+        averageRating: ratingData.averageRating,
+        totalCount: countData.feedbackCount,
+      };
+    },
+    staleTime: 1 * 60 * 1000, // Reviews may change often — 1 min cache
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const addFeedback = useCallback((feedback: Feedback) => {
-    setFeedbacks((prev) => [feedback, ...prev]);
-    setTotalCount((prevCount) => {
-      const newCount = prevCount + 1;
-      // Recalculate average rating based on new count
-      setAverageRating((prevAvg) => {
-        const totalRating = prevAvg * prevCount + feedback.rating;
-        return totalRating / newCount;
+  const addFeedback = useCallback(
+    (feedback: Feedback) => {
+      queryClient.setQueryData<BranchFeedbackData>(queryKey, (old) => {
+        if (!old) return old;
+        const newCount = old.totalCount + 1;
+        const newAvg =
+          (old.averageRating * old.totalCount + feedback.rating) / newCount;
+        return {
+          feedbacks: [feedback, ...old.feedbacks],
+          averageRating: newAvg,
+          totalCount: newCount,
+        };
       });
-      return newCount;
-    });
-  }, []);
+    },
+    [queryClient, queryKey]
+  );
 
-  const updateFeedback = useCallback((feedback: Feedback) => {
-    setFeedbacks((prev) => {
-      const oldFeedback = prev.find((f) => f.id === feedback.id);
-      const updated = prev.map((f) => (f.id === feedback.id ? feedback : f));
+  const updateFeedback = useCallback(
+    (feedback: Feedback) => {
+      queryClient.setQueryData<BranchFeedbackData>(queryKey, (old) => {
+        if (!old) return old;
+        const oldFeedback = old.feedbacks.find((f) => f.id === feedback.id);
+        const updatedFeedbacks = old.feedbacks.map((f) =>
+          f.id === feedback.id ? feedback : f
+        );
 
-      // Recalculate average rating if rating changed
-      if (oldFeedback && oldFeedback.rating !== feedback.rating) {
-        setTotalCount((currentCount) => {
-          setAverageRating((prevAvg) => {
-            const totalRating =
-              prevAvg * currentCount - oldFeedback.rating + feedback.rating;
-            return totalRating / currentCount;
-          });
-          return currentCount;
-        });
-      }
+        let newAvg = old.averageRating;
+        if (oldFeedback && oldFeedback.rating !== feedback.rating) {
+          newAvg =
+            (old.averageRating * old.totalCount -
+              oldFeedback.rating +
+              feedback.rating) /
+            old.totalCount;
+        }
 
-      return updated;
-    });
-  }, []);
+        return {
+          feedbacks: updatedFeedbacks,
+          averageRating: newAvg,
+          totalCount: old.totalCount,
+        };
+      });
+    },
+    [queryClient, queryKey]
+  );
 
-  const removeFeedback = useCallback((feedbackId: number) => {
-    setFeedbacks((prev) => {
-      const removed = prev.find((f) => f.id === feedbackId);
-      const filtered = prev.filter((f) => f.id !== feedbackId);
+  const removeFeedback = useCallback(
+    (feedbackId: number) => {
+      queryClient.setQueryData<BranchFeedbackData>(queryKey, (old) => {
+        if (!old) return old;
+        const removed = old.feedbacks.find((f) => f.id === feedbackId);
+        if (!removed) return old;
 
-      // Recalculate average rating and count
-      if (removed) {
-        setTotalCount((prevCount) => {
-          const newCount = prevCount - 1;
-          setAverageRating((prevAvg) => {
-            if (newCount === 0) return 0;
-            const totalRating = prevAvg * prevCount - removed.rating;
-            return totalRating / newCount;
-          });
-          return newCount;
-        });
-      }
+        const newCount = old.totalCount - 1;
+        const newAvg =
+          newCount === 0
+            ? 0
+            : (old.averageRating * old.totalCount - removed.rating) / newCount;
 
-      return filtered;
-    });
-  }, []);
+        return {
+          feedbacks: old.feedbacks.filter((f) => f.id !== feedbackId),
+          averageRating: newAvg,
+          totalCount: newCount,
+        };
+      });
+    },
+    [queryClient, queryKey]
+  );
 
   return {
-    feedbacks,
-    averageRating,
-    totalCount,
+    feedbacks: data?.feedbacks ?? [],
+    averageRating: data?.averageRating ?? 0,
+    totalCount: data?.totalCount ?? 0,
     isLoading,
-    error,
-    refetch: load,
+    error: error ? 'Không thể tải đánh giá. Vui lòng thử lại.' : null,
+    refetch: (): void => {
+      void refetch();
+    },
     addFeedback,
     updateFeedback,
     removeFeedback,

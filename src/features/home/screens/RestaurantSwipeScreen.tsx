@@ -6,14 +6,13 @@ import ActionButtons from '@features/home/components/restaurantSwipe/ActionButto
 import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
 import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
+import { useBranchImages } from '@features/home/hooks/useBranchImages';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -30,8 +29,6 @@ export const RestaurantSwipeScreen = ({
   route,
 }: RestaurantSwipeScreenProps): JSX.Element => {
   const navigation = useNavigation();
-  const dispatch = useAppDispatch();
-  const branchImageMap = useAppSelector(selectBranchImageMap);
   const { branch, displayName, onRatingUpdate } = route.params;
   const [avgRating, setAvgRating] = useState(branch.avgRating);
   const [totalReviewCount, setTotalReviewCount] = useState(
@@ -50,15 +47,10 @@ export const RestaurantSwipeScreen = ({
   );
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
-
-  useEffect(() => {
-    dispatch(fetchBranchAllImages(branch.branchId));
-  }, [branch.branchId, dispatch]);
+  const { imageUrls } = useBranchImages(branch.branchId);
 
   const restaurantImages =
-    (branchImageMap[branch.branchId] ?? []).length > 0
-      ? branchImageMap[branch.branchId]
-      : [PLACEHOLDER_IMAGE];
+    imageUrls.length > 0 ? imageUrls : [PLACEHOLDER_IMAGE];
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,

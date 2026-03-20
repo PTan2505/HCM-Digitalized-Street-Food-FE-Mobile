@@ -17,11 +17,7 @@ import {
   selectMultiBranchVendorIds,
   updateBranchRating,
 } from '@slices/branches';
-import {
-  fetchCategories,
-  selectCategories,
-  selectCategoriesStatus,
-} from '@slices/categories';
+import { useCategories } from '@features/home/hooks/useCategories';
 import {
   selectDietaryState,
   selectUserDietaryPreferences,
@@ -57,8 +53,7 @@ export const HomeScreen = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
-  const categories = useAppSelector(selectCategories);
-  const categoriesStatus = useAppSelector(selectCategoriesStatus);
+  const { categories, isLoading: categoriesLoading } = useCategories();
   const branches = useAppSelector(selectBranches);
   const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const branchImageMap = useAppSelector(selectBranchImageMap);
@@ -186,10 +181,6 @@ export const HomeScreen = (): JSX.Element => {
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
   ];
 
-  useEffect(() => {
-    void dispatch(fetchCategories());
-  }, [dispatch]);
-
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
   // (no dietary) can never race against and overwrite FETCH-B (with dietary).
@@ -302,7 +293,7 @@ export const HomeScreen = (): JSX.Element => {
         </View>
 
         <View className="flex-row px-4 pt-2">
-          {categoriesStatus === 'pending' ? (
+          {categoriesLoading ? (
             <View className="flex-1 items-center py-4">
               <ActivityIndicator color="#a1d973" />
             </View>
@@ -357,7 +348,7 @@ export const HomeScreen = (): JSX.Element => {
       </LinearGradient>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [categories, categoriesStatus, banners, insets.top, refreshing, t]
+    [categories, categoriesLoading, banners, insets.top, refreshing, t]
   );
 
   return (

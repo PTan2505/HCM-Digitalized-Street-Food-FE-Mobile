@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import Slider from '@react-native-community/slider';
-import { selectCategories } from '@slices/categories';
+import { useCategories } from '@features/home/hooks/useCategories';
 import {
   getAllDietaryPreferences,
   selectDietaryPreferences,
@@ -56,7 +56,7 @@ const FilterModal = ({
   const [amenities, setAmenities] = useState<string[]>([]);
   const [tasteTags, setTasteTags] = useState<string[]>([]);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
-  const categories = useAppSelector(selectCategories);
+  const { categories } = useCategories();
   const tastes = useAppSelector(selectTastes);
   const tastesStatus = useAppSelector(selectTastesStatus);
   const dietaryPreferences = useAppSelector(selectDietaryPreferences);

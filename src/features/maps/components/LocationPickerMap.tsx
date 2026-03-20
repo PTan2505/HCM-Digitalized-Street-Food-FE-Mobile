@@ -333,7 +333,10 @@ const LocationPickerMapInner = React.forwardRef<
           setAddressDetail('');
           setWard('');
           setCity('');
-          onLocationChange?.({ coordinate: coord, address: reversed.formattedAddress });
+          onLocationChange?.({
+            coordinate: coord,
+            address: reversed.formattedAddress,
+          });
         }
       } else {
         const fallback = `${coord[1].toFixed(6)}, ${coord[0].toFixed(6)}`;
@@ -475,7 +478,13 @@ const LocationPickerMapInner = React.forwardRef<
 
   // ── Confirm ──
   const handleConfirm = useCallback(() => {
-    onConfirm?.({ coordinate: centerCoord, address, addressDetail, ward, city });
+    onConfirm?.({
+      coordinate: centerCoord,
+      address,
+      addressDetail,
+      ward,
+      city,
+    });
   }, [centerCoord, address, addressDetail, ward, city, onConfirm]);
 
   return (

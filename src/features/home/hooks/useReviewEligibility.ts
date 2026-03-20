@@ -1,7 +1,9 @@
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { haversineKm } from '@utils/haversineFormula';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const GEO_FENCE_KM = parseFloat(process.env.EXPO_PUBLIC_GEO_FENCE_KM ?? '0.05');
 
@@ -21,20 +23,37 @@ export interface ReviewEligibilityResult {
   refetchVelocity: () => void;
 }
 
+/**
+ * Determines whether the user is eligible to review this branch.
+ *
+ * This hook combines TWO data sources:
+ * 1. Location permission + user coordinates (local side-effect via expo-location)
+ * 2. Velocity check API call (migrated to React Query for caching)
+ *
+ * WHY `placeholderData` IS USED:
+ * We pass `{ remainingTotalToday: 1, reviewedBranchIds: [] }` as placeholder
+ * so the UI doesn't block on the velocity API. If the API fails, we
+ * optimistically allow the review (same as the original behavior).
+ *
+ * HOW `refetchVelocity` WORKS:
+ * After submitting or deleting a review, the caller invokes refetchVelocity()
+ * which calls `queryClient.invalidateQueries()`. This marks the cached velocity
+ * data as stale, triggering an immediate background refetch. The cache key
+ * is ['feedback', 'velocity'] — shared across all instances of this hook.
+ */
 export const useReviewEligibility = (
   branchId: number,
   branchLat: number,
   branchLong: number
 ): ReviewEligibilityResult => {
+  const queryClient = useQueryClient();
+
+  // ── Location (unchanged — not an API cache concern) ──
   const [permissionStatus, setPermissionStatus] =
     useState<Location.PermissionStatus>(Location.PermissionStatus.UNDETERMINED);
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLong, setUserLong] = useState<number | null>(null);
-  const [remainingToday, setRemainingToday] = useState<number | null>(null);
-  const [reviewedBranchIds, setReviewedBranchIds] = useState<number[]>([]);
   const [isLocationLoading, setIsLocationLoading] = useState(true);
-  const [isVelocityLoading, setIsVelocityLoading] = useState(true);
-  const velocityFetchedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,34 +92,32 @@ export const useReviewEligibility = (
       }
     };
 
-    init();
+    void init();
     return (): void => {
       cancelled = true;
     };
   }, []);
 
-  const fetchVelocity = useCallback(() => {
-    setIsVelocityLoading(true);
-    axiosApi.feedbackApi
-      .checkVelocity()
-      .then((data) => {
-        setRemainingToday(data.remainingTotalToday);
-        setReviewedBranchIds(data.reviewedBranchIds ?? []);
-      })
-      .catch(() => {
-        // On error, optimistically allow review
-        setRemainingToday(1);
-        setReviewedBranchIds([]);
-      })
-      .finally(() => setIsVelocityLoading(false));
-  }, []);
+  // ── Velocity check (migrated to React Query) ──
+  const { data: velocity, isLoading: isVelocityLoading } = useQuery({
+    queryKey: queryKeys.feedback.velocity(),
+    queryFn: () => axiosApi.feedbackApi.checkVelocity(),
+    staleTime: 30 * 1000, // 30 sec — velocity can change after each review
+    placeholderData: {
+      remainingTotalToday: 1,
+      dailyLimit: 5,
+      reviewedBranchIds: [],
+    },
+  });
 
-  useEffect(() => {
-    if (!velocityFetchedRef.current) {
-      velocityFetchedRef.current = true;
-      fetchVelocity();
-    }
-  }, [fetchVelocity]);
+  const remainingToday = velocity?.remainingTotalToday ?? 1;
+  const reviewedBranchIds = velocity?.reviewedBranchIds ?? [];
+
+  const refetchVelocity = (): void => {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.feedback.velocity(),
+    });
+  };
 
   const isLoading = isLocationLoading || isVelocityLoading;
 
@@ -111,7 +128,7 @@ export const useReviewEligibility = (
       userLat,
       userLong,
       isLoading: true,
-      refetchVelocity: fetchVelocity,
+      refetchVelocity,
     };
   }
 
@@ -122,7 +139,7 @@ export const useReviewEligibility = (
       userLat: null,
       userLong: null,
       isLoading: false,
-      refetchVelocity: fetchVelocity,
+      refetchVelocity,
     };
   }
 
@@ -135,19 +152,19 @@ export const useReviewEligibility = (
         userLat,
         userLong,
         isLoading: false,
-        refetchVelocity: fetchVelocity,
+        refetchVelocity,
       };
     }
   }
 
-  if (remainingToday !== null && remainingToday <= 0) {
+  if (remainingToday <= 0) {
     return {
       canReview: false,
       reason: 'daily_limit_reached',
       userLat,
       userLong,
       isLoading: false,
-      refetchVelocity: fetchVelocity,
+      refetchVelocity,
     };
   }
 
@@ -158,7 +175,7 @@ export const useReviewEligibility = (
       userLat,
       userLong,
       isLoading: false,
-      refetchVelocity: fetchVelocity,
+      refetchVelocity,
     };
   }
 
@@ -168,6 +185,6 @@ export const useReviewEligibility = (
     userLat,
     userLong,
     isLoading: false,
-    refetchVelocity: fetchVelocity,
+    refetchVelocity,
   };
 };

@@ -12,6 +12,7 @@ import type { TabType } from '@features/home/components/restaurantDetails/TabsBa
 import TabsBar from '@features/home/components/restaurantDetails/TabsBar';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
+import { useBranchImages } from '@features/home/hooks/useBranchImages';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
@@ -23,7 +24,6 @@ import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
 import { fetchCartThunk, selectCart } from '@slices/directOrdering';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -53,7 +53,6 @@ export const RestaurantDetailsScreen = ({
   const navigation = useNavigation();
 
   const dispatch = useAppDispatch();
-  const branchImageMap = useAppSelector(selectBranchImageMap);
   const cart = useAppSelector(selectCart);
 
   const [branchTier, setBranchTier] = useState<BranchTier | null>(null);
@@ -84,10 +83,11 @@ export const RestaurantDetailsScreen = ({
     branch.branchId
   );
 
+  const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
+
   useEffect(() => {
-    dispatch(fetchBranchAllImages(branch.branchId));
     dispatch(fetchCartThunk());
-  }, [branch.branchId, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     const { getBranchTier } = getLowcaAPIUnimplementedEndpoints();
@@ -222,10 +222,9 @@ export const RestaurantDetailsScreen = ({
     [feedbacks, updateFeedback]
   );
 
-  const rawImageUrls = branchImageMap[branch.branchId] ?? [];
   const restaurantBanners =
-    rawImageUrls.length > 0
-      ? rawImageUrls.map((url) => ({ uri: url }))
+    branchImageUrls.length > 0
+      ? branchImageUrls.map((url) => ({ uri: url }))
       : [{ uri: PLACEHOLDER_IMAGE }];
 
   const restaurantInfo: RestaurantInfoData = {
