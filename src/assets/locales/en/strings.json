@@ -29,6 +29,8 @@
   "space": "Space",
   "dish_type": "Dish Type",
   "price_range": "Price Range",
+  "min_price": "Minimum Price",
+  "max_price": "Maximum Price",
   "distance": "Distance",
   "has_parking": "Has Car Parking",
   "time_slot": "Time Slot",

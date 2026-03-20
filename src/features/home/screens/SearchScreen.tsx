@@ -57,18 +57,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { coords } = useLocationPermission();
   const { stalls, isLoading, error, search, clearError } = useStallSearch();
 
-  const priceRangeToParams = (
-    keys: string[]
-  ): { MinPrice?: number; MaxPrice?: number } => {
-    const key = keys[0];
-    if (!key || key === 'any') return {};
-    if (key === 'under_50') return { MaxPrice: 50000 };
-    if (key === 'range_50_150') return { MinPrice: 50000, MaxPrice: 150000 };
-    if (key === 'range_150_300') return { MinPrice: 150000, MaxPrice: 300000 };
-    if (key === 'over_300') return { MinPrice: 300000 };
-    return {};
-  };
-
   const triggerSearch = useCallback(
     (kw: string, filters: FilterState | null) => {
       if (!coords) return;
@@ -83,7 +71,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         DietaryIds: filters?.dietaryTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
-        ...priceRangeToParams(filters?.priceRange ?? []),
+        MinPrice: filters?.minPrice,
+        MaxPrice: filters?.maxPrice,
       });
     },
     [coords, search]

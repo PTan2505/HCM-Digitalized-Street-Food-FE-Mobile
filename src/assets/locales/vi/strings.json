@@ -29,6 +29,8 @@
   "space": "Không gian",
   "dish_type": "Loại món",
   "price_range": "Khoảng giá",
+  "min_price": "Giá tối thiểu",
+  "max_price": "Giá tối đa",
   "distance": "Khoảng cách",
   "has_parking": "Có chỗ để xe ô tô",
   "time_slot": "Khung giờ",
