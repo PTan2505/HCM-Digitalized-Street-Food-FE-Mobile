@@ -24,6 +24,12 @@ export interface GhostPinResponse {
   lat: number;
   long: number;
   status: GhostPinStatus;
+  branchId?: number; // Optional branchId for image upload
+}
+
+export interface UploadImagesResponse {
+  uploadedCount: number;
+  imageUrls: string[];
 }
 
 export class GhostPinApi {
@@ -40,5 +46,17 @@ export class GhostPinApi {
       url: apiUrl.ghostPin.create,
       data,
     });
+  }
+
+  async uploadBranchImages(
+    branchId: number,
+    formData: FormData
+  ): Promise<UploadImagesResponse> {
+    const res = await this.apiClient.post<UploadImagesResponse, FormData>({
+      url: apiUrl.branch.images(branchId),
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
   }
 }

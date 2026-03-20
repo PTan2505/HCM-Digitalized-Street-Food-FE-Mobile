@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
+import { useCategories } from '@features/home/hooks/useCategories';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -17,7 +18,6 @@ import {
   selectMultiBranchVendorIds,
   updateBranchRating,
 } from '@slices/branches';
-import { useCategories } from '@features/home/hooks/useCategories';
 import {
   selectDietaryState,
   selectUserDietaryPreferences,
@@ -419,7 +419,7 @@ export const HomeScreen = (): JSX.Element => {
             }}
             renderItem={({ item }) => {
               const displayName = multiBranchSet.has(item.vendorId)
-                ? `${item.vendorName ?? item.name} - chi nhánh ${item.name}`
+                ? `${item.vendorName ?? item.name} - ${t('branch')} ${item.name}`
                 : item.vendorName;
               return (
                 <View className="w-[49%]">

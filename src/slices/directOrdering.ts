@@ -8,6 +8,7 @@ import type {
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
 
 export interface DirectOrderingState {
   cart: CartResponse | null;
@@ -57,7 +58,7 @@ export const fetchCartThunk = createAppAsyncThunk(
             branch.vendorId
           );
           if (vendorBranches.totalCount > 1) {
-            displayName = `${vendor.name} - chi nhánh ${branch.name}`;
+            displayName = `${vendor.name} - ${t('branch')} ${branch.name}`;
           } else {
             displayName = vendor.name;
           }

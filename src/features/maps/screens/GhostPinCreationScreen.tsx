@@ -9,11 +9,18 @@ import {
 } from '@features/maps/services/geocoding';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
+import {
+  compressImageForUpload,
+  pickImagesFromLibrary,
+  takePhotoWithCamera,
+  type PickedImage,
+} from '@utils/imagePicker';
 import type { JSX } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -35,6 +42,10 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const [city, setCity] = useState('');
   const [lat, setLat] = useState<number | null>(null);
   const [long, setLong] = useState<number | null>(null);
+
+  // Images state
+  const [selectedImages, setSelectedImages] = useState<PickedImage[]>([]);
+  const MAX_IMAGES = 5;
 
   const [predictions, setPredictions] = useState<AutocompletePrediction[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -112,6 +123,74 @@ export const GhostPinCreationScreen = (): JSX.Element => {
     [addressError]
   );
 
+  // ── Image picker handlers ──
+  const handlePickFromLibrary = async (): Promise<void> => {
+    const remainingSlots = MAX_IMAGES - selectedImages.length;
+    if (remainingSlots <= 0) {
+      Alert.alert(
+        'Giới hạn ảnh',
+        `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh`
+      );
+      return;
+    }
+
+    const result = await pickImagesFromLibrary({
+      maxImages: remainingSlots,
+      quality: 0.8,
+    });
+
+    if (result.error === 'permission_denied') {
+      Alert.alert(
+        'Quyền truy cập',
+        'Vui lòng cho phép ứng dụng truy cập thư viện ảnh trong Cài đặt.'
+      );
+    } else if (result.images.length > 0) {
+      setSelectedImages((prev) => [...prev, ...result.images]);
+    }
+  };
+
+  const handleTakePhoto = async (): Promise<void> => {
+    if (selectedImages.length >= MAX_IMAGES) {
+      Alert.alert(
+        'Giới hạn ảnh',
+        `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh`
+      );
+      return;
+    }
+
+    const result = await takePhotoWithCamera({ quality: 0.8 });
+
+    if (result.error === 'permission_denied') {
+      Alert.alert(
+        'Quyền truy cập',
+        'Vui lòng cho phép ứng dụng truy cập máy ảnh trong Cài đặt.'
+      );
+    } else if (result.images.length > 0) {
+      setSelectedImages((prev) => [...prev, ...result.images]);
+    }
+  };
+
+  const handleRemoveImage = (index: number): void => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const showImagePickerOptions = (): void => {
+    Alert.alert('Thêm ảnh', 'Chọn nguồn ảnh', [
+      {
+        text: 'Chụp ảnh',
+        onPress: handleTakePhoto,
+      },
+      {
+        text: 'Chọn từ thư viện',
+        onPress: handlePickFromLibrary,
+      },
+      {
+        text: 'Hủy',
+        style: 'cancel',
+      },
+    ]);
+  };
+
   // ── Validation ──
   const validate = (): boolean => {
     let valid = true;
@@ -136,7 +215,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
     setSubmitError(null);
     setIsSubmitting(true);
     try {
-      await axiosApi.ghostPinApi.createGhostPin({
+      // 1. Create ghost pin
+      const response = await axiosApi.ghostPinApi.createGhostPin({
         name: name.trim(),
         addressDetail: addressDetail.trim(),
         ward: ward.trim() || null,
@@ -144,6 +224,37 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         lat: lat!,
         long: long!,
       });
+
+      // 2. Upload images if any selected
+      if (
+        selectedImages.length > 0 &&
+        response.data.branchId != null &&
+        response.data.branchId > 0
+      ) {
+        try {
+          const compressed = await Promise.all(
+            selectedImages.map((img) =>
+              compressImageForUpload(img.uri, img.fileName)
+            )
+          );
+          const formData = new FormData();
+          compressed.forEach((img) => {
+            formData.append('images', {
+              uri: img.uri,
+              type: img.mimeType,
+              name: img.fileName,
+            } as unknown as Blob);
+          });
+          await axiosApi.ghostPinApi.uploadBranchImages(
+            response.data.branchId,
+            formData
+          );
+        } catch (uploadError) {
+          console.warn('Failed to upload images:', uploadError);
+          // Don't fail the entire creation if image upload fails
+        }
+      }
+
       Alert.alert('Thành công', 'Ghim quán ăn đã được tạo thành công!', [
         { text: 'OK', onPress: (): void => navigation.goBack() },
       ]);
@@ -279,6 +390,48 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             {addressError && (
               <Text className="mt-1 text-xs text-red-500">{addressError}</Text>
             )}
+          </View>
+
+          {/* Image Upload Section */}
+          <View className="mb-5">
+            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
+              Ảnh quán ăn (Tùy chọn)
+            </Text>
+            <View className="flex-row flex-wrap gap-3">
+              {/* Selected Images */}
+              {selectedImages.map((image, index) => (
+                <View key={index} className="relative h-24 w-24">
+                  <Image
+                    source={{ uri: image.uri }}
+                    className="h-full w-full rounded-xl"
+                    resizeMode="cover"
+                  />
+                  <TouchableOpacity
+                    onPress={() => handleRemoveImage(index)}
+                    className="absolute -right-2 -top-2 h-6 w-6 items-center justify-center rounded-full bg-red-500 shadow-sm"
+                  >
+                    <Ionicons name="close" size={16} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+              {/* Add Image Button */}
+              {selectedImages.length < MAX_IMAGES && (
+                <TouchableOpacity
+                  onPress={showImagePickerOptions}
+                  className="h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50"
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="camera-outline" size={28} color="#9CA3AF" />
+                  <Text className="mt-1 text-xs text-gray-400">
+                    {selectedImages.length}/{MAX_IMAGES}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            <Text className="mt-2 text-xs text-gray-500">
+              Thêm ảnh để giúp mọi người dễ dàng nhận diện quán hơn
+            </Text>
           </View>
 
           {/* Error */}

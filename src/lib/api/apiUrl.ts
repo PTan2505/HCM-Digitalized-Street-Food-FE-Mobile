@@ -61,6 +61,7 @@ export const apiUrl = {
     byId: (id: number): string => `/api/Branch/${id}`,
     byVendor: '/api/Branch/vendor',
     workSchedules: (id: number): string => `/api/Branch/${id}/work-schedules`,
+    images: (branchId: number): string => `/api/Branch/${branchId}/images`,
   },
   userDietary: {
     userDietary: '/api/UserDietary/user',
@@ -72,7 +73,7 @@ export const apiUrl = {
     },
   },
   ghostPin: {
-    create: '/api/GhostPin',
+    create: '/api/Branch/user',
   },
   dish: {
     byBranch: (branchId: number): string => `/api/dishes/branch/${branchId}`,
