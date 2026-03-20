@@ -93,6 +93,12 @@
     "newest": "Mới nhất",
     "votes": "Lượt vote"
   },
+  "review_sort": {
+    "default": "Mặc định",
+    "most_helpful": "Hữu ích nhất",
+    "highest_rating": "Đánh giá cao nhất",
+    "lowest_rating": "Đánh giá thấp nhất"
+  },
   "actions": {
     "view_detail": "Xem chi tiết",
     "swipe_up": "Vuốt lên",
@@ -111,6 +117,7 @@
     "hours": "giờ",
     "minutes": "phút",
     "see_more": "Xem thêm",
+    "all_reviews": "Tất cả đánh giá",
     "food": "Đồ ăn",
     "service": "Dịch vụ",
     "location": "Địa điểm",

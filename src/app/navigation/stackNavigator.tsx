@@ -7,6 +7,7 @@ import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDeta
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
+import { ReviewListScreen } from '@features/home/screens/ReviewListScreen';
 import { SearchScreen } from '@features/home/screens/SearchScreen';
 import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationScreen';
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
@@ -25,7 +26,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
-import type { ActiveBranch } from '@features/home/types/branch';
+import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
@@ -62,6 +63,17 @@ const RootStack = createNativeStackNavigator({
         displayName: string;
         tab?: TabType;
         onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+      },
+    },
+    ReviewList: {
+      screen: ReviewListScreen,
+      params: {} as {
+        branchId: number;
+        displayName: string;
+        ownFeedbackId?: number;
+        dishes: Dish[];
+        branchLat: number;
+        branchLong: number;
       },
     },
     CurrentPicks: {

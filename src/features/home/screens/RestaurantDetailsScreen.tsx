@@ -29,7 +29,7 @@ import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -317,6 +317,11 @@ export const RestaurantDetailsScreen = ({
             reviewIneligibilityReason={reviewIneligibilityReason}
             isEligibilityLoading={isEligibilityLoading}
             ownFeedbackId={ownFeedback?.id}
+            branchId={branch.branchId}
+            displayName={displayName}
+            dishes={branch.dishes}
+            branchLat={branch.lat}
+            branchLong={branch.long}
             onWriteReview={handleOpenWriteReview}
             onEditOwnReview={handleEditReview}
             onDeleteReview={handleDeleteReview}
@@ -346,14 +351,17 @@ export const RestaurantDetailsScreen = ({
               isOpen,
             })
           }
-          className="absolute bottom-6 left-4 right-4 flex-row items-center justify-between rounded-2xl bg-[#a1d973] px-5 py-4 shadow-lg"
+          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-[#a1d973] px-5 py-4 shadow-lg"
         >
-          <Text className="text-base font-bold text-white">
-            {t('cart.items_count', { count: cart.items.length })}
-          </Text>
-          <Text className="text-base font-bold text-white">
-            {`${Math.round(cart.totalAmount / 1000)}k`}
-          </Text>
+          <Text className="text-base font-bold text-white">{displayName}</Text>
+          <View className="mt-1 flex-row items-center justify-between">
+            <Text className="text-base font-bold text-[#EE6612]">
+              {t('cart.items_count', { count: cart.items.length })}
+            </Text>
+            <Text className="text-base font-bold text-[#EE6612]">
+              {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
+            </Text>
+          </View>
         </TouchableOpacity>
       )}
     </SafeAreaView>

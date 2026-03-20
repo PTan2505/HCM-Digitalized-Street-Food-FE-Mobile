@@ -55,7 +55,9 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
     queryKey,
     queryFn: async (): Promise<BranchFeedbackData> => {
       const [paginatedFeedback, ratingData, countData] = await Promise.all([
-        axiosApi.feedbackApi.getBranchFeedback(branchId),
+        axiosApi.feedbackApi.getBranchFeedback(branchId, {
+          sortBy: 'most_helpful',
+        }),
         axiosApi.feedbackApi.getAverageRating(branchId),
         axiosApi.feedbackApi.getFeedbackCount(branchId),
       ]);

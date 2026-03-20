@@ -227,7 +227,7 @@ const MenuTab = ({
   };
 
   return (
-    <>
+    <View className={`${cart && cart.items.length > 0 ? 'mb-28' : ''} flex-1`}>
       {/* Closed notice */}
       {!isOpen && (
         <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-amber-50 px-4 py-3">
@@ -301,7 +301,7 @@ const MenuTab = ({
           )}
         </View>
       )}
-    </>
+    </View>
   );
 };
 

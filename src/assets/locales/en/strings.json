@@ -93,6 +93,12 @@
     "newest": "Newest",
     "votes": "Votes"
   },
+  "review_sort": {
+    "default": "Default",
+    "most_helpful": "Most Helpful",
+    "highest_rating": "Highest Rating",
+    "lowest_rating": "Lowest Rating"
+  },
   "actions": {
     "view_detail": "View detail",
     "swipe_up": "Swipe up",
@@ -111,6 +117,7 @@
     "hours": "hours",
     "minutes": "minutes",
     "see_more": "See more",
+    "all_reviews": "All Reviews",
     "food": "Food",
     "service": "Service",
     "location": "Location",

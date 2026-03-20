@@ -1,4 +1,6 @@
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
+import type { Dish } from '@features/home/types/branch';
+import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +35,11 @@ interface ReviewsTabProps {
   isEligibilityLoading: boolean;
   /** Set when the current user already has a review for this branch */
   ownFeedbackId?: number;
+  branchId: number;
+  displayName: string;
+  dishes: Dish[];
+  branchLat: number;
+  branchLong: number;
   onWriteReview: () => void;
   onEditOwnReview: () => void;
   onDeleteReview: (feedbackId: number) => void;
@@ -55,12 +62,18 @@ const ReviewsTab = ({
   reviewIneligibilityReason,
   isEligibilityLoading,
   ownFeedbackId,
+  branchId,
+  displayName,
+  dishes,
+  branchLat,
+  branchLong,
   onWriteReview,
   onEditOwnReview,
   onDeleteReview,
   onVoteReview,
 }: ReviewsTabProps): JSX.Element => {
   const { t } = useTranslation();
+  const navigation = useNavigation();
   const progress = useSharedValue<number>(0);
 
   // Reorder reviews: own review first, then up to 4 others (max 5 total)
@@ -83,7 +96,7 @@ const ReviewsTab = ({
   // Measure tallest card for dynamic carousel height
   const [carouselHeight, setCarouselHeight] = useState(DEFAULT_CARD_HEIGHT);
   const handleCardLayout = useCallback((height: number) => {
-    setCarouselHeight((prev) => Math.max(prev, height) + 20);
+    setCarouselHeight((prev) => Math.max(prev, height) + 30);
   }, []);
 
   return (
@@ -111,11 +124,24 @@ const ReviewsTab = ({
           </View>
 
           <View className="flex-1 justify-center">
-            <View className="mb-3 flex-row justify-end">
-              <Text className="text-[10px] font-semibold text-gray-600 underline">
-                {t('actions.see_more')}
-              </Text>
-            </View>
+            <TouchableOpacity
+              onPress={(): void => {
+                navigation.navigate('ReviewList', {
+                  branchId,
+                  displayName,
+                  ownFeedbackId,
+                  dishes,
+                  branchLat,
+                  branchLong,
+                });
+              }}
+            >
+              <View className="mb-3 flex-row justify-end">
+                <Text className="text-[10px] font-semibold text-gray-600 underline">
+                  {t('actions.see_more')}
+                </Text>
+              </View>
+            </TouchableOpacity>
             <View className="mb-2 flex-row items-center gap-2">
               <Text className="w-[70px] text-[13px] text-gray-600">
                 {t('actions.food')}

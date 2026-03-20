@@ -39,6 +39,8 @@ export const queryKeys = {
   feedback: {
     all: ['feedback'] as const,
     branch: (branchId: number) => ['feedback', 'branch', branchId] as const,
+    list: (branchId: number, sortBy: string) =>
+      ['feedback', 'list', branchId, sortBy] as const,
     velocity: () => ['feedback', 'velocity'] as const,
   },
 
