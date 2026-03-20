@@ -24,12 +24,14 @@ interface SearchResultCardProps {
   branch: ActiveBranch;
   /** Optional override — pass branchImageMap[id]?.[0] for cached home images */
   imageUri?: string;
+  displayName: string;
   onPress?: () => void;
 }
 
 const SearchResultCard = ({
   branch,
   imageUri,
+  displayName,
   onPress,
 }: SearchResultCardProps): JSX.Element => {
   const { t } = useTranslation();
@@ -78,14 +80,14 @@ const SearchResultCard = ({
           className="text-[13px] font-bold leading-[18px] text-black"
           numberOfLines={2}
         >
+          {displayName}{' '}
           {branch.isVerified && (
             <MaterialCommunityIcons
               name="check-decagram"
               size={13}
               color="#186bde"
             />
-          )}{' '}
-          {branch.name}
+          )}
         </Text>
 
         {/* Rating + review count + distance */}

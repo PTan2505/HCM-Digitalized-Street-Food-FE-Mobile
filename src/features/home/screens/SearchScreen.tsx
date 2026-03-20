@@ -6,9 +6,15 @@ import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
-import { useAppSelector } from '@hooks/reduxHooks';
-import { StaticScreenProps } from '@react-navigation/native';
-import { selectBranchImageMap, selectBranches } from '@slices/branches';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import {
+  computeDisplayName,
+  selectBranchImageMap,
+  selectBranches,
+  selectMultiBranchVendorIds,
+  updateBranchRating,
+} from '@slices/branches';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,9 +40,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-
+  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const branches = useAppSelector(selectBranches);
   const branchImageMap = useAppSelector(selectBranchImageMap);
+  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
 
   useEffect(() => {
     if (!openFilter) return;
@@ -97,6 +105,13 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     setHasSearched(true);
     triggerSearch(keyword, filters);
   };
+
+  const handleRatingUpdate = useCallback(
+    (branchId: number, avgRating: number, totalReviewCount: number) => {
+      dispatch(updateBranchRating({ branchId, avgRating, totalReviewCount }));
+    },
+    [dispatch]
+  );
 
   const renderEmptyOrError = (): JSX.Element => {
     if (!hasSearched) return <View />;
@@ -170,12 +185,35 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           <FlatList
             data={hasSearched ? stalls : branches}
             keyExtractor={(item) => String(item.branchId)}
-            renderItem={({ item }) => (
-              <SearchResultCard
-                branch={item}
-                imageUri={branchImageMap[item.branchId]?.[0]}
-              />
-            )}
+            renderItem={({ item }) => {
+              const isMultiBranch = multiBranchVendorIds.includes(
+                item.vendorId
+              );
+              const displayName = computeDisplayName(
+                item,
+                isMultiBranch,
+                t('branch')
+              );
+              return (
+                <SearchResultCard
+                  branch={item}
+                  imageUri={branchImageMap[item.branchId]?.[0]}
+                  displayName={displayName}
+                  onPress={() =>
+                    navigation.navigate('RestaurantDetails', {
+                      branch: item,
+                      displayName,
+                      onRatingUpdate: (avgRating, totalReviewCount) =>
+                        handleRatingUpdate(
+                          item.branchId,
+                          avgRating,
+                          totalReviewCount
+                        ),
+                    })
+                  }
+                />
+              );
+            }}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
             ListEmptyComponent={renderEmptyOrError}

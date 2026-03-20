@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import {
+  computeDisplayName,
   fetchActiveBranches,
   selectBranchImageMap,
   selectBranches,
@@ -264,8 +265,6 @@ export const HomeScreen = (): JSX.Element => {
       });
   }, [dispatch, userCoords, userDietaryPreferences]);
 
-  const multiBranchSet = new Set(multiBranchVendorIds);
-
   // useMemo prevents a new JSX reference on every render, which would cause
   // FlatList to remount the header and re-trigger onEndReached in a loop.
   const ListHeader = useMemo(
@@ -418,9 +417,14 @@ export const HomeScreen = (): JSX.Element => {
               marginBottom: 12,
             }}
             renderItem={({ item }) => {
-              const displayName = multiBranchSet.has(item.vendorId)
-                ? `${item.vendorName ?? item.name} - ${t('branch')} ${item.name}`
-                : item.vendorName;
+              const isMultiBranch = multiBranchVendorIds.includes(
+                item.vendorId
+              );
+              const displayName = computeDisplayName(
+                item,
+                isMultiBranch,
+                t('branch')
+              );
               return (
                 <View className="w-[49%]">
                   <PlaceCard
