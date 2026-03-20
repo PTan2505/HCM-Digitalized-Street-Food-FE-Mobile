@@ -1,5 +1,7 @@
 import type { APIErrorResponse } from '@custom-types/apiResponse';
 import { Ionicons } from '@expo/vector-icons';
+import type { ActiveBranch } from '@features/home/types/branch';
+import type { FeedbackTag } from '@features/home/types/feedback';
 import type { PickedLocation } from '@features/maps/components/LocationPickerMap';
 import { LocationPickerMap } from '@features/maps/components/LocationPickerMap';
 import {
@@ -16,10 +18,11 @@ import {
   type PickedImage,
 } from '@utils/imagePicker';
 import type { JSX } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  FlatList,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -42,6 +45,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const [city, setCity] = useState('');
   const [lat, setLat] = useState<number | null>(null);
   const [long, setLong] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState('');
 
   // Images state
   const [selectedImages, setSelectedImages] = useState<PickedImage[]>([]);
@@ -57,8 +61,19 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [nearbyBranches, setNearbyBranches] = useState<ActiveBranch[]>([]);
+  const [nearbyBranchImages, setNearbyBranchImages] = useState<
+    Record<number, string>
+  >({});
+  const [rating, setRating] = useState(0);
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [availableTags, setAvailableTags] = useState<FeedbackTag[]>([]);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    axiosApi.feedbackTagApi.getTags().then(setAvailableTags).catch(() => {});
+  }, []);
 
   // ── Address search ──
   const handleAddressSearch = useCallback((text: string) => {
@@ -69,6 +84,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
     setCity('');
     setLat(null);
     setLong(null);
+    setNearbyBranches([]);
+    setNearbyBranchImages({});
 
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     if (!text.trim()) {
@@ -98,15 +115,45 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         setLat(detail.lat);
         setLong(detail.lng);
         if (addressError) setAddressError(null);
+
+        // Fetch nearby branches within 1km to warn about duplicates
+        try {
+          const branches = await axiosApi.stallSearchApi.getMapVendors(
+            detail.lat,
+            detail.lng,
+            1
+          );
+          setNearbyBranches(branches);
+          void fetchNearbyImages(branches);
+        } catch {
+          // silently ignore
+        }
       }
       setIsGeocodingAddress(false);
     },
     [addressError]
   );
 
+  // ── Fetch first image for each nearby branch in parallel ──
+  const fetchNearbyImages = async (branches: ActiveBranch[]): Promise<void> => {
+    const results = await Promise.allSettled(
+      branches.map(async (b) => {
+        const res = await axiosApi.branchApi.getBranchImages(b.branchId, 1, 1);
+        return { branchId: b.branchId, imageUrl: res.items[0]?.imageUrl };
+      })
+    );
+    const map: Record<number, string> = {};
+    results.forEach((r) => {
+      if (r.status === 'fulfilled' && r.value.imageUrl) {
+        map[r.value.branchId] = r.value.imageUrl;
+      }
+    });
+    setNearbyBranchImages(map);
+  };
+
   // ── Location picker confirm (map fallback) ──
   const handleLocationConfirm = useCallback(
-    (location: PickedLocation): void => {
+    async (location: PickedLocation): Promise<void> => {
       const [lng, pickedLat] = location.coordinate;
       setLat(pickedLat);
       setLong(lng);
@@ -119,6 +166,19 @@ export const GhostPinCreationScreen = (): JSX.Element => {
       setPredictions([]);
       setShowLocationPicker(false);
       if (addressError) setAddressError(null);
+
+      // Fetch nearby branches within 1km to warn about duplicates
+      try {
+        const branches = await axiosApi.stallSearchApi.getMapVendors(
+          pickedLat,
+          lng,
+          1
+        );
+        setNearbyBranches(branches);
+        void fetchNearbyImages(branches);
+      } catch {
+        // silently ignore — nearby search is non-critical
+      }
     },
     [addressError]
   );
@@ -225,33 +285,49 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         long: long!,
       });
 
-      // 2. Upload images if any selected
+      // 2. Submit feedback via feedbackApi if there's any feedback content
+      const branchId = response.data.branchId;
       if (
-        selectedImages.length > 0 &&
-        response.data.branchId != null &&
-        response.data.branchId > 0
+        branchId != null &&
+        branchId > 0 &&
+        (rating > 0 ||
+          feedback.trim() ||
+          selectedImages.length > 0 ||
+          selectedTagIds.length > 0)
       ) {
         try {
-          const compressed = await Promise.all(
-            selectedImages.map((img) =>
-              compressImageForUpload(img.uri, img.fileName)
-            )
-          );
-          const formData = new FormData();
-          compressed.forEach((img) => {
-            formData.append('images', {
-              uri: img.uri,
-              type: img.mimeType,
-              name: img.fileName,
-            } as unknown as Blob);
+          const submittedFeedback = await axiosApi.feedbackApi.submitFeedback({
+            branchId,
+            dishId: null,
+            orderId: null,
+            rating: rating || 5,
+            comment: feedback.trim() || null,
+            tagIds: selectedTagIds,
           });
-          await axiosApi.ghostPinApi.uploadBranchImages(
-            response.data.branchId,
-            formData
-          );
-        } catch (uploadError) {
-          console.warn('Failed to upload images:', uploadError);
-          // Don't fail the entire creation if image upload fails
+
+          // 3. Upload images to the submitted feedback
+          if (selectedImages.length > 0) {
+            const compressed = await Promise.all(
+              selectedImages.map((img) =>
+                compressImageForUpload(img.uri, img.fileName)
+              )
+            );
+            const formData = new FormData();
+            compressed.forEach((img) => {
+              formData.append('images', {
+                uri: img.uri,
+                type: img.mimeType,
+                name: img.fileName,
+              } as unknown as Blob);
+            });
+            await axiosApi.feedbackApi.uploadFeedbackImages(
+              submittedFeedback.id,
+              formData
+            );
+          }
+        } catch (feedbackError) {
+          console.warn('Failed to submit feedback:', feedbackError);
+          // Don't fail the entire creation if feedback submission fails
         }
       }
 
@@ -300,7 +376,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               Tên quán <Text className="text-red-500">*</Text>
             </Text>
             <TextInput
-              className={`rounded-xl border px-4 py-3 text-sm text-gray-800 ${
+              className={`rounded-xl border px-4 py-3 text-gray-800 ${
                 nameError ? 'border-red-400' : 'border-gray-200'
               }`}
               placeholder="Nhập tên quán ăn"
@@ -335,7 +411,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                 style={{ marginRight: 8 }}
               />
               <TextInput
-                className="flex-1 text-sm text-gray-800"
+                className="flex-1 text-gray-800"
                 placeholder="Tìm kiếm địa chỉ..."
                 placeholderTextColor="#9CA3AF"
                 value={addressQuery}
@@ -392,46 +468,232 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             )}
           </View>
 
-          {/* Image Upload Section */}
+          {/* Nearby branches warning */}
+          {nearbyBranches.length > 0 && (
+            <View className="mb-5 rounded-xl border border-orange-200 bg-orange-50 py-3">
+              <View className="flex-row items-center px-4">
+                <Ionicons
+                  name="warning-outline"
+                  size={18}
+                  color="#EA580C"
+                  style={{ marginRight: 8 }}
+                />
+                <Text className="flex-1 text-sm font-semibold text-orange-700">
+                  Có quán ăn gần đây
+                </Text>
+              </View>
+              <Text className="mt-1 px-4 text-xs text-orange-600">
+                Đã có {nearbyBranches.length} quán trong bán kính 1km. Có thể
+                quán bạn muốn thêm đã tồn tại:
+              </Text>
+              <FlatList
+                data={nearbyBranches
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)
+                  )
+                  .slice(0, 5)}
+                keyExtractor={(item) => String(item.branchId)}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingTop: 10,
+                  gap: 10,
+                }}
+                renderItem={({ item }) => {
+                  const imageUrl = nearbyBranchImages[item.branchId];
+                  const displayName = `${item.vendorName} - ${item.name}`;
+                  return (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      className="w-28 overflow-hidden rounded-xl bg-white"
+                      onPress={() =>
+                        navigation.navigate('RestaurantDetails', {
+                          branch: item,
+                          displayName,
+                        })
+                      }
+                    >
+                      {imageUrl ? (
+                        <Image
+                          source={{ uri: imageUrl }}
+                          className="h-20 w-full"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="h-20 w-full items-center justify-center bg-gray-100">
+                          <Ionicons
+                            name="storefront-outline"
+                            size={28}
+                            color="#D1D5DB"
+                          />
+                        </View>
+                      )}
+                      <View className="p-1.5">
+                        <Text
+                          className="text-[11px] font-semibold text-gray-700"
+                          numberOfLines={1}
+                        >
+                          {item.vendorName}
+                        </Text>
+                        <Text
+                          className="text-[10px] text-gray-500"
+                          numberOfLines={1}
+                        >
+                          {item.name}
+                        </Text>
+                        {item.distanceKm != null && (
+                          <Text className="mt-0.5 text-[10px] text-orange-500">
+                            {item.distanceKm < 1
+                              ? `${Math.round(item.distanceKm * 1000)}m`
+                              : `${item.distanceKm.toFixed(1)}km`}
+                          </Text>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
+          )}
+
+          {/* Feedback Section with Images */}
           <View className="mb-5">
             <Text className="mb-1.5 text-sm font-semibold text-gray-700">
-              Ảnh quán ăn (Tùy chọn)
+              Đánh giá (Tùy chọn)
             </Text>
-            <View className="flex-row flex-wrap gap-3">
-              {/* Selected Images */}
-              {selectedImages.map((image, index) => (
-                <View key={index} className="relative h-24 w-24">
-                  <Image
-                    source={{ uri: image.uri }}
-                    className="h-full w-full rounded-xl"
-                    resizeMode="cover"
-                  />
-                  <TouchableOpacity
-                    onPress={() => handleRemoveImage(index)}
-                    className="absolute -right-2 -top-2 h-6 w-6 items-center justify-center rounded-full bg-red-500 shadow-sm"
-                  >
-                    <Ionicons name="close" size={16} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              ))}
+            <Text className="mb-3 text-xs text-gray-500">
+              Chia sẻ thêm về quán ăn và thêm ảnh minh họa
+            </Text>
 
-              {/* Add Image Button */}
-              {selectedImages.length < MAX_IMAGES && (
-                <TouchableOpacity
-                  onPress={showImagePickerOptions}
-                  className="h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50"
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name="camera-outline" size={28} color="#9CA3AF" />
-                  <Text className="mt-1 text-xs text-gray-400">
-                    {selectedImages.length}/{MAX_IMAGES}
-                  </Text>
-                </TouchableOpacity>
-              )}
+            {/* Star rating */}
+            <View className="mb-6 mt-5 items-center">
+              <Text className="mb-3 text-sm font-medium text-gray-700">
+                Đánh giá của bạn
+              </Text>
+              <View className="flex-row gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => setRating(star)}
+                    hitSlop={4}
+                  >
+                    <Ionicons
+                      name={star <= rating ? 'star' : 'star-outline'}
+                      size={36}
+                      color={star <= rating ? '#F59E0B' : '#D1D5DB'}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-            <Text className="mt-2 text-xs text-gray-500">
-              Thêm ảnh để giúp mọi người dễ dàng nhận diện quán hơn
+
+            {/* Tags */}
+            {availableTags.length > 0 && (
+              <View className="mb-5">
+                <Text className="mb-3 text-sm font-medium text-gray-700">
+                  Nhãn (Tuỳ chọn)
+                </Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {availableTags.map((tag) => {
+                    const isSelected = selectedTagIds.includes(tag.id);
+                    return (
+                      <TouchableOpacity
+                        key={tag.id}
+                        onPress={() =>
+                          setSelectedTagIds((prev) =>
+                            isSelected
+                              ? prev.filter((id) => id !== tag.id)
+                              : [...prev, tag.id]
+                          )
+                        }
+                        className={`rounded-full border px-3 py-1.5 ${
+                          isSelected
+                            ? 'border-primary bg-primary'
+                            : 'border-gray-200 bg-white'
+                        }`}
+                      >
+                        <Text
+                          className={`text-xs font-medium ${
+                            isSelected ? 'text-white' : 'text-gray-600'
+                          }`}
+                        >
+                          {tag.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
+            {/* Feedback Text Input */}
+            <TextInput
+              className="mb-3 min-h-[100px] rounded-xl border border-gray-200 px-4 py-3 text-gray-800"
+              placeholder="Mô tả về quán (món ăn đặc biệt, giờ mở cửa, giá cả, đặc điểm nổi bật...)"
+              placeholderTextColor="#9CA3AF"
+              value={feedback}
+              onChangeText={setFeedback}
+              multiline
+              textAlignVertical="top"
+              maxLength={500}
+              returnKeyType="default"
+            />
+            <Text className="mb-3 text-xs text-gray-500">
+              {feedback.length}/500 ký tự
             </Text>
+
+            {/* Image Upload for Feedback */}
+            <View className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+              <View className="mb-2 flex-row items-center">
+                <Ionicons
+                  name="images-outline"
+                  size={16}
+                  color="#6B7280"
+                  style={{ marginRight: 6 }}
+                />
+                <Text className="text-sm font-semibold text-gray-700">
+                  Ảnh minh họa
+                </Text>
+              </View>
+              <View className="flex-row flex-wrap gap-3">
+                {/* Selected Images */}
+                {selectedImages.map((image, index) => (
+                  <View key={index} className="relative h-24 w-24">
+                    <Image
+                      source={{ uri: image.uri }}
+                      className="h-full w-full rounded-xl"
+                      resizeMode="cover"
+                    />
+                    <TouchableOpacity
+                      onPress={() => handleRemoveImage(index)}
+                      className="absolute -right-2 -top-2 h-6 w-6 items-center justify-center rounded-full bg-red-500 shadow-sm"
+                    >
+                      <Ionicons name="close" size={16} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+
+                {/* Add Image Button */}
+                {selectedImages.length < MAX_IMAGES && (
+                  <TouchableOpacity
+                    onPress={showImagePickerOptions}
+                    className="h-24 w-24 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white"
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="camera-outline" size={28} color="#9CA3AF" />
+                    <Text className="mt-1 text-xs text-gray-400">
+                      {selectedImages.length}/{MAX_IMAGES}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <Text className="mt-2 text-xs text-gray-500">
+                Tải lên ảnh quán, món ăn, thực đơn hoặc bảng hiệu
+              </Text>
+            </View>
           </View>
 
           {/* Error */}

@@ -98,6 +98,39 @@ export interface PaginatedDishes {
   items: Dish[];
 }
 
+export type LicenseStatus = 'Pending' | 'Accept' | 'Reject';
+
+export interface MyGhostPinBranch {
+  branchId: number;
+  vendorId: number;
+  managerId: number | null;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  addressDetail: string;
+  ward: string;
+  city: string;
+  lat: number;
+  long: number;
+  createdAt: string;
+  updatedAt: string | null;
+  isVerified: boolean;
+  avgRating: number;
+  totalReviewCount: number;
+  totalRatingSum: number;
+  batchReviewCount: number;
+  batchRatingSum: number;
+  isActive: boolean;
+  isSubscribed: boolean;
+  subscriptionExpiresAt: string | null;
+  daysRemaining: number | null;
+  tierId: number;
+  tierName: string;
+  licenseUrls: string[];
+  licenseStatus: LicenseStatus;
+  licenseRejectReason: string | null;
+}
+
 export interface PaginatedBranchImages {
   currentPage: number;
   pageSize: number;

@@ -3,6 +3,7 @@ import { apiUrl } from '@lib/api/apiUrl';
 
 import type {
   BranchDetail,
+  MyGhostPinBranch,
   PaginatedBranchImages,
   PaginatedBranches,
   PaginatedDishes,
@@ -75,6 +76,13 @@ export class BranchApi {
     const res = await this.apiClient.get<PaginatedDishes>({
       url: apiUrl.dish.byBranch(branchId),
       params,
+    });
+    return res.data;
+  }
+
+  async getMyGhostPins(): Promise<MyGhostPinBranch[]> {
+    const res = await this.apiClient.get<MyGhostPinBranch[]>({
+      url: apiUrl.branch.myGhostPins,
     });
     return res.data;
   }

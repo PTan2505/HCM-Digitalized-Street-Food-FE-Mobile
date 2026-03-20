@@ -9,6 +9,7 @@ import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetail
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
 import { SearchScreen } from '@features/home/screens/SearchScreen';
 import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationScreen';
+import { MyGhostPinsScreen } from '@features/maps/screens/MyGhostPinsScreen';
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -86,6 +87,9 @@ const RootStack = createNativeStackNavigator({
     },
     GhostPinCreation: {
       screen: GhostPinCreationScreen,
+    },
+    MyGhostPins: {
+      screen: MyGhostPinsScreen,
     },
     PersonalCart: {
       screen: PersonalCartScreen,

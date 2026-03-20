@@ -555,17 +555,6 @@ const LocationPickerMapInner = React.forwardRef<
             }}
           />
         </View>
-        {/* Shadow dot at pin point */}
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: 'rgba(0,0,0,0.15)',
-          }}
-        />
       </View>
 
       {/* ── Dragging indicator ── */}
