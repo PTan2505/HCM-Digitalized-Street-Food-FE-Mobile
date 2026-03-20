@@ -82,12 +82,9 @@ const ReviewsTab = ({
 
   // Measure tallest card for dynamic carousel height
   const [carouselHeight, setCarouselHeight] = useState(DEFAULT_CARD_HEIGHT);
-  const handleCardLayout = useCallback(
-    (height: number) => {
-      setCarouselHeight((prev) => Math.max(prev, height));
-    },
-    []
-  );
+  const handleCardLayout = useCallback((height: number) => {
+    setCarouselHeight((prev) => Math.max(prev, height) + 20);
+  }, []);
 
   return (
     <View>

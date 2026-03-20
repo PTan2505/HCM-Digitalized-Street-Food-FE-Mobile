@@ -213,7 +213,9 @@
     "add": "Add",
     "replace_title": "Change stall?",
     "replace_message": "Your current cart will be cleared when you add items from a different stall.",
-    "replace_confirm": "Confirm"
+    "replace_confirm": "Confirm",
+    "add_more": "Add more",
+    "view_all_menu": "View all"
   },
   "checkout": {
     "title": "Checkout",

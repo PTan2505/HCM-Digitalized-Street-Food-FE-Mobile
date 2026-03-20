@@ -88,6 +88,16 @@ export interface BranchImage {
   imageUrl: string;
 }
 
+export interface PaginatedDishes {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: Dish[];
+}
+
 export interface PaginatedBranchImages {
   currentPage: number;
   pageSize: number;

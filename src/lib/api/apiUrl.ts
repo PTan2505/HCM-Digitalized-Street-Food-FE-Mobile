@@ -74,6 +74,9 @@ export const apiUrl = {
   ghostPin: {
     create: '/api/GhostPin',
   },
+  dish: {
+    byBranch: (branchId: number): string => `/api/dishes/branch/${branchId}`,
+  },
   cart: {
     my: '/api/Cart/my',
     items: '/api/Cart/items',

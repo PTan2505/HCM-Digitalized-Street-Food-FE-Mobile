@@ -5,6 +5,7 @@ import type {
   BranchDetail,
   PaginatedBranchImages,
   PaginatedBranches,
+  PaginatedDishes,
   WorkSchedule,
 } from '@features/home/types/branch';
 
@@ -58,6 +59,22 @@ export class BranchApi {
   async getWorkSchedules(branchId: number): Promise<WorkSchedule[]> {
     const res = await this.apiClient.get<WorkSchedule[]>({
       url: apiUrl.branch.workSchedules(branchId),
+    });
+    return res.data;
+  }
+
+  async getDishesByBranch(
+    branchId: number,
+    params?: {
+      categoryId?: number;
+      keyword?: string;
+      pageNumber?: number;
+      pageSize?: number;
+    }
+  ): Promise<PaginatedDishes> {
+    const res = await this.apiClient.get<PaginatedDishes>({
+      url: apiUrl.dish.byBranch(branchId),
+      params,
     });
     return res.data;
   }

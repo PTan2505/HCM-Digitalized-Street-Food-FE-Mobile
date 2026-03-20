@@ -29,13 +29,15 @@ import {
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
+  Platform,
+  RefreshControl,
   Text,
   TouchableOpacity,
   View,
@@ -67,6 +69,8 @@ export const HomeScreen = (): JSX.Element => {
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords } = useLocationPermission();
+  const [refreshing, setRefreshing] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
@@ -76,6 +80,8 @@ export const HomeScreen = (): JSX.Element => {
 
   // True once user has actively dragged the list.
   const hasUserDragged = useRef(false);
+  // Track pulling state in ref to prevent unnecessary re-renders
+  const isPullingRef = useRef(false);
   // After each successful page load this is set to false.
   // It flips back to true only when the user scrolls away from the trigger
   // zone (distanceFromBottom > 600), ensuring we don't auto-chain requests.
@@ -136,6 +142,23 @@ export const HomeScreen = (): JSX.Element => {
       const distanceFromBottom =
         contentSize.height - layoutMeasurement.height - contentOffset.y;
 
+      // Detect pull-to-refresh gesture for immediate spinner feedback
+      // Only update state when it actually changes to prevent flickering
+      const shouldBePulling = contentOffset.y < -50 && !refreshing;
+
+      if (shouldBePulling && !isPullingRef.current) {
+        isPullingRef.current = true;
+        setIsPulling(true);
+      } else if (
+        !shouldBePulling &&
+        isPullingRef.current &&
+        contentOffset.y >= -10 &&
+        !refreshing // Don't reset during refresh - let onRefresh completion handle it
+      ) {
+        isPullingRef.current = false;
+        setIsPulling(false);
+      }
+
       // Re-arm only when the user has scrolled well away from the bottom AND
       // no fetch is in-flight. Guarding against in-flight prevents the
       // content-growth scroll event (new items added → contentSize expands →
@@ -154,7 +177,7 @@ export const HomeScreen = (): JSX.Element => {
         handleLoadMore();
       }
     },
-    [handleLoadMore]
+    [handleLoadMore, refreshing]
   );
 
   const banners = [
@@ -222,6 +245,34 @@ export const HomeScreen = (): JSX.Element => {
     [dispatch]
   );
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Don't reset isPulling here - let refreshing take over seamlessly
+    // isPulling will be reset when refreshing completes
+    dispatch(
+      fetchActiveBranches({
+        page: 1,
+        lat: userCoords?.latitude,
+        lng: userCoords?.longitude,
+        distance: 5,
+        dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
+      })
+    )
+      .then(() => {
+        setTimeout(() => {
+          setRefreshing(false);
+          // Reset isPulling after refreshing is done to ensure smooth transition
+          isPullingRef.current = false;
+          setIsPulling(false);
+        }, 500);
+      })
+      .catch(() => {
+        setRefreshing(false);
+        isPullingRef.current = false;
+        setIsPulling(false);
+      });
+  }, [dispatch, userCoords, userDietaryPreferences]);
+
   const multiBranchSet = new Set(multiBranchVendorIds);
 
   // useMemo prevents a new JSX reference on every render, which would cause
@@ -231,7 +282,10 @@ export const HomeScreen = (): JSX.Element => {
       <LinearGradient
         colors={['#B8E986', '#FFFFFF']}
         locations={[0, 0.4]}
-        style={{ paddingTop: insets.top }}
+        style={{
+          paddingTop:
+            refreshing && Platform.OS === 'ios' ? insets.top + 60 : insets.top,
+        }}
       >
         <HomeHeader />
 
@@ -303,22 +357,22 @@ export const HomeScreen = (): JSX.Element => {
       </LinearGradient>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [categories, categoriesStatus, banners, insets.top, t]
+    [categories, categoriesStatus, banners, insets.top, refreshing, t]
   );
 
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-[#B8E986]">
       {branchesStatus === 'pending' ? (
         <>
           {ListHeader}
-          <View className="flex-1 items-center justify-center">
+          <View className="flex-1 items-center justify-center bg-white">
             <ActivityIndicator size="large" color="#a1d973" />
           </View>
         </>
       ) : branchesStatus === 'failed' ? (
         <>
           {ListHeader}
-          <View className="flex-1 items-center justify-center px-6">
+          <View className="flex-1 items-center justify-center bg-white px-6">
             <Text className="text-center text-base text-gray-500">
               {t('search.error')}
             </Text>
@@ -344,65 +398,119 @@ export const HomeScreen = (): JSX.Element => {
           </View>
         </>
       ) : (
-        <FlatList
-          data={branches}
-          keyExtractor={(item) => String(item.branchId)}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={ListHeader}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          columnWrapperStyle={{
-            justifyContent: 'space-between',
-            paddingHorizontal: 16,
-            marginBottom: 12,
-          }}
-          renderItem={({ item }) => {
-            const displayName = multiBranchSet.has(item.vendorId)
-              ? `${item.vendorName ?? item.name} - chi nhánh ${item.name}`
-              : item.vendorName;
-            return (
-              <View className="w-[49%]">
-                <PlaceCard
-                  branch={item}
-                  displayName={displayName}
-                  imageUri={branchImageMap[item.branchId]?.[0]}
-                  userCoords={userCoords}
-                  onPress={() =>
-                    navigation.navigate('RestaurantSwipe', {
-                      branch: item,
-                      displayName,
-                      onRatingUpdate: (avgRating, totalReviewCount) =>
-                        handleRatingUpdate(
-                          item.branchId,
-                          avgRating,
-                          totalReviewCount
-                        ),
-                    })
-                  }
-                />
+        <View>
+          <FlatList
+            data={branches}
+            keyExtractor={(item) => String(item.branchId)}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={ListHeader}
+            contentContainerStyle={{
+              paddingBottom: 100,
+              backgroundColor: 'white',
+            }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                progressViewOffset={
+                  Platform.OS === 'android' ? insets.top + 60 : 0
+                }
+                colors={['#a1d973']} // Android spinner color
+                tintColor="#a1d973" // iOS spinner color
+                progressBackgroundColor="#ffffff" // Android spinner background
+              />
+            }
+            columnWrapperStyle={{
+              justifyContent: 'space-between',
+              paddingHorizontal: 16,
+              marginBottom: 12,
+            }}
+            renderItem={({ item }) => {
+              const displayName = multiBranchSet.has(item.vendorId)
+                ? `${item.vendorName ?? item.name} - chi nhánh ${item.name}`
+                : item.vendorName;
+              return (
+                <View className="w-[49%]">
+                  <PlaceCard
+                    branch={item}
+                    displayName={displayName}
+                    imageUri={branchImageMap[item.branchId]?.[0]}
+                    userCoords={userCoords}
+                    onPress={() =>
+                      navigation.navigate('RestaurantSwipe', {
+                        branch: item,
+                        displayName,
+                        onRatingUpdate: (avgRating, totalReviewCount) =>
+                          handleRatingUpdate(
+                            item.branchId,
+                            avgRating,
+                            totalReviewCount
+                          ),
+                      })
+                    }
+                  />
+                </View>
+              );
+            }}
+            ListEmptyComponent={
+              <View className="items-center px-6 py-12">
+                <Text className="text-center text-base text-gray-400">
+                  {t('search.empty')}
+                </Text>
               </View>
-            );
-          }}
-          ListEmptyComponent={
-            <View className="items-center px-6 py-12">
-              <Text className="text-center text-base text-gray-400">
-                {t('search.empty')}
-              </Text>
-            </View>
-          }
-          onScroll={handleScroll}
-          onScrollBeginDrag={() => {
-            hasUserDragged.current = true;
-          }}
-          scrollEventThrottle={400}
-          ListFooterComponent={
-            branchesLoadingMore ? (
-              <View className="items-center py-4">
-                <ActivityIndicator color="#a1d973" />
+            }
+            onScroll={handleScroll}
+            onScrollBeginDrag={() => {
+              hasUserDragged.current = true;
+            }}
+            onScrollEndDrag={() => {
+              // Do NOT reset isPulling here — if pull was strong enough to trigger
+              // onRefresh, this fires before refreshing=true is set, causing a
+              // 1-frame flicker. handleScroll resets isPulling when the list
+              // bounces back (contentOffset >= -10 && !refreshing).
+            }}
+            scrollEventThrottle={16}
+            ListFooterComponent={
+              branchesLoadingMore ? (
+                <View className="items-center py-4">
+                  <ActivityIndicator color="#a1d973" />
+                </View>
+              ) : null
+            }
+          />
+          {(refreshing || isPulling) && (
+            <>
+              <View
+                style={{
+                  position: 'absolute',
+                  top: insets.top + 10,
+                  left: 0,
+                  right: 0,
+                  alignItems: 'center',
+                  zIndex: 9999,
+                  elevation: 9999,
+                }}
+                pointerEvents="none"
+              >
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    borderRadius: 20,
+                    padding: 8,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    elevation: 5,
+                  }}
+                >
+                  <ActivityIndicator size="small" color="#a1d973" />
+                </View>
               </View>
-            ) : null
-          }
-        />
+            </>
+          )}
+        </View>
       )}
     </SafeAreaView>
   );

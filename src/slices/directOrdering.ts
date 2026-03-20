@@ -53,8 +53,9 @@ export const fetchCartThunk = createAppAsyncThunk(
             branch.vendorId
           );
           // Check if vendor has multiple branches
-          const vendorBranches =
-            await axiosApi.branchApi.getBranchesByVendor(branch.vendorId);
+          const vendorBranches = await axiosApi.branchApi.getBranchesByVendor(
+            branch.vendorId
+          );
           if (vendorBranches.totalCount > 1) {
             displayName = `${vendor.name} - chi nhánh ${branch.name}`;
           } else {

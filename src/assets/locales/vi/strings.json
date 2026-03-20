@@ -213,7 +213,9 @@
     "add": "Thêm",
     "replace_title": "Thay đổi quán?",
     "replace_message": "Giỏ hàng hiện tại sẽ bị xoá khi bạn thêm món từ quán khác.",
-    "replace_confirm": "Đồng ý"
+    "replace_confirm": "Đồng ý",
+    "add_more": "Thêm món",
+    "view_all_menu": "Xem tất cả"
   },
   "checkout": {
     "title": "Thanh toán",
