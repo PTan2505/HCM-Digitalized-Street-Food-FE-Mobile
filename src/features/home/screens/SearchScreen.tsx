@@ -213,6 +213,12 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
       <View className="flex-1">
         {/* Search Bar */}
         <View className="mb-2 flex-row items-center gap-3 px-4 pt-2">
+          <TouchableOpacity
+            onPress={(): void => navigation.goBack()}
+            hitSlop={8}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
           <View className="flex-1">
             <SearchBar
               onSearch={handleSearch}
