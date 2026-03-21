@@ -4,7 +4,10 @@ import type {
   ActiveBranch,
   PaginatedBranches,
 } from '@features/home/types/branch';
-import type { StallSearchParams } from '@features/home/types/stall';
+import type {
+  SearchApiData,
+  StallSearchParams,
+} from '@features/home/types/stall';
 
 export class StallSearchApi {
   private apiClient: ApiClient;
@@ -13,12 +16,36 @@ export class StallSearchApi {
     this.apiClient = apiClient;
   }
 
-  async searchStalls(params: StallSearchParams): Promise<PaginatedBranches> {
-    const res = await this.apiClient.get<PaginatedBranches>({
-      url: apiUrl.branch.active,
+  async searchStalls(params: StallSearchParams): Promise<ActiveBranch[]> {
+    const res = await this.apiClient.get<SearchApiData>({
+      url: apiUrl.search.vendorWithBranch,
       params,
     });
-    return res.data;
+    return res.data.results.flatMap((vendor) =>
+      vendor.branches.map((branch) => ({
+        branchId: branch.branchId,
+        vendorId: vendor.vendorId,
+        vendorName: vendor.vendorName,
+        managerId: vendor.managerId,
+        name: branch.name,
+        phoneNumber: '',
+        email: '',
+        addressDetail: branch.addressDetail,
+        ward: branch.ward,
+        city: branch.city,
+        lat: branch.lat,
+        long: branch.long,
+        createdAt: '',
+        updatedAt: null,
+        isVerified: branch.isVerified,
+        avgRating: branch.avgRating,
+        totalReviewCount: 0,
+        isActive: branch.isActive,
+        distanceKm: null,
+        dishes: branch.dishes.map((d) => ({ ...d, tasteNames: [] })),
+        dietaryPreferenceNames: [],
+      }))
+    );
   }
 
   async getMapVendors(

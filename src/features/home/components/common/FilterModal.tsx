@@ -6,7 +6,6 @@ import {
   getAllDietaryPreferences,
   selectDietaryPreferences,
   selectDietaryState,
-  selectUserDietaryPreferences,
 } from '@slices/dietary';
 import { fetchTastes, selectTastes, selectTastesStatus } from '@slices/tastes';
 import type { JSX } from 'react';
@@ -27,11 +26,12 @@ interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
   onApply: (filters: FilterState) => void;
+  initialFilters?: FilterState | null;
 }
 
 export interface FilterState {
   spaceTypes: string[];
-  dishTypes: string[];
+  categoryIds: string[];
   minPrice: number;
   maxPrice: number;
   distance: number;
@@ -46,15 +46,16 @@ const FilterModal = ({
   visible,
   onClose,
   onApply,
+  initialFilters,
 }: FilterModalProps): JSX.Element => {
   const { t } = useTranslation();
   const { width: screenWidth } = useWindowDimensions();
   const sliderWidth = screenWidth - 48; // px-6 = 24px each side
   const dispatch = useAppDispatch();
   const [spaceTypes, setSpaceTypes] = useState<string[]>([]);
-  const [dishTypes, setDishTypes] = useState<string[]>([]);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(500000);
+  const [maxPrice, setMaxPrice] = useState<number>(5000000);
   const [distance, setDistance] = useState<number>(5);
   const [hasParking, setHasParking] = useState<boolean>(false);
   const [openNow, setOpenNow] = useState<boolean>(false);
@@ -66,16 +67,34 @@ const FilterModal = ({
   const tastesStatus = useAppSelector(selectTastesStatus);
   const dietaryPreferences = useAppSelector(selectDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
 
-  // Pre-select the user's saved dietary prefs each time the modal opens
+  // Sync internal state with external activeFilters when modal opens
   useEffect(() => {
-    if (visible) {
-      setDietaryTags(
-        userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
-      );
+    if (!visible) return;
+    if (initialFilters) {
+      setSpaceTypes(initialFilters.spaceTypes);
+      setCategoryIds(initialFilters.categoryIds);
+      setMinPrice(initialFilters.minPrice);
+      setMaxPrice(initialFilters.maxPrice);
+      setDistance(initialFilters.distance);
+      setHasParking(initialFilters.hasParking);
+      setOpenNow(initialFilters.openNow);
+      setAmenities(initialFilters.amenities);
+      setTasteTags(initialFilters.tasteTags);
+      setDietaryTags(initialFilters.dietaryTags);
+    } else {
+      setSpaceTypes([]);
+      setCategoryIds([]);
+      setMinPrice(0);
+      setMaxPrice(5000000);
+      setDistance(5);
+      setHasParking(false);
+      setOpenNow(false);
+      setAmenities([]);
+      setTasteTags([]);
+      setDietaryTags([]);
     }
-  }, [visible, userDietaryPreferences]);
+  }, [visible, initialFilters]);
 
   useEffect(() => {
     if (tastesStatus === 'idle') {
@@ -100,24 +119,22 @@ const FilterModal = ({
 
   const handleReset = (): void => {
     setSpaceTypes([]);
-    setDishTypes([]);
+    setCategoryIds([]);
     setMinPrice(0);
-    setMaxPrice(500000);
+    setMaxPrice(5000000);
     setDistance(5);
     setHasParking(false);
     setOpenNow(false);
     setAmenities([]);
     setTasteTags([]);
     // Restore to user's profile dietary prefs, not empty
-    setDietaryTags(
-      userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
-    );
+    setDietaryTags([]);
   };
 
   const handleApply = (): void => {
     onApply({
       spaceTypes,
-      dishTypes,
+      categoryIds,
       minPrice,
       maxPrice,
       distance,
@@ -244,7 +261,14 @@ const FilterModal = ({
                   <CategoryCard
                     title={item.name}
                     image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
-                    onPress={() => console.log(`Selected ${item.name}`)}
+                    onPress={() =>
+                      toggleSelection(
+                        item.categoryId.toString(),
+                        categoryIds,
+                        setCategoryIds
+                      )
+                    }
+                    selected={categoryIds.includes(item.categoryId.toString())}
                   />
                 )}
               />
@@ -260,11 +284,11 @@ const FilterModal = ({
                   <Text className="text-sm font-semibold text-[#06AA4C]">
                     {minPrice === 0
                       ? '0₫'
-                      : `${(minPrice / 1000).toLocaleString('vi-VN')}K`}{' '}
+                      : `${minPrice.toLocaleString('vi-VN')}đ`}{' '}
                     —{' '}
                     {maxPrice >= 5000000
                       ? '5M+'
-                      : `${(maxPrice / 1000).toLocaleString('vi-VN')}K`}
+                      : `${maxPrice.toLocaleString('vi-VN')}đ`}
                   </Text>
                 </View>
               </View>

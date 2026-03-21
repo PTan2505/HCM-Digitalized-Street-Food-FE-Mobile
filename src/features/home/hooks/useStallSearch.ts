@@ -19,7 +19,7 @@ export const useStallSearch = (): {
     setError(null);
     try {
       const result = await axiosApi.stallSearchApi.searchStalls(params);
-      setStalls(result.items);
+      setStalls(result);
     } catch {
       setError('Không thể tải kết quả tìm kiếm. Vui lòng thử lại.');
       setStalls([]);

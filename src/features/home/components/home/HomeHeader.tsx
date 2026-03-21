@@ -9,7 +9,7 @@ import LanguageButton from './LanguageButton';
 const HomeHeader = (): JSX.Element => {
   const navigation = useNavigation();
   return (
-    <View className="flex-row items-center justify-between px-4 pb-6 pt-4">
+    <View className="flex-row items-center justify-between px-4 pt-4">
       {/* <Text className="title-xl text-gray-900">Lowca</Text> */}
       <SvgIcon width={100} height={100} icon={lowcaLogo} />
 

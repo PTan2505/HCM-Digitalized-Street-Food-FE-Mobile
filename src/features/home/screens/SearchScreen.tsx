@@ -4,6 +4,7 @@ import FilterModal, {
 } from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
+import { useCategories } from '@features/home/hooks/useCategories';
 import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -11,10 +12,11 @@ import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
   computeDisplayName,
   selectBranchImageMap,
-  selectBranches,
   selectMultiBranchVendorIds,
   updateBranchRating,
 } from '@slices/branches';
+import { selectDietaryPreferences } from '@slices/dietary';
+import { selectTastes } from '@slices/tastes';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +35,25 @@ type SearchScreenProps = StaticScreenProps<{
   openFilter?: boolean;
 }>;
 
+const DEFAULT_MIN_PRICE = 0;
+const DEFAULT_MAX_PRICE = 5000000;
+const DEFAULT_DISTANCE = 5;
+
+const FilterChip = ({
+  label,
+  onRemove,
+}: {
+  label: string;
+  onRemove: () => void;
+}): JSX.Element => (
+  <View className="mr-2 flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
+    <Text className="mr-1 text-sm font-medium text-[#06AA4C]">{label}</Text>
+    <TouchableOpacity onPress={onRemove} hitSlop={6}>
+      <Ionicons name="close" size={14} color="#06AA4C" />
+    </TouchableOpacity>
+  </View>
+);
+
 export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { t } = useTranslation();
   const { autoFocus, openFilter } = route.params ?? {};
@@ -42,9 +63,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const [hasSearched, setHasSearched] = useState(false);
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
-  const branches = useAppSelector(selectBranches);
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
+  const dietaryPreferences = useAppSelector(selectDietaryPreferences);
+  const tastes = useAppSelector(selectTastes);
+  const { categories } = useCategories();
 
   useEffect(() => {
     if (!openFilter) return;
@@ -61,18 +84,21 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     (kw: string, filters: FilterState | null) => {
       if (!coords) return;
       search({
+        Keyword: kw || undefined,
         Lat: coords.latitude,
         Long: coords.longitude,
-        Keyword: kw || undefined,
         Distance: filters?.distance,
-        TasteIds: filters?.tasteTags
+        DietaryIds: filters?.dietaryTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
-        DietaryIds: filters?.dietaryTags
+        TasteIds: filters?.tasteTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
         MinPrice: filters?.minPrice,
         MaxPrice: filters?.maxPrice,
+        CategoryIds: filters?.categoryIds
+          .map(Number)
+          .filter((n) => !isNaN(n) && n > 0),
       });
     },
     [coords, search]
@@ -93,6 +119,31 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     setFilterModalVisible(false);
     setHasSearched(true);
     triggerSearch(keyword, filters);
+  };
+
+  const handleRemoveFilter = (
+    updater: (f: FilterState) => FilterState
+  ): void => {
+    if (!activeFilters) return;
+    const updated = updater(activeFilters);
+    const hasActive =
+      updated.dietaryTags.length > 0 ||
+      updated.tasteTags.length > 0 ||
+      updated.categoryIds.length > 0 ||
+      updated.minPrice > DEFAULT_MIN_PRICE ||
+      updated.maxPrice < DEFAULT_MAX_PRICE ||
+      updated.distance !== DEFAULT_DISTANCE;
+    if (!hasActive) {
+      setActiveFilters(null);
+      if (!keyword.trim()) {
+        setHasSearched(false);
+      } else {
+        triggerSearch(keyword, null);
+      }
+    } else {
+      setActiveFilters(updated);
+      triggerSearch(keyword, updated);
+    }
   };
 
   const handleRatingUpdate = useCallback(
@@ -148,11 +199,20 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     return <View />;
   };
 
+  const hasFilterChips =
+    activeFilters !== null &&
+    (activeFilters.dietaryTags.length > 0 ||
+      activeFilters.tasteTags.length > 0 ||
+      activeFilters.categoryIds.length > 0 ||
+      activeFilters.minPrice > DEFAULT_MIN_PRICE ||
+      activeFilters.maxPrice < DEFAULT_MAX_PRICE ||
+      activeFilters.distance !== DEFAULT_DISTANCE);
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       <View className="flex-1">
         {/* Search Bar */}
-        <View className="mb-4 flex-row items-center gap-3 px-4 pt-2">
+        <View className="mb-2 flex-row items-center gap-3 px-4 pt-2">
           <View className="flex-1">
             <SearchBar
               onSearch={handleSearch}
@@ -169,10 +229,107 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           </TouchableOpacity>
         </View>
 
+        {/* Active filter chips */}
+        {activeFilters !== null && hasFilterChips && (
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ flexGrow: 0, marginBottom: 8 }}
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+              gap: 8,
+              alignItems: 'center',
+            }}
+            keyExtractor={(item) => item.key}
+            data={[
+              ...activeFilters.dietaryTags.flatMap((id) => {
+                const pref = dietaryPreferences.find(
+                  (p) => p.dietaryPreferenceId.toString() === id
+                );
+                if (!pref) return [];
+                return [
+                  {
+                    key: `dietary-${id}`,
+                    label: pref.name,
+                    onRemove: () =>
+                      handleRemoveFilter((f) => ({
+                        ...f,
+                        dietaryTags: f.dietaryTags.filter((v) => v !== id),
+                      })),
+                  },
+                ];
+              }),
+              ...activeFilters.tasteTags.flatMap((id) => {
+                const taste = tastes.find((ta) => ta.tasteId.toString() === id);
+                if (!taste) return [];
+                return [
+                  {
+                    key: `taste-${id}`,
+                    label: taste.name,
+                    onRemove: () =>
+                      handleRemoveFilter((f) => ({
+                        ...f,
+                        tasteTags: f.tasteTags.filter((v) => v !== id),
+                      })),
+                  },
+                ];
+              }),
+              ...activeFilters.categoryIds.flatMap((id) => {
+                const cat = categories.find(
+                  (c) => c.categoryId.toString() === id
+                );
+                if (!cat) return [];
+                return [
+                  {
+                    key: `cat-${id}`,
+                    label: cat.name,
+                    onRemove: () =>
+                      handleRemoveFilter((f) => ({
+                        ...f,
+                        categoryIds: f.categoryIds.filter((v) => v !== id),
+                      })),
+                  },
+                ];
+              }),
+              ...(activeFilters.minPrice > DEFAULT_MIN_PRICE ||
+              activeFilters.maxPrice < DEFAULT_MAX_PRICE
+                ? [
+                    {
+                      key: 'price',
+                      label: `${activeFilters.minPrice === 0 ? '0₫' : `${(activeFilters.minPrice / 1000).toLocaleString('vi-VN')}K`} — ${activeFilters.maxPrice >= DEFAULT_MAX_PRICE ? '5M+' : `${(activeFilters.maxPrice / 1000).toLocaleString('vi-VN')}K`}`,
+                      onRemove: () =>
+                        handleRemoveFilter((f) => ({
+                          ...f,
+                          minPrice: DEFAULT_MIN_PRICE,
+                          maxPrice: DEFAULT_MAX_PRICE,
+                        })),
+                    },
+                  ]
+                : []),
+              ...(activeFilters.distance !== DEFAULT_DISTANCE
+                ? [
+                    {
+                      key: 'distance',
+                      label: `${activeFilters.distance}km`,
+                      onRemove: () =>
+                        handleRemoveFilter((f) => ({
+                          ...f,
+                          distance: DEFAULT_DISTANCE,
+                        })),
+                    },
+                  ]
+                : []),
+            ]}
+            renderItem={({ item }) => (
+              <FilterChip label={item.label} onRemove={item.onRemove} />
+            )}
+          />
+        )}
+
         {/* Results List */}
         <View className="flex-1 px-4">
           <FlatList
-            data={hasSearched ? stalls : branches}
+            data={hasSearched ? stalls : []}
             keyExtractor={(item) => String(item.branchId)}
             renderItem={({ item }) => {
               const isMultiBranch = multiBranchVendorIds.includes(
@@ -214,6 +371,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         visible={filterModalVisible}
         onClose={() => setFilterModalVisible(false)}
         onApply={handleFilterApply}
+        initialFilters={activeFilters}
       />
     </SafeAreaView>
   );

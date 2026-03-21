@@ -23,9 +23,11 @@ export const useNearbyBranches = (
   const { data: branches = [], isLoading } = useQuery({
     queryKey: queryKeys.nearbyBranches.list(lat, lng, excludeBranchId),
     queryFn: () =>
-      axiosApi.stallSearchApi
-        .searchStalls({ Lat: lat, Long: lng, Distance: 2, pageSize: 6 })
-        .then((data) => data.items),
+      axiosApi.stallSearchApi.searchStalls({
+        Lat: lat,
+        Long: lng,
+        Distance: 2,
+      }),
     enabled: !!lat && !!lng,
     staleTime: 2 * 60 * 1000, // Nearby stalls unlikely to change within 2 min
     select: (items) => items.filter((b) => b.branchId !== excludeBranchId),
