@@ -13,11 +13,13 @@ import { ScrollView, Text, TouchableOpacity } from 'react-native';
 interface FilterChipBarProps {
   activeFilters: FilterState | null;
   onOpenFilter: (section: FilterSection) => void;
+  ignoreDefaultDistance?: boolean;
 }
 
 export const FilterChipBar = ({
   activeFilters,
   onOpenFilter,
+  ignoreDefaultDistance = false,
 }: FilterChipBarProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -29,7 +31,7 @@ export const FilterChipBar = ({
       case 'priceRange':
         return activeFilters.minPrice > 0 || activeFilters.maxPrice < 5000000;
       case 'distance':
-        return activeFilters.distance !== 5;
+        return ignoreDefaultDistance || activeFilters.distance !== 5;
       case 'dietary':
         return activeFilters.dietaryTags.length > 0;
       case 'taste':

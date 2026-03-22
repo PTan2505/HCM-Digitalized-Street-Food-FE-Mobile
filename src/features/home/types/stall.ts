@@ -43,8 +43,8 @@ export interface SearchApiData {
 /** Maps to GET /api/searchVendorWithBranch query params */
 export interface StallSearchParams {
   Keyword?: string;
-  Lat: number;
-  Long: number;
+  Lat?: number;
+  Long?: number;
   Distance?: number;
   /** Numeric dietary preference IDs from /DietaryPreference */
   DietaryIds?: number[];

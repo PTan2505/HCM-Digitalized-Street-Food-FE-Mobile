@@ -31,6 +31,7 @@ import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActionSheetIOS,
   Alert,
   Linking,
   Platform,
@@ -310,24 +311,50 @@ export const RestaurantDetailsScreen = ({
         {/* View on map & Giving direction */}
         <View className="flex-row gap-3 px-4 pb-3">
           <TouchableOpacity
-            onPress={() => navigation.navigate('Map')}
+            onPress={() =>
+              navigation.navigate('Map', { initialBranch: branch })
+            }
             className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-[#a1d973] py-2.5"
           >
             <Ionicons name="map-outline" size={18} color="#a1d973" />
             <Text className="text-sm font-semibold text-[#a1d973]">
-              {t('view_on_map', { defaultValue: 'Xem trên bản đồ' })}
+              {t('actions.view_on_map')}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
-              const url = Platform.select({
-                ios: `maps://app?daddr=${branch.lat},${branch.long}`,
-                android: `google.navigation:q=${branch.lat},${branch.long}`,
-              });
-              if (url) {
-                Linking.openURL(url).catch(() => {
-                  // Fallback to Google Maps web URL
+              if (Platform.OS === 'ios') {
+                ActionSheetIOS.showActionSheetWithOptions(
+                  {
+                    title: t('actions.navigate_to'),
+                    options: [
+                      t('common.cancel'),
+                      t('actions.open_in_apple_maps'),
+                      t('actions.open_in_google_maps'),
+                    ],
+                    cancelButtonIndex: 0,
+                  },
+                  (index) => {
+                    if (index === 1) {
+                      Linking.openURL(
+                        `maps://app?daddr=${branch.lat},${branch.long}`
+                      );
+                    } else if (index === 2) {
+                      Linking.openURL(
+                        `comgooglemaps://?daddr=${branch.lat},${branch.long}&directionsmode=driving`
+                      ).catch(() => {
+                        Linking.openURL(
+                          `https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.long}`
+                        );
+                      });
+                    }
+                  }
+                );
+              } else {
+                Linking.openURL(
+                  `google.navigation:q=${branch.lat},${branch.long}`
+                ).catch(() => {
                   Linking.openURL(
                     `https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.long}`
                   );

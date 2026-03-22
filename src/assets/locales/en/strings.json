@@ -138,7 +138,11 @@
     "see_original": "See original",
     "see_translation": "See translation",
     "add_new": "Add New",
-    "updating": "Updating..."
+    "updating": "Updating...",
+    "view_on_map": "View on map",
+    "navigate_to": "Get directions with",
+    "open_in_apple_maps": "Apple Maps",
+    "open_in_google_maps": "Google Maps"
   },
   "tabs": {
     "menu": "Menu",

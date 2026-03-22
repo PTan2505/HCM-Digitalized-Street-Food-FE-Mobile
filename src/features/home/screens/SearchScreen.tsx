@@ -85,20 +85,33 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
   const triggerSearch = useCallback(
     (kw: string, filters: FilterState | null) => {
-      if (!coords) return;
+      const hasDistanceFilter =
+        filters?.distance !== undefined &&
+        filters.distance !== DEFAULT_DISTANCE;
+
       search({
         Keyword: kw || undefined,
-        Lat: coords.latitude,
-        Long: coords.longitude,
-        Distance: filters?.distance,
+        ...(hasDistanceFilter && coords
+          ? {
+              Lat: coords.latitude,
+              Long: coords.longitude,
+              Distance: filters?.distance,
+            }
+          : {}),
         DietaryIds: filters?.dietaryTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
         TasteIds: filters?.tasteTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
-        MinPrice: filters?.minPrice,
-        MaxPrice: filters?.maxPrice,
+        ...(filters?.minPrice !== undefined &&
+        filters.minPrice > DEFAULT_MIN_PRICE
+          ? { MinPrice: filters.minPrice }
+          : {}),
+        ...(filters?.maxPrice !== undefined &&
+        filters.maxPrice < DEFAULT_MAX_PRICE
+          ? { MaxPrice: filters.maxPrice }
+          : {}),
         CategoryIds: filters?.categoryIds
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
@@ -225,6 +238,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           <View className="flex-1">
             <SearchBar
               onSearch={handleSearch}
+              showFilterButton
               onFilterPress={() => {
                 setFilterSection(null);
                 setFilterModalVisible(true);
@@ -235,7 +249,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           </View>
           <TouchableOpacity
             className="items-center justify-center"
-            onPress={() => navigation.navigate('Map')}
+            onPress={() => navigation.navigate('Map', {})}
           >
             <Ionicons name="map-outline" size={20} color="#666" />
           </TouchableOpacity>

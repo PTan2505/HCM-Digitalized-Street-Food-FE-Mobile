@@ -1,7 +1,6 @@
-import { FilterChipBar } from '@components/FilterChipBar';
-import type { FilterState } from '@custom-types/filter';
-import { Ionicons } from '@expo/vector-icons';
+import type { FilterSection, FilterState } from '@custom-types/filter';
 import FilterModal from '@features/home/components/common/FilterModal';
+import SearchBar from '@features/home/components/common/SearchBar';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import { DetailCard } from '@features/maps/components/DetailCard';
@@ -15,7 +14,7 @@ import {
 } from '@features/maps/services/geocoding';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   computeDisplayName,
@@ -36,7 +35,6 @@ import {
   FlatList,
   Keyboard,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -60,7 +58,12 @@ const SPRING_CONFIG = { damping: 20, stiffness: 200, mass: 0.8 };
 // ---------------------------------------------------------------------------
 // MapScreen
 // ---------------------------------------------------------------------------
-export const MapScreen = (): JSX.Element => {
+type MapScreenProps = StaticScreenProps<{
+  initialBranch?: ActiveBranch;
+}>;
+
+export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
+  const { initialBranch } = route.params ?? {};
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -94,7 +97,21 @@ export const MapScreen = (): JSX.Element => {
 
   // Filter state
   const [filterModalVisible, setFilterModalVisible] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
+  const [filterSection, setFilterSection] = useState<FilterSection | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
+    distance: 5,
+    dietaryTags: [],
+    tasteTags: [],
+    categoryIds: [],
+    minPrice: 0,
+    maxPrice: 5000000,
+    spaceTypes: [],
+    hasParking: false,
+    openNow: false,
+    amenities: [],
+  });
 
   // Search state
   const [searchText, setSearchText] = useState('');
@@ -194,8 +211,14 @@ export const MapScreen = (): JSX.Element => {
           tasteIds: filters?.tasteTags
             ?.map(Number)
             .filter((n) => !isNaN(n) && n > 0),
-          minPrice: filters?.minPrice,
-          maxPrice: filters?.maxPrice,
+          minPrice:
+            filters?.minPrice !== undefined && filters.minPrice > 0
+              ? filters.minPrice
+              : undefined,
+          maxPrice:
+            filters?.maxPrice !== undefined && filters.maxPrice < 5000000
+              ? filters.maxPrice
+              : undefined,
         })
       );
     },
@@ -217,10 +240,14 @@ export const MapScreen = (): JSX.Element => {
   // ── Initial fetch when coords become available ──
   const hasFetchedRef = useRef(false);
   React.useEffect(() => {
-    if (!coords || hasFetchedRef.current) return;
+    if (hasFetchedRef.current) return;
+    const center = initialBranch
+      ? { latitude: initialBranch.lat, longitude: initialBranch.long }
+      : coords;
+    if (!center) return;
     hasFetchedRef.current = true;
-    fetchBranchesForLocation(coords.latitude, coords.longitude);
-  }, [coords, fetchBranchesForLocation]);
+    fetchBranchesForLocation(center.latitude, center.longitude);
+  }, [coords, initialBranch, fetchBranchesForLocation]);
 
   // ── Search address autocomplete (debounced) ──
   const handleSearchTextChange = useCallback(
@@ -294,12 +321,8 @@ export const MapScreen = (): JSX.Element => {
       setSelectedBranchId(branchId);
       setIsPeeked(false);
 
-      const zoomLevel =
-        branch.finalScore >= 0.7 ? 12 : branch.finalScore >= 0.3 ? 13 : 15;
-
       cameraRef.current?.setCamera({
         centerCoordinate: [branch.long, branch.lat],
-        zoomLevel,
         animationDuration: 500,
         animationMode: 'easeTo',
         padding: {
@@ -312,6 +335,16 @@ export const MapScreen = (): JSX.Element => {
     },
     [branches, dismissSearch]
   );
+
+  // ── Auto-select initialBranch once it appears in the fetched branches ──
+  const hasAutoSelectedRef = useRef(false);
+  React.useEffect(() => {
+    if (!initialBranch || hasAutoSelectedRef.current) return;
+    const found = branches.find((b) => b.branchId === initialBranch.branchId);
+    if (!found) return;
+    hasAutoSelectedRef.current = true;
+    onMarkerPress(initialBranch.branchId);
+  }, [initialBranch, branches, onMarkerPress]);
 
   // ── Detail card close ──
   const onCloseDetail = useCallback(() => {
@@ -449,97 +482,46 @@ export const MapScreen = (): JSX.Element => {
             zIndex: 20,
           }}
         >
-          <View className="flex-row items-center rounded-full bg-white px-3 shadow-md">
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="mr-2"
-            >
-              <Ionicons name="chevron-back" size={22} color="#333" />
-            </TouchableOpacity>
-
-            <Ionicons name="search" size={18} color="#9ca3af" />
-
-            <TextInput
-              className="flex-1 py-2.5 pl-2 text-sm text-gray-800"
-              placeholder="Tìm địa chỉ..."
-              placeholderTextColor="#9ca3af"
-              value={searchText}
-              onChangeText={handleSearchTextChange}
-              onFocus={() => {
-                if (predictions.length > 0) setShowPredictions(true);
-              }}
-              onBlur={dismissSearch}
-              returnKeyType="search"
-            />
-
-            {searchText.length > 0 && (
-              <TouchableOpacity
-                onPress={() => {
-                  setSearchText('');
-                  setPredictions([]);
-                  setShowPredictions(false);
-                }}
-              >
-                <Ionicons name="close-circle" size={18} color="#9ca3af" />
-              </TouchableOpacity>
-            )}
-            {/* Filter chips */}
-            <FilterChipBar
-              activeFilters={activeFilters}
-              onOpenFilter={() => setFilterModalVisible(true)}
-            />
-          </View>
-
-          {/* Autocomplete dropdown */}
-          {showPredictions && predictions.length > 0 && (
-            <View className="mt-1 rounded-xl border border-gray-200 bg-white shadow-lg">
-              {predictions.map((p) => (
-                <TouchableOpacity
-                  key={p.placeId}
-                  className="border-b border-gray-100 px-4 py-3"
-                  onPress={() => handleSelectPrediction(p)}
-                >
-                  <Text className="text-sm font-medium text-gray-900">
-                    {p.mainText}
-                  </Text>
-                  <Text className="mt-0.5 text-xs text-gray-500">
-                    {p.secondaryText}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* "Search this area" button */}
-        {showSearchArea && (
-          <View
-            style={{
-              position: 'absolute',
-              top: insets.top + 60,
-              alignSelf: 'center',
-              zIndex: 20,
+          <SearchBar
+            placeholder="Tìm địa chỉ..."
+            value={searchText}
+            onChangeText={handleSearchTextChange}
+            showBackButton
+            onBackPress={() => navigation.goBack()}
+            showFilterChipBar
+            showFilterButton
+            activeFilters={activeFilters}
+            ignoreDefaultDistance
+            onFilterPress={() => {
+              setFilterSection(null);
+              setFilterModalVisible(true);
             }}
-          >
-            <TouchableOpacity
-              onPress={() => {
-                if (pendingCenterRef.current) {
-                  fetchBranchesForLocation(
-                    pendingCenterRef.current.lat,
-                    pendingCenterRef.current.lng,
-                    activeFilters
-                  );
-                }
-              }}
-              className="flex-row items-center gap-1.5 rounded-full bg-white px-4 py-2 shadow-lg"
-            >
-              <Ionicons name="refresh" size={14} color="#a1d973" />
-              <Text className="text-sm font-semibold text-[#a1d973]">
-                Tìm khu vực này
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+            onOpenFilter={(section) => {
+              setFilterSection(section);
+              setFilterModalVisible(true);
+            }}
+            predictions={predictions}
+            showPredictions={showPredictions}
+            onSelectPrediction={handleSelectPrediction}
+            onFocus={() => {
+              if (predictions.length > 0) setShowPredictions(true);
+            }}
+            onBlur={dismissSearch}
+            showSearchAreaButton={showSearchArea}
+            onSearchArea={() => {
+              if (pendingCenterRef.current) {
+                fetchBranchesForLocation(
+                  pendingCenterRef.current.lat,
+                  pendingCenterRef.current.lng,
+                  activeFilters
+                );
+              }
+            }}
+            searchAreaButtonText="Tìm khu vực này"
+            topInset={insets.top}
+            noMargin
+          />
+        </View>
 
         <Maps
           cameraRef={cameraRef}
@@ -663,9 +645,13 @@ export const MapScreen = (): JSX.Element => {
       {/* Filter modal */}
       <FilterModal
         visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
+        onClose={() => {
+          setFilterModalVisible(false);
+          setFilterSection(null);
+        }}
         onApply={handleFilterApply}
         initialFilters={activeFilters}
+        initialSection={filterSection}
       />
     </GestureHandlerRootView>
   );
