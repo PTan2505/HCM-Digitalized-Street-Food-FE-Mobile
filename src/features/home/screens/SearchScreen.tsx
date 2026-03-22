@@ -1,7 +1,7 @@
+import { FilterChipBar } from '@components/FilterChipBar';
+import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
-import FilterModal, {
-  type FilterState,
-} from '@features/home/components/common/FilterModal';
+import FilterModal from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useCategories } from '@features/home/hooks/useCategories';
@@ -59,6 +59,9 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { autoFocus, openFilter } = route.params ?? {};
   const [keyword, setKeyword] = useState('');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filterSection, setFilterSection] = useState<FilterSection | null>(
+    null
+  );
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const navigation = useNavigation();
@@ -82,20 +85,33 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
   const triggerSearch = useCallback(
     (kw: string, filters: FilterState | null) => {
-      if (!coords) return;
+      const hasDistanceFilter =
+        filters?.distance !== undefined &&
+        filters.distance !== DEFAULT_DISTANCE;
+
       search({
         Keyword: kw || undefined,
-        Lat: coords.latitude,
-        Long: coords.longitude,
-        Distance: filters?.distance,
+        ...(hasDistanceFilter && coords
+          ? {
+              Lat: coords.latitude,
+              Long: coords.longitude,
+              Distance: filters?.distance,
+            }
+          : {}),
         DietaryIds: filters?.dietaryTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
         TasteIds: filters?.tasteTags
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
-        MinPrice: filters?.minPrice,
-        MaxPrice: filters?.maxPrice,
+        ...(filters?.minPrice !== undefined &&
+        filters.minPrice > DEFAULT_MIN_PRICE
+          ? { MinPrice: filters.minPrice }
+          : {}),
+        ...(filters?.maxPrice !== undefined &&
+        filters.maxPrice < DEFAULT_MAX_PRICE
+          ? { MaxPrice: filters.maxPrice }
+          : {}),
         CategoryIds: filters?.categoryIds
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
@@ -222,18 +238,34 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           <View className="flex-1">
             <SearchBar
               onSearch={handleSearch}
-              onFilterPress={() => setFilterModalVisible(true)}
+              showFilterButton
+              onFilterPress={() => {
+                setFilterSection(null);
+                setFilterModalVisible(true);
+              }}
               noMargin
               autoFocus={autoFocus}
             />
           </View>
-          <TouchableOpacity className="items-center justify-center">
+          <TouchableOpacity
+            className="items-center justify-center"
+            onPress={() => navigation.navigate('Map', {})}
+          >
             <Ionicons name="map-outline" size={20} color="#666" />
           </TouchableOpacity>
           <TouchableOpacity className="items-center justify-center">
             <Ionicons name="bookmark-outline" size={20} color="#666" />
           </TouchableOpacity>
         </View>
+
+        {/* Filter category chips */}
+        <FilterChipBar
+          activeFilters={activeFilters}
+          onOpenFilter={(section) => {
+            setFilterSection(section);
+            setFilterModalVisible(true);
+          }}
+        />
 
         {/* Active filter chips */}
         {activeFilters !== null && hasFilterChips && (
@@ -375,9 +407,13 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
       <FilterModal
         visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
+        onClose={() => {
+          setFilterModalVisible(false);
+          setFilterSection(null);
+        }}
         onApply={handleFilterApply}
         initialFilters={activeFilters}
+        initialSection={filterSection}
       />
     </SafeAreaView>
   );

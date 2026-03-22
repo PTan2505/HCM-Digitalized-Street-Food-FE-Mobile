@@ -65,7 +65,6 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
     <View className="p-4">
       <View className="mb-2 flex-row justify-between">
         <Text className="text-2xl font-bold text-black">{restaurant.name}</Text>
-        <Ionicons name="share-social-outline" size={25} color="#00000" />
       </View>
 
       <View className="mb-2 flex-row items-center gap-2">

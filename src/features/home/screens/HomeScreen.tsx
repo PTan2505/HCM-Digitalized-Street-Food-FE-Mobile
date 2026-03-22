@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
+import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
@@ -44,7 +45,6 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import CategoryCard from '../components/common/CategoryCard';
-import SearchBar from '../components/common/SearchBar';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
 
