@@ -304,7 +304,15 @@
     "enter_last_name": "Nhập họ",
     "phone_number": "Số điện thoại",
     "enter_phone_number": "Nhập số điện thoại",
-    "save_changes": "Lưu thay đổi"
+    "save_changes": "Lưu thay đổi",
+    "change_avatar": "Thay đổi ảnh đại diện",
+    "choose_source": "Chọn nguồn ảnh",
+    "take_photo": "Chụp ảnh",
+    "choose_from_gallery": "Chọn từ thư viện",
+    "camera_permission_denied_title": "Không có quyền truy cập máy ảnh",
+    "camera_permission_denied_message": "Vui lòng cấp quyền truy cập máy ảnh trong cài đặt để chụp ảnh.",
+    "gallery_permission_denied_title": "Không có quyền truy cập thư viện ảnh",
+    "gallery_permission_denied_message": "Vui lòng cấp quyền truy cập thư viện ảnh trong cài đặt."
   },
   "common": {
     "vietnamese": "Tiếng Việt",

@@ -304,7 +304,15 @@
     "enter_last_name": "Enter last name",
     "phone_number": "Phone Number",
     "enter_phone_number": "Enter phone number",
-    "save_changes": "Save changes"
+    "save_changes": "Save changes",
+    "change_avatar": "Change Profile Picture",
+    "choose_source": "Choose a source",
+    "take_photo": "Take Photo",
+    "choose_from_gallery": "Choose from Gallery",
+    "camera_permission_denied_title": "Camera Access Denied",
+    "camera_permission_denied_message": "Please allow camera access in your settings to take a photo.",
+    "gallery_permission_denied_title": "Photo Library Access Denied",
+    "gallery_permission_denied_message": "Please allow photo library access in your settings."
   },
   "common": {
     "vietnamese": "Vietnamese",
