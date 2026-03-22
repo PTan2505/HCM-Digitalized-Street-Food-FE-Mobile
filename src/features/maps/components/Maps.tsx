@@ -1,6 +1,6 @@
 import MarkerIcon from '@assets/icons/marker.svg';
 import { Ionicons } from '@expo/vector-icons';
-import type { MapVendor } from '@features/home/types/stall';
+import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import {
   Camera,
@@ -155,50 +155,33 @@ const FADED_ROAD_LAYERS = [
   'bridge-trunk-primary',
   'bridge-path',
 ] as const;
-// ── Priority Mapping ──
-// 1 = Premium (always pill), 2 = Standard (pill at z≥13), 3 = Basic (pill at z≥15)
-const tierToPriority = (tierId: string): number => {
-  switch (tierId) {
-    case 'tier_premium':
-      return 1;
-    case 'tier_standard':
-      return 2;
-    default:
-      return 3;
-  }
-};
-
-const tierToPrice = (tierId: string): string => {
-  switch (tierId) {
-    case 'tier_premium':
-      return '$$$';
-    case 'tier_standard':
-      return '$$';
-    default:
-      return '$';
-  }
+// ── Priority Mapping (based on finalScore 0–1) ──
+// 1 = High (always pill), 2 = Medium (pill at z≥13), 3 = Low (pill at z≥15)
+const scoreToPriority = (finalScore: number): number => {
+  if (finalScore >= 0.7) return 1; // High: always show full marker
+  if (finalScore >= 0.3) return 2; // Medium: show at zoom ≥ 13
+  return 3; // Low: show at zoom ≥ 15
 };
 
 // ── GeoJSON FeatureCollection Builder ──
-const buildVendorGeoJSON = (
-  vendors: MapVendor[]
+const buildBranchGeoJSON = (
+  branches: ActiveBranch[]
 ): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
-  features: vendors.map((v) => ({
+  features: branches.map((b) => ({
     type: 'Feature' as const,
-    id: v.vendorId,
+    id: String(b.branchId),
     geometry: {
       type: 'Point' as const,
-      coordinates: [v.long, v.lat],
+      coordinates: [b.long, b.lat],
     },
     properties: {
-      id: v.vendorId,
-      name: v.name,
-      priority: tierToPriority(v.tierId),
-      price: tierToPrice(v.tierId),
-      rating: v.avgRating,
-      isActive: v.isActive,
-      isVerified: v.isVerified,
+      id: String(b.branchId),
+      name: b.vendorName ?? b.name,
+      priority: scoreToPriority(b.finalScore),
+      rating: b.avgRating,
+      isActive: b.isActive,
+      isVerified: b.isVerified,
     },
   })),
 });
@@ -426,11 +409,14 @@ const GhostPinCallout = ({
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
   initialCenter: [number, number];
-  selectedVendorId: string | null;
+  selectedBranchId: number | null;
   isPeeked: boolean;
-  onMarkerPress: (vendorId: string) => void;
+  onMarkerPress: (branchId: number) => void;
   onUserDrag?: () => void;
-  vendors?: MapVendor[];
+  /** Fired after map stops moving with the visible center coordinate [lng, lat] */
+  onMapIdle?: (center: [number, number]) => void;
+  branches?: ActiveBranch[];
+  branchImageMap?: Record<number, string[]>;
   ghostPins?: GhostPinResponse[];
 }
 
@@ -439,11 +425,13 @@ const PEEK_BAR_OFFSET = 20;
 export const Maps = ({
   cameraRef,
   initialCenter,
-  selectedVendorId,
+  selectedBranchId,
   isPeeked,
   onMarkerPress,
   onUserDrag,
-  vendors = [],
+  onMapIdle,
+  branches = [],
+  branchImageMap = {},
   ghostPins = [],
 }: MapsProps): JSX.Element => {
   const insets = useSafeAreaInsets();
@@ -452,33 +440,33 @@ export const Maps = ({
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
 
-  const vendorGeoJSON = useMemo(() => buildVendorGeoJSON(vendors), [vendors]);
+  const branchGeoJSON = useMemo(() => buildBranchGeoJSON(branches), [branches]);
 
-  const vendorMarkers = useMemo(
+  const branchMarkers = useMemo(
     () =>
-      vendors.map((v) => ({
-        vendorId: v.vendorId,
-        coordinate: [v.long, v.lat] as [number, number],
-        priority: tierToPriority(v.tierId),
-        label: tierToPrice(v.tierId),
-        rating: v.avgRating,
-        isVerified: v.isVerified,
-        imageUrl: v.imageUrl,
+      branches.map((b) => ({
+        branchId: b.branchId,
+        coordinate: [b.long, b.lat] as [number, number],
+        priority: scoreToPriority(b.finalScore),
+        label: b.vendorName ?? b.name,
+        rating: b.avgRating,
+        isVerified: b.isVerified,
+        imageUrl: branchImageMap[b.branchId]?.[0],
       })),
-    [vendors]
+    [branches, branchImageMap]
   );
 
   // ── FAB position ──
   const fabBottom = useSharedValue(insets.bottom + 40);
 
   useEffect(() => {
-    const target = selectedVendorId
+    const target = selectedBranchId
       ? isPeeked
         ? PEEK_BAR_OFFSET + 20
         : CAMERA_BOTTOM_PADDING + 20
       : 40;
     fabBottom.value = withTiming(insets.bottom + target, { duration: 250 });
-  }, [selectedVendorId, isPeeked, insets.bottom, fabBottom]);
+  }, [selectedBranchId, isPeeked, insets.bottom, fabBottom]);
 
   const fabAnimatedStyle = useAnimatedStyle(() => ({
     bottom: fabBottom.value,
@@ -508,11 +496,11 @@ export const Maps = ({
   // ── Drag → peek ──
   const handleRegionWillChange = useCallback(
     (feature: RegionPayloadFeature) => {
-      if (feature.properties.isUserInteraction && selectedVendorId) {
+      if (feature.properties.isUserInteraction && selectedBranchId) {
         onUserDrag?.();
       }
     },
-    [selectedVendorId, onUserDrag]
+    [selectedBranchId, onUserDrag]
   );
 
   // ── Zoom tracking (throttled to avoid rapid MarkerView mount/unmount) ──
@@ -551,8 +539,18 @@ export const Maps = ({
   const handleRegionDidChange = useCallback(
     (feature: RegionPayloadFeature) => {
       updateZoomBucket(feature.properties.zoomLevel);
+
+      // Report visible center to parent when user interaction ends
+      if (feature.properties.isUserInteraction) {
+        const bounds = feature.properties.visibleBounds;
+        if (bounds?.[0] && bounds?.[1]) {
+          const centerLng = (bounds[0][0] + bounds[1][0]) / 2;
+          const centerLat = (bounds[0][1] + bounds[1][1]) / 2;
+          onMapIdle?.([centerLng, centerLat]);
+        }
+      }
     },
-    [updateZoomBucket]
+    [updateZoomBucket, onMapIdle]
   );
 
   // ── Continuous zoom tracking during gestures ──
@@ -563,19 +561,19 @@ export const Maps = ({
     [updateZoomBucket]
   );
 
-  // ── Visible pill markers (selected vendor always included; Ghost Pins excluded) ──
+  // ── Visible pill markers (selected branch always included; Ghost Pins excluded) ──
   const visibleMarkers = useMemo(
     () =>
-      vendorMarkers.filter(
-        (v) =>
-          v.isVerified &&
-          (v.vendorId === selectedVendorId ||
-            shouldShowFullMarker(v.priority, zoomLevel))
+      branchMarkers.filter(
+        (m) =>
+          m.isVerified &&
+          (m.branchId === selectedBranchId ||
+            shouldShowFullMarker(m.priority, zoomLevel))
       ),
-    [vendorMarkers, zoomLevel, selectedVendorId]
+    [branchMarkers, zoomLevel, selectedBranchId]
   );
 
-  // ── ShapeSource press → select vendor ──
+  // ── ShapeSource press → select branch ──
   const handleSourcePress = useCallback(
     (event: {
       features: GeoJSON.Feature[];
@@ -583,9 +581,9 @@ export const Maps = ({
       point: { x: number; y: number };
     }) => {
       const feature = event.features?.[0];
-      const vendorId = feature?.properties?.id as string | undefined;
-      if (vendorId) {
-        onMarkerPress(vendorId);
+      const id = feature?.properties?.id as string | undefined;
+      if (id) {
+        onMarkerPress(Number(id));
       }
     },
     [onMarkerPress]
@@ -657,7 +655,7 @@ export const Maps = ({
         {/* Semantic Zoom — CircleLayer dots at low zoom */}
         <ShapeSource
           id={SOURCE_ID}
-          shape={vendorGeoJSON}
+          shape={branchGeoJSON}
           onPress={handleSourcePress}
           hitbox={{ width: 44, height: 44 }}
         >
@@ -665,18 +663,18 @@ export const Maps = ({
         </ShapeSource>
 
         {/* Pill Markers — content swaps between white/green pill */}
-        {visibleMarkers.map((vendor) => (
+        {visibleMarkers.map((marker) => (
           <MarkerView
-            key={vendor.vendorId}
-            coordinate={vendor.coordinate}
+            key={marker.branchId}
+            coordinate={marker.coordinate}
             anchor={{ x: 0.5, y: 1 }}
             allowOverlap
           >
-            {vendor.vendorId === selectedVendorId ? (
-              <ActivePill label={vendor.label} rating={vendor.rating} />
+            {marker.branchId === selectedBranchId ? (
+              <ActivePill label={marker.label} rating={marker.rating} />
             ) : (
-              <Pressable onPress={() => onMarkerPress(vendor.vendorId)}>
-                <VendorMarker imageUrl={vendor.imageUrl} />
+              <Pressable onPress={() => onMarkerPress(marker.branchId)}>
+                <VendorMarker imageUrl={marker.imageUrl} />
               </Pressable>
             )}
           </MarkerView>

@@ -60,11 +60,17 @@ export interface ActiveBranch {
   long: number;
   createdAt: string;
   totalReviewCount: number;
+  totalRatingSum: number;
   dietaryPreferenceNames: string[];
   updatedAt: string | null;
   isVerified: boolean;
   avgRating: number;
   isActive: boolean;
+  isSubscribed: boolean;
+  tierId: number;
+  tierName: string;
+  /** Composite score (0–1) used for map marker visibility priority */
+  finalScore: number;
   /** Populated when Lat/Long params are passed to the search endpoint */
   distanceKm: number | null;
   dishes: Dish[];

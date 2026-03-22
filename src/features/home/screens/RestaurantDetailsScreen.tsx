@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { VendorTier } from '@custom-types/vendor';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
@@ -29,7 +30,15 @@ import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -297,6 +306,42 @@ export const RestaurantDetailsScreen = ({
         <HeaderImage images={restaurantBanners} progress={progress} />
 
         <RestaurantInfo restaurant={restaurantInfo} />
+
+        {/* View on map & Giving direction */}
+        <View className="flex-row gap-3 px-4 pb-3">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Map')}
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-[#a1d973] py-2.5"
+          >
+            <Ionicons name="map-outline" size={18} color="#a1d973" />
+            <Text className="text-sm font-semibold text-[#a1d973]">
+              {t('view_on_map', { defaultValue: 'Xem trên bản đồ' })}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              const url = Platform.select({
+                ios: `maps://app?daddr=${branch.lat},${branch.long}`,
+                android: `google.navigation:q=${branch.lat},${branch.long}`,
+              });
+              if (url) {
+                Linking.openURL(url).catch(() => {
+                  // Fallback to Google Maps web URL
+                  Linking.openURL(
+                    `https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.long}`
+                  );
+                });
+              }
+            }}
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-[#a1d973] py-2.5"
+          >
+            <Ionicons name="navigate-outline" size={18} color="#fff" />
+            <Text className="text-sm font-semibold text-white">
+              {t('giving_direction', { defaultValue: 'Chỉ đường' })}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <TabsBar activeTab={activeTab} onTabChange={setActiveTab} />
 
