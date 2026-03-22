@@ -45,7 +45,9 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "CAMERA",
-        "READ_MEDIA_IMAGES"
+        "READ_MEDIA_IMAGES",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
       ]
     },
     "locales": {
@@ -106,8 +108,8 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Cho phép Lowca truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
-          "locationWhenInUsePermission": "Cho phép Lowca truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
+          "locationAlwaysAndWhenInUsePermission": "Allow Lowca to access your location to show nearby street food vendors.",
+          "locationWhenInUsePermission": "Allow Lowca to access your location to show nearby street food vendors.",
           "isAndroidBackgroundLocationEnabled": false
         }
       ],
@@ -122,7 +124,15 @@
       ],
       "./plugins/withAndroidDebugKeystore.cjs",
       "@maplibre/maplibre-react-native",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/adaptive-icon.png",
+          "color": "#9FD356",
+          "defaultChannel": "default",
+          "androidMode": "default"
+        }
+      ]
     ]
   }
 }
