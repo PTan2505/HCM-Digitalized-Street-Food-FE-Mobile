@@ -4,14 +4,21 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  Animated,
+  Dimensions,
+  FlatList,
   Image,
   Modal,
+  PanResponder,
   Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CLOSE_THRESHOLD = 100;
 
 export interface ReviewTag {
   id: number;
@@ -59,6 +66,51 @@ const ReviewCard = ({
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<View>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const lightboxRef = useRef<FlatList<string>>(null);
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, { dy, dx }) =>
+        Math.abs(dy) > Math.abs(dx) && dy > 5,
+      onPanResponderMove: (_, { dy }) => {
+        if (dy > 0) translateY.setValue(dy);
+      },
+      onPanResponderRelease: (_, { dy }) => {
+        if (dy > CLOSE_THRESHOLD) {
+          Animated.timing(translateY, {
+            toValue: 600,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            setLightboxOpen(false);
+            translateY.setValue(0);
+          });
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const openLightbox = (index: number): void => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+    translateY.setValue(0);
+    setTimeout(() => {
+      lightboxRef.current?.scrollToIndex({ index, animated: false });
+    }, 50);
+  };
+
+  const closeLightbox = (): void => {
+    setLightboxOpen(false);
+    translateY.setValue(0);
+  };
 
   const handleOpenMenu = (): void => {
     buttonRef.current?.measure(
@@ -346,19 +398,90 @@ const ReviewCard = ({
 
       {/* Images */}
       {review.imageUris.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-3 flex-row"
-        >
-          {review.imageUris.map((uri, index) => (
-            <Image
-              key={index}
-              source={{ uri }}
-              className="mr-2 h-20 w-20 rounded-xl"
-            />
-          ))}
-        </ScrollView>
+        <>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="mb-3 flex-row"
+          >
+            {review.imageUris.map((uri, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => openLightbox(index)}
+                activeOpacity={0.85}
+              >
+                <Image
+                  source={{ uri }}
+                  className="mr-2 h-20 w-20 rounded-xl"
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Lightbox Modal */}
+          <Modal
+            visible={lightboxOpen}
+            transparent
+            animationType="fade"
+            onRequestClose={closeLightbox}
+            statusBarTranslucent
+          >
+            <Animated.View
+              className="flex-1 bg-black"
+              style={{ transform: [{ translateY }] }}
+              {...panResponder.panHandlers}
+            >
+              {/* Close button */}
+              <TouchableOpacity
+                onPress={closeLightbox}
+                className="absolute right-4 top-12 z-10 rounded-full bg-black/50 p-2"
+                hitSlop={8}
+              >
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+
+              {/* Page indicator */}
+              <View className="absolute bottom-10 z-10 w-full items-center">
+                <Text className="text-sm font-semibold text-white/80">
+                  {lightboxIndex + 1} / {review.imageUris.length}
+                </Text>
+              </View>
+
+              <FlatList
+                ref={lightboxRef}
+                data={review.imageUris}
+                keyExtractor={(_, i) => String(i)}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                initialScrollIndex={lightboxIndex}
+                getItemLayout={(_, i) => ({
+                  length: SCREEN_WIDTH,
+                  offset: SCREEN_WIDTH * i,
+                  index: i,
+                })}
+                onMomentumScrollEnd={(e) => {
+                  const idx = Math.round(
+                    e.nativeEvent.contentOffset.x / SCREEN_WIDTH
+                  );
+                  setLightboxIndex(idx);
+                }}
+                renderItem={({ item }) => (
+                  <View
+                    style={{ width: SCREEN_WIDTH }}
+                    className="items-center justify-center"
+                  >
+                    <Image
+                      source={{ uri: item }}
+                      style={{ width: SCREEN_WIDTH, height: '70%' }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
+              />
+            </Animated.View>
+          </Modal>
+        </>
       )}
 
       {/* Vendor Reply */}
