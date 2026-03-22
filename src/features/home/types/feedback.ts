@@ -64,6 +64,7 @@ export interface FeedbackAverageRating {
 export interface FeedbackCount {
   branchId: number;
   feedbackCount: number;
+  details: Record<string, number>;
 }
 
 // ── Paginated wrapper ─────────────────────────────────────────────────────────

@@ -14,12 +14,14 @@ interface BranchFeedbackData {
   feedbacks: Feedback[];
   averageRating: number;
   totalCount: number;
+  feedbackDetails: Record<string, number>;
 }
 
 export interface BranchFeedbackResult {
   feedbacks: Feedback[];
   averageRating: number;
   totalCount: number;
+  feedbackDetails: Record<string, number>;
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
@@ -65,6 +67,7 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
         feedbacks: paginatedFeedback.items,
         averageRating: ratingData.averageRating,
         totalCount: countData.feedbackCount,
+        feedbackDetails: countData.details,
       };
     },
     staleTime: 1 * 60 * 1000, // Reviews may change often — 1 min cache
@@ -77,10 +80,15 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
         const newCount = old.totalCount + 1;
         const newAvg =
           (old.averageRating * old.totalCount + feedback.rating) / newCount;
+        const ratingKey = String(feedback.rating);
         return {
           feedbacks: [feedback, ...old.feedbacks],
           averageRating: newAvg,
           totalCount: newCount,
+          feedbackDetails: {
+            ...old.feedbackDetails,
+            [ratingKey]: (old.feedbackDetails[ratingKey] ?? 0) + 1,
+          },
         };
       });
     },
@@ -105,10 +113,22 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
             old.totalCount;
         }
 
+        let newDetails = old.feedbackDetails;
+        if (oldFeedback && oldFeedback.rating !== feedback.rating) {
+          const oldKey = String(oldFeedback.rating);
+          const newKey = String(feedback.rating);
+          newDetails = {
+            ...old.feedbackDetails,
+            [oldKey]: Math.max(0, (old.feedbackDetails[oldKey] ?? 0) - 1),
+            [newKey]: (old.feedbackDetails[newKey] ?? 0) + 1,
+          };
+        }
+
         return {
           feedbacks: updatedFeedbacks,
           averageRating: newAvg,
           totalCount: old.totalCount,
+          feedbackDetails: newDetails,
         };
       });
     },
@@ -128,10 +148,15 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
             ? 0
             : (old.averageRating * old.totalCount - removed.rating) / newCount;
 
+        const ratingKey = String(removed.rating);
         return {
           feedbacks: old.feedbacks.filter((f) => f.id !== feedbackId),
           averageRating: newAvg,
           totalCount: newCount,
+          feedbackDetails: {
+            ...old.feedbackDetails,
+            [ratingKey]: Math.max(0, (old.feedbackDetails[ratingKey] ?? 0) - 1),
+          },
         };
       });
     },
@@ -142,6 +167,7 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
     feedbacks: data?.feedbacks ?? [],
     averageRating: data?.averageRating ?? 0,
     totalCount: data?.totalCount ?? 0,
+    feedbackDetails: data?.feedbackDetails ?? {},
     isLoading,
     error: error ? 'Không thể tải đánh giá. Vui lòng thử lại.' : null,
     refetch: (): void => {

@@ -66,6 +66,7 @@ export const RestaurantDetailsScreen = ({
     feedbacks,
     averageRating,
     totalCount,
+    feedbackDetails,
     addFeedback,
     updateFeedback,
     removeFeedback,
@@ -313,6 +314,7 @@ export const RestaurantDetailsScreen = ({
             reviews={reviews}
             averageRating={averageRating}
             totalCount={totalCount}
+            feedbackDetails={feedbackDetails}
             canReview={canReview && ownFeedback == null}
             reviewIneligibilityReason={reviewIneligibilityReason}
             isEligibilityLoading={isEligibilityLoading}

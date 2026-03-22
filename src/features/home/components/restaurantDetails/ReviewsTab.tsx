@@ -1,5 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
 import type { Dish } from '@features/home/types/branch';
+import { useAppSelector } from '@hooks/reduxHooks';
+import { selectCart } from '@slices/directOrdering';
 import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
@@ -30,6 +33,7 @@ interface ReviewsTabProps {
   reviews: Review[];
   averageRating: number;
   totalCount: number;
+  feedbackDetails: Record<string, number>;
   canReview: boolean;
   reviewIneligibilityReason: ReviewIneligibilityReason | null;
   isEligibilityLoading: boolean;
@@ -58,6 +62,7 @@ const ReviewsTab = ({
   reviews,
   averageRating,
   totalCount,
+  feedbackDetails,
   canReview,
   reviewIneligibilityReason,
   isEligibilityLoading,
@@ -75,6 +80,8 @@ const ReviewsTab = ({
   const { t } = useTranslation();
   const navigation = useNavigation();
   const progress = useSharedValue<number>(0);
+  const cart = useAppSelector(selectCart);
+  const hasCart = (cart?.items.length ?? 0) > 0;
 
   // Reorder reviews: own review first, then up to 4 others (max 5 total)
   const displayReviews = useMemo(() => {
@@ -96,7 +103,7 @@ const ReviewsTab = ({
   // Measure tallest card for dynamic carousel height
   const [carouselHeight, setCarouselHeight] = useState(DEFAULT_CARD_HEIGHT);
   const handleCardLayout = useCallback((height: number) => {
-    setCarouselHeight((prev) => Math.max(prev, height) + 30);
+    setCarouselHeight((prev) => Math.max(prev, height + 30));
   }, []);
 
   return (
@@ -142,65 +149,26 @@ const ReviewsTab = ({
                 </Text>
               </View>
             </TouchableOpacity>
-            <View className="mb-2 flex-row items-center gap-2">
-              <Text className="w-[70px] text-[13px] text-gray-600">
-                {t('actions.food')}
-              </Text>
-              <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
-                <View
-                  className="h-full rounded-full bg-[#00B14F]"
-                  style={{ width: '94%' }}
-                />
-              </View>
-              <Text className="w-[30px] text-right text-[13px] font-semibold text-black">
-                4.7
-              </Text>
-            </View>
-
-            <View className="mb-2 flex-row items-center gap-2">
-              <Text className="w-[70px] text-[13px] text-gray-600">
-                {t('actions.service')}
-              </Text>
-              <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
-                <View
-                  className="h-full rounded-full bg-[#00B14F]"
-                  style={{ width: '100%' }}
-                />
-              </View>
-              <Text className="w-[30px] text-right text-[13px] font-semibold text-black">
-                5.0
-              </Text>
-            </View>
-
-            <View className="mb-2 flex-row items-center gap-2">
-              <Text className="w-[70px] text-[13px] text-gray-600">
-                {t('actions.location')}
-              </Text>
-              <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
-                <View
-                  className="h-full rounded-full bg-[#00B14F]"
-                  style={{ width: '80%' }}
-                />
-              </View>
-              <Text className="w-[30px] text-right text-[13px] font-semibold text-black">
-                4.0
-              </Text>
-            </View>
-
-            <View className="mb-2 flex-row items-center gap-2">
-              <Text className="w-[70px] text-[13px] text-gray-600">
-                {t('actions.vibe')}
-              </Text>
-              <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
-                <View
-                  className="h-full rounded-full bg-[#00B14F]"
-                  style={{ width: '80%' }}
-                />
-              </View>
-              <Text className="w-[30px] text-right text-[13px] font-semibold text-black">
-                4.0
-              </Text>
-            </View>
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = feedbackDetails[String(star)] ?? 0;
+              const pct = totalCount > 0 ? (count / totalCount) * 100 : 0;
+              return (
+                <View key={star} className="mb-2 flex-row items-center gap-2">
+                  <Text className="w-[30px] flex-row text-[13px] text-[#FFA500]">
+                    {star} <Ionicons name="star" size={14} color="#FFA500" />
+                  </Text>
+                  <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
+                    <View
+                      className="h-full rounded-full bg-[#00B14F]"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </View>
+                  <Text className="w-[20px] text-right text-[13px] font-semibold text-black">
+                    {count}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         </View>
 
@@ -237,7 +205,7 @@ const ReviewsTab = ({
       </View>
 
       {/* Reviews Carousel */}
-      <View className="mt-2" style={{ overflow: 'visible' }}>
+      <View className={`mt-2 ${hasCart ? 'mb-28' : ''}`} style={{ overflow: 'visible' }}>
         <Carousel
           itemWidth={cardWidth}
           style={{
