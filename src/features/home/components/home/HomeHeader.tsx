@@ -17,7 +17,7 @@ const HomeHeader = (): JSX.Element => {
         <LanguageButton />
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Map')}
+          onPress={() => navigation.navigate('Map', {})}
           className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
         >
           <Ionicons name="map-outline" size={20} color="#588d22" />

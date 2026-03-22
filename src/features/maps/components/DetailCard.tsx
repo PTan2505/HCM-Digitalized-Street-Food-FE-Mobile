@@ -1,6 +1,12 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import type { MapVendor } from '@features/home/types/stall';
-import React, { JSX, useEffect } from 'react';
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons';
+import type { ActiveBranch } from '@features/home/types/branch';
+import { getPriceRange } from '@utils/priceUtils';
+import type { JSX } from 'react';
+import React, { useEffect } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import Animated, {
   SlideInDown,
@@ -10,34 +16,30 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 interface DetailCardProps {
-  vendor: MapVendor;
-  /** true = only peek bar visible; false = full card */
+  branch: ActiveBranch;
+  displayName: string;
+  imageUri?: string;
+  /** true = only peek bar visible (60% hidden); false = full card */
   isPeeked: boolean;
   onClose: () => void;
   /** Called when user taps the peek bar to expand */
   onExpand: () => void;
+  /** Called when user taps "Xem chi tiết" */
+  onViewDetail: () => void;
 }
 
-/**
- * Height of the expandable content (image 176 + info ~164 = ~340).
- * When peeked, this amount slides down so only the peek bar stays visible.
- */
-const FULL_CONTENT_HEIGHT = 300;
+const FULL_CONTENT_HEIGHT = 260;
 
-// ---------------------------------------------------------------------------
-// DetailCard — animated bottom sheet (TripAdvisor-style)
-// ---------------------------------------------------------------------------
 export const DetailCard = ({
-  vendor,
+  branch,
+  displayName,
+  imageUri,
   isPeeked,
   onClose,
   onExpand,
+  onViewDetail,
 }: DetailCardProps): JSX.Element => {
-  // Animate the height of the expandable content: full → 0 when peeked
   const contentHeight = useSharedValue(FULL_CONTENT_HEIGHT);
   const contentOpacity = useSharedValue(1);
 
@@ -56,6 +58,19 @@ export const DetailCard = ({
     overflow: 'hidden' as const,
   }));
 
+  const resolvedImageUri =
+    imageUri ??
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(branch.name)}&background=a1d973&color=fff&size=300`;
+
+  const distanceLabel =
+    branch.distanceKm != null
+      ? branch.distanceKm < 1
+        ? `${Math.round(branch.distanceKm * 1000)} m`
+        : `${branch.distanceKm.toFixed(1)} km`
+      : null;
+
+  const priceRange = getPriceRange(branch.dishes);
+
   return (
     <Animated.View
       entering={SlideInDown.duration(300)}
@@ -64,7 +79,7 @@ export const DetailCard = ({
       pointerEvents="box-none"
     >
       <View className="overflow-hidden rounded-2xl bg-white shadow-xl">
-        {/* ── Peek bar — always visible, tappable to expand ── */}
+        {/* ── Peek bar — always visible ── */}
         <Pressable
           onPress={isPeeked ? onExpand : onClose}
           className="flex-row items-center justify-between px-4 py-3"
@@ -75,19 +90,17 @@ export const DetailCard = ({
               className="ml-2 flex-1 text-base font-bold text-gray-900"
               numberOfLines={1}
             >
-              {vendor.name}
+              {displayName}
             </Text>
           </View>
 
-          {/* Rating badge */}
           <View className="ml-2 flex-row items-center rounded-full bg-amber-50 px-2 py-0.5">
             <MaterialIcons name="star" size={13} color="#FFB800" />
             <Text className="ml-0.5 text-xs font-bold text-gray-800">
-              {vendor.avgRating}
+              {branch.avgRating.toFixed(1)}
             </Text>
           </View>
 
-          {/* Chevron indicator */}
           <Ionicons
             name={isPeeked ? 'chevron-up' : 'close'}
             size={18}
@@ -96,65 +109,73 @@ export const DetailCard = ({
           />
         </Pressable>
 
-        {/* ── Expandable content (collapses to 0 height when peeked) ── */}
+        {/* ── Expandable content ── */}
         <Animated.View style={contentAnimatedStyle}>
           {/* Hero image */}
-          <View className="relative h-44 w-full bg-gray-200">
+          <View className="relative h-40 w-full bg-gray-200">
             <Image
-              source={{ uri: vendor.imageUrl }}
+              source={{ uri: resolvedImageUri }}
               className="h-full w-full"
               resizeMode="cover"
             />
 
-            {/* Rating pill (bottom-left on image) */}
             <View className="absolute bottom-3 left-3 flex-row items-center rounded-full bg-white/90 px-2.5 py-1">
               <MaterialIcons name="star" size={14} color="#FFB800" />
               <Text className="ml-0.5 text-xs font-bold text-gray-800">
-                {vendor.avgRating}
+                {branch.avgRating.toFixed(1)}
               </Text>
             </View>
           </View>
 
           {/* Info section */}
           <View className="px-4 py-3">
-            {/* Meta row */}
             <View className="flex-row items-center">
               <Ionicons name="location-sharp" size={14} color="#6b7280" />
-              <Text className="ml-1 text-sm text-gray-500" numberOfLines={1}>
-                {vendor.addressDetail}, {vendor.ward}
+              <Text
+                className="ml-1 flex-1 text-sm text-gray-500"
+                numberOfLines={1}
+              >
+                {branch.addressDetail}, {branch.ward}
               </Text>
             </View>
 
-            {/* Tags */}
-            <View className="mt-2.5 flex-row gap-2">
-              {vendor.isVerified && (
-                <View className="flex-row items-center rounded-full bg-emerald-50 px-2.5 py-1">
-                  <MaterialIcons name="verified" size={12} color="#10b981" />
-                  <Text className="ml-1 text-xs font-medium text-emerald-600">
-                    Đã xác minh
-                  </Text>
+            {/* Meta row */}
+            <View className="mt-1.5 flex-row items-center gap-3">
+              {distanceLabel && (
+                <View className="flex-row items-center gap-1">
+                  <MaterialCommunityIcons
+                    name="map-marker-distance"
+                    size={13}
+                    color="#6b7280"
+                  />
+                  <Text className="text-xs text-gray-500">{distanceLabel}</Text>
                 </View>
               )}
-              <View className="rounded-full bg-amber-50 px-2.5 py-1">
-                <Text className="text-xs font-medium text-amber-600">
-                  {vendor.tierId === 'tier_premium'
-                    ? 'Premium'
-                    : vendor.tierId === 'tier_standard'
-                      ? 'Standard'
-                      : 'Basic'}
-                </Text>
-              </View>
-              {vendor.isActive && (
-                <View className="rounded-full bg-green-50 px-2.5 py-1">
-                  <Text className="text-xs font-medium text-green-600">
-                    Đang mở
+              {priceRange && (
+                <View className="flex-row items-center gap-1">
+                  <MaterialCommunityIcons
+                    name="cash"
+                    size={13}
+                    color="#6b7280"
+                  />
+                  <Text className="text-xs text-gray-500">{priceRange}</Text>
+                </View>
+              )}
+              {branch.isVerified && (
+                <View className="flex-row items-center rounded-full bg-emerald-50 px-2 py-0.5">
+                  <MaterialIcons name="verified" size={11} color="#10b981" />
+                  <Text className="ml-0.5 text-[10px] font-medium text-emerald-600">
+                    Đã xác minh
                   </Text>
                 </View>
               )}
             </View>
 
             {/* Action button */}
-            <Pressable className="mt-3 items-center rounded-xl bg-[#a1d973] py-3">
+            <Pressable
+              onPress={onViewDetail}
+              className="mt-3 items-center rounded-xl bg-[#a1d973] py-3"
+            >
               <Text className="text-sm font-bold text-white">Xem chi tiết</Text>
             </Pressable>
           </View>

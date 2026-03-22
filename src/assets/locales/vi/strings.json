@@ -138,7 +138,11 @@
     "see_original": "Xem bản gốc",
     "see_translation": "Xem bản dịch",
     "add_new": "Thêm mới",
-    "updating": "Đang cập nhật..."
+    "updating": "Đang cập nhật...",
+    "view_on_map": "Xem trên bản đồ",
+    "navigate_to": "Chỉ đường với",
+    "open_in_apple_maps": "Apple Maps",
+    "open_in_google_maps": "Google Maps"
   },
   "tabs": {
     "menu": "Menu Quán",
