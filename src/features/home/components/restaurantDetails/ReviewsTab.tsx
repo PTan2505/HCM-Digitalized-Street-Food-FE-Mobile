@@ -205,7 +205,10 @@ const ReviewsTab = ({
       </View>
 
       {/* Reviews Carousel */}
-      <View className={`mt-2 ${hasCart ? 'mb-28' : ''}`} style={{ overflow: 'visible' }}>
+      <View
+        className={`mt-2 ${hasCart ? 'mb-28' : ''}`}
+        style={{ overflow: 'visible' }}
+      >
         <Carousel
           itemWidth={cardWidth}
           style={{
