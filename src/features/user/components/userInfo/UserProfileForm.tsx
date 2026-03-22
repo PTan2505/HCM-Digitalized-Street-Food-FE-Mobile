@@ -5,6 +5,7 @@ import { APIErrorResponse } from '@custom-types/apiResponse';
 import { User } from '@custom-types/user';
 import { getUpdateProfileSchema } from '@features/auth/utils/updateUserProfileSchema';
 import useProfile from '@features/user/hooks/profile/useProfile';
+import { useAvatarPicker } from '@features/user/hooks/profile/useAvatarPicker';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -28,6 +29,7 @@ const UserProfileForm = (): JSX.Element => {
   const user = useAppSelector(selectUser);
   const navigation = useNavigation();
   const { updateUserProfile } = useProfile();
+  const { avatarUri, pickAvatar } = useAvatarPicker();
 
   const schema = useMemo(() => getUpdateProfileSchema(t), [t]);
   const methods = useForm<Partial<User>>({
@@ -75,12 +77,14 @@ const UserProfileForm = (): JSX.Element => {
     >
       <ScrollView className="flex-1">
         <View className="items-center py-6">
-          <Pressable className="relative">
+          <Pressable className="relative" onPress={pickAvatar}>
             <Image
               source={
-                user?.avatarUrl
-                  ? { uri: getHighResAvatar(user?.avatarUrl) }
-                  : noAvt
+                avatarUri
+                  ? { uri: avatarUri }
+                  : user?.avatarUrl
+                    ? { uri: getHighResAvatar(user?.avatarUrl) }
+                    : noAvt
               }
               className="h-[128] w-[128] rounded-[64] border-[2px] border-[#a1d973] shadow-2xl"
             />
