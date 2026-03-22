@@ -1,7 +1,7 @@
-import type { JSX } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 export type TabType = 'menu' | 'reviews' | 'nearby';
 
@@ -14,9 +14,9 @@ const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
   const { t } = useTranslation();
 
   return (
-    <View className="flex-row justify-start gap-2 border-b border-gray-200 px-4">
+    <View className="flex-row justify-center gap-2 border-b border-gray-200 px-4">
       <TouchableOpacity
-        className={`flex-1 flex-row items-center justify-start gap-1 border-b-2 py-3 ${
+        className={`flex-1 flex-row items-center justify-center gap-1 border-b-2 py-3 ${
           activeTab === 'menu' ? 'border-[#FF6B35]' : 'border-transparent'
         }`}
         onPress={() => onTabChange('menu')}
@@ -38,7 +38,7 @@ const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        className={`flex-1 flex-row items-center justify-start gap-1 border-b-2 py-3 ${
+        className={`flex-1 flex-row items-center justify-center gap-1 border-b-2 py-3 ${
           activeTab === 'reviews' ? 'border-[#FF6B35]' : 'border-transparent'
         }`}
         onPress={() => onTabChange('reviews')}
@@ -60,7 +60,7 @@ const TabsBar = ({ activeTab, onTabChange }: TabsBarProps): JSX.Element => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        className={`flex-1 flex-row items-center justify-start gap-1 border-b-2 py-3 ${
+        className={`flex-1 flex-row items-center justify-center gap-1 border-b-2 py-3 ${
           activeTab === 'nearby' ? 'border-[#FF6B35]' : 'border-transparent'
         }`}
         onPress={() => onTabChange('nearby')}

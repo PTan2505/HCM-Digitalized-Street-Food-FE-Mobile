@@ -6,20 +6,20 @@ import ActionButtons from '@features/home/components/restaurantSwipe/ActionButto
 import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe/ImageCarouselWithProgress';
 import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
 import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
+import { useBranchImages } from '@features/home/hooks/useBranchImages';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { fetchBranchAllImages, selectBranchImageMap } from '@slices/branches';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 type RestaurantSwipeScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
+  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
 }>;
 
 const PLACEHOLDER_IMAGE =
@@ -29,24 +29,33 @@ export const RestaurantSwipeScreen = ({
   route,
 }: RestaurantSwipeScreenProps): JSX.Element => {
   const navigation = useNavigation();
-  const dispatch = useAppDispatch();
-  const branchImageMap = useAppSelector(selectBranchImageMap);
-  const { branch, displayName } = route.params;
-  const { isOpen, schedules } = useWorkSchedule(branch.branchId);
+  const { branch, displayName, onRatingUpdate } = route.params;
+  const [avgRating, setAvgRating] = useState(branch.avgRating);
+  const [totalReviewCount, setTotalReviewCount] = useState(
+    branch.totalReviewCount
+  );
 
-  useEffect(() => {
-    dispatch(fetchBranchAllImages(branch.branchId));
-  }, [branch.branchId, dispatch]);
+  const handleRatingUpdate = useCallback(
+    (newAvgRating: number, newTotalReviewCount: number) => {
+      // Update local state for immediate UI feedback
+      setAvgRating(newAvgRating);
+      setTotalReviewCount(newTotalReviewCount);
+      // Update Redux state so HomeScreen sees the change
+      onRatingUpdate?.(newAvgRating, newTotalReviewCount);
+    },
+    [onRatingUpdate]
+  );
+
+  const { isOpen, schedules } = useWorkSchedule(branch.branchId);
+  const { imageUrls } = useBranchImages(branch.branchId);
 
   const restaurantImages =
-    (branchImageMap[branch.branchId] ?? []).length > 0
-      ? branchImageMap[branch.branchId]
-      : [PLACEHOLDER_IMAGE];
+    imageUrls.length > 0 ? imageUrls : [PLACEHOLDER_IMAGE];
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,
-    rating: branch.avgRating,
-    reviewCount: 0, // TODO: fetch from reviews API
+    rating: avgRating,
+    totalReviewCount,
     address: [branch.addressDetail, branch.ward, branch.city]
       .filter(Boolean)
       .join(', '),
@@ -54,8 +63,7 @@ export const RestaurantSwipeScreen = ({
     // —— fields not yet in API response, placeholder until updated ——
     priceRange: getPriceRange(branch.dishes),
     isVegetarian: false,
-    cuisine: 'Đang cập nhật cuisine',
-    hours: 'Đang cập nhật hours',
+    dietaryPreferenceNames: branch.dietaryPreferenceNames,
     schedules,
   };
 
@@ -65,9 +73,9 @@ export const RestaurantSwipeScreen = ({
         name: 'Quan Chay Huong Sen',
         priceRange: '150k - 350k',
         rating: 4.3,
-        reviewCount: 128,
+        totalReviewCount: 128,
         isVegetarian: true,
-        cuisine: 'Món Chay',
+        dietaryPreferenceNames: ['Món Chay'],
         address: '123 Nguyen Van Linh, Quan 7, Ho Chi Minh',
         hours: '9:00 - 22:00 (Thứ 2 - Chủ Nhật)',
         isOpen: true,
@@ -83,9 +91,9 @@ export const RestaurantSwipeScreen = ({
         name: 'Nha Hang Thien Huong',
         priceRange: '180k - 450k',
         rating: 4.7,
-        reviewCount: 256,
+        totalReviewCount: 256,
         isVegetarian: true,
-        cuisine: 'Món Hoa',
+        dietaryPreferenceNames: ['Món Hoa'],
         address: '456 Le Van Viet, Quan 9, Ho Chi Minh',
         hours: '7:00 - 21:00 (Thứ 2 - Thứ 7)',
         isOpen: true,
@@ -101,9 +109,9 @@ export const RestaurantSwipeScreen = ({
         name: 'Bistro Xanh Healthy',
         priceRange: '100k - 300k',
         rating: 4.6,
-        reviewCount: 89,
+        totalReviewCount: 89,
         isVegetarian: true,
-        cuisine: 'Món Việt',
+        dietaryPreferenceNames: ['Món Việt'],
         address: '789 Vo Van Ngan, Thu Duc, Ho Chi Minh',
         hours: '8:00 - 20:00 (Thứ 2 - Chủ Nhật)',
         isOpen: false,
@@ -143,7 +151,11 @@ export const RestaurantSwipeScreen = ({
 
           <View className="overflow-hidden rounded-b-3xl bg-white">
             <RestaurantInfo restaurant={restaurantInfo} />
-            <ActionButtons branch={branch} displayName={displayName} />
+            <ActionButtons
+              branch={branch}
+              displayName={displayName}
+              onRatingUpdate={handleRatingUpdate}
+            />
           </View>
 
           <SwipeUpPrompt />

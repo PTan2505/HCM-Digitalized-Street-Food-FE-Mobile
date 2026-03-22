@@ -1,3 +1,5 @@
+import type { VendorTier } from '@custom-types/vendor';
+
 export interface WorkSchedule {
   workScheduleId: number;
   branchId: number;
@@ -19,13 +21,11 @@ export interface Dish {
   isSoldOut: boolean;
   categoryName?: string;
   tasteNames: string[];
-  dietaryPreferenceNames: string[];
 }
 
-export interface ActiveBranch {
+export interface BranchDetail {
   branchId: number;
   vendorId: number;
-  vendorName: string | null;
   managerId: number;
   name: string;
   phoneNumber: string;
@@ -39,10 +39,37 @@ export interface ActiveBranch {
   updatedAt: string | null;
   isVerified: boolean;
   avgRating: number;
+  totalReviewCount: number;
+  isActive: boolean;
+  tierId: number;
+  tierName: string | null;
+}
+
+export interface ActiveBranch {
+  branchId: number;
+  vendorId: number;
+  vendorName: string;
+  managerId: number;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  addressDetail: string;
+  ward: string;
+  city: string;
+  lat: number;
+  long: number;
+  createdAt: string;
+  totalReviewCount: number;
+  dietaryPreferenceNames: string[];
+  updatedAt: string | null;
+  isVerified: boolean;
+  avgRating: number;
   isActive: boolean;
   /** Populated when Lat/Long params are passed to the search endpoint */
   distanceKm: number | null;
   dishes: Dish[];
+  /** Optional tier from GET /api/Branch/:id/tier — not included in search response */
+  tier?: VendorTier;
 }
 
 export interface PaginatedBranches {
@@ -59,6 +86,59 @@ export interface BranchImage {
   branchImageId: number;
   branchId: number;
   imageUrl: string;
+}
+
+export interface PaginatedDishes {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: Dish[];
+}
+
+export type LicenseStatus = 'Pending' | 'Accept' | 'Reject';
+
+export interface MyGhostPinBranch {
+  branchId: number;
+  vendorId: number;
+  managerId: number | null;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  addressDetail: string;
+  ward: string;
+  city: string;
+  lat: number;
+  long: number;
+  createdAt: string;
+  updatedAt: string | null;
+  isVerified: boolean;
+  avgRating: number;
+  totalReviewCount: number;
+  totalRatingSum: number;
+  batchReviewCount: number;
+  batchRatingSum: number;
+  isActive: boolean;
+  isSubscribed: boolean;
+  subscriptionExpiresAt: string | null;
+  daysRemaining: number | null;
+  tierId: number;
+  tierName: string;
+  licenseUrls: string[];
+  licenseStatus: LicenseStatus;
+  licenseRejectReason: string | null;
+}
+
+export interface PaginatedMyGhostPinBranches {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: MyGhostPinBranch[];
 }
 
 export interface PaginatedBranchImages {

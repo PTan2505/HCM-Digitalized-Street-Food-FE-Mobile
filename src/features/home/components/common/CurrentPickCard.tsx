@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import type { VendorTier } from '@custom-types/vendor';
+import { TierBadge } from '@components/TierBadge';
 
 interface CurrentPickCardProps {
   id: string;
@@ -21,6 +23,7 @@ interface CurrentPickCardProps {
   comments: number;
   isTopPick?: boolean;
   openStatus?: 'open' | 'closed';
+  tier?: VendorTier;
   onPress?: () => void;
   onBookmarkPress?: () => void;
 }
@@ -36,6 +39,7 @@ const CurrentPickCard = ({
   comments,
   isTopPick,
   openStatus,
+  tier,
   onBookmarkPress,
 }: CurrentPickCardProps): JSX.Element => {
   const { t } = useTranslation();
@@ -118,6 +122,7 @@ const CurrentPickCard = ({
               </Text>
             </View>
           )}
+          <TierBadge tier={tier} />
         </View>
       </View>
 

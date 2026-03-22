@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next';
 import validator from 'validator';
 import { z } from 'zod';
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getUpdateProfileSchema = (t: TFunction) =>
   z.object({
     firstName: z
@@ -20,7 +21,7 @@ export const getUpdateProfileSchema = (t: TFunction) =>
       .optional()
       .nullable()
       .refine(
-        (value) => {
+        (value): boolean => {
           if (!value) return true;
           return validator.isMobilePhone(value, 'vi-VN');
         },
@@ -40,7 +41,7 @@ export const getUpdateProfileSchema = (t: TFunction) =>
       .optional()
       .nullable()
       .refine(
-        (value) => {
+        (value): boolean => {
           if (!value) return true;
           return validator.isEmail(value);
         },

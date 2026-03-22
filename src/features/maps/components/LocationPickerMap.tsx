@@ -126,6 +126,9 @@ const FADED_ROAD_LAYERS = [
 export interface PickedLocation {
   coordinate: [number, number]; // [lng, lat]
   address: string;
+  addressDetail?: string;
+  ward?: string;
+  city?: string;
 }
 
 interface RegionPayloadFeature {
@@ -248,6 +251,9 @@ const LocationPickerMapInner = React.forwardRef<
   const [centerCoord, setCenterCoord] = useState<[number, number]>(startCoord);
   const centerCoordRef = useRef<[number, number]>(startCoord);
   const [address, setAddress] = useState('');
+  const [addressDetail, setAddressDetail] = useState('');
+  const [ward, setWard] = useState('');
+  const [city, setCity] = useState('');
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -308,19 +314,37 @@ const LocationPickerMapInner = React.forwardRef<
   const reverseGeocodeCenter = useCallback(
     async (coord: [number, number]): Promise<void> => {
       setIsReverseGeocoding(true);
-      const result = await reverseGeocode(coord[1], coord[0]);
-      if (result) {
-        setAddress(result.formattedAddress);
-        onLocationChange?.({
-          coordinate: coord,
-          address: result.formattedAddress,
-        });
+      const reversed = await reverseGeocode(coord[1], coord[0]);
+      if (reversed) {
+        setAddress(reversed.formattedAddress);
+        const detail = await getPlaceDetail(reversed.placeId);
+        if (detail) {
+          setAddressDetail(detail.addressDetail);
+          setWard(detail.ward);
+          setCity(detail.city);
+          onLocationChange?.({
+            coordinate: coord,
+            address: reversed.formattedAddress,
+            addressDetail: detail.addressDetail,
+            ward: detail.ward,
+            city: detail.city,
+          });
+        } else {
+          setAddressDetail('');
+          setWard('');
+          setCity('');
+          onLocationChange?.({
+            coordinate: coord,
+            address: reversed.formattedAddress,
+          });
+        }
       } else {
-        setAddress(`${coord[1].toFixed(6)}, ${coord[0].toFixed(6)}`);
-        onLocationChange?.({
-          coordinate: coord,
-          address: `${coord[1].toFixed(6)}, ${coord[0].toFixed(6)}`,
-        });
+        const fallback = `${coord[1].toFixed(6)}, ${coord[0].toFixed(6)}`;
+        setAddress(fallback);
+        setAddressDetail('');
+        setWard('');
+        setCity('');
+        onLocationChange?.({ coordinate: coord, address: fallback });
       }
       setIsReverseGeocoding(false);
     },
@@ -343,6 +367,8 @@ const LocationPickerMapInner = React.forwardRef<
 
       // Use Place Detail API for exact coordinates from place_id
       const detail = await getPlaceDetail(prediction.placeId);
+      console.log(detail);
+
       if (detail) {
         const coord: [number, number] = [detail.lng, detail.lat];
 
@@ -355,9 +381,15 @@ const LocationPickerMapInner = React.forwardRef<
         setCenterCoord(coord);
         centerCoordRef.current = coord;
         setAddress(detail.formattedAddress);
+        setAddressDetail(detail.addressDetail);
+        setWard(detail.ward);
+        setCity(detail.city);
         onLocationChange?.({
           coordinate: coord,
           address: detail.formattedAddress,
+          addressDetail: detail.addressDetail,
+          ward: detail.ward,
+          city: detail.city,
         });
         const isFar = dLat > 0.05 || dLng > 0.05; // ~5 km threshold
 
@@ -446,8 +478,14 @@ const LocationPickerMapInner = React.forwardRef<
 
   // ── Confirm ──
   const handleConfirm = useCallback(() => {
-    onConfirm?.({ coordinate: centerCoord, address });
-  }, [centerCoord, address, onConfirm]);
+    onConfirm?.({
+      coordinate: centerCoord,
+      address,
+      addressDetail,
+      ward,
+      city,
+    });
+  }, [centerCoord, address, addressDetail, ward, city, onConfirm]);
 
   return (
     <View className="flex-1">
@@ -517,17 +555,6 @@ const LocationPickerMapInner = React.forwardRef<
             }}
           />
         </View>
-        {/* Shadow dot at pin point */}
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: 'rgba(0,0,0,0.15)',
-          }}
-        />
       </View>
 
       {/* ── Dragging indicator ── */}

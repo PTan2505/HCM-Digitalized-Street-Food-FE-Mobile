@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import type { MapVendor } from '@features/home/types/stall';
 import { DetailCard } from '@features/maps/components/DetailCard';
 import { CAMERA_BOTTOM_PADDING, Maps } from '@features/maps/components/Maps';
@@ -26,31 +27,37 @@ export const MapScreen = (): JSX.Element => {
     : null;
   const navigation = useNavigation();
 
+  // ── Ghost Pin state ─────────────────────────────────────
+  const [ghostPins] = useState<GhostPinResponse[]>([]);
+
   // ── Marker press handler ──────────────────────────────────
-  const onMarkerPress = useCallback((vendorId: string) => {
-    const vendor = vendors.find((v) => v.vendorId === vendorId);
-    if (!vendor) return;
+  const onMarkerPress = useCallback(
+    (vendorId: string) => {
+      const vendor = vendors.find((v) => v.vendorId === vendorId);
+      if (!vendor) return;
 
-    setSelectedVendorId(vendorId);
-    setIsPeeked(false);
+      setSelectedVendorId(vendorId);
+      setIsPeeked(false);
 
-    /**
-     * Camera Padding / Offset Explanation:
-     * ------------------------------------
-     */
-    cameraRef.current?.setCamera({
-      centerCoordinate: [vendor.long, vendor.lat],
-      zoomLevel: 14,
-      animationDuration: 700,
-      animationMode: 'flyTo',
-      padding: {
-        paddingTop: 0,
-        paddingLeft: 0,
-        paddingRight: 0,
-        paddingBottom: CAMERA_BOTTOM_PADDING,
-      },
-    });
-  }, []);
+      /**
+       * Camera Padding / Offset Explanation:
+       * ------------------------------------
+       */
+      cameraRef.current?.setCamera({
+        centerCoordinate: [vendor.long, vendor.lat],
+        zoomLevel: 14,
+        animationDuration: 700,
+        animationMode: 'flyTo',
+        padding: {
+          paddingTop: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
+          paddingBottom: CAMERA_BOTTOM_PADDING,
+        },
+      });
+    },
+    [vendors]
+  );
 
   // ── Detail card close ─────────────────────────────────────
   const onCloseDetail = useCallback(() => {
@@ -141,6 +148,7 @@ export const MapScreen = (): JSX.Element => {
         onMarkerPress={onMarkerPress}
         onUserDrag={onUserDrag}
         vendors={vendors}
+        ghostPins={ghostPins}
       />
 
       {/* Detail card — slides up when a vendor is selected */}

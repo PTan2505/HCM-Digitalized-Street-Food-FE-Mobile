@@ -1,5 +1,7 @@
+import MarkerIcon from '@assets/icons/marker.svg';
 import { Ionicons } from '@expo/vector-icons';
 import type { MapVendor } from '@features/home/types/stall';
+import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import {
   Camera,
   CircleLayer,
@@ -23,7 +25,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -261,13 +263,12 @@ const CIRCLE_STYLE = {
   ] as unknown as number,
 };
 
-// ── VendorMarker — unselected pill (white bg) ──
+// ── VendorMarker — unselected pin (marker SVG + circular image) ──
 interface VendorMarkerProps {
-  label: string;
-  rating: number;
+  imageUrl?: string;
 }
 
-const VendorMarker = ({ label, rating }: VendorMarkerProps): JSX.Element => {
+const VendorMarker = ({ imageUrl }: VendorMarkerProps): JSX.Element => {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -280,37 +281,40 @@ const VendorMarker = ({ label, rating }: VendorMarkerProps): JSX.Element => {
 
   return (
     <Animated.View style={fadeStyle}>
-      <View className="items-center">
-        <View className="flex-row items-center rounded-full border border-gray-200 bg-white px-2.5 py-1.5 shadow-md">
-          <Ionicons
-            name="restaurant"
-            size={12}
-            color="#a1d973"
-            style={{ marginRight: 4 }}
-          />
-          <Text className="text-xs font-bold text-gray-700" numberOfLines={1}>
-            {label}
-          </Text>
-          <View className="ml-1.5 rounded-md bg-[#FFB800] px-1 py-px">
-            <Text className="text-[10px] font-extrabold text-white">
-              {rating.toFixed(1)}
-            </Text>
-          </View>
-        </View>
-
+      <View style={{ width: 38, height: 52 }}>
+        <MarkerIcon width={38} height={52} />
         <View
           style={{
-            width: 0,
-            height: 0,
-            borderLeftWidth: 6,
-            borderRightWidth: 6,
-            borderTopWidth: 7,
-            borderLeftColor: 'transparent',
-            borderRightColor: 'transparent',
-            borderTopColor: '#fff',
-            marginTop: -1,
+            position: 'absolute',
+            top: 5,
+            left: 5,
+            width: 28,
+            height: 28,
+            borderRadius: 14,
+            backgroundColor: 'white',
+            overflow: 'hidden',
           }}
-        />
+        >
+          {imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={{ width: 28, height: 28 }}
+              resizeMode="cover"
+            />
+          ) : (
+            <View
+              style={{
+                width: 28,
+                height: 28,
+                backgroundColor: '#f3f4f6',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons name="restaurant" size={14} color="#a1d973" />
+            </View>
+          )}
+        </View>
       </View>
     </Animated.View>
   );
@@ -377,6 +381,48 @@ const ActivePill = ({ label, rating }: ActivePillProps): JSX.Element => {
 
 // ── Maps Component ──
 
+interface GhostPinMarkerCalloutProps {
+  name: string;
+  status: GhostPinResponse['status'];
+}
+
+const STATUS_LABEL: Record<GhostPinResponse['status'], string> = {
+  pending: 'Đang chờ duyệt',
+  approved: 'Đã được duyệt',
+  claimed: 'Đã nhận',
+  verified: 'Đã xác minh',
+  rejected: 'Bị từ chối',
+};
+
+const GhostPinCallout = ({
+  name,
+  status,
+}: GhostPinMarkerCalloutProps): JSX.Element => (
+  <View className="items-center">
+    <View className="rounded-xl border border-gray-300 bg-white px-3 py-2 shadow-md">
+      <Text className="text-xs font-bold text-gray-700" numberOfLines={1}>
+        {name}
+      </Text>
+      <Text className="mt-0.5 text-[10px] text-gray-500">
+        {STATUS_LABEL[status]}
+      </Text>
+    </View>
+    <View
+      style={{
+        width: 0,
+        height: 0,
+        borderLeftWidth: 5,
+        borderRightWidth: 5,
+        borderTopWidth: 6,
+        borderLeftColor: 'transparent',
+        borderRightColor: 'transparent',
+        borderTopColor: '#D1D5DB',
+        marginTop: -1,
+      }}
+    />
+  </View>
+);
+
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
   initialCenter: [number, number];
@@ -385,6 +431,7 @@ interface MapsProps {
   onMarkerPress: (vendorId: string) => void;
   onUserDrag?: () => void;
   vendors?: MapVendor[];
+  ghostPins?: GhostPinResponse[];
 }
 
 const PEEK_BAR_OFFSET = 20;
@@ -397,6 +444,7 @@ export const Maps = ({
   onMarkerPress,
   onUserDrag,
   vendors = [],
+  ghostPins = [],
 }: MapsProps): JSX.Element => {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapViewRef>(null);
@@ -415,6 +463,7 @@ export const Maps = ({
         label: tierToPrice(v.tierId),
         rating: v.avgRating,
         isVerified: v.isVerified,
+        imageUrl: v.imageUrl,
       })),
     [vendors]
   );
@@ -627,9 +676,21 @@ export const Maps = ({
               <ActivePill label={vendor.label} rating={vendor.rating} />
             ) : (
               <Pressable onPress={() => onMarkerPress(vendor.vendorId)}>
-                <VendorMarker label={vendor.label} rating={vendor.rating} />
+                <VendorMarker imageUrl={vendor.imageUrl} />
               </Pressable>
             )}
+          </MarkerView>
+        ))}
+
+        {/* Ghost Pin Markers — grey unverified markers with status callout */}
+        {ghostPins.map((pin) => (
+          <MarkerView
+            key={`ghost-${pin.ghostPinId}`}
+            coordinate={[pin.long, pin.lat]}
+            anchor={{ x: 0.5, y: 1 }}
+            allowOverlap
+          >
+            <GhostPinCallout name={pin.name} status={pin.status} />
           </MarkerView>
         ))}
       </MapView>

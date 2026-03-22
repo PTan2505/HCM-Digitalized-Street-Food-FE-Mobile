@@ -1,0 +1,1934 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lowca API — Unimplemented Endpoints",
+    "version": "1.0.0",
+    "description": "OpenAPI specification for Lowca features not yet implemented on the mobile client.\n\n**Response Envelope:** All endpoints return a standard envelope:\n```json\n{ \"status\": 200, \"message\": \"Success\", \"data\": <T>, \"errorCode\": null }\n```\nThe `data` field contains the schema documented per endpoint.\n\n**Authentication:** All endpoints (except public ones) require `Authorization: Bearer <accessToken>` header."
+  },
+  "servers": [
+    {
+      "url": "{baseUrl}",
+      "variables": {
+        "baseUrl": {
+          "default": "https://api.lowca.app",
+          "description": "Set to EXPO_PUBLIC_API_URL environment variable"
+        }
+      }
+    }
+  ],
+  "security": [
+    { "bearerAuth": [] }
+  ],
+  "tags": [
+    { "name": "DirectOrdering", "description": "Solo customer ordering flow — personal cart, checkout, and order tracking without a group session" },
+    { "name": "GroupOrdering", "description": "Group session, nominations, voting, shared cart, escrow checkout, order fulfilment" },
+    { "name": "VendorVerification", "description": "Ghost Pin creation and the moderator → vendor verification lifecycle" },
+    { "name": "Reputation", "description": "Vendor tier calculation, geo-fenced review submission, and velocity checks" },
+    { "name": "PlatformEconomy", "description": "Subscription management, Flash Boost ads, vendor wallet" },
+    { "name": "Campaigns", "description": "System campaigns, restaurant vouchers, GPS push campaigns" }
+  ],
+  "paths": {
+    "/api/Cart/{branchId}": {
+      "get": {
+        "tags": ["DirectOrdering"],
+        "operationId": "getPersonalCart",
+        "summary": "Get the current user's personal cart for a specific branch",
+        "description": "Each user has at most one active personal cart per branch. Returns an empty cart (items: []) if nothing has been added yet.",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personal cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PersonalCart" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["DirectOrdering"],
+        "operationId": "clearPersonalCart",
+        "summary": "Clear all items from the personal cart for a branch",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" }
+        ],
+        "responses": {
+          "204": { "description": "Cart cleared" }
+        }
+      }
+    },
+    "/api/Cart/{branchId}/items": {
+      "post": {
+        "tags": ["DirectOrdering"],
+        "operationId": "addPersonalCartItem",
+        "summary": "Add a dish to the personal cart",
+        "description": "If the dish already exists in the cart, its quantity is incremented rather than creating a duplicate entry.",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddPersonalCartItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PersonalCart" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Cart/{branchId}/items/{itemId}": {
+      "put": {
+        "tags": ["DirectOrdering"],
+        "operationId": "updatePersonalCartItem",
+        "summary": "Update quantity of a personal cart item",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" },
+          { "$ref": "#/components/parameters/itemId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePersonalCartItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PersonalCart" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["DirectOrdering"],
+        "operationId": "removePersonalCartItem",
+        "summary": "Remove a specific item from the personal cart",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" },
+          { "$ref": "#/components/parameters/itemId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PersonalCart" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Order": {
+      "post": {
+        "tags": ["DirectOrdering"],
+        "operationId": "placeOrder",
+        "summary": "Place an order from the personal cart",
+        "description": "Converts the personal cart for the given branch into a confirmed order. The cart is cleared on success. Payment is collected upfront via the selected method.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PlaceOrderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order placed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "400": { "description": "Cart is empty" },
+          "402": { "description": "Insufficient wallet balance" }
+        }
+      },
+      "get": {
+        "tags": ["DirectOrdering"],
+        "operationId": "getMyOrders",
+        "summary": "Get the current user's order history",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated order list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedOrders" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Order/{orderId}": {
+      "get": {
+        "tags": ["DirectOrdering"],
+        "operationId": "getOrder",
+        "summary": "Get a single order by ID",
+        "description": "Poll this endpoint every 10 seconds on the OrderStatusScreen to track live order status changes.",
+        "parameters": [
+          { "$ref": "#/components/parameters/orderId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "404": { "description": "Order not found" }
+        }
+      }
+    },
+    "/api/Order/{orderId}/cancel": {
+      "post": {
+        "tags": ["DirectOrdering"],
+        "operationId": "cancelOrder",
+        "summary": "Customer cancels a pending order",
+        "description": "Only allowed when order status is `pending`. Triggers immediate refund to customer wallet.",
+        "parameters": [
+          { "$ref": "#/components/parameters/orderId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order cancelled, refund initiated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          },
+          "409": { "description": "Order cannot be cancelled at its current status" }
+        }
+      }
+    },
+    "/api/GroupSession": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "createGroupSession",
+        "summary": "Create a new group ordering session",
+        "description": "Host creates a group session. Returns the session with a unique inviteToken for sharing.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateGroupSessionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}": {
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getGroupSession",
+        "summary": "Get group session details",
+        "description": "Poll every 5 seconds to detect status changes (lobby → voting → ordering → checkout → fulfilled).",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          },
+          "404": { "description": "Session not found" }
+        }
+      },
+      "delete": {
+        "tags": ["GroupOrdering"],
+        "operationId": "expireGroupSession",
+        "summary": "Expire / close a group session (Host only)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "204": { "description": "Session expired" },
+          "403": { "description": "Only the Host may close a session" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/join": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "joinGroupSession",
+        "summary": "Join an existing group session via invite token",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JoinGroupSessionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully joined",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          },
+          "400": { "description": "Invalid or expired invite token" },
+          "409": { "description": "Session status does not allow joining (voting or later)" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/participants": {
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getGroupSessionParticipants",
+        "summary": "List active participants (poll every 5 s)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Participant list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/GroupParticipant" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/nominations": {
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getGroupSessionNominations",
+        "summary": "List branch nominations (poll every 5 s)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nomination list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Nomination" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "createNomination",
+        "summary": "Nominate a branch to the session shortlist",
+        "description": "Only allowed when session status is `lobby`.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateNominationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Nomination created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Nomination" }
+              }
+            }
+          },
+          "409": { "description": "Branch already nominated or session not in lobby status" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/nominations/{nominationId}": {
+      "delete": {
+        "tags": ["GroupOrdering"],
+        "operationId": "deleteNomination",
+        "summary": "Remove a nomination (Host only, lobby phase only)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" },
+          {
+            "name": "nominationId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Nomination removed" },
+          "403": { "description": "Only the Host may remove nominations" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/voting/start": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "startVoting",
+        "summary": "Start the voting phase (Host only)",
+        "description": "Requires at least one nomination. Transitions session status from `lobby` to `voting`.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Voting started — returns updated session",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          },
+          "400": { "description": "No nominations exist" },
+          "403": { "description": "Only the Host may start voting" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/votes": {
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getVoteTallies",
+        "summary": "Get live vote tallies (poll every 5 s)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vote tallies per branch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/VoteTally" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "castVote",
+        "summary": "Cast one vote on a nominated branch",
+        "description": "Each member may cast exactly one vote. Session must be in `voting` status.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CastVoteRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Vote registered" },
+          "409": { "description": "Member already voted or session not in voting status" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/voting/close": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "closeVoting",
+        "summary": "Close voting and declare winner (Host only)",
+        "description": "Winner is the branch with most votes; first-nominated branch wins ties. Transitions status to `ordering`. Locks `winnerBranchId` immutably.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Voting closed — returns updated session with winnerBranchId",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          },
+          "403": { "description": "Only the Host may close voting" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/cart": {
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getSharedCart",
+        "summary": "Get the shared cart (poll every 3 s during ordering phase)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shared cart with per-member attribution",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SharedCart" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/cart/items": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "addCartItem",
+        "summary": "Add a dish to the shared cart",
+        "description": "Item is attributed to the calling user. Session must be in `ordering` status and cart must not be locked.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AddCartItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item added — returns updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SharedCart" }
+              }
+            }
+          },
+          "423": { "description": "Cart is locked during checkout" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/cart/items/{itemId}": {
+      "put": {
+        "tags": ["GroupOrdering"],
+        "operationId": "updateCartItem",
+        "summary": "Update quantity of own cart item",
+        "description": "Members may only update their own items. Cart must not be locked.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" },
+          { "$ref": "#/components/parameters/itemId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateCartItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated — returns updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SharedCart" }
+              }
+            }
+          },
+          "403": { "description": "Cannot edit another member's item" },
+          "423": { "description": "Cart is locked during checkout" }
+        }
+      },
+      "delete": {
+        "tags": ["GroupOrdering"],
+        "operationId": "removeCartItem",
+        "summary": "Remove own cart item",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" },
+          { "$ref": "#/components/parameters/itemId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item removed — returns updated cart",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SharedCart" }
+              }
+            }
+          },
+          "403": { "description": "Cannot remove another member's item" },
+          "423": { "description": "Cart is locked during checkout" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/checkout": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "initiateCheckout",
+        "summary": "Lock cart and initiate checkout (Host only)",
+        "description": "Locks the cart for 5 minutes. Host selects payment method. Funds collected upfront via VietQR/bank transfer and held in escrow.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/InitiateCheckoutRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout initiated — cart is now locked",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CheckoutSession" }
+              }
+            }
+          },
+          "403": { "description": "Only the Host may initiate checkout" },
+          "409": { "description": "Cart is empty or session is not in ordering status" }
+        }
+      },
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getCheckoutStatus",
+        "summary": "Get checkout / escrow status (poll every 5 s)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current checkout status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CheckoutSession" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["GroupOrdering"],
+        "operationId": "cancelCheckout",
+        "summary": "Cancel checkout and unlock cart (Host only, before payment completes)",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "204": { "description": "Checkout cancelled, cart unlocked" },
+          "403": { "description": "Only the Host may cancel checkout" },
+          "409": { "description": "Payment already completed — cannot cancel" }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/order/accept": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "acceptGroupOrder",
+        "summary": "Vendor accepts the group order",
+        "description": "Releases escrow funds to the vendor. Transitions session to `fulfilled`.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order accepted — returns updated session",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/order/reject": {
+      "post": {
+        "tags": ["GroupOrdering"],
+        "operationId": "rejectGroupOrder",
+        "summary": "Vendor rejects the group order",
+        "description": "Triggers immediate full refund to Host's wallet. Transitions session to `rejected`.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RejectOrderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order rejected, refund initiated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GroupSession" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GroupSession/{sessionId}/summary": {
+      "get": {
+        "tags": ["GroupOrdering"],
+        "operationId": "getOrderSummary",
+        "summary": "Get read-only post-fulfillment order summary",
+        "description": "Available only after session is `fulfilled`. Shows per-member item breakdown.",
+        "parameters": [
+          { "$ref": "#/components/parameters/sessionId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order summary with per-member breakdown",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OrderSummary" }
+              }
+            }
+          },
+          "409": { "description": "Session not yet fulfilled" }
+        }
+      }
+    },
+    "/api/GhostPin": {
+      "post": {
+        "tags": ["VendorVerification"],
+        "operationId": "createGhostPin",
+        "summary": "Create an unverified Ghost Pin for an unknown stall",
+        "description": "Ghost Pins are hidden from standard search — visible only to the creator and moderators on the discovery map layer.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateGhostPinRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ghost Pin created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GhostPin" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/GhostPin/{ghostPinId}": {
+      "get": {
+        "tags": ["VendorVerification"],
+        "operationId": "getGhostPin",
+        "summary": "Get Ghost Pin details",
+        "parameters": [
+          { "$ref": "#/components/parameters/ghostPinId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ghost Pin details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GhostPin" }
+              }
+            }
+          },
+          "403": { "description": "Access denied — not creator or moderator" },
+          "404": { "description": "Ghost Pin not found" }
+        }
+      }
+    },
+    "/api/GhostPin/{ghostPinId}/approve": {
+      "post": {
+        "tags": ["VendorVerification"],
+        "operationId": "approveGhostPin",
+        "summary": "Moderator approves a Ghost Pin for the verification pipeline",
+        "parameters": [
+          { "$ref": "#/components/parameters/ghostPinId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ghost Pin approved",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GhostPin" }
+              }
+            }
+          },
+          "403": { "description": "Moderator role required" }
+        }
+      }
+    },
+    "/api/GhostPin/{ghostPinId}/reject": {
+      "post": {
+        "tags": ["VendorVerification"],
+        "operationId": "rejectGhostPin",
+        "summary": "Moderator rejects a Ghost Pin",
+        "parameters": [
+          { "$ref": "#/components/parameters/ghostPinId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RejectGhostPinRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ghost Pin rejected",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GhostPin" }
+              }
+            }
+          },
+          "403": { "description": "Moderator role required" }
+        }
+      }
+    },
+    "/api/GhostPin/{ghostPinId}/claim": {
+      "post": {
+        "tags": ["VendorVerification"],
+        "operationId": "claimGhostPin",
+        "summary": "Vendor claims ownership of an approved Ghost Pin",
+        "parameters": [
+          { "$ref": "#/components/parameters/ghostPinId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClaimGhostPinRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ghost Pin claimed — status transitions to `claimed`",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GhostPin" }
+              }
+            }
+          },
+          "409": { "description": "Ghost Pin not in `approved` status" }
+        }
+      }
+    },
+    "/api/GhostPin/{ghostPinId}/audit": {
+      "post": {
+        "tags": ["VendorVerification"],
+        "operationId": "completeAudit",
+        "summary": "Moderator completes physical on-site audit",
+        "description": "Requires moderator GPS within 10 metres of the stall. On success sets `isVerified = true` on the linked Branch, unlocking full menu/schedule features.",
+        "parameters": [
+          { "$ref": "#/components/parameters/ghostPinId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuditGhostPinRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Audit complete — Ghost Pin status set to `verified`",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GhostPin" }
+              }
+            }
+          },
+          "400": { "description": "Moderator GPS is more than 10 metres from the stall" },
+          "403": { "description": "Moderator role required" }
+        }
+      }
+    },
+    "/api/Branch/{branchId}/tier": {
+      "get": {
+        "tags": ["Reputation"],
+        "operationId": "getBranchTier",
+        "summary": "Get the current tier of a branch",
+        "description": "Tier is derived from the sliding window of the last 20 reviews. Possible tiers: `diamond`, `gold`, `silver`, `warning`.",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Branch tier",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BranchTier" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Feedback/branch/{branchId}": {
+      "post": {
+        "tags": ["Reputation"],
+        "operationId": "submitFeedback",
+        "summary": "Submit a review for a branch",
+        "description": "Requires user to be within 50 metres of the stall (GPS geo-fence). Velocity limits: max 1 review per stall per day, max 3 total per day.",
+        "parameters": [
+          { "$ref": "#/components/parameters/branchId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SubmitFeedbackRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Feedback submitted",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FeedbackSubmitResponse" }
+              }
+            }
+          },
+          "400": { "description": "User is not within 50 metres of the stall" },
+          "429": { "description": "Velocity limit exceeded — max 1 review per stall/day, 3 total/day" }
+        }
+      }
+    },
+    "/api/Feedback/velocity/check": {
+      "get": {
+        "tags": ["Reputation"],
+        "operationId": "checkReviewVelocity",
+        "summary": "Check remaining review quota for the current day",
+        "responses": {
+          "200": {
+            "description": "Velocity quota",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/VelocityCheckResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Subscription/status": {
+      "get": {
+        "tags": ["PlatformEconomy"],
+        "operationId": "getSubscriptionStatus",
+        "summary": "Get the current vendor subscription status",
+        "responses": {
+          "200": {
+            "description": "Subscription status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SubscriptionStatus" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Subscription": {
+      "post": {
+        "tags": ["PlatformEconomy"],
+        "operationId": "subscribe",
+        "summary": "Subscribe or renew a vendor subscription",
+        "description": "Active subscription required for search visibility and Pro features. 403 is returned on protected endpoints when subscription is inactive.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SubscribeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription activated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SubscriptionStatus" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FlashBoost": {
+      "post": {
+        "tags": ["PlatformEconomy"],
+        "operationId": "purchaseFlashBoost",
+        "summary": "Purchase a Flash Boost ad placement",
+        "description": "Pins the branch to the top 3 search results for nearby users (within 2 km) matching the branch's filters for the specified duration.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FlashBoostRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Flash Boost activated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FlashBoostStatus" }
+              }
+            }
+          },
+          "402": { "description": "Insufficient wallet balance" },
+          "403": { "description": "Active subscription required" }
+        }
+      }
+    },
+    "/api/Wallet/balance": {
+      "get": {
+        "tags": ["PlatformEconomy"],
+        "operationId": "getWalletBalance",
+        "summary": "Get vendor wallet balance",
+        "responses": {
+          "200": {
+            "description": "Wallet balance",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WalletBalance" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Wallet/withdraw": {
+      "post": {
+        "tags": ["PlatformEconomy"],
+        "operationId": "withdrawFromWallet",
+        "summary": "Withdraw funds to vendor bank account",
+        "description": "Platform charges a flat 5,000 VND withdrawal fee.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WithdrawRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Withdrawal initiated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WithdrawResponse" }
+              }
+            }
+          },
+          "402": { "description": "Insufficient balance (amount + 5,000 VND fee)" }
+        }
+      }
+    },
+    "/api/Campaign/system": {
+      "get": {
+        "tags": ["Campaigns"],
+        "operationId": "getSystemCampaigns",
+        "summary": "List active system (platform-wide) campaigns",
+        "description": "Only available to Silver tier or higher vendors. Diamond vendors are auto-enrolled.",
+        "responses": {
+          "200": {
+            "description": "System campaign list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/SystemCampaign" }
+                }
+              }
+            }
+          },
+          "403": { "description": "Vendor tier below Silver" }
+        }
+      }
+    },
+    "/api/Campaign/system/{campaignId}/join": {
+      "post": {
+        "tags": ["Campaigns"],
+        "operationId": "joinSystemCampaign",
+        "summary": "Opt in to a system campaign",
+        "parameters": [
+          { "$ref": "#/components/parameters/campaignId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign joined",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SystemCampaign" }
+              }
+            }
+          },
+          "409": { "description": "Already joined or campaign ended" }
+        }
+      }
+    },
+    "/api/Campaign/restaurant": {
+      "get": {
+        "tags": ["Campaigns"],
+        "operationId": "getRestaurantCampaigns",
+        "summary": "List available restaurant (vendor) voucher campaigns",
+        "description": "Returns active voucher campaigns from verified vendors near the user (or all if no location provided).",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": { "type": "number", "format": "double" },
+            "description": "User latitude for proximity filtering"
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "schema": { "type": "number", "format": "double" },
+            "description": "User longitude for proximity filtering"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restaurant campaign list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RestaurantCampaign" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Campaigns"],
+        "operationId": "createRestaurantCampaign",
+        "summary": "Vendor creates a direct-claim voucher campaign",
+        "description": "Requires active subscription and verified vendor status.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateRestaurantCampaignRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campaign created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RestaurantCampaign" }
+              }
+            }
+          },
+          "403": { "description": "Active subscription or verified status required" }
+        }
+      }
+    },
+    "/api/Campaign/nearby": {
+      "get": {
+        "tags": ["Campaigns"],
+        "operationId": "getNearbyCampaigns",
+        "summary": "Get GPS-triggered nearby push campaigns",
+        "description": "Returns paid push campaigns from vendors within range of the user's current location.",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double" }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nearby campaigns",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/NearbyCampaign" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "sessionId": {
+        "name": "sessionId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "Group session identifier"
+      },
+      "itemId": {
+        "name": "itemId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "Cart item identifier"
+      },
+      "ghostPinId": {
+        "name": "ghostPinId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "Ghost Pin identifier"
+      },
+      "branchId": {
+        "name": "branchId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "Branch identifier"
+      },
+      "campaignId": {
+        "name": "campaignId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "Campaign identifier"
+      },
+      "orderId": {
+        "name": "orderId",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "Order identifier"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "SessionStatus": {
+        "type": "string",
+        "enum": ["lobby", "voting", "ordering", "checkout", "fulfilled", "rejected", "expired"],
+        "description": "Lifecycle status of a group session"
+      },
+      "PaymentMethod": {
+        "type": "string",
+        "enum": ["wallet", "bank_transfer", "viet_qr"],
+        "description": "Supported payment methods for group checkout"
+      },
+      "CheckoutStatus": {
+        "type": "string",
+        "enum": ["pending", "locked", "paid", "failed", "cancelled"],
+        "description": "Status of the checkout / escrow flow"
+      },
+      "GhostPinStatus": {
+        "type": "string",
+        "enum": ["pending", "approved", "claimed", "verified", "rejected"],
+        "description": "Lifecycle status of a Ghost Pin"
+      },
+      "VendorTierLevel": {
+        "type": "string",
+        "enum": ["diamond", "gold", "silver", "warning"],
+        "description": "Vendor tier derived from the last 20 reviews. TierWeight: diamond=1.5, gold/silver=1.0, warning=0.5"
+      },
+      "SubscriptionPlan": {
+        "type": "string",
+        "enum": ["monthly", "annual"]
+      },
+      "DiscountType": {
+        "type": "string",
+        "enum": ["percentage", "fixed_amount"]
+      },
+      "GroupSession": {
+        "type": "object",
+        "required": ["sessionId", "hostUserId", "status", "inviteToken", "createdAt", "expiresAt"],
+        "properties": {
+          "sessionId": { "type": "string", "format": "uuid" },
+          "hostUserId": { "type": "string", "format": "uuid" },
+          "status": { "$ref": "#/components/schemas/SessionStatus" },
+          "winnerBranchId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Set immutably when Host closes voting. Null until voting closes."
+          },
+          "inviteToken": {
+            "type": "string",
+            "description": "Token for the invite deep-link: lowca://group/:sessionId?token=:inviteToken"
+          },
+          "participantCount": { "type": "integer", "minimum": 1 },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Server-enforced 2-hour inactivity expiry"
+          }
+        }
+      },
+      "CreateGroupSessionRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "description": "Optional label shown in the lobby, e.g. 'Lunch crew'"
+          }
+        }
+      },
+      "JoinGroupSessionRequest": {
+        "type": "object",
+        "required": ["inviteToken"],
+        "properties": {
+          "inviteToken": { "type": "string" }
+        }
+      },
+      "GroupParticipant": {
+        "type": "object",
+        "required": ["userId", "displayName", "isHost", "joinedAt"],
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "displayName": { "type": "string" },
+          "avatarUrl": { "type": "string", "format": "uri", "nullable": true },
+          "isHost": { "type": "boolean" },
+          "joinedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Nomination": {
+        "type": "object",
+        "required": ["nominationId", "branchId", "branchName", "nominatedByUserId", "nominatedAt"],
+        "properties": {
+          "nominationId": { "type": "string", "format": "uuid" },
+          "branchId": { "type": "string", "format": "uuid" },
+          "branchName": { "type": "string" },
+          "branchImageUrl": { "type": "string", "format": "uri", "nullable": true },
+          "nominatedByUserId": { "type": "string", "format": "uuid" },
+          "nominatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateNominationRequest": {
+        "type": "object",
+        "required": ["branchId"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "VoteTally": {
+        "type": "object",
+        "required": ["branchId", "branchName", "voteCount"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" },
+          "branchName": { "type": "string" },
+          "voteCount": { "type": "integer", "minimum": 0 },
+          "myVote": {
+            "type": "boolean",
+            "description": "True if the calling user voted for this branch"
+          }
+        }
+      },
+      "CastVoteRequest": {
+        "type": "object",
+        "required": ["branchId"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "CartItem": {
+        "type": "object",
+        "required": ["itemId", "dishId", "dishName", "price", "quantity", "addedByUserId", "subtotal"],
+        "properties": {
+          "itemId": { "type": "string", "format": "uuid" },
+          "dishId": { "type": "string", "format": "uuid" },
+          "dishName": { "type": "string" },
+          "price": { "type": "number", "format": "double", "description": "Price in VND" },
+          "quantity": { "type": "integer", "minimum": 1 },
+          "addedByUserId": { "type": "string", "format": "uuid" },
+          "addedByDisplayName": { "type": "string" },
+          "subtotal": { "type": "number", "format": "double" }
+        }
+      },
+      "SharedCart": {
+        "type": "object",
+        "required": ["sessionId", "items", "totalAmount", "isLocked", "lastUpdated"],
+        "properties": {
+          "sessionId": { "type": "string", "format": "uuid" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CartItem" }
+          },
+          "totalAmount": { "type": "number", "format": "double", "description": "Total in VND" },
+          "isLocked": {
+            "type": "boolean",
+            "description": "True while checkout is in progress (5-minute lock)"
+          },
+          "lastUpdated": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AddCartItemRequest": {
+        "type": "object",
+        "required": ["dishId", "quantity"],
+        "properties": {
+          "dishId": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "UpdateCartItemRequest": {
+        "type": "object",
+        "required": ["quantity"],
+        "properties": {
+          "quantity": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "InitiateCheckoutRequest": {
+        "type": "object",
+        "required": ["paymentMethod"],
+        "properties": {
+          "paymentMethod": { "$ref": "#/components/schemas/PaymentMethod" }
+        }
+      },
+      "CheckoutSession": {
+        "type": "object",
+        "required": ["sessionId", "status", "totalAmount"],
+        "properties": {
+          "sessionId": { "type": "string", "format": "uuid" },
+          "status": { "$ref": "#/components/schemas/CheckoutStatus" },
+          "paymentMethod": { "$ref": "#/components/schemas/PaymentMethod" },
+          "totalAmount": { "type": "number", "format": "double" },
+          "vietQrPayload": {
+            "type": "string",
+            "nullable": true,
+            "description": "VietQR deep-link / payload string, present when paymentMethod is viet_qr"
+          },
+          "lockedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "lockExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "5-minute cart lock expiry time"
+          }
+        }
+      },
+      "MemberBreakdown": {
+        "type": "object",
+        "required": ["userId", "displayName", "items", "subtotal"],
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "displayName": { "type": "string" },
+          "avatarUrl": { "type": "string", "format": "uri", "nullable": true },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CartItem" }
+          },
+          "subtotal": { "type": "number", "format": "double" }
+        }
+      },
+      "OrderSummary": {
+        "type": "object",
+        "required": ["sessionId", "branchId", "branchName", "totalAmount", "status", "memberBreakdown"],
+        "properties": {
+          "sessionId": { "type": "string", "format": "uuid" },
+          "branchId": { "type": "string", "format": "uuid" },
+          "branchName": { "type": "string" },
+          "totalAmount": { "type": "number", "format": "double" },
+          "status": { "$ref": "#/components/schemas/SessionStatus" },
+          "memberBreakdown": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MemberBreakdown" }
+          }
+        }
+      },
+      "RejectOrderRequest": {
+        "type": "object",
+        "properties": {
+          "reason": { "type": "string", "nullable": true }
+        }
+      },
+      "GhostPin": {
+        "type": "object",
+        "required": ["ghostPinId", "createdByUserId", "name", "categoryId", "lat", "long", "status", "createdAt"],
+        "properties": {
+          "ghostPinId": { "type": "string", "format": "uuid" },
+          "createdByUserId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "categoryId": { "type": "string", "format": "uuid" },
+          "lat": { "type": "number", "format": "double" },
+          "long": { "type": "number", "format": "double" },
+          "photoUrl": { "type": "string", "format": "uri", "nullable": true },
+          "status": { "$ref": "#/components/schemas/GhostPinStatus" },
+          "linkedBranchId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Set after vendor claims the pin and the branch record is created/linked"
+          },
+          "rejectionReason": { "type": "string", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "CreateGhostPinRequest": {
+        "type": "object",
+        "required": ["name", "categoryId", "lat", "long"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+          "categoryId": { "type": "string", "format": "uuid" },
+          "lat": { "type": "number", "format": "double" },
+          "long": { "type": "number", "format": "double" },
+          "photoUrl": { "type": "string", "format": "uri", "nullable": true }
+        }
+      },
+      "RejectGhostPinRequest": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": { "type": "string", "minLength": 5 }
+        }
+      },
+      "ClaimGhostPinRequest": {
+        "type": "object",
+        "required": ["vendorId"],
+        "properties": {
+          "vendorId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "AuditGhostPinRequest": {
+        "type": "object",
+        "required": ["moderatorLat", "moderatorLong", "digitalIdScanned", "qrStickerApplied"],
+        "properties": {
+          "moderatorLat": {
+            "type": "number",
+            "format": "double",
+            "description": "Moderator GPS latitude — must be within 10 m of the stall"
+          },
+          "moderatorLong": {
+            "type": "number",
+            "format": "double"
+          },
+          "digitalIdScanned": {
+            "type": "boolean",
+            "description": "Confirms moderator scanned vendor digital ID"
+          },
+          "qrStickerApplied": {
+            "type": "boolean",
+            "description": "Confirms QR sticker was physically applied to the stall"
+          },
+          "auditNotes": { "type": "string", "nullable": true }
+        }
+      },
+      "BranchTier": {
+        "type": "object",
+        "required": ["branchId", "tier", "reviewCount", "calculatedAt"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" },
+          "tier": { "$ref": "#/components/schemas/VendorTierLevel" },
+          "reviewCount": {
+            "type": "integer",
+            "description": "Total reviews in the last-20 sliding window"
+          },
+          "isBombingShieldActive": {
+            "type": "boolean",
+            "description": "True when Review Bombing Shield has frozen tier recalculation (6+ negative reviews in 60 min)"
+          },
+          "calculatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SubmitFeedbackRequest": {
+        "type": "object",
+        "required": ["rating", "lat", "long"],
+        "properties": {
+          "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "comment": { "type": "string", "nullable": true },
+          "dishId": { "type": "string", "format": "uuid", "nullable": true },
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "description": "User GPS latitude — must be within 50 m of the stall"
+          },
+          "long": { "type": "number", "format": "double" },
+          "imageUrls": {
+            "type": "array",
+            "items": { "type": "string", "format": "uri" },
+            "nullable": true
+          },
+          "tagIds": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" },
+            "nullable": true
+          }
+        }
+      },
+      "FeedbackSubmitResponse": {
+        "type": "object",
+        "required": ["feedbackId", "createdAt"],
+        "properties": {
+          "feedbackId": { "type": "string", "format": "uuid" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "VelocityCheckResponse": {
+        "type": "object",
+        "required": ["canReviewTotal", "remainingTotalToday", "stalledReviewedToday"],
+        "properties": {
+          "canReviewTotal": {
+            "type": "boolean",
+            "description": "False when daily total of 3 reviews is reached"
+          },
+          "remainingTotalToday": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "stalledReviewedToday": {
+            "type": "array",
+            "items": { "type": "string", "format": "uuid" },
+            "description": "Branch IDs the user already reviewed today (max 1/stall/day)"
+          }
+        }
+      },
+      "SubscriptionStatus": {
+        "type": "object",
+        "required": ["vendorId", "isActive"],
+        "properties": {
+          "vendorId": { "type": "string", "format": "uuid" },
+          "isActive": { "type": "boolean" },
+          "plan": { "$ref": "#/components/schemas/SubscriptionPlan" },
+          "activatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "expiresAt": { "type": "string", "format": "date-time", "nullable": true },
+          "features": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Unlocked Pro features e.g. ['search_visibility', 'flash_boost', 'campaigns']"
+          }
+        }
+      },
+      "SubscribeRequest": {
+        "type": "object",
+        "required": ["plan", "paymentMethod"],
+        "properties": {
+          "plan": { "$ref": "#/components/schemas/SubscriptionPlan" },
+          "paymentMethod": { "$ref": "#/components/schemas/PaymentMethod" }
+        }
+      },
+      "FlashBoostRequest": {
+        "type": "object",
+        "required": ["branchId", "durationHours"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" },
+          "durationHours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24,
+            "description": "How long to pin the branch to top-3 results"
+          },
+          "budgetVnd": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Optional daily spend cap in VND"
+          }
+        }
+      },
+      "FlashBoostStatus": {
+        "type": "object",
+        "required": ["boostId", "branchId", "isActive", "activatedAt", "expiresAt", "costVnd"],
+        "properties": {
+          "boostId": { "type": "string", "format": "uuid" },
+          "branchId": { "type": "string", "format": "uuid" },
+          "isActive": { "type": "boolean" },
+          "activatedAt": { "type": "string", "format": "date-time" },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "costVnd": { "type": "integer", "description": "Total cost charged from wallet" }
+        }
+      },
+      "WalletBalance": {
+        "type": "object",
+        "required": ["vendorId", "balanceVnd", "currency"],
+        "properties": {
+          "vendorId": { "type": "string", "format": "uuid" },
+          "balanceVnd": { "type": "integer", "description": "Balance in VND (integer, no decimals)" },
+          "currency": { "type": "string", "default": "VND" }
+        }
+      },
+      "WithdrawRequest": {
+        "type": "object",
+        "required": ["amountVnd", "bankAccountNumber", "bankCode"],
+        "properties": {
+          "amountVnd": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Amount to withdraw in VND (before fee)"
+          },
+          "bankAccountNumber": { "type": "string" },
+          "bankCode": {
+            "type": "string",
+            "description": "VietQR bank code e.g. VCB, TCB, MB"
+          },
+          "accountHolderName": { "type": "string", "nullable": true }
+        }
+      },
+      "WithdrawResponse": {
+        "type": "object",
+        "required": ["transactionId", "amountVnd", "feeVnd", "netAmountVnd", "status"],
+        "properties": {
+          "transactionId": { "type": "string", "format": "uuid" },
+          "amountVnd": { "type": "integer" },
+          "feeVnd": {
+            "type": "integer",
+            "default": 5000,
+            "description": "Platform flat withdrawal fee (5,000 VND)"
+          },
+          "netAmountVnd": { "type": "integer", "description": "amountVnd − feeVnd" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "failed"]
+          },
+          "initiatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SystemCampaign": {
+        "type": "object",
+        "required": ["campaignId", "title", "description", "minTier", "startAt", "endAt", "isJoined"],
+        "properties": {
+          "campaignId": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "reward": { "type": "string", "nullable": true, "description": "Human-readable reward description" },
+          "requirements": { "type": "string", "nullable": true },
+          "minTier": { "$ref": "#/components/schemas/VendorTierLevel" },
+          "isAutoEnroll": {
+            "type": "boolean",
+            "description": "True for Diamond tier vendors — automatically enrolled"
+          },
+          "startAt": { "type": "string", "format": "date-time" },
+          "endAt": { "type": "string", "format": "date-time" },
+          "isJoined": { "type": "boolean" }
+        }
+      },
+      "RestaurantCampaign": {
+        "type": "object",
+        "required": ["campaignId", "vendorId", "vendorName", "title", "discountType", "discountValue", "expiresAt"],
+        "properties": {
+          "campaignId": { "type": "string", "format": "uuid" },
+          "vendorId": { "type": "string", "format": "uuid" },
+          "vendorName": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "discountType": { "$ref": "#/components/schemas/DiscountType" },
+          "discountValue": {
+            "type": "number",
+            "format": "double",
+            "description": "Percentage (0–100) or fixed amount in VND depending on discountType"
+          },
+          "minOrderValueVnd": { "type": "integer", "nullable": true },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "remainingClaims": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Null means unlimited"
+          }
+        }
+      },
+      "CreateRestaurantCampaignRequest": {
+        "type": "object",
+        "required": ["title", "discountType", "discountValue", "expiresAt"],
+        "properties": {
+          "title": { "type": "string", "minLength": 3, "maxLength": 100 },
+          "description": { "type": "string", "nullable": true },
+          "discountType": { "$ref": "#/components/schemas/DiscountType" },
+          "discountValue": { "type": "number", "format": "double" },
+          "minOrderValueVnd": { "type": "integer", "nullable": true },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "maxClaims": { "type": "integer", "nullable": true }
+        }
+      },
+      "OrderStatus": {
+        "type": "string",
+        "enum": ["pending", "confirmed", "preparing", "ready", "completed", "rejected", "cancelled"],
+        "description": "Lifecycle status of a direct (solo) order"
+      },
+      "PersonalCartItem": {
+        "type": "object",
+        "required": ["itemId", "dishId", "dishName", "price", "quantity", "subtotal"],
+        "properties": {
+          "itemId": { "type": "string", "format": "uuid" },
+          "dishId": { "type": "string", "format": "uuid" },
+          "dishName": { "type": "string" },
+          "price": { "type": "number", "format": "double", "description": "Unit price in VND" },
+          "quantity": { "type": "integer", "minimum": 1 },
+          "subtotal": { "type": "number", "format": "double" }
+        }
+      },
+      "PersonalCart": {
+        "type": "object",
+        "required": ["branchId", "branchName", "items", "totalAmount"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" },
+          "branchName": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PersonalCartItem" }
+          },
+          "totalAmount": { "type": "number", "format": "double", "description": "Sum of all item subtotals in VND" }
+        }
+      },
+      "AddPersonalCartItemRequest": {
+        "type": "object",
+        "required": ["dishId", "quantity"],
+        "properties": {
+          "dishId": { "type": "string", "format": "uuid" },
+          "quantity": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "UpdatePersonalCartItemRequest": {
+        "type": "object",
+        "required": ["quantity"],
+        "properties": {
+          "quantity": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "PlaceOrderRequest": {
+        "type": "object",
+        "required": ["branchId", "paymentMethod"],
+        "properties": {
+          "branchId": { "type": "string", "format": "uuid" },
+          "paymentMethod": { "$ref": "#/components/schemas/PaymentMethod" },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "description": "Optional note for the vendor (e.g. dietary requests)"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "required": ["orderId", "branchId", "branchName", "items", "totalAmount", "status", "paymentMethod", "placedAt"],
+        "properties": {
+          "orderId": { "type": "string", "format": "uuid" },
+          "branchId": { "type": "string", "format": "uuid" },
+          "branchName": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PersonalCartItem" }
+          },
+          "totalAmount": { "type": "number", "format": "double" },
+          "status": { "$ref": "#/components/schemas/OrderStatus" },
+          "paymentMethod": { "$ref": "#/components/schemas/PaymentMethod" },
+          "vietQrPayload": {
+            "type": "string",
+            "nullable": true,
+            "description": "Present when paymentMethod is viet_qr and status is pending"
+          },
+          "note": { "type": "string", "nullable": true },
+          "placedAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "PaginatedOrders": {
+        "type": "object",
+        "required": ["currentPage", "pageSize", "totalPages", "totalCount", "items"],
+        "properties": {
+          "currentPage": { "type": "integer" },
+          "pageSize": { "type": "integer" },
+          "totalPages": { "type": "integer" },
+          "totalCount": { "type": "integer" },
+          "hasPrevious": { "type": "boolean" },
+          "hasNext": { "type": "boolean" },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Order" }
+          }
+        }
+      },
+      "NearbyCampaign": {
+        "type": "object",
+        "required": ["campaignId", "vendorId", "vendorName", "title", "distanceKm"],
+        "properties": {
+          "campaignId": { "type": "string", "format": "uuid" },
+          "vendorId": { "type": "string", "format": "uuid" },
+          "vendorName": { "type": "string" },
+          "branchId": { "type": "string", "format": "uuid", "nullable": true },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "distanceKm": { "type": "number", "format": "double" },
+          "campaignType": {
+            "type": "string",
+            "enum": ["push_marketing", "voucher"],
+            "description": "push_marketing = GPS-triggered notification; voucher = direct-claim discount"
+          }
+        }
+      }
+    }
+  }
+}

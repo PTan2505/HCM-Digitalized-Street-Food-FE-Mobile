@@ -2,8 +2,11 @@ import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 
 import type {
+  BranchDetail,
   PaginatedBranchImages,
   PaginatedBranches,
+  PaginatedDishes,
+  PaginatedMyGhostPinBranches,
   WorkSchedule,
 } from '@features/home/types/branch';
 
@@ -14,6 +17,13 @@ export class BranchApi {
     this.apiClient = apiClient;
   }
 
+  async getBranchById(branchId: number): Promise<BranchDetail> {
+    const res = await this.apiClient.get<BranchDetail>({
+      url: apiUrl.branch.byId(branchId),
+    });
+    return res.data;
+  }
+
   async getActiveBranches(
     pageNumber = 1,
     pageSize = 10,
@@ -22,6 +32,10 @@ export class BranchApi {
       Long?: number;
       Distance?: number;
       DietaryIds?: number[];
+      TasteIds?: number[];
+      MinPrice?: number;
+      MaxPrice?: number;
+      CategoryIds?: number;
     }
   ): Promise<PaginatedBranches> {
     const res = await this.apiClient.get<PaginatedBranches>({
@@ -50,13 +64,36 @@ export class BranchApi {
     return res.data;
   }
 
+  async getDishesByBranch(
+    branchId: number,
+    params?: {
+      categoryId?: number;
+      keyword?: string;
+      pageNumber?: number;
+      pageSize?: number;
+    }
+  ): Promise<PaginatedDishes> {
+    const res = await this.apiClient.get<PaginatedDishes>({
+      url: apiUrl.dish.byBranch(branchId),
+      params,
+    });
+    return res.data;
+  }
+
+  async getMyGhostPins(): Promise<PaginatedMyGhostPinBranches> {
+    const res = await this.apiClient.get<PaginatedMyGhostPinBranches>({
+      url: apiUrl.branch.myGhostPins,
+    });
+    return res.data;
+  }
+
   async getBranchImages(
     branchId: number,
     pageNumber = 1,
     pageSize = 1
   ): Promise<PaginatedBranchImages> {
     const res = await this.apiClient.get<PaginatedBranchImages>({
-      url: `/Branch/${branchId}/images`,
+      url: `/api/Branch/${branchId}/images`,
       params: { pageNumber, pageSize },
     });
     return res.data;

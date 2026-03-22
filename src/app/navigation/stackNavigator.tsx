@@ -1,11 +1,18 @@
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
+import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';
+import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
+import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
+import { ReviewListScreen } from '@features/home/screens/ReviewListScreen';
 import { SearchScreen } from '@features/home/screens/SearchScreen';
+import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationScreen';
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
+import { MyGhostPinsScreen } from '@features/maps/screens/MyGhostPinsScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
 import {
   createStaticNavigation,
@@ -19,7 +26,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
-import type { ActiveBranch } from '@features/home/types/branch';
+import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
@@ -46,6 +53,7 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branch: ActiveBranch;
         displayName: string;
+        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
       },
     },
     RestaurantDetails: {
@@ -54,6 +62,18 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
+        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+      },
+    },
+    ReviewList: {
+      screen: ReviewListScreen,
+      params: {} as {
+        branchId: number;
+        displayName: string;
+        ownFeedbackId?: number;
+        dishes: Dish[];
+        branchLat: number;
+        branchLong: number;
       },
     },
     CurrentPicks: {
@@ -76,6 +96,37 @@ const RootStack = createNativeStackNavigator({
     },
     LocationPicker: {
       screen: LocationPickerScreen,
+    },
+    GhostPinCreation: {
+      screen: GhostPinCreationScreen,
+    },
+    MyGhostPins: {
+      screen: MyGhostPinsScreen,
+    },
+    PersonalCart: {
+      screen: PersonalCartScreen,
+      params: {} as {
+        branchName?: string;
+        isOpen?: boolean;
+      },
+    },
+    DirectCheckout: {
+      screen: DirectCheckoutScreen,
+      params: {} as {
+        branchName: string;
+        note?: string;
+      },
+    },
+    OrderStatus: {
+      screen: OrderStatusScreen,
+      params: {} as {
+        orderId: number;
+        branchName: string;
+        readOnly?: boolean;
+      },
+    },
+    OrderHistory: {
+      screen: OrderHistoryScreen,
     },
   },
 });

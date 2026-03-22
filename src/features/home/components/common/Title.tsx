@@ -6,11 +6,7 @@ interface TitleProps {
 }
 
 const Title = ({ children }: TitleProps): JSX.Element => {
-  return (
-    <Text className="font-nunito title-md font-semibold text-[#a5cf7bff]">
-      {children}
-    </Text>
-  );
+  return <Text className="title-md">{children}</Text>;
 };
 
 export default Title;

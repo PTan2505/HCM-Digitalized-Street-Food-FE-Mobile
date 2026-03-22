@@ -20,17 +20,16 @@ const DietaryList = (props: Props): JSX.Element => {
     );
   };
   return (
-    <View className="w-full flex-row flex-wrap gap-2">
+    <View className="w-full gap-3">
       {props.dietaryOptions.map((option) => (
-        <View key={option.dietaryPreferenceId}>
-          <DietaryOption
-            dietaryPreference={option}
-            isSelected={props.selectedOptions.includes(
-              option.dietaryPreferenceId
-            )}
-            onSelect={() => handleSelectOption(option.dietaryPreferenceId)}
-          />
-        </View>
+        <DietaryOption
+          key={option.dietaryPreferenceId}
+          dietaryPreference={option}
+          isSelected={props.selectedOptions.includes(
+            option.dietaryPreferenceId
+          )}
+          onSelect={() => handleSelectOption(option.dietaryPreferenceId)}
+        />
       ))}
     </View>
   );

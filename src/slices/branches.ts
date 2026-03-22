@@ -43,6 +43,10 @@ export const fetchActiveBranches = createAppAsyncThunk(
       lng,
       distance,
       dietaryIds,
+      tasteIds,
+      minPrice,
+      maxPrice,
+      CategoryIds,
     }: {
       page?: number;
       pageSize?: number;
@@ -50,6 +54,10 @@ export const fetchActiveBranches = createAppAsyncThunk(
       lng?: number;
       distance?: number;
       dietaryIds?: number[];
+      tasteIds?: number[];
+      minPrice?: number;
+      maxPrice?: number;
+      CategoryIds?: number;
     },
     { rejectWithValue }
   ) => {
@@ -62,6 +70,10 @@ export const fetchActiveBranches = createAppAsyncThunk(
           Long: lng,
           Distance: distance,
           DietaryIds: dietaryIds?.length ? dietaryIds : undefined,
+          TasteIds: tasteIds?.length ? tasteIds : undefined,
+          MinPrice: minPrice,
+          MaxPrice: maxPrice,
+          CategoryIds: CategoryIds,
         }
       );
 
@@ -134,7 +146,25 @@ export const fetchBranchAllImages = createAppAsyncThunk(
 const branchesSlice = createSlice({
   name: 'branches',
   initialState,
-  reducers: {},
+  reducers: {
+    updateBranchRating: (
+      state,
+      action: {
+        payload: {
+          branchId: number;
+          avgRating: number;
+          totalReviewCount: number;
+        };
+      }
+    ) => {
+      const { branchId, avgRating, totalReviewCount } = action.payload;
+      const branch = state.branches.find((b) => b.branchId === branchId);
+      if (branch) {
+        branch.avgRating = avgRating;
+        branch.totalReviewCount = totalReviewCount;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchActiveBranches.pending, (state, action) => {
@@ -193,6 +223,8 @@ const branchesSlice = createSlice({
   },
 });
 
+export const { updateBranchRating } = branchesSlice.actions;
+
 export default branchesSlice.reducer;
 
 // ── Selectors ──
@@ -218,3 +250,37 @@ export const selectBranchesCurrentPage = (state: RootState): number =>
 export const selectBranchImageMap = (
   state: RootState
 ): Record<number, string[]> => state.branches.branchImageMap;
+
+/**
+ * Utility function to compute display name for a branch.
+ * @param branch - The branch data
+ * @param isMultiBranch - Whether the vendor has multiple branches
+ * @param branchLabel - Translated "branch" label (e.g., t('branch'))
+ */
+export const computeDisplayName = (
+  branch: ActiveBranch,
+  isMultiBranch: boolean,
+  branchLabel: string
+): string => {
+  if (isMultiBranch) {
+    return `${branch.vendorName ?? branch.name} - ${branchLabel} ${branch.name}`;
+  }
+  return branch.vendorName ?? branch.name;
+};
+
+/**
+ * Selector to get a branch by ID.
+ */
+export const selectBranchById = (
+  state: RootState,
+  branchId: number
+): ActiveBranch | undefined =>
+  state.branches.branches.find((b) => b.branchId === branchId);
+
+/**
+ * Selector to check if a vendor has multiple branches.
+ */
+export const selectIsMultiBranchVendor = (
+  state: RootState,
+  vendorId: number
+): boolean => state.branches.multiBranchVendorIds.includes(vendorId);

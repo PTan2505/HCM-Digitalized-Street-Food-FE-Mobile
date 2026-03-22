@@ -9,7 +9,7 @@ import LanguageButton from './LanguageButton';
 const HomeHeader = (): JSX.Element => {
   const navigation = useNavigation();
   return (
-    <View className="flex-row items-center justify-between px-4 pb-6 pt-4">
+    <View className="flex-row items-center justify-between px-4 pt-4">
       {/* <Text className="title-xl text-gray-900">Lowca</Text> */}
       <SvgIcon width={100} height={100} icon={lowcaLogo} />
 
@@ -22,13 +22,6 @@ const HomeHeader = (): JSX.Element => {
         >
           <Ionicons name="map-outline" size={20} color="#588d22" />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('LocationPicker')}
-          className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
-        >
-          <Ionicons name="map-outline" size={20} color="#588d22" />
-        </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() => navigation.navigate('CurrentPicks')}
           className="h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"

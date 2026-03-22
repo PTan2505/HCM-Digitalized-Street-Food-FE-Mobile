@@ -2,18 +2,18 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '@slices/auth';
 import branchesReducer from '@slices/branches';
-import categoriesReducer from '@slices/categories';
 import dietaryReducer from '@slices/dietary';
+import directOrderingReducer from '@slices/directOrdering';
 import tastesReducer from '@slices/tastes';
 import vendorsReducer from '@slices/vendors';
 
 const rootReducer = combineReducers({
   user: authReducer,
   dietary: dietaryReducer,
-  categories: categoriesReducer,
   vendors: vendorsReducer,
   branches: branchesReducer,
   tastes: tastesReducer,
+  directOrdering: directOrderingReducer,
 });
 
 export const store = configureStore({

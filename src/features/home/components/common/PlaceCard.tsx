@@ -2,9 +2,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { VendorTier } from '@features/home/types/stall';
 import type { UserCoords } from '@features/maps/hooks/useLocationPermission';
-import { haversineKm } from '@utils/haversineFormula';
 import type { JSX } from 'react';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
@@ -38,7 +36,6 @@ export const PlaceCard = ({
   branch,
   displayName,
   imageUri,
-  userCoords,
   onPress,
   tier,
   isFlashBoosted,
@@ -50,16 +47,12 @@ export const PlaceCard = ({
     imageUri ??
     `https://ui-avatars.com/api/?name=${encodeURIComponent(branch.name)}&background=a1d973&color=fff&size=300`;
 
-  const distanceLabel = useMemo(() => {
-    if (!userCoords) return null;
-    const km = haversineKm(
-      userCoords.latitude,
-      userCoords.longitude,
-      branch.lat,
-      branch.long
-    );
-    return km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`;
-  }, [userCoords, branch.lat, branch.long]);
+  const distanceLabel =
+    branch.distanceKm != null
+      ? branch.distanceKm < 1
+        ? `${Math.round(branch.distanceKm * 1000)} m`
+        : `${branch.distanceKm.toFixed(1)} km`
+      : null;
 
   return (
     <TouchableOpacity
@@ -94,17 +87,17 @@ export const PlaceCard = ({
 
         <View className="rounded-b-[14.71px] bg-white px-[8.41px] py-[4.2px]">
           <Text
-            className="font-nunito -mt-[1.05px] h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
+            className="font-nunito -mt-[1.05px] min-h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
             numberOfLines={2}
           >
+            {displayName}{' '}
             {branch.isVerified && (
               <MaterialCommunityIcons
                 name="check-decagram"
                 size={13}
                 color="#186bde"
               />
-            )}{' '}
-            {displayName}
+            )}
           </Text>
 
           <View className="flex-row items-center gap-[6px] py-1">
@@ -117,9 +110,19 @@ export const PlaceCard = ({
               {branch.avgRating.toFixed(1)}
             </Text>
             {distanceLabel && (
-              <Text className="font-comfortaa text-[12px] font-medium leading-[14px] text-[#979797]">
-                {distanceLabel}
-              </Text>
+              <>
+                <Text className="text-[#D1D5DB]">·</Text>
+                <View className="flex-row items-center gap-1">
+                  <MaterialCommunityIcons
+                    name="map-marker-distance"
+                    size={11}
+                    color="#979797"
+                  />
+                  <Text className="text-[11px] text-[#979797]">
+                    {distanceLabel}
+                  </Text>
+                </View>
+              </>
             )}
           </View>
 

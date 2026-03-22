@@ -1,12 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useCategories } from '@features/home/hooks/useCategories';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import Slider from '@react-native-community/slider';
-import { selectCategories } from '@slices/categories';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import {
   getAllDietaryPreferences,
   selectDietaryPreferences,
   selectDietaryState,
-  selectUserDietaryPreferences,
 } from '@slices/dietary';
 import { fetchTastes, selectTastes, selectTastesStatus } from '@slices/tastes';
 import type { JSX } from 'react';
@@ -18,6 +17,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import CategoryCard from './CategoryCard';
@@ -26,12 +26,14 @@ interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
   onApply: (filters: FilterState) => void;
+  initialFilters?: FilterState | null;
 }
 
 export interface FilterState {
   spaceTypes: string[];
-  dishTypes: string[];
-  priceRange: string[];
+  categoryIds: string[];
+  minPrice: number;
+  maxPrice: number;
   distance: number;
   hasParking: boolean;
   openNow: boolean;
@@ -44,33 +46,55 @@ const FilterModal = ({
   visible,
   onClose,
   onApply,
+  initialFilters,
 }: FilterModalProps): JSX.Element => {
   const { t } = useTranslation();
+  const { width: screenWidth } = useWindowDimensions();
+  const sliderWidth = screenWidth - 48; // px-6 = 24px each side
   const dispatch = useAppDispatch();
   const [spaceTypes, setSpaceTypes] = useState<string[]>([]);
-  const [dishTypes, setDishTypes] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<string[]>([]);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(5000000);
   const [distance, setDistance] = useState<number>(5);
   const [hasParking, setHasParking] = useState<boolean>(false);
   const [openNow, setOpenNow] = useState<boolean>(false);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [tasteTags, setTasteTags] = useState<string[]>([]);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
-  const categories = useAppSelector(selectCategories);
+  const { categories } = useCategories();
   const tastes = useAppSelector(selectTastes);
   const tastesStatus = useAppSelector(selectTastesStatus);
   const dietaryPreferences = useAppSelector(selectDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
 
-  // Pre-select the user's saved dietary prefs each time the modal opens
+  // Sync internal state with external activeFilters when modal opens
   useEffect(() => {
-    if (visible) {
-      setDietaryTags(
-        userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
-      );
+    if (!visible) return;
+    if (initialFilters) {
+      setSpaceTypes(initialFilters.spaceTypes);
+      setCategoryIds(initialFilters.categoryIds);
+      setMinPrice(initialFilters.minPrice);
+      setMaxPrice(initialFilters.maxPrice);
+      setDistance(initialFilters.distance);
+      setHasParking(initialFilters.hasParking);
+      setOpenNow(initialFilters.openNow);
+      setAmenities(initialFilters.amenities);
+      setTasteTags(initialFilters.tasteTags);
+      setDietaryTags(initialFilters.dietaryTags);
+    } else {
+      setSpaceTypes([]);
+      setCategoryIds([]);
+      setMinPrice(0);
+      setMaxPrice(5000000);
+      setDistance(5);
+      setHasParking(false);
+      setOpenNow(false);
+      setAmenities([]);
+      setTasteTags([]);
+      setDietaryTags([]);
     }
-  }, [visible, userDietaryPreferences]);
+  }, [visible, initialFilters]);
 
   useEffect(() => {
     if (tastesStatus === 'idle') {
@@ -95,24 +119,24 @@ const FilterModal = ({
 
   const handleReset = (): void => {
     setSpaceTypes([]);
-    setDishTypes([]);
-    setPriceRange([]);
+    setCategoryIds([]);
+    setMinPrice(0);
+    setMaxPrice(5000000);
     setDistance(5);
     setHasParking(false);
     setOpenNow(false);
     setAmenities([]);
     setTasteTags([]);
     // Restore to user's profile dietary prefs, not empty
-    setDietaryTags(
-      userDietaryPreferences.map((p) => p.dietaryPreferenceId.toString())
-    );
+    setDietaryTags([]);
   };
 
   const handleApply = (): void => {
     onApply({
       spaceTypes,
-      dishTypes,
-      priceRange,
+      categoryIds,
+      minPrice,
+      maxPrice,
       distance,
       hasParking,
       openNow,
@@ -123,23 +147,6 @@ const FilterModal = ({
     onClose();
   };
 
-  const spaceOptions = [
-    { key: 'restaurant', label: t('space_types.restaurant') },
-    { key: 'cafe', label: t('space_types.cafe') },
-    { key: 'casual', label: t('space_types.casual') },
-    { key: 'takeaway', label: t('space_types.takeaway') },
-    { key: 'food_court', label: t('space_types.food_court') },
-    { key: 'food_street', label: t('space_types.food_street') },
-  ];
-
-  const priceOptions = [
-    { key: 'any', label: t('price_options.any') },
-    { key: 'under_50', label: t('price_options.under_50') },
-    { key: 'range_50_150', label: t('price_options.range_50_150') },
-    { key: 'range_150_300', label: t('price_options.range_150_300') },
-    { key: 'over_300', label: t('price_options.over_300') },
-  ];
-
   const tasteOptions = tastes.map((taste) => ({
     key: taste.tasteId.toString(),
     label: taste.name,
@@ -149,16 +156,6 @@ const FilterModal = ({
     key: pref.dietaryPreferenceId.toString(),
     label: pref.name,
   }));
-
-  const amenityOptions = [
-    { key: 'vegetarian', label: t('amenities.vegetarian') },
-    { key: 'hygiene', label: t('amenities.hygiene') },
-    { key: 'michelin', label: t('amenities.michelin') },
-    { key: 'air_conditioned', label: t('amenities.air_conditioned') },
-    { key: 'wifi', label: t('amenities.wifi') },
-    { key: 'pet_friendly', label: t('amenities.pet_friendly') },
-    { key: 'delivery', label: t('amenities.delivery') },
-  ];
 
   return (
     <Modal
@@ -185,217 +182,6 @@ const FilterModal = ({
             style={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
           >
-            {/* Taste Profile */}
-            <View className="border-b border-gray-100 px-6 py-5">
-              <Text className="mb-3 text-base font-semibold text-gray-900">
-                {t('taste_profile')}
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {tasteOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.key}
-                    onPress={() =>
-                      toggleSelection(option.key, tasteTags, setTasteTags)
-                    }
-                    className={`rounded-full border px-4 py-2 ${
-                      tasteTags.includes(option.key)
-                        ? 'border-[#06AA4C] bg-[#06AA4C]'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm ${
-                        tasteTags.includes(option.key)
-                          ? 'text-white'
-                          : 'text-gray-700'
-                      }`}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View className="border-b border-gray-100 px-6 py-5">
-              <Text className="mb-3 text-base font-semibold text-gray-900">
-                {t('space')}
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {spaceOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.key}
-                    onPress={() =>
-                      toggleSelection(option.key, spaceTypes, setSpaceTypes)
-                    }
-                    className={`rounded-full border px-4 py-2 ${
-                      spaceTypes.includes(option.key)
-                        ? 'border-[#06AA4C] bg-[#06AA4C]'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm ${
-                        spaceTypes.includes(option.key)
-                          ? 'text-white'
-                          : 'text-gray-700'
-                      }`}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View className="border-b border-gray-100 py-5">
-              <Text className="mb-4 px-6 text-base font-semibold text-gray-900">
-                {t('dish_type')}
-              </Text>
-              <FlatList
-                data={categories}
-                keyExtractor={(item) => item.categoryId.toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 24 }}
-                ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
-                renderItem={({ item }) => (
-                  <CategoryCard
-                    title={item.name}
-                    image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
-                    onPress={() => console.log(`Selected ${item.name}`)}
-                  />
-                )}
-              />
-            </View>
-
-            <View className="border-b border-gray-100 px-6 py-5">
-              <Text className="mb-3 text-base font-semibold text-gray-900">
-                {t('price_range')}
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {priceOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.key}
-                    onPress={() =>
-                      toggleSelection(option.key, priceRange, setPriceRange)
-                    }
-                    className={`rounded-full border px-4 py-2 ${
-                      priceRange.includes(option.key)
-                        ? 'border-[#06AA4C] bg-[#06AA4C]'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm ${
-                        priceRange.includes(option.key)
-                          ? 'text-white'
-                          : 'text-gray-700'
-                      }`}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Khoảng cách */}
-            <View className="border-b border-gray-100 px-6 py-5">
-              <Text className="mb-4 text-base font-semibold text-gray-900">
-                {t('distance')}
-              </Text>
-              <View className="relative">
-                {/* Track line with dots */}
-                <View className="absolute left-0 right-0 top-[18px] flex-row items-center justify-between px-1">
-                  {/* Green line from start to current position */}
-                  <View
-                    className="absolute left-0 h-1 bg-[#06AA4C]"
-                    style={{
-                      width: `${((distance - 1) / 9) * 100}%`,
-                    }}
-                  />
-                  {/* Gray line for rest */}
-                  <View
-                    className="absolute right-0 h-1 bg-gray-300"
-                    style={{
-                      width: `${((10 - distance) / 9) * 100}%`,
-                    }}
-                  />
-                  {/* Dots */}
-                  {Array.from({ length: 10 }).map((_, index) => (
-                    <View
-                      key={index}
-                      className="h-2 w-2 rounded-full"
-                      style={{
-                        backgroundColor:
-                          index < distance ? '#06AA4C' : '#D1D5DB',
-                        zIndex: 1,
-                      }}
-                    />
-                  ))}
-                </View>
-                <Slider
-                  style={{ width: '100%', height: 40 }}
-                  minimumValue={1}
-                  maximumValue={10}
-                  step={1}
-                  value={distance}
-                  onValueChange={setDistance}
-                  minimumTrackTintColor="transparent"
-                  maximumTrackTintColor="transparent"
-                  thumbTintColor="#06AA4C"
-                />
-              </View>
-              <View className="mt-1 flex-row justify-between px-1">
-                <Text className="text-xs text-gray-500">1km</Text>
-                <Text className="text-xs text-gray-500">5km</Text>
-                <Text className="text-xs text-gray-500">10km</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setHasParking(!hasParking)}
-                className="mt-3 flex-row items-center justify-between"
-              >
-                <Text className="text-sm text-gray-700">
-                  {t('has_parking')}
-                </Text>
-                <View
-                  className={`h-5 w-5 items-center justify-center rounded ${
-                    hasParking
-                      ? 'bg-[#06AA4C]'
-                      : 'border border-gray-300 bg-white'
-                  }`}
-                >
-                  {hasParking && (
-                    <Ionicons name="checkmark" size={14} color="white" />
-                  )}
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            <View className="border-b border-gray-100 px-6 py-5">
-              <Text className="mb-3 text-base font-semibold text-gray-900">
-                {t('time_slot')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => setOpenNow(!openNow)}
-                className="flex-row items-center justify-between"
-              >
-                <Text className="flex-1 text-sm text-gray-700">
-                  {t('show_open_only')}
-                </Text>
-                <View
-                  className={`h-5 w-5 items-center justify-center rounded ${
-                    openNow ? 'bg-[#06AA4C]' : 'border border-gray-300 bg-white'
-                  }`}
-                >
-                  {openNow && (
-                    <Ionicons name="checkmark" size={14} color="white" />
-                  )}
-                </View>
-              </TouchableOpacity>
-            </View>
-
             {/* Dietary Preferences */}
             <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
@@ -428,26 +214,27 @@ const FilterModal = ({
               </View>
             </View>
 
-            <View className="px-6 py-5">
+            {/* Taste Profile */}
+            <View className="border-b border-gray-100 px-6 py-5">
               <Text className="mb-3 text-base font-semibold text-gray-900">
-                {t('other_amenities')}
+                {t('taste_profile')}
               </Text>
               <View className="flex-row flex-wrap gap-2">
-                {amenityOptions.map((option) => (
+                {tasteOptions.map((option) => (
                   <TouchableOpacity
                     key={option.key}
                     onPress={() =>
-                      toggleSelection(option.key, amenities, setAmenities)
+                      toggleSelection(option.key, tasteTags, setTasteTags)
                     }
                     className={`rounded-full border px-4 py-2 ${
-                      amenities.includes(option.key)
+                      tasteTags.includes(option.key)
                         ? 'border-[#06AA4C] bg-[#06AA4C]'
                         : 'border-gray-300 bg-white'
                     }`}
                   >
                     <Text
                       className={`text-sm ${
-                        amenities.includes(option.key)
+                        tasteTags.includes(option.key)
                           ? 'text-white'
                           : 'text-gray-700'
                       }`}
@@ -456,6 +243,259 @@ const FilterModal = ({
                     </Text>
                   </TouchableOpacity>
                 ))}
+              </View>
+            </View>
+
+            <View className="border-b border-gray-100 py-5">
+              <Text className="mb-4 px-6 text-base font-semibold text-gray-900">
+                {t('dish_type')}
+              </Text>
+              <FlatList
+                data={categories}
+                keyExtractor={(item) => item.categoryId.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 24 }}
+                ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
+                renderItem={({ item }) => (
+                  <CategoryCard
+                    title={item.name}
+                    image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
+                    onPress={() =>
+                      toggleSelection(
+                        item.categoryId.toString(),
+                        categoryIds,
+                        setCategoryIds
+                      )
+                    }
+                    selected={categoryIds.includes(item.categoryId.toString())}
+                  />
+                )}
+              />
+            </View>
+
+            {/* Price Range */}
+            <View className="border-b border-gray-100 px-6 py-5">
+              <View className="mb-5 flex-row items-center justify-between">
+                <Text className="text-base font-semibold text-gray-900">
+                  {t('price_range')}
+                </Text>
+                <View className="flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
+                  <Text className="text-sm font-semibold text-[#06AA4C]">
+                    {minPrice === 0
+                      ? '0₫'
+                      : `${minPrice.toLocaleString('vi-VN')}đ`}{' '}
+                    —{' '}
+                    {maxPrice >= 5000000
+                      ? '5M+'
+                      : `${maxPrice.toLocaleString('vi-VN')}đ`}
+                  </Text>
+                </View>
+              </View>
+              <MultiSlider
+                values={[minPrice, maxPrice]}
+                min={0}
+                max={5000000}
+                step={10000}
+                onValuesChangeFinish={(values) => {
+                  setMinPrice(values[0]);
+                  setMaxPrice(values[1]);
+                }}
+                enableLabel
+                customLabel={({
+                  oneMarkerLeftPosition,
+                  twoMarkerLeftPosition,
+                  oneMarkerValue,
+                  twoMarkerValue,
+                }) => {
+                  const minVal = Number(oneMarkerValue);
+                  const maxVal = Number(twoMarkerValue);
+                  return (
+                    <View>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          left: oneMarkerLeftPosition - 19,
+                          bottom: 0,
+                          backgroundColor: '#06AA4C',
+                          borderRadius: 6,
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 10,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {minVal === 0
+                            ? '0₫'
+                            : `${(minVal / 1000).toLocaleString('vi-VN')}K`}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          left: twoMarkerLeftPosition - 19,
+                          bottom: 0,
+                          backgroundColor: '#06AA4C',
+                          borderRadius: 6,
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 10,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {maxVal >= 5000000
+                            ? '5M+'
+                            : `${(maxVal / 1000).toLocaleString('vi-VN')}K`}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                }}
+                containerStyle={{
+                  height: 60,
+                  width: sliderWidth,
+                }}
+                sliderLength={sliderWidth}
+                trackStyle={{
+                  height: 4,
+                  borderRadius: 2,
+                }}
+                selectedStyle={{
+                  backgroundColor: '#06AA4C',
+                }}
+                unselectedStyle={{
+                  backgroundColor: '#E5E7EB',
+                }}
+                markerStyle={{
+                  height: 24,
+                  width: 24,
+                  borderRadius: 12,
+                  backgroundColor: '#ffffff',
+                  borderWidth: 2.5,
+                  borderColor: '#06AA4C',
+                  shadowColor: '#06AA4C',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 4,
+                }}
+                pressedMarkerStyle={{
+                  height: 28,
+                  width: 28,
+                  borderRadius: 14,
+                  borderWidth: 3,
+                }}
+              />
+              <View className="flex-row justify-between px-1">
+                <Text className="text-xs text-gray-400">0₫</Text>
+                <Text className="text-xs text-gray-400">1M</Text>
+                <Text className="text-xs text-gray-400">2M</Text>
+                <Text className="text-xs text-gray-400">3M</Text>
+                <Text className="text-xs text-gray-400">4M</Text>
+                <Text className="text-xs text-gray-400">5M+</Text>
+              </View>
+            </View>
+
+            {/* Khoảng cách */}
+            <View className="border-b border-gray-100 px-6 py-5">
+              <View className="mb-5 flex-row items-center justify-between">
+                <Text className="text-base font-semibold text-gray-900">
+                  {t('distance')}
+                </Text>
+                <View className="flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
+                  <Text className="text-sm font-semibold text-[#06AA4C]">
+                    {distance} km
+                  </Text>
+                </View>
+              </View>
+              <MultiSlider
+                values={[distance]}
+                min={1}
+                max={20}
+                step={1}
+                allowOverlap
+                snapped
+                onValuesChangeFinish={(values) => setDistance(values[0])}
+                enableLabel
+                customLabel={({ oneMarkerLeftPosition, oneMarkerValue }) => {
+                  const val = Number(oneMarkerValue);
+                  return (
+                    <View>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          left: oneMarkerLeftPosition - 19,
+                          bottom: 0,
+                          backgroundColor: '#06AA4C',
+                          borderRadius: 6,
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 10,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {val}km
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                }}
+                containerStyle={{
+                  height: 60,
+                  width: sliderWidth,
+                }}
+                sliderLength={sliderWidth}
+                trackStyle={{
+                  height: 4,
+                  borderRadius: 2,
+                }}
+                selectedStyle={{
+                  backgroundColor: '#06AA4C',
+                }}
+                unselectedStyle={{
+                  backgroundColor: '#E5E7EB',
+                }}
+                markerStyle={{
+                  height: 24,
+                  width: 24,
+                  borderRadius: 12,
+                  backgroundColor: '#ffffff',
+                  borderWidth: 2.5,
+                  borderColor: '#06AA4C',
+                  shadowColor: '#06AA4C',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 4,
+                }}
+                pressedMarkerStyle={{
+                  height: 28,
+                  width: 28,
+                  borderRadius: 14,
+                  borderWidth: 3,
+                }}
+              />
+              <View className="flex-row justify-between px-1">
+                <Text className="text-xs text-gray-400">1km</Text>
+                <Text className="text-xs text-gray-400">5km</Text>
+                <Text className="text-xs text-gray-400">10km</Text>
+                <Text className="text-xs text-gray-400">15km</Text>
+                <Text className="text-xs text-gray-400">20km</Text>
               </View>
             </View>
           </ScrollView>

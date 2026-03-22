@@ -1,6 +1,7 @@
 {
   "home": "Màn hình chính",
   "detail": "Màn chi tiết",
+  "branch": "Chi nhánh",
   "go to detail": "Đi đến màn hình chi tiết",
   "back": "Trở lại",
   "setting": "Cấu hình",
@@ -8,8 +9,10 @@
   "language": "Ngôn ngữ",
   "change_language": "Đổi ngôn ngữ",
   "dietary": {
-    "preferences_title": "Chọn chế độ ăn uống của bạn",
-    "preferences_description": "Điều này hỗ trợ hệ thống lọc món ăn dựa trên lựa chọn của bạn",
+    "preferences_title": "Chế độ ăn uống",
+    "preferences_description": "Cho Lowca biết nếu bạn có nhu cầu ăn kiêng cụ thể. Chúng tôi sẽ ưu tiên gợi ý những món ăn phù hợp với bạn.",
+    "ai_disclaimer": "Kết quả lọc được hỗ trợ bởi AI và có thể không chính xác hoàn toàn. Luôn kiểm tra với nhà hàng nếu bạn có lo ngại.",
+    "save": "Lưu",
     "confirm": "Xác nhận",
     "saving": "Đang lưu...",
     "success_title": "Thành công",
@@ -26,6 +29,8 @@
   "space": "Không gian",
   "dish_type": "Loại món",
   "price_range": "Khoảng giá",
+  "min_price": "Giá tối thiểu",
+  "max_price": "Giá tối đa",
   "distance": "Khoảng cách",
   "has_parking": "Có chỗ để xe ô tô",
   "time_slot": "Khung giờ",
@@ -90,6 +95,12 @@
     "newest": "Mới nhất",
     "votes": "Lượt vote"
   },
+  "review_sort": {
+    "default": "Mặc định",
+    "most_helpful": "Hữu ích nhất",
+    "highest_rating": "Đánh giá cao nhất",
+    "lowest_rating": "Đánh giá thấp nhất"
+  },
   "actions": {
     "view_detail": "Xem chi tiết",
     "swipe_up": "Vuốt lên",
@@ -108,6 +119,7 @@
     "hours": "giờ",
     "minutes": "phút",
     "see_more": "Xem thêm",
+    "all_reviews": "Tất cả đánh giá",
     "food": "Đồ ăn",
     "service": "Dịch vụ",
     "location": "Địa điểm",
@@ -119,14 +131,14 @@
     "location_list": "Danh sách địa điểm",
     "no_items": "Không có món ăn nào",
     "reviews": "đánh giá",
-    "vegetarian_food": "Món Chay",
     "open": "Mở cửa",
     "closed": "Đóng cửa",
     "top_pick": "TOP PICK",
     "you_may_like": "Bạn có thể thích",
     "see_original": "Xem bản gốc",
     "see_translation": "Xem bản dịch",
-    "add_new": "Thêm mới"
+    "add_new": "Thêm mới",
+    "updating": "Đang cập nhật..."
   },
   "tabs": {
     "menu": "Menu Quán",
@@ -139,14 +151,36 @@
   },
   "user": "Người dùng",
   "profile": {
+    "title": "Hồ sơ",
     "not_updated": "Chưa cập nhật",
     "points": "điểm",
+    "select_language": "Chọn ngôn ngữ",
+    "my_points": "Điểm của tôi",
+    "view_profile": "Xem hồ sơ",
+    "view_history": "Xem lịch sử",
     "last_name": "Họ",
     "first_name": "Tên",
     "email": "Email",
     "phone_number": "Số điện thoại",
     "dietary_preferences": "Sở thích ăn uống",
     "update_dietary_preferences": "Cập nhật sở thích ăn uống",
+    "my_ghost_pins": "Ghost Pins của tôi",
+    "main_menu": "Mục chính",
+    "activity": "Hoạt động",
+    "payment_methods": "Phương thức thanh toán",
+    "benefits_savings": "Ưu đãi và tiết kiệm",
+    "new": "Mới",
+    "rewards": "Phần thưởng",
+    "challenges": "Thử thách",
+    "general": "Tổng quát",
+    "edit_profile": "Chỉnh sửa hồ sơ",
+    "notifications": "Thông báo",
+    "language": "Ngôn ngữ",
+    "help_support": "Trợ giúp & Hỗ trợ",
+    "help_center": "Trung tâm trợ giúp",
+    "contact_support": "Liên hệ hỗ trợ",
+    "terms_conditions": "Điều khoản & Điều kiện",
+    "privacy_policy": "Chính sách bảo mật",
     "logout": "Đăng xuất"
   },
   "bottom_tabs": {
@@ -196,6 +230,65 @@
     "empty_first_name": "Vui lòng nhập tên!",
     "username_min_length": "Tên người dùng phải có ít nhất 3 ký tự!"
   },
+  "cart": {
+    "title": "Giỏ hàng",
+    "empty": "Giỏ hàng trống",
+    "empty_hint": "Hãy thêm món ăn từ menu",
+    "clear": "Xoá giỏ hàng",
+    "clear_confirm": "Bạn có chắc muốn xoá giỏ hàng?",
+    "place_order": "Đặt hàng",
+    "note_placeholder": "Ghi chú cho quán (ví dụ: ít cay, không hành...)",
+    "note_label": "Ghi chú",
+    "total": "Tổng cộng",
+    "items_count": "{{count}} món",
+    "stall_closed": "Đang đóng cửa",
+    "stall_closed_notice": "Bạn chưa thể tạo đơn hàng nếu quán đang đóng cửa hoặc chưa cập nhật lịch làm việc.",
+    "cancel": "Hủy",
+    "add": "Thêm",
+    "replace_title": "Thay đổi quán?",
+    "replace_message": "Giỏ hàng hiện tại sẽ bị xoá khi bạn thêm món từ quán khác.",
+    "replace_confirm": "Đồng ý",
+    "add_more": "Thêm món",
+    "view_all_menu": "Xem tất cả"
+  },
+  "checkout": {
+    "title": "Thanh toán",
+    "payment_method": "Phương thức thanh toán",
+    "wallet": "Ví Lowca",
+    "bank_transfer": "Chuyển khoản",
+    "viet_qr": "VietQR",
+    "order_summary": "Tóm tắt đơn hàng",
+    "confirm": "Xác nhận đặt hàng",
+    "confirming": "Đang xử lý...",
+    "insufficient_balance": "Số dư ví không đủ — vui lòng chọn phương thức khác",
+    "empty_cart": "Giỏ hàng trống",
+    "error": "Không thể đặt hàng. Vui lòng thử lại."
+  },
+  "order": {
+    "status_title": "Trạng thái đơn hàng",
+    "history_title": "Lịch sử đơn hàng",
+    "my_orders": "Đơn hàng của tôi",
+    "no_orders": "Bạn chưa đặt đơn nào",
+    "cancel": "Huỷ đơn hàng",
+    "cancel_confirm": "Bạn có chắc muốn huỷ đơn hàng?",
+    "cancel_success": "Đơn đã huỷ — tiền đã được hoàn",
+    "cancel_blocked": "Không thể huỷ — quán đã xác nhận đơn hàng",
+    "cancel_error": "Không thể huỷ đơn hàng. Vui lòng thử lại.",
+    "confirmed_toast": "Quán đã xác nhận đơn hàng của bạn",
+    "rejected_message": "Quán đã từ chối đơn — tiền đã được hoàn",
+    "ready_banner": "Đơn hàng của bạn đã sẵn sàng!",
+    "status": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "preparing": "Đang chuẩn bị",
+      "ready": "Sẵn sàng",
+      "completed": "Hoàn thành",
+      "rejected": "Từ chối",
+      "cancelled": "Đã huỷ"
+    },
+    "placed_at": "Đặt lúc",
+    "payment_via": "Thanh toán qua"
+  },
   "edit_profile": {
     "username": "Tên người dùng",
     "enter_username": "Nhập tên người dùng",
@@ -208,5 +301,10 @@
     "phone_number": "Số điện thoại",
     "enter_phone_number": "Nhập số điện thoại",
     "save_changes": "Lưu thay đổi"
+  },
+  "common": {
+    "vietnamese": "Tiếng Việt",
+    "english": "Tiếng Anh",
+    "cancel": "Hủy"
   }
 }
