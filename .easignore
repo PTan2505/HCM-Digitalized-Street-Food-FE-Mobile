@@ -1,61 +1,71 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
+
 node_modules/
 
 # Expo
+
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
 # Native
+
 .kotlin/
-*.orig.*
-*.jks
+_.orig._
+_.jks
 !development.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+_.p8
+_.p12
+_.key
+\*.mobileprovision
 
 # Metro
-.metro-health-check*
+
+.metro-health-check\*
 
 # debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+
+npm-debug._
+yarn-debug._
+yarn-error.\*
 
 # macOS
+
 .DS_Store
-*.pem
+\*.pem
 
 # local env files
-.env*.local
+
+.env\*.local
 .env
 
 # typescript
-*.tsbuildinfo
+
+\*.tsbuildinfo
 
 # generated native folders
+
 /ios
 /android
 
 # Expo modules
-modules/*/android/build/
-modules/*/android/.gradle/
-modules/*/android/.cxx/
-modules/*/android/local.properties
-modules/*/ios/build/
-modules/*/.gradle/
-modules/*/node_modules/
+
+modules/_/android/build/
+modules/_/android/.gradle/
+modules/_/android/.cxx/
+modules/_/android/local.properties
+modules/_/ios/build/
+modules/_/.gradle/
+modules/\*/node_modules/
 
 # OpenSpec & Claude (local only)
+
 openspec/
 .claude/
 .github/prompts/
 .github/skills/
 
 CLAUDE.md
-google-services.json

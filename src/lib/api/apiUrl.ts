@@ -94,4 +94,7 @@ export const apiUrl = {
     myOrders: '/api/Order/my-orders',
     pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
   },
+  notification: {
+    registerToken: '/api/Notification/register-token',
+  },
 };

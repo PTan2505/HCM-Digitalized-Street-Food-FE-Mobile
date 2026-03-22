@@ -19,6 +19,7 @@ import {
   StaticParamList,
   Theme,
 } from '@react-navigation/native';
+import { navigationRef } from '@utils/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUserStatus } from '@slices/auth';
 import { ActivityIndicator, View } from 'react-native';
@@ -156,5 +157,5 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     );
   }
 
-  return <StaticNavigation theme={theme} />;
+  return <StaticNavigation ref={navigationRef} theme={theme} />;
 }

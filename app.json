@@ -31,6 +31,7 @@
     },
     "android": {
       "package": "com.hcmstreetfood.mobile",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/adaptive-icon.png",
@@ -104,7 +105,8 @@
       "expo-font",
       "expo-system-ui",
       "./plugins/withAndroidDebugKeystore.cjs",
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      "expo-notifications"
     ]
   }
 }
