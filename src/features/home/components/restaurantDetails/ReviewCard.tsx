@@ -410,10 +410,7 @@ const ReviewCard = ({
                 onPress={() => openLightbox(index)}
                 activeOpacity={0.85}
               >
-                <Image
-                  source={{ uri }}
-                  className="mr-2 h-20 w-20 rounded-xl"
-                />
+                <Image source={{ uri }} className="mr-2 h-20 w-20 rounded-xl" />
               </TouchableOpacity>
             ))}
           </ScrollView>
