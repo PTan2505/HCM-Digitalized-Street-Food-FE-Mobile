@@ -14,6 +14,8 @@ import {
   isRejected,
 } from '@reduxjs/toolkit';
 import { tokenManagement } from '@utils/tokenManagement';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import {
   AccessToken,
@@ -214,6 +216,23 @@ export const userLogout = createAppAsyncThunk(
         LoginManager.logOut();
       } catch {
         // Ignore Facebook logout errors
+      }
+
+      // Remove push token from backend
+      try {
+        const projectId =
+          Constants.expoConfig?.extra?.eas?.projectId ??
+          Constants.easConfig?.projectId;
+        if (projectId) {
+          const tokenData = await Notifications.getExpoPushTokenAsync({
+            projectId,
+          });
+          await axiosApi.notificationApi.removePushToken({
+            expoPushToken: tokenData.data,
+          });
+        }
+      } catch {
+        // Ignore push token removal errors
       }
 
       await tokenManagement.clearTokens();

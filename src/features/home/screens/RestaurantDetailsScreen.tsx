@@ -24,11 +24,17 @@ import { getLowcaAPIUnimplementedEndpoints } from '@features/reputation/api/gene
 import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import {
+  StaticScreenProps,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import { fetchCartThunk, selectCart } from '@slices/directOrdering';
+import { queryKeys } from '@lib/queryKeys';
+import { useQueryClient } from '@tanstack/react-query';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActionSheetIOS,
@@ -64,6 +70,21 @@ export const RestaurantDetailsScreen = ({
 
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
+  const queryClient = useQueryClient();
+
+  // Refetch feedback when screen regains focus (e.g. after notification → ReviewList → goBack)
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.feedback.branch(branch.branchId),
+      });
+    }, [queryClient, branch.branchId])
+  );
 
   const [branchTier, setBranchTier] = useState<BranchTier | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);

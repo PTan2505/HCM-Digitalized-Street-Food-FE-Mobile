@@ -1,4 +1,5 @@
 import { store } from '@app/store';
+import { NotificationHandler } from '@features/notifications/NotificationHandler';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { queryClient } from '@lib/queryClient';
 import {
@@ -38,7 +39,12 @@ function AppInitializer({
     }
   }, [dispatch, userStatus, user]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <NotificationHandler />
+      {children}
+    </>
+  );
 }
 
 export function AppProvider({

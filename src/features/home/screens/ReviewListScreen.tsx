@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -21,7 +21,11 @@ import { useReviewList } from '@features/home/hooks/useReviewList';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
 import type { Feedback } from '@features/home/types/feedback';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import {
+  StaticScreenProps,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { queryKeys } from '@lib/queryKeys';
 import { useQueryClient } from '@tanstack/react-query';
@@ -59,6 +63,20 @@ export const ReviewListScreen = ({
 
   const [sortBy, setSortBy] = useState<ReviewSortBy>('default');
   const [showSortModal, setShowSortModal] = useState(false);
+
+  // Refetch reviews when screen regains focus (e.g. after notification navigation)
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.feedback.list(branchId, sortBy),
+      });
+    }, [queryClient, branchId, sortBy])
+  );
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [editingFeedback, setEditingFeedback] = useState<Feedback | undefined>(
     undefined

@@ -314,6 +314,15 @@
     "gallery_permission_denied_title": "Không có quyền truy cập thư viện ảnh",
     "gallery_permission_denied_message": "Vui lòng cấp quyền truy cập thư viện ảnh trong cài đặt."
   },
+  "notification": {
+    "title": "Thông báo",
+    "empty": "Chưa có thông báo nào",
+    "mark_all_read": "Đọc tất cả",
+    "just_now": "Vừa xong",
+    "minutes_ago": "phút trước",
+    "hours_ago": "giờ trước",
+    "days_ago": "ngày trước"
+  },
   "common": {
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",

@@ -13,12 +13,14 @@ import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationS
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
 import { MyGhostPinsScreen } from '@features/maps/screens/MyGhostPinsScreen';
+import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
 import {
   createStaticNavigation,
   StaticParamList,
   Theme,
 } from '@react-navigation/native';
+import { navigationRef } from '@utils/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUserStatus } from '@slices/auth';
 import { ActivityIndicator, View } from 'react-native';
@@ -128,6 +130,9 @@ const RootStack = createNativeStackNavigator({
     OrderHistory: {
       screen: OrderHistoryScreen,
     },
+    Notifications: {
+      screen: NotificationScreen,
+    },
   },
 });
 
@@ -156,5 +161,5 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     );
   }
 
-  return <StaticNavigation theme={theme} />;
+  return <StaticNavigation ref={navigationRef} theme={theme} />;
 }
