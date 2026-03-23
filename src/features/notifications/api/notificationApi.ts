@@ -7,6 +7,10 @@ export interface RegisterPushTokenRequest {
   platform: 'ios' | 'android';
 }
 
+export interface RemovePushTokenRequest {
+  expoPushToken: string;
+}
+
 export class NotificationApi {
   private apiClient: ApiClient;
 
@@ -19,6 +23,15 @@ export class NotificationApi {
   ): Promise<ApiResponse<null>> {
     return this.apiClient.post<null, RegisterPushTokenRequest>({
       url: apiUrl.notification.registerToken,
+      data,
+    });
+  }
+
+  async removePushToken(
+    data: RemovePushTokenRequest
+  ): Promise<ApiResponse<null>> {
+    return this.apiClient.post<null, RemovePushTokenRequest>({
+      url: apiUrl.notification.removeToken,
       data,
     });
   }

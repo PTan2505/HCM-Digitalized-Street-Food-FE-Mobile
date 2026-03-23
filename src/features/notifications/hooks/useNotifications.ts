@@ -11,7 +11,6 @@ import { Platform } from 'react-native';
 Notifications.setNotificationHandler({
   // eslint-disable-next-line @typescript-eslint/require-await
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
     shouldShowBanner: true,

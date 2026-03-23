@@ -124,15 +124,7 @@
       ],
       "./plugins/withAndroidDebugKeystore.cjs",
       "@maplibre/maplibre-react-native",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/adaptive-icon.png",
-          "color": "#9FD356",
-          "defaultChannel": "default",
-          "androidMode": "default"
-        }
-      ]
+      "expo-notifications"
     ]
   }
 }

@@ -4,14 +4,14 @@ import type {
   OrderStatus,
 } from '@features/direct-ordering/api/cartApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   fetchOrderHistoryThunk,
   selectOrderHistory,
   selectOrderHistoryLoading,
 } from '@slices/directOrdering';
 import type { JSX } from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -49,9 +49,11 @@ export const OrderHistoryScreen = (): JSX.Element => {
   const orderHistory = useAppSelector(selectOrderHistory);
   const isLoading = useAppSelector(selectOrderHistoryLoading);
 
-  useEffect(() => {
-    dispatch(fetchOrderHistoryThunk({ pageNumber: 1, pageSize: 20 }));
-  }, [dispatch]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchOrderHistoryThunk({ pageNumber: 1, pageSize: 20 }));
+    }, [dispatch])
+  );
 
   const handleLoadMore = useCallback(() => {
     if (orderHistory?.hasNext && !isLoading) {
