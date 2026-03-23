@@ -15,7 +15,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Animated, Pressable, Text, View } from 'react-native';
+import { Alert, Animated, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const AuthScreen = (): JSX.Element => {
@@ -25,6 +25,16 @@ export const AuthScreen = (): JSX.Element => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { onGoogleLoginSubmit, onFacebookLoginSubmit } = useLogin();
+  const { height: screenHeight } = useWindowDimensions();
+  // Scale layout values relative to a 844px reference height (iPhone 12 Pro)
+  const scale = Math.min(screenHeight / 844, 1);
+  const logoMarginTop = Math.round(200 * scale);
+  const buttonsMarginTop = Math.round(250 * scale);
+  const logoAnimateUp = Math.round(-150 * scale);
+  const imageAnimateUp = Math.round(-250 * scale);
+  const phoneFormMarginTop = Math.round(-100 * scale);
+  const phoneFormAnimateFrom = Math.round(200 * scale);
+  const phoneFormAnimateTo = Math.round(80 * scale);
   const [showPhoneLogin, setShowPhoneLogin] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const formTransition = useRef(new Animated.Value(0)).current;
@@ -97,7 +107,7 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -150], // Adjust this value to control how much the image pushes up
+                  outputRange: [0, logoAnimateUp],
                 }),
               },
             ],
@@ -108,7 +118,7 @@ export const AuthScreen = (): JSX.Element => {
             height={150}
             icon={lowcaLogo}
             style={{
-              marginTop: 200,
+              marginTop: logoMarginTop,
               alignSelf: 'center',
             }}
           />
@@ -125,7 +135,7 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0, -250], // Adjust this value to control how much the image pushes up
+                  outputRange: [0, imageAnimateUp],
                 }),
               },
             ],
@@ -137,13 +147,13 @@ export const AuthScreen = (): JSX.Element => {
       {!showPhoneLogin && (
         <Animated.View
           style={{
-            marginTop: 250,
+            marginTop: buttonsMarginTop,
             paddingHorizontal: 16,
             transform: [
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [50, -150], // Starts at natural position, slides down when animating
+                  outputRange: [50, -150],
                 }),
               },
             ],
@@ -208,13 +218,13 @@ export const AuthScreen = (): JSX.Element => {
       {showPhoneLogin && (
         <Animated.View
           style={{
-            marginTop: -100,
+            marginTop: phoneFormMarginTop,
             opacity: animatedValue,
             transform: [
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [200, 80],
+                  outputRange: [phoneFormAnimateFrom, phoneFormAnimateTo],
                 }),
               },
             ],
