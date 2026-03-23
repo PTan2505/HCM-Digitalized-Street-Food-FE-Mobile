@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Lowca",
+    "scheme": "lowca",
     "slug": "hcm-digitalized-street-food-fe-mobile",
     "version": "1.0.0",
     "owner": "street-food",

@@ -7,6 +7,7 @@ import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDeta
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
+import { RestaurantDeepLinkScreen } from '@features/home/screens/RestaurantDeepLinkScreen';
 import { ReviewListScreen } from '@features/home/screens/ReviewListScreen';
 import { SearchScreen } from '@features/home/screens/SearchScreen';
 import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationScreen';
@@ -42,13 +43,23 @@ const RootStack = createNativeStackNavigator({
     },
     Main: {
       screen: HomeBottomTabs,
+      linking: '',
     },
     Search: {
       screen: SearchScreen,
+      linking: 'search',
       params: {} as {
         autoFocus?: boolean;
         openFilter?: boolean;
       },
+    },
+    Restaurant: {
+      screen: RestaurantDeepLinkScreen,
+      linking: {
+        path: 'restaurant/:branchId',
+        parse: { branchId: Number },
+      },
+      params: {} as { branchId: number },
     },
     RestaurantSwipe: {
       screen: RestaurantSwipeScreen,
@@ -80,6 +91,7 @@ const RootStack = createNativeStackNavigator({
     },
     CurrentPicks: {
       screen: CurrentPicksScreen,
+      linking: 'current-picks',
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
@@ -92,9 +104,11 @@ const RootStack = createNativeStackNavigator({
     },
     Profile: {
       screen: ProfileScreen,
+      linking: 'profile',
     },
     Map: {
       screen: MapScreen,
+      linking: 'map',
     },
     LocationPicker: {
       screen: LocationPickerScreen,
@@ -104,9 +118,11 @@ const RootStack = createNativeStackNavigator({
     },
     MyGhostPins: {
       screen: MyGhostPinsScreen,
+      linking: 'ghost-pins',
     },
     PersonalCart: {
       screen: PersonalCartScreen,
+      linking: 'cart',
       params: {} as {
         branchName?: string;
         isOpen?: boolean;
@@ -121,6 +137,10 @@ const RootStack = createNativeStackNavigator({
     },
     OrderStatus: {
       screen: OrderStatusScreen,
+      linking: {
+        path: 'order-status/:orderId',
+        parse: { orderId: Number },
+      },
       params: {} as {
         orderId: number;
         branchName: string;
@@ -129,9 +149,11 @@ const RootStack = createNativeStackNavigator({
     },
     OrderHistory: {
       screen: OrderHistoryScreen,
+      linking: 'order-history',
     },
     Notifications: {
       screen: NotificationScreen,
+      linking: 'notifications',
     },
   },
 });
@@ -161,5 +183,11 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     );
   }
 
-  return <StaticNavigation ref={navigationRef} theme={theme} />;
+  return (
+    <StaticNavigation
+      ref={navigationRef}
+      theme={theme}
+      linking={{ prefixes: ['lowca://'] }}
+    />
+  );
 }
