@@ -185,6 +185,7 @@ export const RestaurantDetailsScreen = ({
   const isSharingRef = useRef(false);
   const handleSharePress = (): void => {
     if (isSharingRef.current) return;
+    isSharingRef.current = true;
 
     const stars = '⭐'.repeat(Math.round(branch.avgRating));
     const address = [branch.addressDetail, branch.ward, branch.city]
@@ -196,34 +197,13 @@ export const RestaurantDetailsScreen = ({
         : `lowca://restaurant/${branch.branchId}`;
     const infoText = `🍜 ${displayName}\n\n${stars} ${branch.avgRating.toFixed(1)}/5.0\n📍 ${address}`;
 
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [t('cancel'), t('share_info'), t('share_link')],
-          cancelButtonIndex: 0,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) {
-            isSharingRef.current = true;
-            Share.share({ message: infoText }).finally(() => {
-              isSharingRef.current = false;
-            });
-          } else if (buttonIndex === 2) {
-            isSharingRef.current = true;
-            Share.share({ message: deepLink }).finally(() => {
-              isSharingRef.current = false;
-            });
-          }
-        },
-      );
-    } else {
-      isSharingRef.current = true;
-      Share.share({
-        message: `${infoText}\n\n${deepLink}`,
-      }).finally(() => {
-        isSharingRef.current = false;
-      });
-    }
+    Share.share({
+      message:
+        Platform.OS === 'android' ? `${infoText}\n\n${deepLink}` : infoText,
+      url: Platform.OS === 'ios' ? deepLink : undefined,
+    }).finally(() => {
+      isSharingRef.current = false;
+    });
   };
 
   const handleReviewSuccess = useCallback(
