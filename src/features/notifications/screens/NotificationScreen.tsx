@@ -114,27 +114,45 @@ export const NotificationScreen = (): JSX.Element => {
             });
             break;
           case 'VendorReply':
-            // referenceId is feedbackId — fetch feedback to get branchId
+            // referenceId is feedbackId — fetch feedback → branch → vendor for full data
             void axiosApi.feedbackApi
               .getFeedback(item.referenceId)
               .then((feedback) => {
-                if (feedback.branchId) {
-                  navigation.navigate('ReviewList', {
-                    branchId: feedback.branchId,
-                    displayName: '',
-                    ownFeedbackId: item.referenceId ?? undefined,
-                    dishes: [],
-                    branchLat: 0,
-                    branchLong: 0,
-                  });
-                } else {
+                if (!feedback.branchId) {
                   console.warn(
                     '[NotificationScreen] feedback.branchId is missing'
                   );
+                  return;
                 }
+                return axiosApi.branchApi
+                  .getBranchById(feedback.branchId)
+                  .then((detail) =>
+                    Promise.all([
+                      axiosApi.vendorApi.getVendorById(detail.vendorId),
+                      axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
+                      axiosApi.branchApi.getDishesByBranch(detail.branchId, {
+                        pageSize: 100,
+                      }),
+                      Promise.resolve(detail),
+                    ])
+                  )
+                  .then(([vendor, vendorBranches, paginatedDishes, detail]) => {
+                    const isMultiBranch = vendorBranches.totalCount > 1;
+                    const displayName = isMultiBranch
+                      ? `${vendor.name} - ${t('branch')} ${detail.name}`
+                      : vendor.name;
+                    navigation.navigate('ReviewList', {
+                      branchId: detail.branchId,
+                      displayName,
+                      ownFeedbackId: item.referenceId ?? undefined,
+                      dishes: paginatedDishes.items,
+                      branchLat: detail.lat,
+                      branchLong: detail.long,
+                    });
+                  });
               })
               .catch((err: unknown) => {
-                console.warn('[NotificationScreen] getFeedback failed:', err);
+                console.warn('[NotificationScreen] VendorReply fetch failed:', err);
               });
             break;
           default:
@@ -142,7 +160,7 @@ export const NotificationScreen = (): JSX.Element => {
         }
       }
     },
-    [dispatch, navigation]
+    [dispatch, navigation, t]
   );
 
   const renderItem = useCallback(
