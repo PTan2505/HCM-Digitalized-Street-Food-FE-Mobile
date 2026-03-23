@@ -187,7 +187,12 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     <StaticNavigation
       ref={navigationRef}
       theme={theme}
-      linking={{ prefixes: ['lowca://'] }}
+      linking={{
+          prefixes: [
+            'lowca://',
+            process.env.EXPO_PUBLIC_WEB_URL ?? '',
+          ],
+        }}
     />
   );
 }

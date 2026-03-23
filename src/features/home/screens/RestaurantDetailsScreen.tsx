@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { VendorTier } from '@custom-types/vendor';
+import { Ionicons } from '@expo/vector-icons';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
 import FixedHeaderControls from '@features/home/components/restaurantDetails/FixedHeaderControls';
@@ -24,13 +24,13 @@ import { getLowcaAPIUnimplementedEndpoints } from '@features/reputation/api/gene
 import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import {
   StaticScreenProps,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
 import { fetchCartThunk, selectCart } from '@slices/directOrdering';
-import { queryKeys } from '@lib/queryKeys';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -42,10 +42,12 @@ import {
   Linking,
   Platform,
   ScrollView,
+  Share,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -178,6 +180,50 @@ export const RestaurantDetailsScreen = ({
   const handleOpenWriteReview = (): void => {
     setEditingFeedback(undefined);
     setShowReviewModal(true);
+  };
+
+  const isSharingRef = useRef(false);
+  const handleSharePress = (): void => {
+    if (isSharingRef.current) return;
+
+    const stars = '⭐'.repeat(Math.round(branch.avgRating));
+    const address = [branch.addressDetail, branch.ward, branch.city]
+      .filter(Boolean)
+      .join(', ');
+    const deepLink =
+      Platform.OS === 'android'
+        ? `${process.env.EXPO_PUBLIC_WEB_URL}/restaurant/${branch.branchId}`
+        : `lowca://restaurant/${branch.branchId}`;
+    const infoText = `🍜 ${displayName}\n\n${stars} ${branch.avgRating.toFixed(1)}/5.0\n📍 ${address}`;
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [t('cancel'), t('share_info'), t('share_link')],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            isSharingRef.current = true;
+            Share.share({ message: infoText }).finally(() => {
+              isSharingRef.current = false;
+            });
+          } else if (buttonIndex === 2) {
+            isSharingRef.current = true;
+            Share.share({ message: deepLink }).finally(() => {
+              isSharingRef.current = false;
+            });
+          }
+        },
+      );
+    } else {
+      isSharingRef.current = true;
+      Share.share({
+        message: `${infoText}\n\n${deepLink}`,
+      }).finally(() => {
+        isSharingRef.current = false;
+      });
+    }
   };
 
   const handleReviewSuccess = useCallback(
@@ -319,7 +365,7 @@ export const RestaurantDetailsScreen = ({
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
-      <FixedHeaderControls />
+      <FixedHeaderControls onSharePress={handleSharePress} />
 
       <ScrollView
         keyboardShouldPersistTaps="handled"
