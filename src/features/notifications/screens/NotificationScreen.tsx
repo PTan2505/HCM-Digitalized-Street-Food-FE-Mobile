@@ -152,7 +152,10 @@ export const NotificationScreen = (): JSX.Element => {
                   });
               })
               .catch((err: unknown) => {
-                console.warn('[NotificationScreen] VendorReply fetch failed:', err);
+                console.warn(
+                  '[NotificationScreen] VendorReply fetch failed:',
+                  err
+                );
               });
             break;
           default:
