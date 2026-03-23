@@ -5,7 +5,7 @@ import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import {
   Camera,
   CircleLayer,
-  FillLayer,
+  FillExtrusionLayer,
   LineLayer,
   Logger,
   MapView,
@@ -623,7 +623,7 @@ export const Maps = ({
               />
             ))}
             {HIDDEN_BUILDING_LAYERS.map((layerId) => (
-              <FillLayer
+              <FillExtrusionLayer
                 key={layerId}
                 id={layerId}
                 style={{ visibility: 'none' }}

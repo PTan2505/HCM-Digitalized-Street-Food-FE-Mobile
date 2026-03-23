@@ -7,7 +7,7 @@ import {
 } from '@features/maps/services/geocoding';
 import {
   Camera,
-  FillLayer,
+  FillExtrusionLayer,
   LineLayer,
   Logger,
   MapView,
@@ -517,7 +517,7 @@ const LocationPickerMapInner = React.forwardRef<
               <SymbolLayer key={id} id={id} style={{ visibility: 'none' }} />
             ))}
             {HIDDEN_BUILDING_LAYERS.map((id) => (
-              <FillLayer key={id} id={id} style={{ visibility: 'none' }} />
+              <FillExtrusionLayer key={id} id={id} style={{ visibility: 'none' }} />
             ))}
             {FADED_CASING_LAYERS.map((id) => (
               <LineLayer
