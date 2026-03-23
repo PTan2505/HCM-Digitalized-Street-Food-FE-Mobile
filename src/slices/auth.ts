@@ -35,6 +35,16 @@ const initialState: AuthState = {
   error: null,
 };
 
+const serializeError = (error: unknown): { code: string; message: string } => {
+  if (error instanceof Error) {
+    return { code: 'UNKNOWN_ERROR', message: error.message };
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    return error as { code: string; message: string };
+  }
+  return { code: 'UNKNOWN_ERROR', message: 'An unknown error occurred' };
+};
+
 export const userLoginWithGoogle = createAppAsyncThunk(
   'auth/loginWithGoogle',
   async (_, { rejectWithValue }) => {
@@ -83,8 +93,7 @@ export const userLoginWithGoogle = createAppAsyncThunk(
         }
       }
 
-      // API errors are already formatted by ApiClient
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -132,8 +141,7 @@ export const userLoginWithFacebook = createAppAsyncThunk(
       await tokenManagement.setTokens({ newAccessToken: token });
       return { user };
     } catch (error) {
-      // API errors are already formatted by ApiClient
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -148,8 +156,7 @@ export const userLoginWithPhoneNumber = createAppAsyncThunk(
       console.log('Phone login response:', response);
       return response;
     } catch (error) {
-      // API errors are already formatted by ApiClient
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -169,8 +176,7 @@ export const verifyPhoneNumber = createAppAsyncThunk(
 
       return { user };
     } catch (error) {
-      // API errors are already formatted by ApiClient
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -194,8 +200,7 @@ export const loadUserFromStorage = createAppAsyncThunk(
       return userProfile;
     } catch (error) {
       await tokenManagement.clearTokens();
-      // API errors are already formatted by ApiClient
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -262,7 +267,7 @@ export const updateProfile = createAppAsyncThunk(
       await axiosApi.userProfileApi.markUserInfoSetup();
       return user;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -274,7 +279,7 @@ export const markUserInfoSetup = createAppAsyncThunk(
       await axiosApi.userProfileApi.markUserInfoSetup();
       return;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
@@ -286,7 +291,7 @@ export const markDietarySetup = createAppAsyncThunk(
       await axiosApi.userProfileApi.markDietarySetup();
       return;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(serializeError(error));
     }
   }
 );
