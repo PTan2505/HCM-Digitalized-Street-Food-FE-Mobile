@@ -64,14 +64,6 @@
         }
       ]
     },
-    "locales": {
-      "vi": {
-        "NSLocationWhenInUseUsageDescription": "Cho phép Lowca truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Cho phép Lowca truy cập vị trí của bạn để hiển thị các quán ăn gần bạn.",
-        "NSCameraUsageDescription": "Cho phép Lowca truy cập máy ảnh.",
-        "NSPhotoLibraryUsageDescription": "Cho phép Lowca truy cập thư viện ảnh."
-      }
-    },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
