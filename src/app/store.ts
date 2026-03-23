@@ -4,6 +4,7 @@ import authReducer from '@slices/auth';
 import branchesReducer from '@slices/branches';
 import dietaryReducer from '@slices/dietary';
 import directOrderingReducer from '@slices/directOrdering';
+import notificationsReducer from '@slices/notifications';
 import tastesReducer from '@slices/tastes';
 import vendorsReducer from '@slices/vendors';
 
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   branches: branchesReducer,
   tastes: tastesReducer,
   directOrdering: directOrderingReducer,
+  notifications: notificationsReducer,
 });
 
 export const store = configureStore({

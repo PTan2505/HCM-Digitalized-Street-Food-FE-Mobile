@@ -115,11 +115,21 @@ export const useNotifications = (
         setNotification(n);
       });
 
-    // Listener: user tapped a notification
+    // Listener: user tapped a notification (app in foreground/background)
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
         setLastResponse(response);
       });
+
+    // Cold-start: check for the notification that launched the app.
+    // Using getLastNotificationResponseAsync instead of the hook
+    // (useLastNotificationResponse) to avoid re-render loops — the hook
+    // polls internally and causes cascading renders.
+    void Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        setLastResponse(response);
+      }
+    });
 
     return (): void => {
       notificationListener.current?.remove();

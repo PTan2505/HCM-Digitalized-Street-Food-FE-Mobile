@@ -314,6 +314,15 @@
     "gallery_permission_denied_title": "Photo Library Access Denied",
     "gallery_permission_denied_message": "Please allow photo library access in your settings."
   },
+  "notification": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "mark_all_read": "Read all",
+    "just_now": "Just now",
+    "minutes_ago": "min ago",
+    "hours_ago": "hr ago",
+    "days_ago": "d ago"
+  },
   "common": {
     "vietnamese": "Vietnamese",
     "english": "English",

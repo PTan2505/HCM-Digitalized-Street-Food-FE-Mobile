@@ -13,6 +13,7 @@ import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationS
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
 import { MyGhostPinsScreen } from '@features/maps/screens/MyGhostPinsScreen';
+import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
 import {
   createStaticNavigation,
@@ -128,6 +129,9 @@ const RootStack = createNativeStackNavigator({
     },
     OrderHistory: {
       screen: OrderHistoryScreen,
+    },
+    Notifications: {
+      screen: NotificationScreen,
     },
   },
 });

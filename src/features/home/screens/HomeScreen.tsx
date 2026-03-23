@@ -24,6 +24,7 @@ import {
   selectDietaryState,
   selectUserDietaryPreferences,
 } from '@slices/dietary';
+import { fetchUnreadCount } from '@slices/notifications';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
@@ -228,6 +229,10 @@ export const HomeScreen = (): JSX.Element => {
       }
     }
   }, [user, userStatus, navigation]);
+
+  useEffect(() => {
+    void dispatch(fetchUnreadCount());
+  }, [dispatch]);
 
   // Callback to update branch rating in Redux when navigating back from detail screens
   const handleRatingUpdate = useCallback(

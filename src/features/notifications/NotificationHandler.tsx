@@ -15,7 +15,7 @@ export const NotificationHandler = (): null => {
   const isAuthenticated = !!user;
 
   const { lastResponse } = useNotifications(isAuthenticated);
-  useNotificationNavigation(lastResponse);
+  useNotificationNavigation(lastResponse, isAuthenticated);
 
   return null;
 };
