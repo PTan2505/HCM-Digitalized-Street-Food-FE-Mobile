@@ -16,18 +16,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ReviewCard from '@features/home/components/restaurantDetails/ReviewCard';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
-import type { ReviewSortBy } from '@features/home/hooks/useReviewList';
-import { useReviewList } from '@features/home/hooks/useReviewList';
+import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
+import type { ReviewSortBy } from '@features/home/hooks/useReviewList';
+import { useReviewList } from '@features/home/hooks/useReviewList';
 import type { Feedback } from '@features/home/types/feedback';
+import { queryKeys } from '@lib/queryKeys';
 import {
   StaticScreenProps,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
-import { queryKeys } from '@lib/queryKeys';
 import { useQueryClient } from '@tanstack/react-query';
 
 type ReviewListScreenProps = StaticScreenProps<{
@@ -235,10 +235,10 @@ export const ReviewListScreen = ({
   const renderHeader = useMemo(
     () => (
       <View className="px-4 pb-2 pt-3">
-        <Text className="mb-1 text-lg font-bold text-gray-800">
+        <Text className="text-xl font-bold text-gray-900">{displayName}</Text>
+        <Text className="mt-0.5 text-sm text-gray-400">
           {t('actions.all_reviews')}
         </Text>
-        <Text className="text-sm text-gray-500">{displayName}</Text>
       </View>
     ),
     [displayName, t]
