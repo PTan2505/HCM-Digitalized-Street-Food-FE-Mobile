@@ -61,7 +61,7 @@ export const MapBranchCard = ({
             numberOfLines={1}
           >
             {displayName}
-            {branch.isVerified && (
+            {branch.isSubscribed && (
               <>
                 {' '}
                 <MaterialCommunityIcons

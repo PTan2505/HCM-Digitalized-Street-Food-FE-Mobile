@@ -1,4 +1,7 @@
+import markerPng from '@assets/icons/marker.png';
+import markerSelectedPng from '@assets/icons/marker-selected.png';
 import MarkerIcon from '@assets/icons/marker.svg';
+import MarkerSelectedIcon from '@assets/icons/marker-selected.svg';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
@@ -6,6 +9,7 @@ import {
   Camera,
   CircleLayer,
   FillExtrusionLayer,
+  Images,
   LineLayer,
   Logger,
   MapView,
@@ -25,11 +29,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Platform, Pressable, Text, View } from 'react-native';
+import { captureRef } from 'react-native-view-shot';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -246,12 +250,16 @@ const CIRCLE_STYLE = {
   ] as unknown as number,
 };
 
-// ── VendorMarker — unselected pin (marker SVG + circular image) ──
+// ── VendorMarker — pin (marker SVG + circular image) ──
 interface VendorMarkerProps {
   imageUrl?: string;
+  isSelected?: boolean;
 }
 
-const VendorMarker = ({ imageUrl }: VendorMarkerProps): JSX.Element => {
+const VendorMarker = ({
+  imageUrl,
+  isSelected,
+}: VendorMarkerProps): JSX.Element => {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -262,103 +270,134 @@ const VendorMarker = ({ imageUrl }: VendorMarkerProps): JSX.Element => {
     opacity: opacity.value,
   }));
 
-  return (
-    <Animated.View style={fadeStyle}>
-      <View style={{ width: 38, height: 52 }}>
-        <MarkerIcon width={38} height={52} />
-        <View
-          style={{
-            position: 'absolute',
-            top: 5,
-            left: 5,
-            width: 28,
-            height: 28,
-            borderRadius: 14,
-            backgroundColor: 'white',
-            overflow: 'hidden',
-          }}
-        >
-          {imageUrl ? (
-            <Image
-              source={{ uri: imageUrl }}
-              style={{ width: 28, height: 28 }}
-              resizeMode="cover"
-            />
-          ) : (
-            <View
-              style={{
-                width: 28,
-                height: 28,
-                backgroundColor: '#f3f4f6',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Ionicons name="restaurant" size={14} color="#a1d973" />
-            </View>
-          )}
-        </View>
+  const PinIcon = isSelected ? MarkerSelectedIcon : MarkerIcon;
+
+  const inner = (
+    <View style={{ width: 38, height: 52 }}>
+      <PinIcon width={38} height={52} />
+      <View
+        style={{
+          position: 'absolute',
+          top: 5,
+          left: 5,
+          width: 28,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: 'white',
+          overflow: 'hidden',
+        }}
+      >
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={{ width: 28, height: 28 }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View
+            style={{
+              width: 28,
+              height: 28,
+              backgroundColor: '#f3f4f6',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="restaurant" size={14} color="#a1d973" />
+          </View>
+        )}
       </View>
-    </Animated.View>
+    </View>
   );
+
+  return <Animated.View style={fadeStyle}>{inner}</Animated.View>;
 };
 
-// ── ActivePill — selected pill (green bg, spring animation) ──
-interface ActivePillProps {
-  label: string;
-  rating: number;
+// ── Android: Generate composite marker bitmaps (pin + vendor photo) ──
+// SymbolLayer can only display pre-registered static images. To show vendor
+// photos inside pins, we render hidden VendorMarker views offscreen, capture
+// them as PNG bitmaps via react-native-view-shot, and register them as map
+// images keyed by branchId.
+
+interface MarkerBitmapItemProps {
+  branchId: number;
+  imageUrl?: string;
+  isSelected?: boolean;
+  onCapture: (key: string, uri: string) => void;
 }
 
-const ActivePill = ({ label, rating }: ActivePillProps): JSX.Element => {
-  const scale = useSharedValue(0.5);
+const MarkerBitmapItem = ({
+  branchId,
+  imageUrl,
+  isSelected,
+  onCapture,
+}: MarkerBitmapItemProps): JSX.Element => {
+  const viewRef = useRef<View>(null);
+  const [imageLoaded, setImageLoaded] = useState(!imageUrl);
+  const captured = useRef(false);
+  const captureKey = isSelected
+    ? `marker-selected-${branchId}`
+    : `marker-${branchId}`;
 
   useEffect(() => {
-    scale.value = withSpring(1, {
-      damping: 12,
-      stiffness: 180,
-      mass: 0.8,
-    });
-  }, [scale]);
+    if (!imageLoaded || captured.current) return;
+    captured.current = true;
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+    const timer = setTimeout(async () => {
+      try {
+        if (!viewRef.current) return;
+        const uri = await captureRef(viewRef, {
+          format: 'png',
+          quality: 0.9,
+        });
+        onCapture(captureKey, uri);
+      } catch {
+        // Silently skip — marker falls back to default pin icon
+      }
+    }, 100);
+
+    return (): void => clearTimeout(timer);
+  }, [imageLoaded, captureKey, onCapture]);
+
+  const PinIcon = isSelected ? MarkerSelectedIcon : MarkerIcon;
 
   return (
-    <Animated.View style={animatedStyle}>
-      <View className="items-center">
-        <View className="flex-row items-center rounded-full bg-[#a1d973] px-2.5 py-1.5 shadow-lg">
-          <Ionicons
-            name="restaurant"
-            size={12}
-            color="#fff"
-            style={{ marginRight: 4 }}
+    <View ref={viewRef} collapsable={false} style={{ width: 38, height: 52 }}>
+      <PinIcon width={38} height={52} />
+      <View
+        style={{
+          position: 'absolute',
+          top: 5,
+          left: 5,
+          width: 28,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: 'white',
+          overflow: 'hidden',
+        }}
+      >
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={{ width: 28, height: 28 }}
+            resizeMode="cover"
+            onLoad={() => setImageLoaded(true)}
           />
-          <Text className="text-xs font-bold text-white" numberOfLines={1}>
-            {label}
-          </Text>
-          <View className="ml-1.5 rounded-md bg-[#FFB800] px-1 py-px">
-            <Text className="text-[10px] font-extrabold text-white">
-              {rating.toFixed(1)}
-            </Text>
+        ) : (
+          <View
+            style={{
+              width: 28,
+              height: 28,
+              backgroundColor: '#f3f4f6',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="restaurant" size={14} color="#a1d973" />
           </View>
-        </View>
-
-        <View
-          style={{
-            width: 0,
-            height: 0,
-            borderLeftWidth: 6,
-            borderRightWidth: 6,
-            borderTopWidth: 7,
-            borderLeftColor: 'transparent',
-            borderRightColor: 'transparent',
-            borderTopColor: '#a1d973',
-            marginTop: -1,
-          }}
-        />
+        )}
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -406,6 +445,63 @@ const GhostPinCallout = ({
   </View>
 );
 
+// ── Android SymbolLayer style ──
+// On Android, MarkerView/PointAnnotation are unreliable (drift, broken bitmap
+// capture with New Architecture). Instead we use a SymbolLayer with a static
+// PNG icon for unselected markers (pure GL — perfect tracking & native press),
+// and a single MarkerView only for the selected marker (ActivePill).
+const ANDROID_SYMBOL_LAYER_ID = 'vendor-symbols-android';
+const ANDROID_MARKER_IMAGE_KEY = 'vendor-marker-icon';
+const ANDROID_MARKER_SELECTED_IMAGE_KEY = 'vendor-marker-selected-icon';
+
+// Visibility is the inverse of the CircleLayer: show pin when dot is hidden.
+// iconImage switches between orange (default) and green (selected) based on
+// whether the feature's id matches the currently selected branch.
+// selectedBranchId is injected at render time via buildAndroidSymbolStyle().
+const buildAndroidSymbolStyle = (
+  selectedId: string
+): Record<string, unknown> => ({
+  // Use per-vendor composite bitmap if available, else fallback to default pin.
+  // Selected marker always uses the green pin (no composite needed — detail card
+  // is visible so photo in pin is redundant).
+  iconImage: [
+    'case',
+    ['==', ['get', 'id'], selectedId],
+    // Selected: try green composite, fall back to static green pin
+    [
+      'coalesce',
+      ['image', ['concat', 'marker-selected-', ['get', 'id']]],
+      ['image', ANDROID_MARKER_SELECTED_IMAGE_KEY],
+    ],
+    // Unselected: try orange composite, fall back to static orange pin
+    [
+      'coalesce',
+      ['image', ['concat', 'marker-', ['get', 'id']]],
+      ['image', ANDROID_MARKER_IMAGE_KEY],
+    ],
+  ] as unknown as string,
+  iconSize: [
+    'case',
+    ['==', ['get', 'id'], selectedId],
+    0.6, // selected: slightly larger
+    0.5, // 76px PNG → 38dp
+  ] as unknown as number,
+  iconAnchor: 'bottom' as const,
+  iconAllowOverlap: true,
+  iconOpacity: [
+    'step',
+    ['zoom'],
+    // z < 13: only P1
+    ['match', ['get', 'priority'], 1, 1, 0],
+    13,
+    // 13 ≤ z < 15: P1 + P2
+    ['match', ['get', 'priority'], 1, 1, 2, 1, 0],
+    15,
+    // z ≥ 15: all
+    1,
+  ] as unknown as number,
+});
+
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
   initialCenter: [number, number];
@@ -439,6 +535,30 @@ export const Maps = ({
   const userLocationRef = useRef<[number, number] | null>(null);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
+
+  // ── Android: composite marker bitmaps (pin + vendor photo) ──
+  const [androidMarkerImages, setAndroidMarkerImages] = useState<
+    Record<string, { uri: string }>
+  >({});
+  const capturedIdsRef = useRef<Set<string>>(new Set());
+  const pendingCapturesRef = useRef<Record<string, { uri: string }>>({});
+  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMarkerBitmapCapture = useCallback((key: string, uri: string) => {
+    if (capturedIdsRef.current.has(key)) return;
+    capturedIdsRef.current.add(key);
+    pendingCapturesRef.current[key] = { uri };
+
+    // Batch updates to avoid excessive re-renders
+    flushTimerRef.current ??= setTimeout(() => {
+      flushTimerRef.current = null;
+      setAndroidMarkerImages((prev) => ({
+        ...prev,
+        ...pendingCapturesRef.current,
+      }));
+      pendingCapturesRef.current = {};
+    }, 200);
+  }, []);
 
   const branchGeoJSON = useMemo(() => buildBranchGeoJSON(branches), [branches]);
 
@@ -652,6 +772,17 @@ export const Maps = ({
           </>
         )}
 
+        {/* Android: register marker PNGs + composite bitmaps for SymbolLayer */}
+        {Platform.OS === 'android' && (
+          <Images
+            images={{
+              [ANDROID_MARKER_IMAGE_KEY]: markerPng,
+              [ANDROID_MARKER_SELECTED_IMAGE_KEY]: markerSelectedPng,
+              ...androidMarkerImages,
+            }}
+          />
+        )}
+
         {/* Semantic Zoom — CircleLayer dots at low zoom */}
         <ShapeSource
           id={SOURCE_ID}
@@ -660,25 +791,45 @@ export const Maps = ({
           hitbox={{ width: 44, height: 44 }}
         >
           <CircleLayer id={CIRCLE_LAYER_ID} style={CIRCLE_STYLE} />
+
+          {/* Android: SymbolLayer-only rendering. Pure GL — perfect camera
+              tracking + native press via ShapeSource.onPress. Selected marker
+              renders as a green pin (larger), unselected as orange. */}
+          {Platform.OS === 'android' && (
+            <SymbolLayer
+              id={ANDROID_SYMBOL_LAYER_ID}
+              filter={
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ['==', ['get', 'isVerified'], true] as any
+              }
+              style={buildAndroidSymbolStyle(
+                selectedBranchId ? String(selectedBranchId) : ''
+              )}
+            />
+          )}
         </ShapeSource>
 
-        {/* Pill Markers — content swaps between white/green pill */}
-        {visibleMarkers.map((marker) => (
-          <MarkerView
-            key={marker.branchId}
-            coordinate={marker.coordinate}
-            anchor={{ x: 0.5, y: 1 }}
-            allowOverlap
-          >
-            {marker.branchId === selectedBranchId ? (
-              <ActivePill label={marker.label} rating={marker.rating} />
-            ) : (
-              <Pressable onPress={() => onMarkerPress(marker.branchId)}>
-                <VendorMarker imageUrl={marker.imageUrl} />
-              </Pressable>
-            )}
-          </MarkerView>
-        ))}
+        {/* ── Pill Markers (iOS only — Android uses SymbolLayer exclusively) ── */}
+        {Platform.OS !== 'android' &&
+          visibleMarkers.map((marker) => {
+            const isSelected = marker.branchId === selectedBranchId;
+            return (
+              <MarkerView
+                key={marker.branchId}
+                coordinate={marker.coordinate}
+                anchor={{ x: 0.5, y: 1 }}
+                allowOverlap
+              >
+                {isSelected ? (
+                  <VendorMarker imageUrl={marker.imageUrl} isSelected />
+                ) : (
+                  <Pressable onPress={() => onMarkerPress(marker.branchId)}>
+                    <VendorMarker imageUrl={marker.imageUrl} />
+                  </Pressable>
+                )}
+              </MarkerView>
+            );
+          })}
 
         {/* Ghost Pin Markers — grey unverified markers with status callout */}
         {ghostPins.map((pin) => (
@@ -692,6 +843,44 @@ export const Maps = ({
           </MarkerView>
         ))}
       </MapView>
+
+      {/* Android: hidden offscreen views for bitmap capture */}
+      {Platform.OS === 'android' && (
+        <View
+          style={{ position: 'absolute', left: -9999, top: -9999 }}
+          pointerEvents="none"
+        >
+          {visibleMarkers.flatMap((marker) => {
+            const items: JSX.Element[] = [];
+            // Orange (unselected) composite
+            if (!capturedIdsRef.current.has(`marker-${marker.branchId}`)) {
+              items.push(
+                <MarkerBitmapItem
+                  key={`orange-${marker.branchId}`}
+                  branchId={marker.branchId}
+                  imageUrl={marker.imageUrl}
+                  onCapture={handleMarkerBitmapCapture}
+                />
+              );
+            }
+            // Green (selected) composite
+            if (
+              !capturedIdsRef.current.has(`marker-selected-${marker.branchId}`)
+            ) {
+              items.push(
+                <MarkerBitmapItem
+                  key={`green-${marker.branchId}`}
+                  branchId={marker.branchId}
+                  imageUrl={marker.imageUrl}
+                  isSelected
+                  onCapture={handleMarkerBitmapCapture}
+                />
+              );
+            }
+            return items;
+          })}
+        </View>
+      )}
 
       {/* Locate Me FAB */}
       <Animated.View

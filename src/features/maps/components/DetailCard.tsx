@@ -161,12 +161,9 @@ export const DetailCard = ({
                   <Text className="text-xs text-gray-500">{priceRange}</Text>
                 </View>
               )}
-              {branch.isVerified && (
+              {branch.isSubscribed && (
                 <View className="flex-row items-center rounded-full bg-emerald-50 px-2 py-0.5">
                   <MaterialIcons name="verified" size={11} color="#10b981" />
-                  <Text className="ml-0.5 text-[10px] font-medium text-emerald-600">
-                    Đã xác minh
-                  </Text>
                 </View>
               )}
             </View>

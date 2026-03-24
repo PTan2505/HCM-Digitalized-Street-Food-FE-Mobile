@@ -91,7 +91,7 @@ export const PlaceCard = ({
             numberOfLines={2}
           >
             {displayName}{' '}
-            {branch.isVerified && (
+            {branch.isSubscribed && (
               <MaterialCommunityIcons
                 name="check-decagram"
                 size={13}
