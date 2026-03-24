@@ -22,7 +22,14 @@ const StarRating = ({ rating }: { rating: number }): JSX.Element => {
           color="#FFD700"
         />
       ))}
-      <Text style={{ color: '#fff', fontSize: 13, marginLeft: 4, fontWeight: '600' }}>
+      <Text
+        style={{
+          color: '#fff',
+          fontSize: 13,
+          marginLeft: 4,
+          fontWeight: '600',
+        }}
+      >
         {rating.toFixed(1)}
       </Text>
     </View>
@@ -85,8 +92,20 @@ const ShareCard = ({
 
         <StarRating rating={branch.avgRating} />
 
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8, gap: 4 }}>
-          <Ionicons name="location-outline" size={14} color="#ccc" style={{ marginTop: 1 }} />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            marginTop: 8,
+            gap: 4,
+          }}
+        >
+          <Ionicons
+            name="location-outline"
+            size={14}
+            color="#ccc"
+            style={{ marginTop: 1 }}
+          />
           <Text
             style={{ color: '#ccc', fontSize: 12, flex: 1, lineHeight: 18 }}
             numberOfLines={2}
@@ -109,7 +128,9 @@ const ShareCard = ({
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <AppLogo width={28} height={28} />
-          <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600' }}>Lowca</Text>
+          <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600' }}>
+            Lowca
+          </Text>
         </View>
         <Text style={{ color: '#9FD356', fontSize: 11 }}>
           lowca://restaurant/{branch.branchId}

@@ -15,7 +15,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Animated, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import {
+  Alert,
+  Animated,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const AuthScreen = (): JSX.Element => {

@@ -1,4 +1,4 @@
-name: Android development build
+name: Android production build
 
 on:
   push:
@@ -15,8 +15,8 @@ on:
 
 jobs:
   build_android:
-    name: Build Android development
+    name: Build Android production
     type: build
     params:
       platform: android
-      profile: development
+      profile: production

@@ -188,11 +188,8 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
       ref={navigationRef}
       theme={theme}
       linking={{
-          prefixes: [
-            'lowca://',
-            process.env.EXPO_PUBLIC_WEB_URL ?? '',
-          ],
-        }}
+        prefixes: ['lowca://', process.env.EXPO_PUBLIC_WEB_URL ?? ''],
+      }}
     />
   );
 }
