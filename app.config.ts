@@ -1,0 +1,146 @@
+import type { ExpoConfig, ConfigContext } from 'expo/config';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: 'Lowca',
+  scheme: 'lowca',
+  slug: 'hcm-digitalized-street-food-fe-mobile',
+  version: '1.0.0',
+  owner: 'street-food',
+  orientation: 'portrait',
+  icon: './assets/adaptive-icon.png',
+  userInterfaceStyle: 'light',
+  backgroundColor: '#ffffff',
+  newArchEnabled: true,
+  splash: {
+    image: './assets/splash-icon.png',
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
+  },
+  ios: {
+    supportsTablet: true,
+    bundleIdentifier: 'com.hcmstreetfood.mobile',
+    icon: './assets/ios-light.png',
+    infoPlist: {
+      NSLocationWhenInUseUsageDescription:
+        'Allow Lowca to access your location to show nearby street food vendors.',
+      NSLocationAlwaysAndWhenInUseUsageDescription:
+        'Allow Lowca to access your location to show nearby street food vendors.',
+      NSCameraUsageDescription: 'Allow Lowca to access your camera.',
+      NSPhotoLibraryUsageDescription: 'Allow Lowca to access your photo library.',
+      ITSAppUsesNonExemptEncryption: false,
+      NSAppTransportSecurity: {
+        NSAllowsArbitraryLoads: true,
+      },
+      NSUserTrackingUsageDescription:
+        'This identifier ensures a secure login experience.',
+    },
+  },
+  android: {
+    package: 'com.hcmstreetfood.mobile',
+    googleServicesFile:
+      process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
+    adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
+      monochromeImage: './assets/adaptive-icon.png',
+      backgroundColor: '#ffffff',
+    },
+    edgeToEdgeEnabled: true,
+    predictiveBackGestureEnabled: false,
+    permissions: [
+      'ACCESS_COARSE_LOCATION',
+      'ACCESS_FINE_LOCATION',
+      'CAMERA',
+      'READ_MEDIA_IMAGES',
+      'RECEIVE_BOOT_COMPLETED',
+      'VIBRATE',
+    ],
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        data: [
+          {
+            scheme: 'https',
+            host: 'lowca-seven.vercel.app',
+            pathPrefix: '/',
+          },
+        ],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
+  },
+  web: {
+    favicon: './assets/favicon.png',
+    bundler: 'metro',
+  },
+  extra: {
+    eas: {
+      projectId: 'fc2233e3-5c88-40b1-9ee2-e576aa043330',
+    },
+  },
+  plugins: [
+    [
+      '@react-native-google-signin/google-signin',
+      {
+        iosUrlScheme:
+          'com.googleusercontent.apps.1007238627252-i94s152d100nfooh48athhbg3lp101s4',
+      },
+    ],
+    [
+      'react-native-fbsdk-next',
+      {
+        appID: '702936619420508',
+        clientToken: 'b729db072cd18408c9596df88868a408',
+        displayName: 'Street Food HCM',
+        scheme: 'fb702936619420508',
+        advertiserIDCollectionEnabled: false,
+        autoLogAppEventsEnabled: false,
+        isAutoInitEnabled: true,
+        iosUserTrackingPermission:
+          'This identifier ensures a secure login experience.',
+      },
+    ],
+    'expo-tracking-transparency',
+    [
+      'expo-build-properties',
+      {
+        android: {
+          usesCleartextTraffic: true,
+        },
+        ios: {
+          useFrameworks: 'static',
+          deploymentTarget: '16.0',
+        },
+      },
+    ],
+    [
+      'expo-localization',
+      {
+        supportedLocales: ['en', 'vi'],
+      },
+    ],
+    [
+      'expo-location',
+      {
+        locationAlwaysAndWhenInUsePermission:
+          'Allow Lowca to access your location to show nearby street food vendors.',
+        locationWhenInUsePermission:
+          'Allow Lowca to access your location to show nearby street food vendors.',
+        isAndroidBackgroundLocationEnabled: false,
+      },
+    ],
+    'expo-font',
+    'expo-system-ui',
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'Allow Lowca to access your photo library.',
+        cameraPermission: 'Allow Lowca to access your camera.',
+      },
+    ],
+    './plugins/withAndroidDebugKeystore.cjs',
+    '@maplibre/maplibre-react-native',
+    'expo-notifications',
+  ],
+});
