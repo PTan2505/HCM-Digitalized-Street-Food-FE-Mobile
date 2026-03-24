@@ -14,7 +14,7 @@ export default tseslint.config(
       'ios/**',
       '.expo/**',
       'web-build/**',
-      'babel.config.js',
+      'babel.config.cjs',
       'metro.config.cjs',
     ],
   },
@@ -59,6 +59,7 @@ export default tseslint.config(
       '@typescript-eslint/prefer-optional-chain': 'error',
 
       // Relaxed rules (Matches Web)
+      '@typescript-eslint/only-throw-error': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
@@ -103,5 +104,12 @@ export default tseslint.config(
   {
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    // Orval-generated files — do not enforce return-type annotations on generated code
+    files: ['src/features/*/api/generated.ts', 'src/features/*/types/generated/*.ts'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+    },
   }
 );
