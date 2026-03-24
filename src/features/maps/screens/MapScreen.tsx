@@ -73,7 +73,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
 
   const cameraRef = useRef<CameraRef>(null);
   const listRef = useRef<FlatList<ActiveBranch>>(null);
-  const clearNativeTargetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearNativeTargetTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [isPeeked, setIsPeeked] = useState(false);
   const { permissionStatus, retryPermission, coords } = useLocationPermission();
@@ -319,7 +321,10 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       const branch = branches.find((b) => b.branchId === branchId);
       if (!branch) return;
 
-      console.log('[DEBUG MapScreen] onMarkerPress → setCamera to', [branch.long, branch.lat]);
+      console.log('[DEBUG MapScreen] onMarkerPress → setCamera to', [
+        branch.long,
+        branch.lat,
+      ]);
       dismissSearch();
       setSelectedBranchId(branchId);
       setIsPeeked(false);

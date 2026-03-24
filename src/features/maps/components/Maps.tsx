@@ -536,7 +536,6 @@ export const Maps = ({
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
 
-
   // ── Android: composite marker bitmaps (pin + vendor photo) ──
   const [androidMarkerImages, setAndroidMarkerImages] = useState<
     Record<string, { uri: string }>
