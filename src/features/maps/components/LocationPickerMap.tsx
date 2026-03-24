@@ -256,6 +256,7 @@ const LocationPickerMapInner = React.forwardRef<
   const [city, setCity] = useState('');
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
 
   // Search state
   const [searchText, setSearchText] = useState('');
@@ -404,13 +405,21 @@ const LocationPickerMapInner = React.forwardRef<
     [onLocationChange]
   );
 
-  // ── User location ── (center on first GPS fix, like Maps.tsx)
+  // ── User location ── (update ref for "locate me" button; skip camera centering
+  // because the wrapper already resolved the user's position into initialCoordinate
+  // which the Camera uses via defaultSettings — calling setCamera here would set a
+  // native Android target that causes snap-back after user drags)
   const handleUserLocationUpdate = useCallback(
     (location: MapLibreLocation) => {
       userLocationRef.current = [
         location.coords.longitude,
         location.coords.latitude,
       ];
+
+      console.log('[DEBUG] handleUserLocationUpdate fired', {
+        hasCenteredOnUser: hasCenteredOnUser.current,
+        coords: [location.coords.longitude, location.coords.latitude],
+      });
 
       if (!hasCenteredOnUser.current) {
         hasCenteredOnUser.current = true;
@@ -421,12 +430,9 @@ const LocationPickerMapInner = React.forwardRef<
         setCenterCoord(coord);
         centerCoordRef.current = coord;
 
-        cameraRef.current?.setCamera({
-          centerCoordinate: coord,
-          zoomLevel: DEFAULT_ZOOM,
-          animationDuration: 1000,
-          animationMode: 'easeTo',
-        });
+        // No setCamera call here — Camera's defaultSettings already centers
+        // on the resolved user location. Calling setCamera would create a
+        // native camera target that Android snaps back to after user drags.
 
         // Reverse geocode the user's actual location
         void reverseGeocodeCenter(coord);
@@ -451,7 +457,11 @@ const LocationPickerMapInner = React.forwardRef<
   // ── Map drag tracking ──
   const handleRegionWillChange = useCallback(
     (feature: RegionPayloadFeature) => {
+      console.log('[DEBUG] handleRegionWillChange', {
+        isUserInteraction: feature.properties.isUserInteraction,
+      });
       if (feature.properties.isUserInteraction) {
+        isDraggingRef.current = true;
         setIsDragging(true);
       }
     },
@@ -461,20 +471,26 @@ const LocationPickerMapInner = React.forwardRef<
   const handleRegionDidChange = useCallback(async () => {
     if (!mapRef.current) return;
 
+    console.log('[DEBUG] handleRegionDidChange fired', {
+      isDraggingRef: isDraggingRef.current,
+    });
+
     try {
       const center = await mapRef.current.getCenter();
       const coord: [number, number] = [center[0], center[1]];
+      console.log('[DEBUG] map center after region change:', coord);
       setCenterCoord(coord);
       centerCoordRef.current = coord;
 
-      if (isDragging) {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
         setIsDragging(false);
         void reverseGeocodeCenter(coord);
       }
     } catch {
       // Map might not be ready
     }
-  }, [isDragging, reverseGeocodeCenter]);
+  }, [reverseGeocodeCenter]);
 
   // ── Confirm ──
   const handleConfirm = useCallback(() => {
@@ -502,6 +518,7 @@ const LocationPickerMapInner = React.forwardRef<
       >
         <Camera
           ref={cameraRef}
+          followUserLocation={false}
           defaultSettings={{
             centerCoordinate: startCoord,
             zoomLevel: DEFAULT_ZOOM,

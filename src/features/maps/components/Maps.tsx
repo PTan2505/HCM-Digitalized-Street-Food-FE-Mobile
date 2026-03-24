@@ -483,8 +483,8 @@ const buildAndroidSymbolStyle = (
   iconSize: [
     'case',
     ['==', ['get', 'id'], selectedId],
-    0.6, // selected: slightly larger
-    0.5, // 76px PNG → 38dp
+    0.45, // selected: slightly larger
+    0.35, // smaller markers on Android
   ] as unknown as number,
   iconAnchor: 'bottom' as const,
   iconAllowOverlap: true,
@@ -535,6 +535,7 @@ export const Maps = ({
   const userLocationRef = useRef<[number, number] | null>(null);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
+
 
   // ── Android: composite marker bitmaps (pin + vendor photo) ──
   const [androidMarkerImages, setAndroidMarkerImages] = useState<
@@ -616,6 +617,10 @@ export const Maps = ({
   // ── Drag → peek ──
   const handleRegionWillChange = useCallback(
     (feature: RegionPayloadFeature) => {
+      console.log('[DEBUG Maps] handleRegionWillChange', {
+        isUserInteraction: feature.properties.isUserInteraction,
+        selectedBranchId,
+      });
       if (feature.properties.isUserInteraction && selectedBranchId) {
         onUserDrag?.();
       }
@@ -658,6 +663,10 @@ export const Maps = ({
 
   const handleRegionDidChange = useCallback(
     (feature: RegionPayloadFeature) => {
+      console.log('[DEBUG Maps] handleRegionDidChange', {
+        isUserInteraction: feature.properties.isUserInteraction,
+        zoomLevel: feature.properties.zoomLevel.toFixed(2),
+      });
       updateZoomBucket(feature.properties.zoomLevel);
 
       // Report visible center to parent when user interaction ends
@@ -666,6 +675,7 @@ export const Maps = ({
         if (bounds?.[0] && bounds?.[1]) {
           const centerLng = (bounds[0][0] + bounds[1][0]) / 2;
           const centerLat = (bounds[0][1] + bounds[1][1]) / 2;
+          console.log('[DEBUG Maps] onMapIdle center:', [centerLng, centerLat]);
           onMapIdle?.([centerLng, centerLat]);
         }
       }

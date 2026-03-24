@@ -34,6 +34,7 @@ import {
   Dimensions,
   FlatList,
   Keyboard,
+  Platform,
   Text,
   TouchableOpacity,
   View,
@@ -72,6 +73,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
 
   const cameraRef = useRef<CameraRef>(null);
   const listRef = useRef<FlatList<ActiveBranch>>(null);
+  const clearNativeTargetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [isPeeked, setIsPeeked] = useState(false);
   const { permissionStatus, retryPermission, coords } = useLocationPermission();
@@ -317,9 +319,15 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       const branch = branches.find((b) => b.branchId === branchId);
       if (!branch) return;
 
+      console.log('[DEBUG MapScreen] onMarkerPress → setCamera to', [branch.long, branch.lat]);
       dismissSearch();
       setSelectedBranchId(branchId);
       setIsPeeked(false);
+
+      // Cancel any pending native target clear from a previous selection
+      if (clearNativeTargetTimer.current) {
+        clearTimeout(clearNativeTargetTimer.current);
+      }
 
       cameraRef.current?.setCamera({
         centerCoordinate: [branch.long, branch.lat],
@@ -332,6 +340,16 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           paddingBottom: CAMERA_BOTTOM_PADDING,
         },
       });
+
+      // Android: after the animation completes, "neutralize" the native camera
+      // target so it won't snap back to this position when the user drags.
+      if (Platform.OS === 'android') {
+        clearNativeTargetTimer.current = setTimeout(() => {
+          clearNativeTargetTimer.current = null;
+          console.log('[DEBUG MapScreen] Clearing native camera target');
+          cameraRef.current?.setCamera({ animationDuration: 0 });
+        }, 550);
+      }
     },
     [branches, dismissSearch]
   );
