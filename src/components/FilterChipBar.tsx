@@ -68,6 +68,17 @@ export const FilterChipBar = ({
       className="mb-2 py-1"
     >
       <TouchableOpacity
+        onPress={() => onOpenFilter('distance')}
+        className={chipClass('distance')}
+      >
+        <MaterialCommunityIcons
+          name="map-marker-distance"
+          size={18}
+          color={iconColor('distance')}
+        />
+        <Text className={textClass('distance')}>{t('distance')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={() => onOpenFilter('dietary')}
         className={chipClass('dietary')}
       >
@@ -107,18 +118,6 @@ export const FilterChipBar = ({
           color={iconColor('priceRange')}
         />
         <Text className={textClass('priceRange')}>{t('price_range')}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => onOpenFilter('distance')}
-        className={chipClass('distance')}
-      >
-        <MaterialCommunityIcons
-          name="map-marker-distance"
-          size={18}
-          color={iconColor('distance')}
-        />
-        <Text className={textClass('distance')}>{t('distance')}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

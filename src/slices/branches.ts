@@ -57,7 +57,7 @@ export const fetchActiveBranches = createAppAsyncThunk(
       tasteIds?: number[];
       minPrice?: number;
       maxPrice?: number;
-      CategoryIds?: number;
+      CategoryIds?: number[];
     },
     { rejectWithValue }
   ) => {
