@@ -19,7 +19,10 @@ export const useSystemCampaigns = (): {
   } = useQuery({
     queryKey: queryKeys.campaigns.system,
     queryFn: async () => {
-      const data = await campaignApi.getSystemCampaigns({ page: 1, pageSize: 10 });
+      const data = await campaignApi.getSystemCampaigns({
+        page: 1,
+        pageSize: 10,
+      });
       return data?.items ?? [];
     },
   });

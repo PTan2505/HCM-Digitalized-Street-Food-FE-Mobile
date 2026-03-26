@@ -8,7 +8,13 @@ import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TASK_TYPE_ICON: Record<QuestTaskResponse['type'], string> = {
@@ -37,8 +43,12 @@ export const SystemCampaignDetailScreen = ({
 
   const { systemCampaigns } = useSystemCampaigns();
   const { quests, isLoading: questsLoading } = useCampaignQuests(campaignId);
-  const { progressList, isLoading: progressLoading, enroll, isEnrolling } =
-    useCampaignQuestProgress(campaignId);
+  const {
+    progressList,
+    isLoading: progressLoading,
+    enroll,
+    isEnrolling,
+  } = useCampaignQuestProgress(campaignId);
 
   const campaign = useMemo(
     () => systemCampaigns.find((c) => String(c.campaignId) === campaignId),
@@ -104,11 +114,15 @@ export const SystemCampaignDetailScreen = ({
           <ActivityIndicator size="small" color="#a1d973" />
         ) : (
           quests.map((quest) => {
-            const progress = progressList.find((p) => p.questId === quest.questId);
+            const progress = progressList.find(
+              (p) => p.questId === quest.questId
+            );
             const completedTasks = progress?.completedTasks ?? 0;
             const totalTasks = progress?.totalTasks ?? quest.taskCount;
             const progressPct =
-              totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+              totalTasks > 0
+                ? Math.round((completedTasks / totalTasks) * 100)
+                : 0;
 
             return (
               <View
@@ -143,7 +157,9 @@ export const SystemCampaignDetailScreen = ({
                       />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-sm text-gray-700">{task.description}</Text>
+                      <Text className="text-sm text-gray-700">
+                        {task.description}
+                      </Text>
                       <Text className="mt-0.5 text-xs text-gray-400">
                         {t('campaign.reward')}: +{task.rewardValue}{' '}
                         {REWARD_LABEL[task.rewardType]}
