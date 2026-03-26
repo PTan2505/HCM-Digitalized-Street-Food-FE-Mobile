@@ -28,8 +28,8 @@ export const CampaignCard = ({
 
   if (type === 'system') {
     const sys = campaign;
-    const startDate = new Date(sys.startAt).toLocaleDateString();
-    const endDate = new Date(sys.endAt).toLocaleDateString();
+    const startDate = new Date(sys.startDate).toLocaleDateString();
+    const endDate = new Date(sys.endDate).toLocaleDateString();
 
     return (
       <TouchableOpacity
@@ -43,17 +43,10 @@ export const CampaignCard = ({
               {t('campaign.platform_event')}
             </Text>
           </View>
-          {sys.isJoined && (
-            <View className="rounded-full bg-blue-100 px-2 py-0.5">
-              <Text className="text-xs font-semibold text-blue-600">
-                {t('campaign.joined')}
-              </Text>
-            </View>
-          )}
         </View>
 
         <Text className="mb-1 text-base font-bold text-gray-900">
-          {sys.title}
+          {sys.name}
         </Text>
         <Text className="mb-2 text-sm text-gray-500" numberOfLines={2}>
           {sys.description}
@@ -66,14 +59,6 @@ export const CampaignCard = ({
               {startDate} - {endDate}
             </Text>
           </View>
-          {sys.reward && (
-            <View className="flex-row items-center">
-              <Ionicons name="gift-outline" size={14} color="#D97706" />
-              <Text className="ml-1 text-xs text-amber-600" numberOfLines={1}>
-                {sys.reward}
-              </Text>
-            </View>
-          )}
         </View>
       </TouchableOpacity>
     );
@@ -81,11 +66,13 @@ export const CampaignCard = ({
 
   // Restaurant campaign
   const rest = campaign;
-  const expiryDate = new Date(rest.expiresAt).toLocaleDateString();
+  const expiryDate = rest.expiresAt
+    ? new Date(rest.expiresAt).toLocaleDateString()
+    : '';
   const discountLabel =
     rest.discountType === 'percentage'
-      ? `${rest.discountValue}%`
-      : `${rest.discountValue.toLocaleString()}đ`;
+      ? `${rest.discountValue ?? 0}%`
+      : `${rest.discountValue?.toLocaleString() ?? '0'}đ`;
   const isSoldOut = rest.remainingClaims === 0;
 
   return (
@@ -100,25 +87,29 @@ export const CampaignCard = ({
             {t('campaign.merchant_promo')}
           </Text>
         </View>
-        <View className="rounded-full bg-green-100 px-2 py-0.5">
-          <Text className="text-xs font-bold text-green-700">
-            {discountLabel} {t('campaign.off')}
-          </Text>
-        </View>
+        {rest.discountType && rest.discountValue && (
+          <View className="rounded-full bg-green-100 px-2 py-0.5">
+            <Text className="text-xs font-bold text-green-700">
+              {discountLabel} {t('campaign.off')}
+            </Text>
+          </View>
+        )}
       </View>
 
       <Text className="mb-0.5 text-base font-bold text-gray-900">
-        {rest.title}
+        {rest.name}
       </Text>
       <Text className="mb-2 text-sm text-gray-500">{rest.vendorName}</Text>
 
       <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          <Ionicons name="time-outline" size={14} color="#9CA3AF" />
-          <Text className="ml-1 text-xs text-gray-400">
-            {t('campaign.expires')}: {expiryDate}
-          </Text>
-        </View>
+        {rest.expiresAt && (
+          <View className="flex-row items-center">
+            <Ionicons name="time-outline" size={14} color="#9CA3AF" />
+            <Text className="ml-1 text-xs text-gray-400">
+              {t('campaign.expires')}: {expiryDate}
+            </Text>
+          </View>
+        )}
         {rest.remainingClaims != null && (
           <Text
             className={`text-xs font-semibold ${isSoldOut ? 'text-red-500' : 'text-gray-400'}`}

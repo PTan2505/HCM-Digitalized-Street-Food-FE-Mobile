@@ -185,19 +185,18 @@ export const HomeScreen = (): JSX.Element => {
 
   const bannerItems: BannerItem[] = useMemo(() => {
     const items: BannerItem[] = [];
-    const imgIdx = 0;
     for (const c of systemCampaigns.slice(0, 3)) {
       items.push({
         type: 'system_campaign',
         data: c,
-        imageUri: '',
+        imageUri: c.imageUrl ?? '',
       });
     }
     for (const c of restaurantCampaigns.slice(0, 3)) {
       items.push({
         type: 'restaurant_campaign',
         data: c,
-        imageUri: '',
+        imageUri: c.imageUrl ?? '',
       });
     }
     // Fallback banners when no campaigns loaded

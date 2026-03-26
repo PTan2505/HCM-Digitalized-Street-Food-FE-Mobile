@@ -85,7 +85,7 @@ export const CampaignListScreen = (): JSX.Element => {
       ) : activeTab === 'system' ? (
         <FlatList
           data={systemCampaigns}
-          keyExtractor={(item) => item.campaignId}
+          keyExtractor={(item) => String(item.campaignId)}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -103,7 +103,7 @@ export const CampaignListScreen = (): JSX.Element => {
               type="system"
               onPress={() =>
                 navigation.navigate('SystemCampaignDetail', {
-                  campaignId: item.campaignId,
+                  campaignId: String(item.campaignId),
                 })
               }
             />
@@ -119,7 +119,7 @@ export const CampaignListScreen = (): JSX.Element => {
       ) : (
         <FlatList
           data={restaurantCampaigns}
-          keyExtractor={(item) => item.campaignId}
+          keyExtractor={(item) => String(item.campaignId)}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -136,7 +136,7 @@ export const CampaignListScreen = (): JSX.Element => {
               type="restaurant"
               onPress={() =>
                 navigation.navigate('RestaurantCampaignDetail', {
-                  campaignId: item.campaignId,
+                  campaignId: String(item.campaignId),
                 })
               }
             />

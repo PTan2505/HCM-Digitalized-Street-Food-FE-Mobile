@@ -1,0 +1,129 @@
+import type { RootState } from '@app/store';
+import { createAppAsyncThunk } from '@hooks/reduxHooks';
+import { axiosApi } from '@lib/api/apiInstance';
+import { createSlice } from '@reduxjs/toolkit';
+
+import type {
+  PaginatedQuests,
+  UserQuestProgress,
+} from '@features/quests/types/quest';
+
+export interface QuestsState {
+  publicQuests: PaginatedQuests | null;
+  myQuests: UserQuestProgress[];
+  currentQuestDetail: UserQuestProgress | null;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: QuestsState = {
+  publicQuests: null,
+  myQuests: [],
+  currentQuestDetail: null,
+  loading: false,
+  error: null,
+};
+
+export const fetchPublicQuests = createAppAsyncThunk(
+  'quests/fetchPublicQuests',
+  async (
+    { pageNumber, pageSize }: { pageNumber?: number; pageSize?: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await axiosApi.questApi.getPublicQuests(pageNumber, pageSize);
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to fetch quests'
+      );
+    }
+  }
+);
+
+export const enrollInQuest = createAppAsyncThunk(
+  'quests/enrollInQuest',
+  async (questId: number, { rejectWithValue }) => {
+    try {
+      return await axiosApi.questApi.enrollInQuest(questId);
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to enroll in quest'
+      );
+    }
+  }
+);
+
+export const fetchMyQuests = createAppAsyncThunk(
+  'quests/fetchMyQuests',
+  async (status: string | undefined, { rejectWithValue }) => {
+    try {
+      return await axiosApi.questApi.getMyQuests(status);
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Failed to fetch my quests'
+      );
+    }
+  }
+);
+
+const questsSlice = createSlice({
+  name: 'quests',
+  initialState,
+  reducers: {
+    clearQuestError: (state) => {
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPublicQuests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPublicQuests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.publicQuests = action.payload;
+      })
+      .addCase(fetchPublicQuests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(enrollInQuest.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(enrollInQuest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentQuestDetail = action.payload;
+      })
+      .addCase(enrollInQuest.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchMyQuests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyQuests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myQuests = action.payload;
+      })
+      .addCase(fetchMyQuests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+  },
+});
+
+export const { clearQuestError } = questsSlice.actions;
+export default questsSlice.reducer;
+
+// Selectors
+export const selectPublicQuests = (state: RootState): PaginatedQuests | null =>
+  state.quests.publicQuests;
+export const selectMyQuests = (state: RootState): UserQuestProgress[] =>
+  state.quests.myQuests;
+export const selectQuestsLoading = (state: RootState): boolean =>
+  state.quests.loading;
+export const selectQuestsError = (state: RootState): string | null =>
+  state.quests.error;

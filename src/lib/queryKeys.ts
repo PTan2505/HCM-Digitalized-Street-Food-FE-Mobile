@@ -61,4 +61,11 @@ export const queryKeys = {
     nearby: (lat: number, lng: number) =>
       ['campaigns', 'nearby', { lat, lng }] as const,
   },
+
+  quests: {
+    all: ['quests'] as const,
+    public: ['quests', 'public'] as const,
+    detail: (questId: number) => ['quests', 'detail', questId] as const,
+    my: (status?: string) => ['quests', 'my', status] as const,
+  },
 } as const;

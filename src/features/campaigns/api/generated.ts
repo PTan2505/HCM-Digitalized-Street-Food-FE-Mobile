@@ -28,10 +28,19 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
    * Only available to Silver tier or higher vendors. Diamond vendors are auto-enrolled.
    * @summary List active system (platform-wide) campaigns
    */
-  const getSystemCampaigns = () => {
-    return orvalMutator<SystemCampaign[]>({
+  const getSystemCampaigns = (params?: { page?: number; pageSize?: number }) => {
+    return orvalMutator<{
+      currentPage: number;
+      pageSize: number;
+      totalPages: number;
+      totalCount: number;
+      hasPrevious: boolean;
+      hasNext: boolean;
+      items: SystemCampaign[];
+    }>({
       url: `/api/Campaign/system`,
       method: 'GET',
+      params,
     });
   };
 
@@ -51,7 +60,7 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
    */
   const getRestaurantCampaigns = (params?: GetRestaurantCampaignsParams) => {
     return orvalMutator<RestaurantCampaign[]>({
-      url: `/api/Campaign/restaurant`,
+      url: `/api/Campaign/public`,
       method: 'GET',
       params,
     });

@@ -368,6 +368,40 @@
     "enable_location_btn": "Enable Location",
     "no_nearby": "No campaigns nearby",
     "home_title": "Campaigns & Vouchers",
-    "home_subtitle": "Discover deals and earn rewards"
+    "home_subtitle": "Discover deals and earn rewards",
+    "coming_soon": "New deals coming soon",
+    "stay_tuned": "Stay tuned for updates!"
+  },
+  "quest": {
+    "title": "Quests",
+    "discover": "Discover",
+    "myQuests": "My Quests",
+    "tasks": "tasks",
+    "daysLeft": "days left",
+    "startQuest": "Start Quest",
+    "tasksCompleted": "completed",
+    "noQuests": "No quests available right now",
+    "noMyQuests": "You haven't joined any quests yet",
+    "detail": "Quest Detail",
+    "progress": "Your Progress",
+    "taskList": "Tasks",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "error": "Error",
+    "enrollError": "Failed to join quest. Please try again.",
+    "notFound": "Quest not found",
+    "homeTitle": "Quests",
+    "homeSubtitle": "Complete tasks and earn rewards",
+    "taskType": {
+      "review": "Write a review",
+      "orderAmount": "Spend amount",
+      "visit": "Visit a stall",
+      "share": "Share a stall"
+    },
+    "reward": {
+      "badge": "Badge",
+      "points": "pts",
+      "voucher": "Voucher"
+    }
   }
 }

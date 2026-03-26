@@ -368,6 +368,40 @@
     "enable_location_btn": "Bật vị trí",
     "no_nearby": "Không có chiến dịch nào gần đây",
     "home_title": "Chiến dịch & Mã giảm giá",
-    "home_subtitle": "Khám phá ưu đãi và nhận thưởng"
+    "home_subtitle": "Khám phá ưu đãi và nhận thưởng",
+    "coming_soon": "Sắp có ưu đãi mới",
+    "stay_tuned": "Theo dõi để không bỏ lỡ!"
+  },
+  "quest": {
+    "title": "Nhiệm vụ",
+    "discover": "Khám phá",
+    "myQuests": "Nhiệm vụ của tôi",
+    "tasks": "nhiệm vụ",
+    "daysLeft": "ngày còn lại",
+    "startQuest": "Bắt đầu",
+    "tasksCompleted": "hoàn thành",
+    "noQuests": "Chưa có nhiệm vụ nào",
+    "noMyQuests": "Bạn chưa tham gia nhiệm vụ nào",
+    "detail": "Chi tiết nhiệm vụ",
+    "progress": "Tiến độ của bạn",
+    "taskList": "Danh sách nhiệm vụ",
+    "completed": "Hoàn thành",
+    "inProgress": "Đang thực hiện",
+    "error": "Lỗi",
+    "enrollError": "Không thể tham gia nhiệm vụ. Vui lòng thử lại.",
+    "notFound": "Không tìm thấy nhiệm vụ",
+    "homeTitle": "Nhiệm vụ",
+    "homeSubtitle": "Hoàn thành nhiệm vụ và nhận thưởng",
+    "taskType": {
+      "review": "Viết đánh giá",
+      "orderAmount": "Chi tiêu",
+      "visit": "Ghé thăm quán",
+      "share": "Chia sẻ quán"
+    },
+    "reward": {
+      "badge": "Huy hiệu",
+      "points": "điểm",
+      "voucher": "Mã giảm giá"
+    }
   }
 }

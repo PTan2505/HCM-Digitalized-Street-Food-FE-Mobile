@@ -34,6 +34,8 @@ import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
+import { QuestDetailScreen } from '@features/quests/screens/QuestDetailScreen';
+import { QuestListScreen } from '@features/quests/screens/QuestListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
@@ -174,6 +176,18 @@ const RootStack = createNativeStackNavigator({
     VoucherWallet: {
       screen: VoucherWalletScreen,
       linking: 'vouchers',
+    },
+    QuestList: {
+      screen: QuestListScreen,
+      linking: 'quests',
+    },
+    QuestDetail: {
+      screen: QuestDetailScreen,
+      linking: {
+        path: 'quests/:questId',
+        parse: { questId: Number },
+      },
+      params: {} as { questId: number },
     },
   },
 });

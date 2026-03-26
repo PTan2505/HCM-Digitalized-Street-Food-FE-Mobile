@@ -24,7 +24,7 @@ export const SystemCampaignDetailScreen = ({
   const { campaignQuest, getProgressPercentage } = useQuestProgress(campaignId);
 
   const campaign = useMemo(
-    () => systemCampaigns.find((c) => c.campaignId === campaignId),
+    () => systemCampaigns.find((c) => String(c.campaignId) === campaignId),
     [systemCampaigns, campaignId]
   );
 
@@ -39,8 +39,8 @@ export const SystemCampaignDetailScreen = ({
     );
   }
 
-  const startDate = new Date(campaign.startAt).toLocaleDateString();
-  const endDate = new Date(campaign.endAt).toLocaleDateString();
+  const startDate = new Date(campaign.startDate).toLocaleDateString();
+  const endDate = new Date(campaign.endDate).toLocaleDateString();
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
@@ -66,7 +66,7 @@ export const SystemCampaignDetailScreen = ({
         </View>
 
         <Text className="mb-2 text-2xl font-bold text-gray-900">
-          {campaign.title}
+          {campaign.name}
         </Text>
 
         <Text className="mb-4 text-base leading-6 text-gray-600">
@@ -80,36 +80,6 @@ export const SystemCampaignDetailScreen = ({
             {startDate} - {endDate}
           </Text>
         </View>
-
-        {/* Reward */}
-        {campaign.reward && (
-          <View className="mb-4 rounded-xl bg-amber-50 p-4">
-            <View className="flex-row items-center">
-              <Ionicons name="gift-outline" size={20} color="#D97706" />
-              <Text className="ml-2 text-sm font-semibold text-amber-700">
-                {t('campaign.reward')}
-              </Text>
-            </View>
-            <Text className="mt-1 text-sm text-amber-600">
-              {campaign.reward}
-            </Text>
-          </View>
-        )}
-
-        {/* Requirements */}
-        {campaign.requirements && (
-          <View className="mb-4 rounded-xl bg-blue-50 p-4">
-            <View className="flex-row items-center">
-              <Ionicons name="list-outline" size={20} color="#2563EB" />
-              <Text className="ml-2 text-sm font-semibold text-blue-700">
-                {t('campaign.requirements')}
-              </Text>
-            </View>
-            <Text className="mt-1 text-sm text-blue-600">
-              {campaign.requirements}
-            </Text>
-          </View>
-        )}
 
         {/* Quest progress (shown when progress data is available) */}
         {campaignQuest && (

@@ -35,7 +35,7 @@ export const RestaurantCampaignDetailScreen = ({
   const { handleClaimVoucher } = useVoucherWallet();
 
   const campaign = useMemo(
-    () => restaurantCampaigns.find((c) => c.campaignId === campaignId),
+    () => restaurantCampaigns.find((c) => String(c.campaignId) === campaignId),
     [restaurantCampaigns, campaignId]
   );
 
@@ -44,17 +44,17 @@ export const RestaurantCampaignDetailScreen = ({
 
     const voucher: Voucher = {
       voucherId: `v_${campaign.campaignId}_${Date.now()}`,
-      campaignId: campaign.campaignId,
-      title: campaign.title,
-      description: campaign.description,
-      discountType: campaign.discountType,
-      discountValue: campaign.discountValue,
-      minOrderValueVnd: campaign.minOrderValueVnd,
-      expiresAt: campaign.expiresAt,
+      campaignId: String(campaign.campaignId),
+      title: campaign.name,
+      description: campaign.description ?? '',
+      discountType: campaign.discountType ?? 'percentage',
+      discountValue: campaign.discountValue ?? 0,
+      minOrderValueVnd: campaign.minOrderValueVnd ?? null,
+      expiresAt: campaign.expiresAt ?? '',
       claimedAt: new Date().toISOString(),
       source: 'restaurant',
-      vendorId: campaign.vendorId,
-      vendorName: campaign.vendorName,
+      vendorId: campaign.vendorId ?? '',
+      vendorName: campaign.vendorName ?? '',
     };
 
     handleClaimVoucher(voucher);
@@ -74,7 +74,9 @@ export const RestaurantCampaignDetailScreen = ({
   }
 
   const isSoldOut = campaign.remainingClaims === 0;
-  const expiryDate = new Date(campaign.expiresAt).toLocaleDateString();
+  const expiryDate = campaign.expiresAt
+    ? new Date(campaign.expiresAt).toLocaleDateString()
+    : '';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
@@ -100,7 +102,7 @@ export const RestaurantCampaignDetailScreen = ({
         </View>
 
         <Text className="mb-1 text-2xl font-bold text-gray-900">
-          {campaign.title}
+          {campaign.name}
         </Text>
 
         <Text className="mb-4 text-sm text-gray-500">
@@ -114,20 +116,26 @@ export const RestaurantCampaignDetailScreen = ({
         )}
 
         {/* Discount info */}
-        <View className="mb-4 rounded-xl bg-green-50 p-4">
-          <View className="flex-row items-center">
-            <Ionicons name="pricetag-outline" size={20} color="#16A34A" />
-            <Text className="ml-2 text-lg font-bold text-green-700">
-              {formatDiscount(campaign.discountType, campaign.discountValue, t)}
-            </Text>
+        {campaign.discountType && campaign.discountValue && (
+          <View className="mb-4 rounded-xl bg-green-50 p-4">
+            <View className="flex-row items-center">
+              <Ionicons name="pricetag-outline" size={20} color="#16A34A" />
+              <Text className="ml-2 text-lg font-bold text-green-700">
+                {formatDiscount(
+                  campaign.discountType,
+                  campaign.discountValue,
+                  t
+                )}
+              </Text>
+            </View>
+            {campaign.minOrderValueVnd != null && (
+              <Text className="mt-1 text-sm text-green-600">
+                {t('campaign.min_order')}:{' '}
+                {campaign.minOrderValueVnd.toLocaleString()}đ
+              </Text>
+            )}
           </View>
-          {campaign.minOrderValueVnd != null && (
-            <Text className="mt-1 text-sm text-green-600">
-              {t('campaign.min_order')}:{' '}
-              {campaign.minOrderValueVnd.toLocaleString()}đ
-            </Text>
-          )}
-        </View>
+        )}
 
         {/* Expiry */}
         <View className="mb-2 flex-row items-center">

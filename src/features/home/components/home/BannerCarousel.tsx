@@ -17,6 +17,8 @@ import { useSharedValue } from 'react-native-reanimated';
 import Carousel from 'react-native-reanimated-carousel';
 
 const width = Dimensions.get('window').width;
+const BANNER_HEIGHT = Math.round(width / 2);
+const BANNER_ITEM_WIDTH = Math.round(width * 0.82);
 
 export type BannerItem =
   | { type: 'image'; uri: string }
@@ -41,23 +43,27 @@ const BannerCarousel = ({
   if (items.length === 0) return <View />;
 
   return (
-    <View style={{ height: width / 2, overflow: 'hidden' }}>
+    <View style={{ height: BANNER_HEIGHT, overflow: 'hidden' }}>
       <Carousel
-        style={{ width, height: width / 2 }}
+        style={{ width, height: BANNER_HEIGHT }}
         data={items}
         onProgressChange={progress}
         mode="parallax"
         modeConfig={{
-          parallaxScrollingScale: 0.9,
-          parallaxScrollingOffset: 50,
+          parallaxScrollingScale: 0.83,
+          parallaxScrollingOffset: 53,
         }}
         renderItem={({ item }) => {
           if (item.type === 'image') {
+            // Skip rendering if URI is empty
+            if (!item.uri || item.uri.trim() === '') {
+              return <View />;
+            }
             return (
               <View className="flex flex-1 justify-center">
                 <Image
                   source={{ uri: item.uri }}
-                  style={{ width, height: 200 }}
+                  style={{ width, height: BANNER_HEIGHT }}
                   resizeMode="cover"
                   className="rounded-[14px]"
                 />
@@ -67,21 +73,25 @@ const BannerCarousel = ({
 
           if (item.type === 'system_campaign') {
             const c = item.data;
+            // Skip rendering if imageUri is empty
+            if (!item.imageUri || item.imageUri.trim() === '') {
+              return <View />;
+            }
             return (
               <TouchableOpacity
-                onPress={() => onCampaignPress?.(c.campaignId, 'system')}
+                onPress={() =>
+                  onCampaignPress?.(String(c.campaignId), 'system')
+                }
                 activeOpacity={0.85}
                 className="flex flex-1 justify-center"
               >
                 <ImageBackground
                   source={{ uri: item.imageUri }}
-                  style={{ width: width - 40, height: 200 }}
+                  style={{ width: BANNER_ITEM_WIDTH, height: BANNER_HEIGHT }}
                   imageStyle={{ borderRadius: 14 }}
                   resizeMode="cover"
                 >
-                  <View
-                    className="flex-1 rounded-[14px] bg-black/40 p-4"
-                  >
+                  <View className="flex-1 rounded-[14px] bg-black/40 p-4">
                     <View className="mb-2 self-start rounded-full bg-white/30 px-2 py-0.5">
                       <Text className="text-xs font-semibold text-white">
                         {t('campaign.platform_event')}
@@ -91,7 +101,7 @@ const BannerCarousel = ({
                       className="mb-1 text-lg font-bold text-white"
                       numberOfLines={2}
                     >
-                      {c.title}
+                      {c.name}
                     </Text>
                     <Text
                       className="mb-2 text-sm text-white/80"
@@ -99,18 +109,7 @@ const BannerCarousel = ({
                     >
                       {c.description}
                     </Text>
-                    <View className="mt-auto flex-row items-center justify-between">
-                      {c.reward && (
-                        <View className="flex-row items-center">
-                          <Ionicons name="gift-outline" size={14} color="#fff" />
-                          <Text
-                            className="ml-1 text-xs text-white/90"
-                            numberOfLines={1}
-                          >
-                            {c.reward}
-                          </Text>
-                        </View>
-                      )}
+                    <View className="mt-auto flex-row items-center justify-end">
                       <View className="flex-row items-center">
                         <Ionicons
                           name="arrow-forward-circle-outline"
@@ -127,52 +126,60 @@ const BannerCarousel = ({
 
           // restaurant_campaign
           const rc = item.data;
+          // Skip rendering if imageUri is empty
+          if (!item.imageUri || item.imageUri.trim() === '') {
+            return <View />;
+          }
           const discountLabel =
             rc.discountType === 'percentage'
               ? `${rc.discountValue}%`
-              : `${rc.discountValue.toLocaleString()}đ`;
+              : `${rc.discountValue?.toLocaleString()}đ`;
 
           return (
             <TouchableOpacity
-              onPress={() => onCampaignPress?.(rc.campaignId, 'restaurant')}
+              onPress={() =>
+                onCampaignPress?.(String(rc.campaignId), 'restaurant')
+              }
               activeOpacity={0.85}
               className="flex flex-1 justify-center"
             >
               <ImageBackground
                 source={{ uri: item.imageUri }}
-                style={{ width: width - 40, height: 200 }}
+                style={{ width: BANNER_ITEM_WIDTH, height: BANNER_HEIGHT }}
                 imageStyle={{ borderRadius: 14 }}
                 resizeMode="cover"
               >
-                <View
-                  className="flex-1 rounded-[14px] bg-black/40 p-4"
-                >
+                <View className="flex-1 rounded-[14px] bg-black/40 p-4">
                   <View className="mb-2 flex-row items-center justify-between">
                     <View className="rounded-full bg-white/30 px-2 py-0.5">
                       <Text className="text-xs font-semibold text-white">
                         {t('campaign.merchant_promo')}
                       </Text>
                     </View>
-                    <View className="rounded-full bg-white/30 px-2 py-0.5">
-                      <Text className="text-xs font-bold text-white">
-                        {discountLabel} {t('campaign.off')}
-                      </Text>
-                    </View>
+                    {rc.discountType && rc.discountValue && (
+                      <View className="rounded-full bg-white/30 px-2 py-0.5">
+                        <Text className="text-xs font-bold text-white">
+                          {discountLabel} {t('campaign.off')}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                   <Text
                     className="mb-1 text-lg font-bold text-white"
                     numberOfLines={2}
                   >
-                    {rc.title}
+                    {rc.name}
                   </Text>
                   <Text className="mb-2 text-sm text-white/80">
-                    {rc.vendorName}
+                    {rc.vendorName ?? rc.description}
                   </Text>
                   <View className="mt-auto flex-row items-center justify-between">
-                    <Text className="text-xs text-white/70">
-                      {t('campaign.expires')}:{' '}
-                      {new Date(rc.expiresAt).toLocaleDateString()}
-                    </Text>
+                    {rc.expiresAt && (
+                      <Text className="text-xs text-white/70">
+                        {t('campaign.expires')}:{' '}
+                        {new Date(rc.expiresAt).toLocaleDateString()}
+                      </Text>
+                    )}
                     <View className="flex-row items-center">
                       <Ionicons
                         name="arrow-forward-circle-outline"

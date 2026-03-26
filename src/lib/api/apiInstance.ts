@@ -12,6 +12,7 @@ import { VendorApi } from '@features/home/api/vendorApi';
 import { CartApi, OrderApi } from '@features/direct-ordering/api/cartApi';
 import { GhostPinApi } from '@features/maps/api/ghostPinApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
+import { QuestApi } from '@features/quests/api/questApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
@@ -39,4 +40,5 @@ export const axiosApi = {
   cartApi: new CartApi(axiosClient),
   orderApi: new OrderApi(axiosClient),
   notificationApi: new NotificationApi(axiosClient),
+  questApi: new QuestApi(axiosClient),
 };
