@@ -1,38 +1,191 @@
+import { Ionicons } from '@expo/vector-icons';
+import type {
+  RestaurantCampaign,
+  SystemCampaign,
+} from '@features/campaigns/types/generated';
 import type { JSX } from 'react';
-import { Dimensions, Image, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import {
+  Dimensions,
+  Image,
+  ImageBackground,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel from 'react-native-reanimated-carousel';
 
 const width = Dimensions.get('window').width;
 
+export type BannerItem =
+  | { type: 'image'; uri: string }
+  | { type: 'system_campaign'; data: SystemCampaign; imageUri: string }
+  | { type: 'restaurant_campaign'; data: RestaurantCampaign; imageUri: string };
+
 interface BannerCarouselProps {
-  banners: string[];
+  items: BannerItem[];
+  onCampaignPress?: (
+    campaignId: string,
+    campaignType: 'system' | 'restaurant'
+  ) => void;
 }
 
-const BannerCarousel = ({ banners }: BannerCarouselProps): JSX.Element => {
+const BannerCarousel = ({
+  items,
+  onCampaignPress,
+}: BannerCarouselProps): JSX.Element => {
+  const { t } = useTranslation();
   const progress = useSharedValue<number>(0);
+
+  if (items.length === 0) return <View />;
 
   return (
     <View style={{ height: width / 2, overflow: 'hidden' }}>
       <Carousel
         style={{ width, height: width / 2 }}
-        data={banners}
+        data={items}
         onProgressChange={progress}
         mode="parallax"
         modeConfig={{
           parallaxScrollingScale: 0.9,
           parallaxScrollingOffset: 50,
         }}
-        renderItem={({ index }) => (
-          <View className="flex flex-1 justify-center">
-            <Image
-              source={{ uri: banners[index] }}
-              style={{ width: width, height: 200 }}
-              resizeMode="cover"
-              className="rounded-[14px]"
-            />
-          </View>
-        )}
+        renderItem={({ item }) => {
+          if (item.type === 'image') {
+            return (
+              <View className="flex flex-1 justify-center">
+                <Image
+                  source={{ uri: item.uri }}
+                  style={{ width, height: 200 }}
+                  resizeMode="cover"
+                  className="rounded-[14px]"
+                />
+              </View>
+            );
+          }
+
+          if (item.type === 'system_campaign') {
+            const c = item.data;
+            return (
+              <TouchableOpacity
+                onPress={() => onCampaignPress?.(c.campaignId, 'system')}
+                activeOpacity={0.85}
+                className="flex flex-1 justify-center"
+              >
+                <ImageBackground
+                  source={{ uri: item.imageUri }}
+                  style={{ width: width - 40, height: 200 }}
+                  imageStyle={{ borderRadius: 14 }}
+                  resizeMode="cover"
+                >
+                  <View
+                    className="flex-1 rounded-[14px] bg-black/40 p-4"
+                  >
+                    <View className="mb-2 self-start rounded-full bg-white/30 px-2 py-0.5">
+                      <Text className="text-xs font-semibold text-white">
+                        {t('campaign.platform_event')}
+                      </Text>
+                    </View>
+                    <Text
+                      className="mb-1 text-lg font-bold text-white"
+                      numberOfLines={2}
+                    >
+                      {c.title}
+                    </Text>
+                    <Text
+                      className="mb-2 text-sm text-white/80"
+                      numberOfLines={2}
+                    >
+                      {c.description}
+                    </Text>
+                    <View className="mt-auto flex-row items-center justify-between">
+                      {c.reward && (
+                        <View className="flex-row items-center">
+                          <Ionicons name="gift-outline" size={14} color="#fff" />
+                          <Text
+                            className="ml-1 text-xs text-white/90"
+                            numberOfLines={1}
+                          >
+                            {c.reward}
+                          </Text>
+                        </View>
+                      )}
+                      <View className="flex-row items-center">
+                        <Ionicons
+                          name="arrow-forward-circle-outline"
+                          size={16}
+                          color="#fff"
+                        />
+                      </View>
+                    </View>
+                  </View>
+                </ImageBackground>
+              </TouchableOpacity>
+            );
+          }
+
+          // restaurant_campaign
+          const rc = item.data;
+          const discountLabel =
+            rc.discountType === 'percentage'
+              ? `${rc.discountValue}%`
+              : `${rc.discountValue.toLocaleString()}đ`;
+
+          return (
+            <TouchableOpacity
+              onPress={() => onCampaignPress?.(rc.campaignId, 'restaurant')}
+              activeOpacity={0.85}
+              className="flex flex-1 justify-center"
+            >
+              <ImageBackground
+                source={{ uri: item.imageUri }}
+                style={{ width: width - 40, height: 200 }}
+                imageStyle={{ borderRadius: 14 }}
+                resizeMode="cover"
+              >
+                <View
+                  className="flex-1 rounded-[14px] bg-black/40 p-4"
+                >
+                  <View className="mb-2 flex-row items-center justify-between">
+                    <View className="rounded-full bg-white/30 px-2 py-0.5">
+                      <Text className="text-xs font-semibold text-white">
+                        {t('campaign.merchant_promo')}
+                      </Text>
+                    </View>
+                    <View className="rounded-full bg-white/30 px-2 py-0.5">
+                      <Text className="text-xs font-bold text-white">
+                        {discountLabel} {t('campaign.off')}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text
+                    className="mb-1 text-lg font-bold text-white"
+                    numberOfLines={2}
+                  >
+                    {rc.title}
+                  </Text>
+                  <Text className="mb-2 text-sm text-white/80">
+                    {rc.vendorName}
+                  </Text>
+                  <View className="mt-auto flex-row items-center justify-between">
+                    <Text className="text-xs text-white/70">
+                      {t('campaign.expires')}:{' '}
+                      {new Date(rc.expiresAt).toLocaleDateString()}
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Ionicons
+                        name="arrow-forward-circle-outline"
+                        size={16}
+                        color="#fff"
+                      />
+                    </View>
+                  </View>
+                </View>
+              </ImageBackground>
+            </TouchableOpacity>
+          );
+        }}
       />
     </View>
   );

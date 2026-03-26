@@ -26,6 +26,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUserStatus } from '@slices/auth';
 import { ActivityIndicator, View } from 'react-native';
 
+import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScreen';
+import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
+import { SystemCampaignDetailScreen } from '@features/campaigns/screens/SystemCampaignDetailScreen';
+import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
@@ -154,6 +158,22 @@ const RootStack = createNativeStackNavigator({
     Notifications: {
       screen: NotificationScreen,
       linking: 'notifications',
+    },
+    CampaignList: {
+      screen: CampaignListScreen,
+      linking: 'campaigns',
+    },
+    SystemCampaignDetail: {
+      screen: SystemCampaignDetailScreen,
+      params: {} as { campaignId: string },
+    },
+    RestaurantCampaignDetail: {
+      screen: RestaurantCampaignDetailScreen,
+      params: {} as { campaignId: string },
+    },
+    VoucherWallet: {
+      screen: VoucherWalletScreen,
+      linking: 'vouchers',
     },
   },
 });

@@ -1,7 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
+import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import SearchBar from '@features/home/components/common/SearchBar';
-import BannerCarousel from '@features/home/components/home/BannerCarousel';
+import BannerCarousel, {
+  BannerItem,
+} from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -66,6 +70,8 @@ export const HomeScreen = (): JSX.Element => {
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords } = useLocationPermission();
+  const { systemCampaigns } = useSystemCampaigns();
+  const { restaurantCampaigns } = useRestaurantCampaigns(userCoords);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const navigation =
@@ -177,11 +183,33 @@ export const HomeScreen = (): JSX.Element => {
     [handleLoadMore, refreshing]
   );
 
-  const banners = [
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
-  ];
+  const bannerItems: BannerItem[] = useMemo(() => {
+    const items: BannerItem[] = [];
+    const imgIdx = 0;
+    for (const c of systemCampaigns.slice(0, 3)) {
+      items.push({
+        type: 'system_campaign',
+        data: c,
+        imageUri: '',
+      });
+    }
+    for (const c of restaurantCampaigns.slice(0, 3)) {
+      items.push({
+        type: 'restaurant_campaign',
+        data: c,
+        imageUri: '',
+      });
+    }
+    // Fallback banners when no campaigns loaded
+    if (items.length === 0) {
+      items.push(
+        { type: 'image', uri: '' },
+        { type: 'image', uri: '' },
+        { type: 'image', uri: '' }
+      );
+    }
+    return items;
+  }, [systemCampaigns, restaurantCampaigns]);
 
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
@@ -233,6 +261,17 @@ export const HomeScreen = (): JSX.Element => {
   useEffect(() => {
     void dispatch(fetchUnreadCount());
   }, [dispatch]);
+
+  const handleCampaignPress = useCallback(
+    (campaignId: string, campaignType: 'system' | 'restaurant') => {
+      if (campaignType === 'system') {
+        navigation.navigate('SystemCampaignDetail', { campaignId });
+      } else {
+        navigation.navigate('RestaurantCampaignDetail', { campaignId });
+      }
+    },
+    [navigation]
+  );
 
   // Callback to update branch rating in Redux when navigating back from detail screens
   const handleRatingUpdate = useCallback(
@@ -290,7 +329,10 @@ export const HomeScreen = (): JSX.Element => {
             navigation.navigate('Search', { openFilter: true })
           }
         />
-        <BannerCarousel banners={banners} />
+        <BannerCarousel
+          items={bannerItems}
+          onCampaignPress={handleCampaignPress}
+        />
 
         <View className="px-4 py-2">
           <Title>{t('what_want_eat')}</Title>
@@ -352,7 +394,15 @@ export const HomeScreen = (): JSX.Element => {
       </LinearGradient>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [categories, categoriesLoading, banners, insets.top, refreshing, t]
+    [
+      categories,
+      categoriesLoading,
+      bannerItems,
+      handleCampaignPress,
+      insets.top,
+      refreshing,
+      t,
+    ]
   );
 
   return (

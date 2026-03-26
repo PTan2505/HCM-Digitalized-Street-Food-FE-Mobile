@@ -52,4 +52,13 @@ export const queryKeys = {
     all: ['dishes'] as const,
     byBranch: (branchId: number) => ['dishes', 'branch', branchId] as const,
   },
+
+  campaigns: {
+    all: ['campaigns'] as const,
+    system: ['campaigns', 'system'] as const,
+    restaurant: (lat?: number, lng?: number) =>
+      ['campaigns', 'restaurant', { lat, lng }] as const,
+    nearby: (lat: number, lng: number) =>
+      ['campaigns', 'nearby', { lat, lng }] as const,
+  },
 } as const;
