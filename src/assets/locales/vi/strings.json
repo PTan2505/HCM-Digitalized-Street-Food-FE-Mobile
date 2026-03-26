@@ -370,7 +370,9 @@
     "home_title": "Chiến dịch & Mã giảm giá",
     "home_subtitle": "Khám phá ưu đãi và nhận thưởng",
     "coming_soon": "Sắp có ưu đãi mới",
-    "stay_tuned": "Theo dõi để không bỏ lỡ!"
+    "stay_tuned": "Theo dõi để không bỏ lỡ!",
+    "quest_tasks": "Nhiệm vụ",
+    "start_quest": "Bắt đầu nhiệm vụ"
   },
   "quest": {
     "title": "Nhiệm vụ",

@@ -370,7 +370,9 @@
     "home_title": "Campaigns & Vouchers",
     "home_subtitle": "Discover deals and earn rewards",
     "coming_soon": "New deals coming soon",
-    "stay_tuned": "Stay tuned for updates!"
+    "stay_tuned": "Stay tuned for updates!",
+    "quest_tasks": "Tasks",
+    "start_quest": "Start Quest"
   },
   "quest": {
     "title": "Quests",

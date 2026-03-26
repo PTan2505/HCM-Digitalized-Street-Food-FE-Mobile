@@ -67,5 +67,7 @@ export const queryKeys = {
     public: ['quests', 'public'] as const,
     detail: (questId: number) => ['quests', 'detail', questId] as const,
     my: (status?: string) => ['quests', 'my', status] as const,
+    byCampaign: (campaignId: string) => ['quests', 'campaign', campaignId] as const,
+    myProgress: (campaignId: string) => ['quests', 'myProgress', campaignId] as const,
   },
 } as const;

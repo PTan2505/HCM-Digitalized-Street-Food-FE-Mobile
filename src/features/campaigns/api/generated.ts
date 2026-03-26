@@ -18,8 +18,10 @@ import type {
   GetNearbyCampaignsParams,
   GetRestaurantCampaignsParams,
   NearbyCampaign,
+  QuestResponse,
   RestaurantCampaign,
   SystemCampaign,
+  UserQuestProgress,
 } from '../types/generated';
 
 import { orvalMutator } from '../../../lib/api/orvalMutator';
@@ -96,12 +98,58 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
     });
   };
 
+  /**
+   * @summary List active quests, optionally filtered by campaign
+   */
+  const getPublicQuests = (params?: {
+    campaignId?: number;
+    pageNumber?: number;
+    pageSize?: number;
+  }) => {
+    return orvalMutator<{
+      currentPage: number;
+      pageSize: number;
+      totalPages: number;
+      totalCount: number;
+      hasPrevious: boolean;
+      hasNext: boolean;
+      items: QuestResponse[];
+    }>({
+      url: `/api/Quest/public`,
+      method: 'GET',
+      params,
+    });
+  };
+
+  /**
+   * @summary Get the current user's quest progress for a specific campaign
+   */
+  const getCampaignQuestProgress = (campaignId: string) => {
+    return orvalMutator<UserQuestProgress[]>({
+      url: `/api/Quest/campaign/${campaignId}/my-progress`,
+      method: 'GET',
+    });
+  };
+
+  /**
+   * @summary Enroll the current user in a quest
+   */
+  const enrollInQuest = (questId: number) => {
+    return orvalMutator<UserQuestProgress>({
+      url: `/api/Quest/${questId}/enroll`,
+      method: 'POST',
+    });
+  };
+
   return {
     getSystemCampaigns,
     joinSystemCampaign,
     getRestaurantCampaigns,
     createRestaurantCampaign,
     getNearbyCampaigns,
+    getPublicQuests,
+    getCampaignQuestProgress,
+    enrollInQuest,
   };
 };
 export type GetSystemCampaignsResult = NonNullable<
