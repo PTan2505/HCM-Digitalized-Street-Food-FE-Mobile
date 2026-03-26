@@ -18,7 +18,7 @@ import Carousel from 'react-native-reanimated-carousel';
 
 const width = Dimensions.get('window').width;
 const BANNER_HEIGHT = Math.round(width / 2);
-const BANNER_ITEM_WIDTH = Math.round(width * 0.82);
+const BANNER_ITEM_WIDTH = width;
 
 export type BannerItem =
   | { type: 'image'; uri: string }
@@ -50,8 +50,8 @@ const BannerCarousel = ({
         onProgressChange={progress}
         mode="parallax"
         modeConfig={{
-          parallaxScrollingScale: 0.83,
-          parallaxScrollingOffset: 53,
+          parallaxScrollingScale: 0.9,
+          parallaxScrollingOffset: 50,
         }}
         renderItem={({ item }) => {
           if (item.type === 'image') {
