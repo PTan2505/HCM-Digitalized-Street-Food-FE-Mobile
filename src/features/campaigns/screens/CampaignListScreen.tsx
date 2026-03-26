@@ -5,10 +5,10 @@ import { useNearbyCampaigns } from '@features/campaigns/hooks/useNearbyCampaigns
 import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
+import { queryKeys } from '@lib/queryKeys';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@lib/queryKeys';
 import type { JSX } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';

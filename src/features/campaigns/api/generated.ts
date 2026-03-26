@@ -28,7 +28,10 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
    * Only available to Silver tier or higher vendors. Diamond vendors are auto-enrolled.
    * @summary List active system (platform-wide) campaigns
    */
-  const getSystemCampaigns = (params?: { page?: number; pageSize?: number }) => {
+  const getSystemCampaigns = (params?: {
+    page?: number;
+    pageSize?: number;
+  }) => {
     return orvalMutator<{
       currentPage: number;
       pageSize: number;

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { QuestProgressBar } from '@features/campaigns/components/QuestProgressBar';
-import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useQuestProgress } from '@features/campaigns/hooks/useQuestProgress';
+import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useMemo } from 'react';
