@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -10,6 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { QuestCard } from '@features/quests/components/QuestCard';
@@ -27,6 +33,49 @@ export const QuestListScreen = (): JSX.Element => {
     useQuests();
   const [activeTab, setActiveTab] = useState<Tab>('discover');
   const [refreshing, setRefreshing] = useState(false);
+  const [tabWidth, setTabWidth] = useState(0);
+
+  const tabKeys: Tab[] = ['discover', 'my', 'completed'];
+  const indicatorX = useSharedValue(0);
+  const tab0Active = useSharedValue(1);
+  const tab1Active = useSharedValue(0);
+  const tab2Active = useSharedValue(0);
+  const tabActives = [tab0Active, tab1Active, tab2Active];
+
+  const indicatorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: indicatorX.value }],
+  }));
+
+  const tab0TextStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(tab0Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+  }));
+  const tab1TextStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(tab1Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+  }));
+  const tab2TextStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(tab2Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+  }));
+  const tabTextStyles = [tab0TextStyle, tab1TextStyle, tab2TextStyle];
+
+  const handleTabChange = useCallback(
+    (key: Tab) => {
+      const newIdx = tabKeys.indexOf(key);
+      indicatorX.value = withTiming(newIdx * tabWidth, { duration: 250 });
+      tabActives.forEach((v, i) => {
+        v.value = withTiming(i === newIdx ? 1 : 0, { duration: 250 });
+      });
+      setActiveTab(key);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tabWidth]
+  );
+
+  useEffect(() => {
+    if (tabWidth > 0) {
+      indicatorX.value = tabKeys.indexOf(activeTab) * tabWidth;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabWidth]);
 
   const activeQuests = myQuests.filter(
     (q) => q.status === 'IN_PROGRESS' || q.status === 'STOPPED'
@@ -66,20 +115,29 @@ export const QuestListScreen = (): JSX.Element => {
       </View>
 
       {/* Tabs */}
-      <View className="flex-row border-b border-gray-200 px-4">
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab.key}
-            onPress={() => setActiveTab(tab.key)}
-            className={`mr-6 pb-3 ${activeTab === tab.key ? 'border-b-2 border-[#a1d973]' : ''}`}
-          >
-            <Text
-              className={`text-sm font-semibold ${activeTab === tab.key ? 'text-[#7AB82D]' : 'text-gray-400'}`}
+      <View className="border-b border-gray-200 px-4">
+        <View
+          className="flex-row"
+          onLayout={(e) => setTabWidth(e.nativeEvent.layout.width / tabs.length)}
+        >
+          {tabs.map((tab, i) => (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => handleTabChange(tab.key)}
+              className="flex-1 items-center pb-3"
             >
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Animated.Text
+                className="text-sm font-semibold"
+                style={tabTextStyles[i]}
+              >
+                {tab.label}
+              </Animated.Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Animated.View
+          style={[{ width: tabWidth, height: 2, backgroundColor: '#a1d973', marginTop: -2 }, indicatorStyle]}
+        />
       </View>
 
       {loading && !refreshing ? (
