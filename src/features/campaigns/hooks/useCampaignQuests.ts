@@ -5,15 +5,15 @@ import { useQuery } from '@tanstack/react-query';
 
 const questApi = getLowcaAPIUnimplementedEndpoints();
 
-export const useCampaignQuests = (
+export const useCampaignQuest = (
   campaignId: string
 ): {
-  quests: QuestResponse[];
+  quest: QuestResponse | null;
   isLoading: boolean;
   isError: boolean;
 } => {
   const {
-    data: quests = [],
+    data: quest = null,
     isLoading,
     isError,
   } = useQuery({
@@ -22,12 +22,12 @@ export const useCampaignQuests = (
       const data = await questApi.getPublicQuests({
         campaignId: Number(campaignId),
         pageNumber: 1,
-        pageSize: 10,
+        pageSize: 1,
       });
-      return data?.items ?? [];
+      return data?.items?.[0] ?? null;
     },
     enabled: !!campaignId,
   });
 
-  return { quests, isLoading, isError };
+  return { quest, isLoading, isError };
 };
