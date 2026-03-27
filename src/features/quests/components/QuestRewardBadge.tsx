@@ -76,6 +76,7 @@ export const QuestRewardBadge = ({
     ? 'checkmark-circle'
     : config.icon;
 
+  const [badgeName, setBadgeName] = useState<string | null>(null);
   const [voucherDisplay, setVoucherDisplay] = useState<{
     name: string;
     discount: string;
@@ -83,23 +84,30 @@ export const QuestRewardBadge = ({
   } | null>(null);
 
   useEffect(() => {
-    if (normalized !== 'VOUCHER') return;
-    axiosApi.questApi
-      .getVoucherById(rewardValue)
-      .then((v) => {
-        const isPercent = v.type.toUpperCase().includes('PERCENT');
-        const discount = isPercent
-          ? `${t('quest.reward.voucherOff')} ${v.discountValue}%`
-          : `${t('quest.reward.voucherOff')} ${v.discountValue.toLocaleString()}đ`;
-        const remain = t('quest.reward.voucherRemain', { count: v.remain });
-        setVoucherDisplay({ name: v.name, discount, remain });
-      })
-      .catch(() => {});
+    if (normalized === 'BADGE') {
+      axiosApi.questApi
+        .getBadgeById(rewardValue)
+        .then((b) => setBadgeName(b.badgeName))
+        .catch(() => {});
+    }
+    if (normalized === 'VOUCHER') {
+      axiosApi.questApi
+        .getVoucherById(rewardValue)
+        .then((v) => {
+          const isPercent = v.type.toUpperCase().includes('PERCENT');
+          const discount = isPercent
+            ? `${t('quest.reward.voucherOff')} ${v.discountValue}%`
+            : `${t('quest.reward.voucherOff')} ${v.discountValue.toLocaleString()}đ`;
+          const remain = t('quest.reward.voucherRemain', { count: v.remain });
+          setVoucherDisplay({ name: v.name, discount, remain });
+        })
+        .catch(() => {});
+    }
   }, [normalized, rewardValue, t]);
 
   const getLabel = (): string => {
     if (normalized === 'POINTS') return `+${rewardValue} ${t('quest.reward.points')}`;
-    if (normalized === 'BADGE') return t('quest.reward.badge');
+    if (normalized === 'BADGE') return badgeName ?? t('quest.reward.badge');
     return t('quest.reward.voucher');
   };
 

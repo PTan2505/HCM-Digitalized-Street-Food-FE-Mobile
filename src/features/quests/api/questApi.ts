@@ -2,6 +2,7 @@ import type ApiClient from '@lib/api/apiClient';
 
 import type {
   PaginatedQuests,
+  QuestBadgeDetail,
   QuestResponse,
   QuestVoucherDetail,
   UserQuestProgress,
@@ -51,6 +52,13 @@ export class QuestApi {
     await this.apiClient.post<void, null>({
       url: `/api/Quest/checkin/${branchId}`,
     });
+  }
+
+  async getBadgeById(badgeId: number): Promise<QuestBadgeDetail> {
+    const res = await this.apiClient.get<QuestBadgeDetail>({
+      url: `/api/Badge/${badgeId}`,
+    });
+    return res.data;
   }
 
   async getVoucherById(voucherId: number): Promise<QuestVoucherDetail> {

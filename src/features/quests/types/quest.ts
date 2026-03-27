@@ -57,6 +57,13 @@ export interface UserQuestProgress {
   tasks: UserQuestTaskProgress[];
 }
 
+export interface QuestBadgeDetail {
+  badgeId: number;
+  badgeName: string;
+  iconUrl: string;
+  description: string | null;
+}
+
 export interface QuestVoucherDetail {
   voucherId: number;
   name: string;
