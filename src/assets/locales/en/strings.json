@@ -394,16 +394,20 @@
     "notFound": "Quest not found",
     "homeTitle": "Quests",
     "homeSubtitle": "Complete tasks and earn rewards",
+    "rewards": "Rewards",
     "taskType": {
       "review": "Write a review",
       "orderAmount": "Spend amount",
       "visit": "Visit a stall",
-      "share": "Share a stall"
+      "share": "Share a stall",
+      "createGhostPin": "Pin a new location"
     },
     "reward": {
       "badge": "Badge",
       "points": "pts",
-      "voucher": "Voucher"
+      "voucher": "Voucher",
+      "voucherOff": "Off",
+      "voucherRemain": "{{count}} left"
     }
   }
 }

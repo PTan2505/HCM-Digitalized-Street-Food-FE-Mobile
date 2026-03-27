@@ -394,16 +394,20 @@
     "notFound": "Không tìm thấy nhiệm vụ",
     "homeTitle": "Nhiệm vụ",
     "homeSubtitle": "Hoàn thành nhiệm vụ và nhận thưởng",
+    "rewards": "Phần thưởng",
     "taskType": {
       "review": "Viết đánh giá",
       "orderAmount": "Chi tiêu",
       "visit": "Ghé thăm quán",
-      "share": "Chia sẻ quán"
+      "share": "Chia sẻ quán",
+      "createGhostPin": "Gắn địa điểm mới"
     },
     "reward": {
       "badge": "Huy hiệu",
       "points": "điểm",
-      "voucher": "Mã giảm giá"
+      "voucher": "Mã giảm giá",
+      "voucherOff": "Giảm",
+      "voucherRemain": "Còn lại {{count}}"
     }
   }
 }

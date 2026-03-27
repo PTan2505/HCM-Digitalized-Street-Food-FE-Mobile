@@ -3,6 +3,7 @@ import type ApiClient from '@lib/api/apiClient';
 import type {
   PaginatedQuests,
   QuestResponse,
+  QuestVoucherDetail,
   UserQuestProgress,
 } from '@features/quests/types/quest';
 
@@ -50,6 +51,13 @@ export class QuestApi {
     await this.apiClient.post<void, null>({
       url: `/api/Quest/checkin/${branchId}`,
     });
+  }
+
+  async getVoucherById(voucherId: number): Promise<QuestVoucherDetail> {
+    const res = await this.apiClient.get<QuestVoucherDetail>({
+      url: `/api/vouchers/${voucherId}`,
+    });
+    return res.data;
   }
 
   async shareStall(branchId: number): Promise<void> {

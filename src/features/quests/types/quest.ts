@@ -57,6 +57,15 @@ export interface UserQuestProgress {
   tasks: UserQuestTaskProgress[];
 }
 
+export interface QuestVoucherDetail {
+  voucherId: number;
+  name: string;
+  type: string;
+  discountValue: number;
+  maxDiscountValue: number | null;
+  remain: number;
+}
+
 export interface PaginatedQuests {
   currentPage: number;
   pageSize: number;

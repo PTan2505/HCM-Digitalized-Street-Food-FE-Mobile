@@ -201,9 +201,15 @@ export const RestaurantDetailsScreen = ({
       message:
         Platform.OS === 'android' ? `${infoText}\n\n${deepLink}` : infoText,
       url: Platform.OS === 'ios' ? deepLink : undefined,
-    }).finally(() => {
-      isSharingRef.current = false;
-    });
+    })
+      .then((result) => {
+        if (result.action === Share.sharedAction) {
+          axiosApi.questApi.shareStall(branch.branchId).catch(() => {});
+        }
+      })
+      .finally(() => {
+        isSharingRef.current = false;
+      });
   };
 
   const handleReviewSuccess = useCallback(

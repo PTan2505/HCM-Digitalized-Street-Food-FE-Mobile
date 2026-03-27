@@ -17,17 +17,33 @@ const TASK_TYPE_ICONS: Record<QuestTaskType, string> = {
   ORDER_AMOUNT: '💰',
   VISIT: '📍',
   SHARE: '🔗',
+  CREATE_GHOST_PIN: '📌',
 };
+
+// Backend may return task type as an integer (REVIEW=1, ORDER_AMOUNT=2, VISIT=3, SHARE=4, CREATE_GHOST_PIN=5)
+const NUMERIC_TASK_MAP: Record<number, QuestTaskType> = {
+  1: 'REVIEW',
+  2: 'ORDER_AMOUNT',
+  3: 'VISIT',
+  4: 'SHARE',
+  5: 'CREATE_GHOST_PIN',
+};
+
+function normalizeTaskType(value: QuestTaskType | number): QuestTaskType {
+  if (typeof value === 'number') return NUMERIC_TASK_MAP[value] ?? 'VISIT';
+  return value;
+}
 
 export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
   const { t } = useTranslation();
+  const taskType = normalizeTaskType(task.type);
   const progress = Math.min(
     Math.round((task.currentValue / task.targetValue) * 100),
     100
   );
 
   const getTaskLabel = (): string => {
-    switch (task.type) {
+    switch (taskType) {
       case 'REVIEW':
         return t('quest.taskType.review');
       case 'ORDER_AMOUNT':
@@ -36,6 +52,8 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
         return t('quest.taskType.visit');
       case 'SHARE':
         return t('quest.taskType.share');
+      case 'CREATE_GHOST_PIN':
+        return t('quest.taskType.createGhostPin');
       default:
         return task.type;
     }
@@ -45,7 +63,7 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
     <View className="mb-3 rounded-xl bg-gray-50 p-4">
       <View className="mb-2 flex-row items-center justify-between">
         <View className="flex-1 flex-row items-center">
-          <Text className="mr-2 text-lg">{TASK_TYPE_ICONS[task.type]}</Text>
+          <Text className="mr-2 text-lg">{TASK_TYPE_ICONS[taskType]}</Text>
           <View className="flex-1">
             <Text className="text-sm font-semibold text-gray-800">
               {task.description ?? getTaskLabel()}
@@ -68,7 +86,7 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
 
       <View className="flex-row items-center justify-between">
         <Text className="text-xs text-gray-400">
-          {task.type === 'ORDER_AMOUNT'
+          {taskType === 'ORDER_AMOUNT'
             ? `${task.currentValue.toLocaleString()}/${task.targetValue.toLocaleString()} VND`
             : `${task.currentValue}/${task.targetValue}`}
         </Text>
