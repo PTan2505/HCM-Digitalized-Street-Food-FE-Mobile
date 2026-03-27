@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 import type { QuestResponse } from '@features/quests/types/quest';
 
@@ -21,16 +21,9 @@ export const QuestCard = ({
 }: QuestCardProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const endDate = new Date(quest.endDate);
-  const now = new Date();
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  );
-
   return (
     <TouchableOpacity
-      className="mb-4 overflow-hidden rounded-2xl bg-white shadow-sm"
+      className="mb-4 overflow-hidden rounded-2xl bg-gray-100 shadow-sm"
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -55,8 +48,7 @@ export const QuestCard = ({
 
         <View className="flex-row items-center justify-between">
           <Text className="text-xs text-gray-400">
-            {quest.taskCount} {t('quest.tasks')} · {daysLeft}{' '}
-            {t('quest.daysLeft')}
+            {quest.taskCount} {t('quest.tasks')}
           </Text>
 
           {enrolledInfo ? (

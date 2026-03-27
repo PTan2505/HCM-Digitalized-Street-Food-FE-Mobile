@@ -126,8 +126,9 @@ export const getProfileSections = (
           id: 'challenges',
           icon: 'trophy-outline',
           title: t('profile.challenges'),
+          rightIcon: 'chevron-forward',
           onPress: (): void => {
-            // Navigate to challenges
+            navigation.navigate('QuestList');
           },
         },
       ],

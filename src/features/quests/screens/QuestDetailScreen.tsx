@@ -34,15 +34,6 @@ export const QuestDetailScreen = ({
   const { quest, myProgress, loading, enrolling, error, handleEnroll } =
     useQuestDetail(questId);
 
-  const endDate = quest ? new Date(quest.endDate) : null;
-  const now = new Date();
-  const daysLeft = endDate
-    ? Math.max(
-        0,
-        Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-      )
-    : 0;
-
   const onEnroll = async (): Promise<void> => {
     try {
       await handleEnroll();
@@ -139,8 +130,7 @@ export const QuestDetailScreen = ({
 
           <View className="mb-3 flex-row items-center">
             <Text className="text-sm text-gray-400">
-              {quest.taskCount} {t('quest.tasks')} · {daysLeft}{' '}
-              {t('quest.daysLeft')}
+              {quest.taskCount} {t('quest.tasks')}
             </Text>
             {myProgress && (
               <View className="ml-3 rounded-full bg-[#a1d973]/20 px-3 py-0.5">

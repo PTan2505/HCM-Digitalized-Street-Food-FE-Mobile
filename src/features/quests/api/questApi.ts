@@ -57,4 +57,16 @@ export class QuestApi {
       url: `/api/Quest/share/${branchId}`,
     });
   }
+
+  async uploadQuestImage(
+    questId: number,
+    formData: FormData
+  ): Promise<QuestResponse> {
+    const res = await this.apiClient.post<QuestResponse, FormData>({
+      url: `/api/Quest/${questId}/image`,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  }
 }
