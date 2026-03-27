@@ -3,9 +3,7 @@ import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantC
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import SearchBar from '@features/home/components/common/SearchBar';
-import BannerCarousel, {
-  BannerItem,
-} from '@features/home/components/home/BannerCarousel';
+import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -183,33 +181,6 @@ export const HomeScreen = (): JSX.Element => {
     [handleLoadMore, refreshing]
   );
 
-  const bannerItems: BannerItem[] = useMemo(() => {
-    const items: BannerItem[] = [];
-    for (const c of systemCampaigns.slice(0, 3)) {
-      items.push({
-        type: 'system_campaign',
-        data: c,
-        imageUri: c.imageUrl ?? '',
-      });
-    }
-    for (const c of restaurantCampaigns.slice(0, 3)) {
-      items.push({
-        type: 'restaurant_campaign',
-        data: c,
-        imageUri: c.imageUrl ?? '',
-      });
-    }
-    // Fallback banners when no campaigns loaded
-    if (items.length === 0) {
-      items.push(
-        { type: 'image', uri: '' },
-        { type: 'image', uri: '' },
-        { type: 'image', uri: '' }
-      );
-    }
-    return items;
-  }, [systemCampaigns, restaurantCampaigns]);
-
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
   // (no dietary) can never race against and overwrite FETCH-B (with dietary).
@@ -329,7 +300,7 @@ export const HomeScreen = (): JSX.Element => {
           }
         />
         <BannerCarousel
-          items={bannerItems}
+          items={systemCampaigns}
           onCampaignPress={handleCampaignPress}
         />
 
@@ -396,7 +367,7 @@ export const HomeScreen = (): JSX.Element => {
     [
       categories,
       categoriesLoading,
-      bannerItems,
+      systemCampaigns,
       handleCampaignPress,
       insets.top,
       refreshing,
@@ -405,7 +376,17 @@ export const HomeScreen = (): JSX.Element => {
   );
 
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-[#B8E986]">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top + 200, // Cover the notch + some extra
+          backgroundColor: '#B8E986',
+        }}
+      />
       {branchesStatus === 'pending' ? (
         <>
           {ListHeader}

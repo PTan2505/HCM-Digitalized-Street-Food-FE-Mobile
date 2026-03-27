@@ -28,6 +28,6 @@ export interface SystemCampaign {
   isActive: boolean;
   createdAt: string;
   updatedAt?: string | null;
-  imageUrl?: string | null;
+  imageUrl?: string;
   isSystemCampaign: boolean;
 }
