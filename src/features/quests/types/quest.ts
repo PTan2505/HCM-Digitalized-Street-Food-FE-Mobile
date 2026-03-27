@@ -1,4 +1,4 @@
-export type QuestTaskType = 'REVIEW' | 'ORDER_AMOUNT' | 'VISIT' | 'SHARE';
+export type QuestTaskType = 'REVIEW' | 'ORDER_AMOUNT' | 'VISIT' | 'SHARE' | 'CREATE_GHOST_PIN';
 export type QuestRewardType = 'BADGE' | 'POINTS' | 'VOUCHER';
 export type UserQuestStatus = 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
 
