@@ -24,7 +24,6 @@ type QuestDetailScreenProps = StaticScreenProps<{
   questId: number;
 }>;
 
-
 export const QuestDetailScreen = ({
   route,
 }: QuestDetailScreenProps): JSX.Element => {

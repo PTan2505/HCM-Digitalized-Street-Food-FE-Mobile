@@ -17,7 +17,7 @@ import { useQuests } from '@features/quests/hooks/useQuests';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-type Tab = 'discover' | 'my';
+type Tab = 'discover' | 'my' | 'completed';
 
 export const QuestListScreen = (): JSX.Element => {
   const { t } = useTranslation();
@@ -28,6 +28,11 @@ export const QuestListScreen = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState<Tab>('discover');
   const [refreshing, setRefreshing] = useState(false);
 
+  const activeQuests = myQuests.filter(
+    (q) => q.status === 'IN_PROGRESS' || q.status === 'STOPPED'
+  );
+  const completedQuests = myQuests.filter((q) => q.status === 'COMPLETED');
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     if (activeTab === 'discover') {
@@ -37,6 +42,12 @@ export const QuestListScreen = (): JSX.Element => {
     }
     setTimeout(() => setRefreshing(false), 500);
   }, [activeTab, loadPublicQuests, loadMyQuests]);
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'discover', label: t('quest.discover') },
+    { key: 'my', label: t('quest.myQuests') },
+    { key: 'completed', label: t('quest.completedQuests') },
+  ];
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
@@ -56,26 +67,19 @@ export const QuestListScreen = (): JSX.Element => {
 
       {/* Tabs */}
       <View className="flex-row border-b border-gray-200 px-4">
-        <TouchableOpacity
-          onPress={() => setActiveTab('discover')}
-          className={`mr-6 pb-3 ${activeTab === 'discover' ? 'border-b-2 border-[#a1d973]' : ''}`}
-        >
-          <Text
-            className={`text-sm font-semibold ${activeTab === 'discover' ? 'text-[#7AB82D]' : 'text-gray-400'}`}
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab.key}
+            onPress={() => setActiveTab(tab.key)}
+            className={`mr-6 pb-3 ${activeTab === tab.key ? 'border-b-2 border-[#a1d973]' : ''}`}
           >
-            {t('quest.discover')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setActiveTab('my')}
-          className={`pb-3 ${activeTab === 'my' ? 'border-b-2 border-[#a1d973]' : ''}`}
-        >
-          <Text
-            className={`text-sm font-semibold ${activeTab === 'my' ? 'text-[#7AB82D]' : 'text-gray-400'}`}
-          >
-            {t('quest.myQuests')}
-          </Text>
-        </TouchableOpacity>
+            <Text
+              className={`text-sm font-semibold ${activeTab === tab.key ? 'text-[#7AB82D]' : 'text-gray-400'}`}
+            >
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {loading && !refreshing ? (
@@ -106,6 +110,7 @@ export const QuestListScreen = (): JSX.Element => {
                         completedTasks: enrolled.completedTasks,
                         totalTasks: enrolled.totalTasks,
                         status: enrolled.status,
+                        completedAt: enrolled.completedAt,
                       }
                     : undefined
                 }
@@ -125,9 +130,9 @@ export const QuestListScreen = (): JSX.Element => {
             </View>
           }
         />
-      ) : (
+      ) : activeTab === 'my' ? (
         <FlatList
-          data={myQuests}
+          data={activeQuests}
           keyExtractor={(item) => String(item.userQuestId)}
           contentContainerStyle={{ padding: 16 }}
           refreshControl={
@@ -145,9 +150,10 @@ export const QuestListScreen = (): JSX.Element => {
                 title: item.title,
                 description: item.description,
                 imageUrl: item.imageUrl,
-                startDate: item.startDate,
-                endDate: item.endDate,
+                startDate: item.startedAt,
+                endDate: '',
                 isActive: true,
+                isStandalone: item.isStandalone,
                 campaignId: item.campaignId,
                 createdAt: item.startedAt,
                 updatedAt: null,
@@ -158,6 +164,7 @@ export const QuestListScreen = (): JSX.Element => {
                 completedTasks: item.completedTasks,
                 totalTasks: item.totalTasks,
                 status: item.status,
+                completedAt: item.completedAt,
               }}
               onPress={() =>
                 navigation.navigate('QuestDetail', {
@@ -170,6 +177,57 @@ export const QuestListScreen = (): JSX.Element => {
             <View className="items-center py-12">
               <Text className="text-base text-gray-400">
                 {t('quest.noMyQuests')}
+              </Text>
+            </View>
+          }
+        />
+      ) : (
+        <FlatList
+          data={completedQuests}
+          keyExtractor={(item) => String(item.userQuestId)}
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#a1d973']}
+              tintColor="#a1d973"
+            />
+          }
+          renderItem={({ item }) => (
+            <QuestCard
+              quest={{
+                questId: item.questId,
+                title: item.title,
+                description: item.description,
+                imageUrl: item.imageUrl,
+                startDate: item.startedAt,
+                endDate: '',
+                isActive: true,
+                isStandalone: item.isStandalone,
+                campaignId: item.campaignId,
+                createdAt: item.startedAt,
+                updatedAt: null,
+                taskCount: item.totalTasks,
+                tasks: [],
+              }}
+              enrolledInfo={{
+                completedTasks: item.completedTasks,
+                totalTasks: item.totalTasks,
+                status: item.status,
+                completedAt: item.completedAt,
+              }}
+              onPress={() =>
+                navigation.navigate('QuestDetail', {
+                  questId: item.questId,
+                })
+              }
+            />
+          )}
+          ListEmptyComponent={
+            <View className="items-center py-12">
+              <Text className="text-base text-gray-400">
+                {t('quest.noCompletedQuests')}
               </Text>
             </View>
           }

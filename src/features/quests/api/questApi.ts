@@ -48,10 +48,11 @@ export class QuestApi {
     return res.data;
   }
 
-  async checkIn(branchId: number): Promise<void> {
-    await this.apiClient.post<void, null>({
-      url: `/api/Quest/checkin/${branchId}`,
+  async stopQuest(questId: number): Promise<UserQuestProgress> {
+    const res = await this.apiClient.post<UserQuestProgress, null>({
+      url: `/api/Quest/${questId}/stop`,
     });
+    return res.data;
   }
 
   async getBadgeById(badgeId: number): Promise<QuestBadgeDetail> {

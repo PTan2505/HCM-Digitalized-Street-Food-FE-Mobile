@@ -15,22 +15,20 @@ interface QuestTaskItemProps {
 const TASK_TYPE_ICONS: Record<QuestTaskType, string> = {
   REVIEW: '📝',
   ORDER_AMOUNT: '💰',
-  VISIT: '📍',
   SHARE: '🔗',
   CREATE_GHOST_PIN: '📌',
 };
 
-// Backend may return task type as an integer (REVIEW=1, ORDER_AMOUNT=2, VISIT=3, SHARE=4, CREATE_GHOST_PIN=5)
+// Backend may return task type as an integer (REVIEW=1, ORDER_AMOUNT=2, SHARE=3, CREATE_GHOST_PIN=4)
 const NUMERIC_TASK_MAP: Record<number, QuestTaskType> = {
   1: 'REVIEW',
   2: 'ORDER_AMOUNT',
-  3: 'VISIT',
-  4: 'SHARE',
-  5: 'CREATE_GHOST_PIN',
+  3: 'SHARE',
+  4: 'CREATE_GHOST_PIN',
 };
 
 function normalizeTaskType(value: QuestTaskType | number): QuestTaskType {
-  if (typeof value === 'number') return NUMERIC_TASK_MAP[value] ?? 'VISIT';
+  if (typeof value === 'number') return NUMERIC_TASK_MAP[value] ?? 'REVIEW';
   return value;
 }
 
@@ -48,8 +46,6 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
         return t('quest.taskType.review');
       case 'ORDER_AMOUNT':
         return t('quest.taskType.orderAmount');
-      case 'VISIT':
-        return t('quest.taskType.visit');
       case 'SHARE':
         return t('quest.taskType.share');
       case 'CREATE_GHOST_PIN':

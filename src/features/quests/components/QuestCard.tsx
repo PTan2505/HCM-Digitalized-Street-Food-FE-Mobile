@@ -10,6 +10,7 @@ interface QuestCardProps {
     completedTasks: number;
     totalTasks: number;
     status: string;
+    completedAt?: string | null;
   };
   onPress: () => void;
 }
@@ -52,12 +53,23 @@ export const QuestCard = ({
           </Text>
 
           {enrolledInfo ? (
-            <View className="rounded-full bg-[#a1d973]/20 px-3 py-1">
-              <Text className="text-xs font-semibold text-[#7AB82D]">
-                {enrolledInfo.completedTasks}/{enrolledInfo.totalTasks}{' '}
-                {t('quest.tasksCompleted')}
-              </Text>
-            </View>
+            enrolledInfo.status === 'COMPLETED' ? (
+              <View className="rounded-full bg-green-100 px-3 py-1">
+                <Text className="text-xs font-semibold text-green-700">
+                  {t('quest.completed')}
+                  {enrolledInfo.completedAt
+                    ? `  ${new Date(enrolledInfo.completedAt).toLocaleDateString('vi-VN')}`
+                    : ''}
+                </Text>
+              </View>
+            ) : (
+              <View className="rounded-full bg-[#a1d973]/20 px-3 py-1">
+                <Text className="text-xs font-semibold text-[#7AB82D]">
+                  {enrolledInfo.completedTasks}/{enrolledInfo.totalTasks}{' '}
+                  {t('quest.tasksCompleted')}
+                </Text>
+              </View>
+            )
           ) : (
             <View className="rounded-full bg-[#a1d973] px-3 py-1">
               <Text className="text-xs font-semibold text-white">

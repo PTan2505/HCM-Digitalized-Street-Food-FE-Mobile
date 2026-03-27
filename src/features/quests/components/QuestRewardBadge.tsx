@@ -106,7 +106,8 @@ export const QuestRewardBadge = ({
   }, [normalized, rewardValue, t]);
 
   const getLabel = (): string => {
-    if (normalized === 'POINTS') return `+${rewardValue} ${t('quest.reward.points')}`;
+    if (normalized === 'POINTS')
+      return `+${rewardValue} ${t('quest.reward.points')}`;
     if (normalized === 'BADGE') return badgeName ?? t('quest.reward.badge');
     return t('quest.reward.voucher');
   };

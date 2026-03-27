@@ -1,6 +1,14 @@
-export type QuestTaskType = 'REVIEW' | 'ORDER_AMOUNT' | 'VISIT' | 'SHARE' | 'CREATE_GHOST_PIN';
+export type QuestTaskType =
+  | 'REVIEW'
+  | 'ORDER_AMOUNT'
+  | 'SHARE'
+  | 'CREATE_GHOST_PIN';
 export type QuestRewardType = 'BADGE' | 'POINTS' | 'VOUCHER';
-export type UserQuestStatus = 'IN_PROGRESS' | 'COMPLETED' | 'EXPIRED';
+export type UserQuestStatus =
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'EXPIRED'
+  | 'STOPPED';
 
 export interface QuestTaskResponse {
   questTaskId: number;
@@ -19,6 +27,7 @@ export interface QuestResponse {
   startDate: string;
   endDate: string;
   isActive: boolean;
+  isStandalone: boolean;
   campaignId: number | null;
   createdAt: string;
   updatedAt: string | null;
@@ -48,6 +57,7 @@ export interface UserQuestProgress {
   imageUrl: string | null;
   startDate: string;
   endDate: string;
+  isStandalone: boolean;
   status: UserQuestStatus;
   startedAt: string;
   completedAt: string | null;
