@@ -2,6 +2,7 @@ import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
 import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';
 import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
+import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
@@ -139,6 +140,15 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branchName: string;
         note?: string;
+      },
+    },
+    PaymentQR: {
+      screen: PaymentQRScreen,
+      params: {} as {
+        orderId: number;
+        qrCode: string;
+        totalAmount: number;
+        branchName: string;
       },
     },
     OrderStatus: {

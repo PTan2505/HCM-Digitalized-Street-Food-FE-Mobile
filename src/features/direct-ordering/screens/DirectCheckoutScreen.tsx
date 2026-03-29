@@ -14,7 +14,6 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
-  Linking,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -25,11 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const PAYMENT_METHODS: {
   key: string;
   icon: keyof typeof Ionicons.glyphMap;
-}[] = [
-  { key: 'wallet', icon: 'wallet-outline' },
-  { key: 'bank_transfer', icon: 'business-outline' },
-  { key: 'viet_qr', icon: 'qr-code-outline' },
-];
+}[] = [{ key: 'bank_transfer', icon: 'business-outline' }];
 
 type DirectCheckoutScreenProps = StaticScreenProps<{
   branchName: string;
@@ -46,7 +41,7 @@ export const DirectCheckoutScreen = ({
   const cart = useAppSelector(selectCart);
   const orderLoading = useAppSelector(selectOrderLoading);
   const orderError = useAppSelector(selectOrderError);
-  const [selectedMethod, setSelectedMethod] = useState('wallet');
+  const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
   useEffect(() => {
@@ -85,13 +80,10 @@ export const DirectCheckoutScreen = ({
         })
       ).unwrap();
 
-      // If payment URL is returned, open it in browser
-      if (result.payment.paymentUrl) {
-        await Linking.openURL(result.payment.paymentUrl);
-      }
-
-      navigation.navigate('OrderStatus', {
+      navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
+        qrCode: result.payment.qrCode ?? '',
+        totalAmount: result.order.finalAmount,
         branchName,
       });
     } catch {
@@ -159,17 +151,17 @@ export const DirectCheckoutScreen = ({
         </View>
 
         {/* Take Away Toggle */}
-        <View className="flex-row items-center justify-between border-b border-gray-100 px-4 py-4">
+        <TouchableOpacity
+          onPress={() => setIsTakeAway(!isTakeAway)}
+          className="flex-row items-center justify-between border-b border-gray-100 px-4 py-4"
+        >
           <Text className="text-sm font-semibold text-black">Mang đi</Text>
-          <TouchableOpacity
-            onPress={() => setIsTakeAway(!isTakeAway)}
-            className={`h-7 w-12 justify-center rounded-full px-0.5 ${isTakeAway ? 'bg-[#a1d973]' : 'bg-gray-300'}`}
+          <View
+            className={`h-5 w-5 items-end justify-end rounded border-2 ${isTakeAway ? 'border-[#a1d973] bg-[#a1d973]' : 'border-gray-300 bg-white'}`}
           >
-            <View
-              className={`h-6 w-6 rounded-full bg-white ${isTakeAway ? 'self-end' : 'self-start'}`}
-            />
-          </TouchableOpacity>
-        </View>
+            {isTakeAway && <Ionicons name="checkmark" size={13} color="#fff" />}
+          </View>
+        </TouchableOpacity>
 
         {/* Payment Method */}
         <View className="px-4 py-4">

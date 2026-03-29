@@ -247,6 +247,8 @@
     "items_count": "{{count}} món",
     "stall_closed": "Đang đóng cửa",
     "stall_closed_notice": "Bạn chưa thể tạo đơn hàng nếu quán đang đóng cửa hoặc chưa cập nhật lịch làm việc.",
+    "not_subscribed_notice": "Quán này hiện chưa đăng ký dịch vụ đặt hàng trực tuyến.",
+    "payment_failed": "Thanh toán không thành công hoặc đã bị huỷ. Vui lòng thử lại.",
     "cancel": "Hủy",
     "add": "Thêm",
     "replace_title": "Thay đổi quán?",

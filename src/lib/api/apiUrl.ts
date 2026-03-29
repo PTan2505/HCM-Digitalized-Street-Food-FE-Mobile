@@ -94,6 +94,9 @@ export const apiUrl = {
     myOrders: '/api/Order/my-orders',
     pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
   },
+  payment: {
+    orderConfirm: '/api/Payment/order/confirm',
+  },
   notification: {
     registerToken: '/api/notifications/register-token',
     removeToken: '/api/notifications/remove-token',

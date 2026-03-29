@@ -247,6 +247,8 @@
     "items_count": "{{count}} items",
     "stall_closed": "Stall Closed",
     "stall_closed_notice": "You cannot place an order while the stall is closed or has not updated its schedule.",
+    "not_subscribed_notice": "This restaurant is not currently accepting online orders.",
+    "payment_failed": "Payment was not completed or was cancelled. Please try again.",
     "cancel": "Cancel",
     "add": "Add",
     "replace_title": "Change stall?",

@@ -430,6 +430,7 @@ export const RestaurantDetailsScreen = ({
             dishes={branch.dishes}
             branchId={branch.branchId}
             isOpen={isOpen}
+            isSubscribed={branch.isSubscribed}
             displayName={displayName}
           />
         )}

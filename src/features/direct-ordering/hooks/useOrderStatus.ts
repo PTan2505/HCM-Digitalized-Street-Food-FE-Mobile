@@ -1,6 +1,11 @@
 import type { OrderResponse } from '@features/direct-ordering/api/cartApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { fetchOrderThunk, selectActiveOrder } from '@slices/directOrdering';
+import {
+  confirmPaymentThunk,
+  fetchOrderThunk,
+  selectActiveOrder,
+  selectCheckoutOrderCode,
+} from '@slices/directOrdering';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
@@ -12,7 +17,18 @@ export const useOrderStatus = (
 ): { order: OrderResponse | null } => {
   const dispatch = useAppDispatch();
   const order = useAppSelector(selectActiveOrder);
+  const checkoutOrderCode = useAppSelector(selectCheckoutOrderCode);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const orderStatusRef = useRef<string | undefined>(undefined);
+  const orderCodeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    orderStatusRef.current = order?.status;
+  }, [order?.status]);
+
+  useEffect(() => {
+    orderCodeRef.current = checkoutOrderCode;
+  }, [checkoutOrderCode]);
 
   useEffect(() => {
     dispatch(fetchOrderThunk(orderId));
@@ -35,8 +51,20 @@ export const useOrderStatus = (
 
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
-        dispatch(fetchOrderThunk(orderId));
-        startPolling();
+        const currentOrderCode = orderCodeRef.current;
+        const currentStatus = orderStatusRef.current;
+
+        if (currentOrderCode && currentStatus === 'Pending') {
+          dispatch(
+            confirmPaymentThunk({ orderCode: currentOrderCode })
+          ).finally(() => {
+            dispatch(fetchOrderThunk(orderId));
+            startPolling();
+          });
+        } else {
+          dispatch(fetchOrderThunk(orderId));
+          startPolling();
+        }
       } else {
         stopPolling();
       }

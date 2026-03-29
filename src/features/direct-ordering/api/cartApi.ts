@@ -47,6 +47,7 @@ export interface PaymentLinkResult {
   paymentUrl?: string | null;
   orderCode?: number | null;
   paymentLinkId?: string | null;
+  qrCode?: string | null;
   requiresConfirmation: boolean;
 }
 
@@ -100,6 +101,22 @@ export interface PaginatedOrders {
   items: OrderResponse[];
 }
 
+// ── Payment types ──
+
+export interface ConfirmPaymentRequest {
+  orderCode: number;
+  status?: string | null;
+  transactionId?: string | null;
+  code?: string | null;
+}
+
+export interface PaymentStatusResponse {
+  success: boolean;
+  message?: string | null;
+  orderStatus?: string | null;
+  paymentStatus?: string | null;
+}
+
 // ── API class ──
 
 export class CartApi {
@@ -145,6 +162,23 @@ export class CartApi {
   ): Promise<ApiResponse<CheckoutCartResponse>> {
     return this.apiClient.post<CheckoutCartResponse, CheckoutCartRequest>({
       url: apiUrl.cart.checkout,
+      data,
+    });
+  }
+}
+
+export class PaymentApi {
+  private apiClient: ApiClient;
+
+  constructor(client: ApiClient) {
+    this.apiClient = client;
+  }
+
+  confirmOrderPayment(
+    data: ConfirmPaymentRequest
+  ): Promise<ApiResponse<PaymentStatusResponse>> {
+    return this.apiClient.post<PaymentStatusResponse, ConfirmPaymentRequest>({
+      url: apiUrl.payment.orderConfirm,
       data,
     });
   }
