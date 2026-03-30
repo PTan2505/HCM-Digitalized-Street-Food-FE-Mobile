@@ -29,13 +29,13 @@ export const getProfileSections = (
       type: 'action-cards',
       actionCards: [
         {
-          id: 'points',
-          icon: 'star',
-          title: t('profile.my_points'),
-          subtitle: `${user?.point ?? 0} ${t('profile.points')}`,
+          id: 'balance',
+          icon: 'wallet-outline',
+          title: t('profile.my_balance'),
+          subtitle: `${(user?.moneyBalance ?? 0).toLocaleString('vn-VN')} đ`,
           backgroundColor: '#FFF9E6',
           onPress: (): void => {
-            // Navigate to points screen
+            // Navigate to balance screen
           },
         },
         {
@@ -78,10 +78,10 @@ export const getProfileSections = (
       type: 'feature-buttons',
       items: [
         {
-          id: 'cart-tracking',
-          icon: 'cart-outline',
-          title: t('cart.title'),
-          onPress: (): void => navigation.navigate('PersonalCart'),
+          id: 'order-history',
+          icon: 'bag-handle-outline',
+          title: t('order.my_orders'),
+          onPress: (): void => navigation.navigate('OrderHistory'),
           color: '#9FD356',
         },
 

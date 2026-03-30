@@ -185,7 +185,8 @@
     "contact_support": "Liên hệ hỗ trợ",
     "terms_conditions": "Điều khoản & Điều kiện",
     "privacy_policy": "Chính sách bảo mật",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "my_balance": "Ví Lowca"
   },
   "bottom_tabs": {
     "discover": "Khám phá",
@@ -284,16 +285,18 @@
     "rejected_message": "Quán đã từ chối đơn — tiền đã được hoàn",
     "ready_banner": "Đơn hàng của bạn đã sẵn sàng!",
     "status": {
-      "pending": "Chờ xác nhận",
-      "confirmed": "Đã xác nhận",
-      "preparing": "Đang chuẩn bị",
-      "ready": "Sẵn sàng",
-      "completed": "Hoàn thành",
-      "rejected": "Từ chối",
+      "pending": "Chờ thanh toán",
+      "awaitingVendorConfirmation": "Chờ quán xác nhận",
+      "paid": "Đang chuẩn bị",
+      "complete": "Hoàn thành",
       "cancelled": "Đã huỷ"
     },
     "placed_at": "Đặt lúc",
-    "payment_via": "Thanh toán qua"
+    "payment_via": "Thanh toán qua",
+    "payment_method": {
+      "wallet": "Ví Lowca",
+      "bank_transfer": "Chuyển khoản"
+    }
   },
   "edit_profile": {
     "username": "Tên người dùng",

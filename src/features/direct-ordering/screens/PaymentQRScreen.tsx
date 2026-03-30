@@ -3,14 +3,15 @@ import { usePaymentSocket } from '@features/direct-ordering/hooks/usePaymentSock
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import {
   clearCart,
+  confirmPaymentThunk,
   fetchCartThunk,
   selectCheckoutOrderCode,
 } from '@slices/directOrdering';
 import { useNavigation, StaticScreenProps } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, AppState, Text, TouchableOpacity, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -30,14 +31,44 @@ export const PaymentQRScreen = ({
   const navigation = useNavigation();
   const orderCode = useAppSelector(selectCheckoutOrderCode);
   const { paymentStatus } = usePaymentSocket(orderCode);
+  const orderCodeRef = useRef(orderCode);
+
+  useEffect(() => {
+    orderCodeRef.current = orderCode;
+  }, [orderCode]);
+
+  // Fallback: if SignalR missed the event while app was backgrounded,
+  // manually confirm payment status when user returns to the app.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState !== 'active' || !orderCodeRef.current) return;
+      dispatch(confirmPaymentThunk({ orderCode: orderCodeRef.current }))
+        .unwrap()
+        .then((result) => {
+          if (result.paymentStatus === 'PAID') {
+            dispatch(clearCart());
+            navigation.navigate('OrderStatus', { orderId, branchName });
+          } else if (
+            result.paymentStatus === 'CANCELLED' ||
+            result.paymentStatus === 'EXPIRED'
+          ) {
+            dispatch(fetchCartThunk());
+            Alert.alert(t('auth.error'), t('checkout.payment_failed'));
+          }
+        })
+        .catch(() => {});
+    });
+
+    return (): void => {
+      subscription.remove();
+    };
+  }, [dispatch, navigation, orderId, branchName, t]);
 
   useEffect(() => {
     if (paymentStatus === 'PAID') {
-      // Payment confirmed — clear cart from Redux (backend already cleared it)
       dispatch(clearCart());
       navigation.navigate('OrderStatus', { orderId, branchName });
     } else if (paymentStatus === 'CANCELLED' || paymentStatus === 'EXPIRED') {
-      // Payment failed — re-fetch cart so user can try again
       dispatch(fetchCartThunk());
       Alert.alert(t('auth.error'), t('checkout.payment_failed'));
     }

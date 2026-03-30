@@ -1,4 +1,5 @@
 import type { OrderResponse } from '@features/direct-ordering/api/cartApi';
+import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import {
   confirmPaymentThunk,
@@ -10,7 +11,7 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
 const POLL_INTERVAL = 10_000;
-const TERMINAL_STATUSES = ['Completed', 'Rejected', 'Cancelled'];
+const TERMINAL_STATUSES: number[] = [ORDER_STATUS.Complete, ORDER_STATUS.Cancelled];
 
 export const useOrderStatus = (
   orderId: number
@@ -19,7 +20,7 @@ export const useOrderStatus = (
   const order = useAppSelector(selectActiveOrder);
   const checkoutOrderCode = useAppSelector(selectCheckoutOrderCode);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const orderStatusRef = useRef<string | undefined>(undefined);
+  const orderStatusRef = useRef<number | undefined>(undefined);
   const orderCodeRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export const useOrderStatus = (
         const currentOrderCode = orderCodeRef.current;
         const currentStatus = orderStatusRef.current;
 
-        if (currentOrderCode && currentStatus === 'Pending') {
+        if (currentOrderCode && currentStatus === ORDER_STATUS.Pending) {
           dispatch(
             confirmPaymentThunk({ orderCode: currentOrderCode })
           ).finally(() => {
@@ -79,7 +80,7 @@ export const useOrderStatus = (
   // Stop polling when status is terminal
   const orderStatus = order?.status;
   useEffect(() => {
-    if (orderStatus && TERMINAL_STATUSES.includes(orderStatus)) {
+    if (orderStatus !== undefined && TERMINAL_STATUSES.includes(orderStatus)) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;

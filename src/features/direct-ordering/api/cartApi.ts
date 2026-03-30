@@ -58,14 +58,16 @@ export interface CheckoutCartResponse {
 
 // ── Order types ──
 
-export type OrderStatus =
-  | 'Pending'
-  | 'Confirmed'
-  | 'Preparing'
-  | 'Ready'
-  | 'Completed'
-  | 'Rejected'
-  | 'Cancelled';
+// Matches BO.Entities.OrderStatus integer enum values
+export const ORDER_STATUS = {
+  Pending: 0,
+  AwaitingVendorConfirmation: 1,
+  Paid: 2,
+  Cancelled: 3,
+  Complete: 4,
+} as const;
+
+export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
 export interface OrderDishResponse {
   dishId: number;

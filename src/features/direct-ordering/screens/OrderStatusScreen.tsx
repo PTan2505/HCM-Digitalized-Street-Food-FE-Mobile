@@ -1,7 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { OrderStatus } from '@features/direct-ordering/api/cartApi';
+import {
+  ORDER_STATUS,
+  type OrderStatus,
+} from '@features/direct-ordering/api/cartApi';
 import { useOrderStatus } from '@features/direct-ordering/hooks/useOrderStatus';
-import { useNavigation, StaticScreenProps } from '@react-navigation/native';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,21 +19,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STEPS: OrderStatus[] = [
-  'Pending',
-  'Confirmed',
-  'Preparing',
-  'Ready',
-  'Completed',
+  ORDER_STATUS.Pending,
+  ORDER_STATUS.AwaitingVendorConfirmation,
+  ORDER_STATUS.Paid,
+  ORDER_STATUS.Complete,
 ];
 
 const STATUS_KEY_MAP: Record<OrderStatus, string> = {
-  Pending: 'pending',
-  Confirmed: 'confirmed',
-  Preparing: 'preparing',
-  Ready: 'ready',
-  Completed: 'completed',
-  Rejected: 'rejected',
-  Cancelled: 'cancelled',
+  [ORDER_STATUS.Pending]: 'pending',
+  [ORDER_STATUS.AwaitingVendorConfirmation]: 'awaitingVendorConfirmation',
+  [ORDER_STATUS.Paid]: 'paid',
+  [ORDER_STATUS.Complete]: 'complete',
+  [ORDER_STATUS.Cancelled]: 'cancelled',
 };
 
 type OrderStatusScreenProps = StaticScreenProps<{
@@ -46,11 +46,10 @@ export const OrderStatusScreen = ({
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { order } = useOrderStatus(orderId);
-  const prevStatusRef = useRef<string | undefined>(undefined);
+  const prevStatusRef = useRef<OrderStatus | undefined>(undefined);
 
-  // Toast on status transitions
   useEffect(() => {
-    if (!order || !prevStatusRef.current) {
+    if (!order || prevStatusRef.current === undefined) {
       prevStatusRef.current = order?.status;
       return;
     }
@@ -58,23 +57,22 @@ export const OrderStatusScreen = ({
     prevStatusRef.current = order.status;
 
     if (prev !== order.status) {
-      if (order.status === 'Confirmed') {
+      if (order.status === ORDER_STATUS.Paid) {
         Alert.alert('', t('order.confirmed_toast'));
-      } else if (order.status === 'Rejected') {
+      } else if (order.status === ORDER_STATUS.Cancelled) {
         Alert.alert('', t('order.rejected_message'));
-      } else if (order.status === 'Ready') {
+      } else if (order.status === ORDER_STATUS.Complete) {
         Alert.alert('', t('order.ready_banner'));
       }
     }
   }, [order, t]);
 
-  const getStatusLabel = (status: OrderStatus): string => {
-    return t(`order.status.${STATUS_KEY_MAP[status]}`);
-  };
+  const getStatusLabel = (status: OrderStatus): string =>
+    t(`order.status.${STATUS_KEY_MAP[status]}`);
 
   const getStepIndex = (): number => {
     if (!order) return 0;
-    if (order.status === 'Rejected' || order.status === 'Cancelled') return -1;
+    if (order.status === ORDER_STATUS.Cancelled) return -1;
     return STEPS.indexOf(order.status);
   };
 
@@ -153,17 +151,9 @@ export const OrderStatusScreen = ({
           </View>
         ) : (
           <View className="items-center px-4 py-8">
-            <Ionicons
-              name={
-                order.status === 'Cancelled' ? 'close-circle' : 'alert-circle'
-              }
-              size={48}
-              color={order.status === 'Cancelled' ? '#999' : '#ef4444'}
-            />
+            <Ionicons name="close-circle" size={48} color="#ef4444" />
             <Text className="mt-3 text-center text-base font-semibold text-gray-600">
-              {order.status === 'Rejected'
-                ? t('order.rejected_message')
-                : t('order.cancel_success')}
+              {t('order.rejected_message')}
             </Text>
           </View>
         )}
@@ -190,7 +180,8 @@ export const OrderStatusScreen = ({
           </View>
           {order.paymentMethod ? (
             <Text className="mt-1 text-xs text-gray-400">
-              {t('order.payment_via')} {order.paymentMethod}
+              {t('order.payment_via')}{' '}
+              {t(`order.payment_method.${order.paymentMethod}`)}
             </Text>
           ) : null}
         </View>

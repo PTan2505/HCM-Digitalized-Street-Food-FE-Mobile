@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import type {
   OrderResponse,
   OrderStatus,
@@ -23,23 +24,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  Pending: '#f59e0b',
-  Confirmed: '#3b82f6',
-  Preparing: '#8b5cf6',
-  Ready: '#22c55e',
-  Completed: '#a1d973',
-  Rejected: '#ef4444',
-  Cancelled: '#9ca3af',
+  [ORDER_STATUS.Pending]: '#f59e0b',
+  [ORDER_STATUS.AwaitingVendorConfirmation]: '#3b82f6',
+  [ORDER_STATUS.Paid]: '#8b5cf6',
+  [ORDER_STATUS.Complete]: '#a1d973',
+  [ORDER_STATUS.Cancelled]: '#9ca3af',
 };
 
 const STATUS_KEY_MAP: Record<OrderStatus, string> = {
-  Pending: 'pending',
-  Confirmed: 'confirmed',
-  Preparing: 'preparing',
-  Ready: 'ready',
-  Completed: 'completed',
-  Rejected: 'rejected',
-  Cancelled: 'cancelled',
+  [ORDER_STATUS.Pending]: 'pending',
+  [ORDER_STATUS.AwaitingVendorConfirmation]: 'awaitingVendorConfirmation',
+  [ORDER_STATUS.Paid]: 'paid',
+  [ORDER_STATUS.Complete]: 'complete',
+  [ORDER_STATUS.Cancelled]: 'cancelled',
 };
 
 export const OrderHistoryScreen = (): JSX.Element => {

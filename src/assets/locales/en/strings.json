@@ -185,7 +185,8 @@
     "contact_support": "Contact Support",
     "terms_conditions": "Terms & Conditions",
     "privacy_policy": "Privacy Policy",
-    "logout": "Logout"
+    "logout": "Logout",
+    "my_balance": "Lowca Wallet"
   },
   "bottom_tabs": {
     "discover": "Discover",
@@ -284,16 +285,18 @@
     "rejected_message": "Vendor rejected your order — refund issued",
     "ready_banner": "Your order is ready for pickup!",
     "status": {
-      "pending": "Pending",
-      "confirmed": "Confirmed",
-      "preparing": "Preparing",
-      "ready": "Ready",
-      "completed": "Completed",
-      "rejected": "Rejected",
+      "pending": "Awaiting Payment",
+      "awaitingVendorConfirmation": "Awaiting Vendor Confirmation",
+      "paid": "Being Prepared",
+      "complete": "Completed",
       "cancelled": "Cancelled"
     },
     "placed_at": "Placed at",
-    "payment_via": "Paid via"
+    "payment_via": "Paid via",
+    "payment_method": {
+      "wallet": "Lowca Wallet",
+      "bank_transfer": "Bank Transfer"
+    }
   },
   "edit_profile": {
     "username": "Username",
