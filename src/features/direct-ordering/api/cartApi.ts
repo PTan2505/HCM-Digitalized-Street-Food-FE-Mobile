@@ -73,6 +73,8 @@ export interface OrderDishResponse {
   dishId: number;
   dishName: string;
   quantity: number;
+  price: number;
+  dishImageUrl?: string | null; // not yet returned by BE — add to OrderDishResponseDto when ready
 }
 
 export interface OrderResponse {
