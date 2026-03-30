@@ -4,6 +4,8 @@ import {
   type OrderStatus,
 } from '@features/direct-ordering/api/cartApi';
 import { useOrderStatus } from '@features/direct-ordering/hooks/useOrderStatus';
+import { usePickupCode } from '@features/direct-ordering/hooks/usePickupCode';
+import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useEffect, useRef } from 'react';
@@ -42,10 +44,12 @@ type OrderStatusScreenProps = StaticScreenProps<{
 export const OrderStatusScreen = ({
   route,
 }: OrderStatusScreenProps): JSX.Element => {
-  const { orderId, branchName } = route.params;
+  const { orderId } = route.params;
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { order } = useOrderStatus(orderId);
+  const { pickupCode } = usePickupCode(orderId, order?.status);
+  const displayName = useBranchDisplayName(order?.branchId ?? 0);
   const prevStatusRef = useRef<OrderStatus | undefined>(undefined);
 
   useEffect(() => {
@@ -107,7 +111,9 @@ export const OrderStatusScreen = ({
       >
         {/* Branch Name */}
         <View className="border-b border-gray-100 px-4 py-4">
-          <Text className="text-base font-bold text-black">{branchName}</Text>
+          <Text className="text-base font-bold text-black">
+            {displayName ?? order.branchName}
+          </Text>
           <Text className="mt-1 text-xs text-gray-400">
             {t('order.placed_at')}{' '}
             {new Date(order.createdAt).toLocaleString('vi-VN')}
@@ -145,6 +151,7 @@ export const OrderStatusScreen = ({
                   >
                     {getStatusLabel(step)}
                   </Text>
+                  {/* <Text>dsadsa</Text> */}
                 </View>
               );
             })}
@@ -155,6 +162,24 @@ export const OrderStatusScreen = ({
             <Text className="mt-3 text-center text-base font-semibold text-gray-600">
               {t('order.rejected_message')}
             </Text>
+          </View>
+        )}
+
+        {/* Pickup Code */}
+        {pickupCode && (
+          <View className="mx-4 mb-4 items-center rounded-2xl border border-[#a1d973] bg-[#f6ffed] px-4 py-5">
+            <Text className="text-sm font-semibold text-gray-500">
+              {t('order.pickup_code_label')}
+            </Text>
+            <Text className="mt-1 text-4xl font-bold tracking-widest text-black">
+              {pickupCode.verificationCode}
+            </Text>
+            {/* <Text className="mt-2 text-center text-xs text-gray-400">
+              {t('order.pickup_code_hint')}
+            </Text>
+            <View className="mt-4 rounded-xl bg-white p-3">
+              <QRCode value={pickupCode.qrContent} size={160} />
+            </View> */}
           </View>
         )}
 

@@ -80,6 +80,7 @@ export interface OrderResponse {
   userId: number;
   branchId: number;
   branchName: string;
+  displayName?: string | null;
   status: OrderStatus;
   table?: string | null;
   paymentMethod?: string | null;
@@ -101,6 +102,14 @@ export interface PaginatedOrders {
   hasPrevious?: boolean;
   hasNext?: boolean;
   items: OrderResponse[];
+}
+
+// ── Pickup code types ──
+
+export interface PickupCodeResponse {
+  orderId: number;
+  verificationCode: string;
+  qrContent: string;
 }
 
 // ── Payment types ──
@@ -207,7 +216,9 @@ export class OrderApi {
     });
   }
 
-  getPickupCode(id: number): Promise<ApiResponse<string>> {
-    return this.apiClient.get<string>({ url: apiUrl.order.pickupCode(id) });
+  getPickupCode(id: number): Promise<ApiResponse<PickupCodeResponse>> {
+    return this.apiClient.get<PickupCodeResponse>({
+      url: apiUrl.order.pickupCode(id),
+    });
   }
 }

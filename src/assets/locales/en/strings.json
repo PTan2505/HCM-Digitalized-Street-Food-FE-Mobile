@@ -291,6 +291,8 @@
       "complete": "Completed",
       "cancelled": "Cancelled"
     },
+    "pickup_code_label": "Pickup Code",
+    "pickup_code_hint": "The vendor will enter this code or scan the QR to confirm your pickup",
     "placed_at": "Placed at",
     "payment_via": "Paid via",
     "payment_method": {

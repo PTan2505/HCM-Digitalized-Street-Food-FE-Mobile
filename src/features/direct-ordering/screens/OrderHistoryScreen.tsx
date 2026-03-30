@@ -5,6 +5,7 @@ import type {
   OrderStatus,
 } from '@features/direct-ordering/api/cartApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   fetchOrderHistoryThunk,
@@ -37,6 +38,48 @@ const STATUS_KEY_MAP: Record<OrderStatus, string> = {
   [ORDER_STATUS.Paid]: 'paid',
   [ORDER_STATUS.Complete]: 'complete',
   [ORDER_STATUS.Cancelled]: 'cancelled',
+};
+
+const OrderHistoryItem = ({
+  item,
+  onPress,
+  statusColor,
+  statusLabel,
+}: {
+  item: OrderResponse;
+  onPress: () => void;
+  statusColor: string;
+  statusLabel: string;
+}): JSX.Element => {
+  const displayName = useBranchDisplayName(item.branchId);
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className="border-b border-gray-50 px-4 py-3"
+    >
+      <View className="flex-row items-center justify-between">
+        <Text className="flex-1 text-base font-semibold text-black">
+          {displayName ?? item.branchName}
+        </Text>
+        <View
+          className="rounded-full px-2.5 py-1"
+          style={{ backgroundColor: `${statusColor}20` }}
+        >
+          <Text className="text-xs font-semibold" style={{ color: statusColor }}>
+            {statusLabel}
+          </Text>
+        </View>
+      </View>
+      <View className="mt-1 flex-row items-center justify-between">
+        <Text className="text-xs text-gray-400">
+          {new Date(item.createdAt).toLocaleDateString('vi-VN')}
+        </Text>
+        <Text className="text-sm font-semibold text-[#00B14F]">
+          {`${item.finalAmount.toLocaleString('vi-VN')}₫`}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 export const OrderHistoryScreen = (): JSX.Element => {
@@ -77,35 +120,12 @@ export const OrderHistoryScreen = (): JSX.Element => {
   const renderOrder = ({ item }: { item: OrderResponse }): JSX.Element => {
     const statusColor = STATUS_COLORS[item.status] ?? '#9ca3af';
     return (
-      <TouchableOpacity
+      <OrderHistoryItem
+        item={item}
         onPress={() => handleOrderPress(item)}
-        className="border-b border-gray-50 px-4 py-3"
-      >
-        <View className="flex-row items-center justify-between">
-          <Text className="flex-1 text-base font-semibold text-black">
-            {item.branchName}
-          </Text>
-          <View
-            className="rounded-full px-2.5 py-1"
-            style={{ backgroundColor: `${statusColor}20` }}
-          >
-            <Text
-              className="text-xs font-semibold"
-              style={{ color: statusColor }}
-            >
-              {t(`order.status.${STATUS_KEY_MAP[item.status]}`)}
-            </Text>
-          </View>
-        </View>
-        <View className="mt-1 flex-row items-center justify-between">
-          <Text className="text-xs text-gray-400">
-            {new Date(item.createdAt).toLocaleDateString('vi-VN')}
-          </Text>
-          <Text className="text-sm font-semibold text-[#00B14F]">
-            {`${item.finalAmount.toLocaleString('vi-VN')}₫`}
-          </Text>
-        </View>
-      </TouchableOpacity>
+        statusColor={statusColor}
+        statusLabel={t(`order.status.${STATUS_KEY_MAP[item.status]}`)}
+      />
     );
   };
 

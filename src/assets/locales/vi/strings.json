@@ -291,6 +291,8 @@
       "complete": "Hoàn thành",
       "cancelled": "Đã huỷ"
     },
+    "pickup_code_label": "Mã hoàn thành đơn hàng",
+    "pickup_code_hint": "Quán sẽ nhập mã hoặc quét QR để xác nhận bạn đã lấy đơn",
     "placed_at": "Đặt lúc",
     "payment_via": "Thanh toán qua",
     "payment_method": {
