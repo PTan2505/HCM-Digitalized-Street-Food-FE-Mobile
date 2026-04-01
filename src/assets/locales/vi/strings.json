@@ -142,7 +142,9 @@
     "view_on_map": "Xem trên bản đồ",
     "navigate_to": "Chỉ đường với",
     "open_in_apple_maps": "Apple Maps",
-    "open_in_google_maps": "Google Maps"
+    "open_in_google_maps": "Google Maps",
+    "other": "Khác",
+    "sold_out": "Hết hàng"
   },
   "tabs": {
     "menu": "Menu Quán",
@@ -269,7 +271,10 @@
     "confirming": "Đang xử lý...",
     "insufficient_balance": "Số dư ví không đủ — vui lòng chọn phương thức khác",
     "empty_cart": "Giỏ hàng trống",
-    "error": "Không thể đặt hàng. Vui lòng thử lại."
+    "error": "Không thể đặt hàng. Vui lòng thử lại.",
+    "payment_failed": "Thanh toán không thành công hoặc đã bị huỷ. Vui lòng thử lại.",
+    "payment_qr_title": "Thanh toán QR",
+    "payment_qr_instruction": "Quét mã QR bằng ứng dụng ngân hàng để thanh toán đơn hàng"
   },
   "order": {
     "status_title": "Trạng thái đơn hàng",
@@ -339,6 +344,15 @@
     "hours_ago": "giờ trước",
     "days_ago": "ngày trước"
   },
+  "error_title": "Lỗi",
+  "giving_direction": "Chỉ đường",
+  "review": {
+    "write": "Viết đánh giá",
+    "delete_title": "Xóa đánh giá",
+    "delete_confirm": "Bạn có chắc muốn xóa đánh giá này?",
+    "delete": "Xóa",
+    "delete_error": "Không thể xóa đánh giá"
+  },
   "common": {
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
@@ -388,7 +402,9 @@
     "coming_soon": "Sắp có ưu đãi mới",
     "stay_tuned": "Theo dõi để không bỏ lỡ!",
     "quest_tasks": "Nhiệm vụ",
-    "start_quest": "Bắt đầu nhiệm vụ"
+    "start_quest": "Bắt đầu nhiệm vụ",
+    "quest": "Nhiệm vụ đi kèm",
+    "no_quest": "Không có nhiệm vụ nào"
   },
   "quest": {
     "title": "Thử thách",
