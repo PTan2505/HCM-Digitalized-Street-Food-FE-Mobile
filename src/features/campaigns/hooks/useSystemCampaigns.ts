@@ -1,7 +1,7 @@
 import type { SystemCampaign } from '@features/campaigns/types/generated';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/campaigns/api/generated';
 import { queryKeys } from '@lib/queryKeys';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
 const campaignApi = getLowcaAPIUnimplementedEndpoints();
 
@@ -10,22 +10,47 @@ export const useSystemCampaigns = (): {
   isLoading: boolean;
   isError: boolean;
   refetch: () => Promise<unknown>;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
 } => {
   const {
-    data: systemCampaigns = [],
+    data,
     isLoading,
     isError,
     refetch,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: queryKeys.campaigns.system,
-    queryFn: async () => {
-      const data = await campaignApi.getSystemCampaigns({
-        page: 1,
+    queryFn: async ({ pageParam }) => {
+      return await campaignApi.getRestaurantCampaigns({
+        isSystem: true,
+        page: pageParam,
         pageSize: 10,
       });
-      return data?.items ?? [];
     },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage?.hasNext ? (lastPage.currentPage ?? 1) + 1 : undefined,
   });
 
-  return { systemCampaigns, isLoading, isError, refetch };
+  const systemCampaigns: SystemCampaign[] =
+    data?.pages.flatMap((page) =>
+      (page?.items ?? []).map((item) => ({
+        ...item,
+        imageUrl: item.imageUrl ?? undefined,
+      }))
+    ) ?? [];
+
+  return {
+    systemCampaigns,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage: hasNextPage ?? false,
+    isFetchingNextPage,
+  };
 };

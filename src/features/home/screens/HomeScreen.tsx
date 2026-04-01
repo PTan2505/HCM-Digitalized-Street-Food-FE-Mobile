@@ -68,7 +68,8 @@ export const HomeScreen = (): JSX.Element => {
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords } = useLocationPermission();
-  const { systemCampaigns } = useSystemCampaigns();
+  const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useSystemCampaigns();
   const { restaurantCampaigns } = useRestaurantCampaigns(userCoords);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
@@ -302,6 +303,10 @@ export const HomeScreen = (): JSX.Element => {
         <BannerCarousel
           items={systemCampaigns}
           onCampaignPress={handleCampaignPress}
+          onLoadMore={() => {
+            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+          }}
+          hasMore={hasNextPage}
         />
 
         <View className="px-4 py-2">

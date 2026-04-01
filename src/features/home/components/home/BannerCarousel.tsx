@@ -13,11 +13,15 @@ interface BannerCarouselProps {
     campaignId: string,
     campaignType: 'system' | 'restaurant'
   ) => void;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
 const BannerCarousel = ({
   items,
   onCampaignPress,
+  onLoadMore,
+  hasMore,
 }: BannerCarouselProps): JSX.Element => {
   const progress = useSharedValue<number>(0);
 
@@ -36,6 +40,11 @@ const BannerCarousel = ({
         modeConfig={{
           parallaxScrollingScale: 0.9,
           parallaxScrollingOffset: 50,
+        }}
+        onScrollEnd={(index) => {
+          if (hasMore && index >= items.length - 2) {
+            onLoadMore?.();
+          }
         }}
         renderItem={({ item }) => {
           return (

@@ -24,11 +24,11 @@ export const useRestaurantCampaigns = (
       coords?.longitude
     ),
     queryFn: async () => {
-      const params = coords
-        ? { lat: coords.latitude, lng: coords.longitude }
-        : undefined;
-      const data = await campaignApi.getRestaurantCampaigns(params);
-      return Array.isArray(data) ? data : [];
+      const data = await campaignApi.getRestaurantCampaigns({
+        isSystem: false,
+        ...(coords ? { lat: coords.latitude, lng: coords.longitude } : {}),
+      });
+      return data?.items ?? [];
     },
   });
 

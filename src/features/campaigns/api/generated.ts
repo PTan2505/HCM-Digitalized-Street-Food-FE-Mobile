@@ -64,7 +64,15 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
    * @summary List available restaurant (vendor) voucher campaigns
    */
   const getRestaurantCampaigns = (params?: GetRestaurantCampaignsParams) => {
-    return orvalMutator<RestaurantCampaign[]>({
+    return orvalMutator<{
+      currentPage: number;
+      pageSize: number;
+      totalPages: number;
+      totalCount: number;
+      hasPrevious: boolean;
+      hasNext: boolean;
+      items: RestaurantCampaign[];
+    }>({
       url: `/api/Campaign/public`,
       method: 'GET',
       params,
