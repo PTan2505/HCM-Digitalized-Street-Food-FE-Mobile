@@ -113,6 +113,16 @@ export const getProfileSections = (
           },
         },
         {
+          id: 'vouchers',
+          icon: 'ticket-outline',
+          title: t('profile.voucher_wallet'),
+          badgeColor: '#FF6B6B',
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('VoucherWallet');
+          },
+        },
+        {
           id: 'rewards',
           icon: 'gift-outline',
           title: t('profile.rewards'),

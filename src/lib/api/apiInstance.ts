@@ -17,6 +17,7 @@ import {
 import { GhostPinApi } from '@features/maps/api/ghostPinApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
 import { QuestApi } from '@features/quests/api/questApi';
+import { VoucherApi } from '@features/campaigns/api/voucherApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
@@ -46,4 +47,5 @@ export const axiosApi = {
   paymentApi: new PaymentApi(axiosClient),
   notificationApi: new NotificationApi(axiosClient),
   questApi: new QuestApi(axiosClient),
+  voucherApi: new VoucherApi(axiosClient),
 };

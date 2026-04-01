@@ -105,4 +105,9 @@ export const apiUrl = {
     markRead: (id: number): string => `/api/notifications/${id}/read`,
     markAllRead: '/api/notifications/read-all',
   },
+  voucher: {
+    mine: '/api/vouchers/mine',
+    byId: (id: number): string => `/api/vouchers/${id}`,
+    claim: (id: number): string => `/api/vouchers/${id}/claim`,
+  },
 };
