@@ -1,16 +1,26 @@
+import type { NotificationDto } from '@features/notifications/types/notification';
+import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
+import { receiveNotification } from '@slices/notifications';
+import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
-import { useAppDispatch } from '@hooks/reduxHooks';
-import { tokenManagement } from '@utils/tokenManagement';
-import { receiveNotification } from '@slices/notifications';
-import type { NotificationDto } from '@features/notifications/types/notification';
 
 const HUB_URL = `${process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '')}/hubs/notifications`;
 
 export const useNotificationSocket = (isAuthenticated: boolean): void => {
   const dispatch = useAppDispatch();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
+
+  const startConnection = (connection: signalR.HubConnection): void => {
+    if (connection.state !== signalR.HubConnectionState.Disconnected) return;
+    connection.start().catch(() => {});
+  };
+
+  const stopConnection = (connection: signalR.HubConnection): void => {
+    if (connection.state === signalR.HubConnectionState.Disconnected) return;
+    connection.stop().catch(() => {});
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -28,7 +38,7 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         dispatch(receiveNotification(notification));
       });
 
-      connection.start().catch(() => {});
+      startConnection(connection);
 
       return connection;
     };
@@ -36,16 +46,20 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     connectionRef.current = buildAndStart();
 
     const subscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState !== 'active') return;
       const conn = connectionRef.current;
-      if (conn?.state === signalR.HubConnectionState.Disconnected) {
-        conn.start().catch(() => {});
+      if (!conn) return;
+      if (nextState === 'active') {
+        startConnection(conn);
+        return;
       }
+
+      stopConnection(conn);
     });
 
     return (): void => {
       subscription.remove();
-      connectionRef.current?.stop();
+      const conn = connectionRef.current;
+      if (conn) stopConnection(conn);
       connectionRef.current = null;
     };
   }, [isAuthenticated, dispatch]);

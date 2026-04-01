@@ -1,7 +1,7 @@
 import * as signalR from '@microsoft/signalr';
+import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { tokenManagement } from '@utils/tokenManagement';
 
 export type PaymentSocketStatus = 'PAID' | 'CANCELLED' | 'EXPIRED' | null;
 
@@ -19,6 +19,20 @@ export const usePaymentSocket = (
   const [paymentStatus, setPaymentStatus] = useState<PaymentSocketStatus>(null);
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const orderCodeRef = useRef<number | null>(orderCode);
+
+  const startConnection = (connection: signalR.HubConnection): void => {
+    if (connection.state !== signalR.HubConnectionState.Disconnected) return;
+    connection.start().catch(() => {
+      // Silent — OrderStatus polling is the fallback
+    });
+  };
+
+  const stopConnection = (connection: signalR.HubConnection): void => {
+    if (connection.state === signalR.HubConnectionState.Disconnected) return;
+    connection.stop().catch(() => {
+      // Silent — connection may already be in transition
+    });
+  };
 
   useEffect(() => {
     orderCodeRef.current = orderCode;
@@ -48,9 +62,7 @@ export const usePaymentSocket = (
         }
       });
 
-      connection.start().catch(() => {
-        // Silent — OrderStatus polling is the fallback
-      });
+      startConnection(connection);
 
       return connection;
     };
@@ -59,16 +71,20 @@ export const usePaymentSocket = (
 
     // When app returns from background (e.g. banking app), reconnect if disconnected
     const subscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState !== 'active') return;
       const conn = connectionRef.current;
-      if (conn?.state === signalR.HubConnectionState.Disconnected) {
-        conn.start().catch(() => {});
+      if (!conn) return;
+      if (nextState === 'active') {
+        startConnection(conn);
+        return;
       }
+
+      stopConnection(conn);
     });
 
     return (): void => {
       subscription.remove();
-      connectionRef.current?.stop();
+      const conn = connectionRef.current;
+      if (conn) stopConnection(conn);
       connectionRef.current = null;
     };
   }, [orderCode]);
