@@ -30,6 +30,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScreen';
 import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/campaigns/screens/SystemCampaignDetailScreen';
+import { VoucherMarketplaceScreen } from '@features/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
@@ -186,6 +187,10 @@ const RootStack = createNativeStackNavigator({
     VoucherWallet: {
       screen: VoucherWalletScreen,
       linking: 'vouchers',
+    },
+    VoucherMarketplace: {
+      screen: VoucherMarketplaceScreen,
+      linking: 'vouchers/marketplace',
     },
     QuestList: {
       screen: QuestListScreen,

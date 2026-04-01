@@ -107,6 +107,7 @@ export const apiUrl = {
   },
   voucher: {
     mine: '/api/vouchers/mine',
+    marketplace: '/api/vouchers/marketplace',
     byId: (id: number): string => `/api/vouchers/${id}`,
     claim: (id: number): string => `/api/vouchers/${id}/claim`,
   },

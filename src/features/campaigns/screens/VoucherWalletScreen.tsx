@@ -84,20 +84,13 @@ export const VoucherWalletScreen = (): JSX.Element => {
         : 'campaign.voucher_empty';
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* ── Header ── */}
-      <View className="flex-row items-center bg-white px-4 py-3 shadow-sm">
+      <View className="flex-row items-center justify-between bg-white px-4 py-3">
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
-        <Text className="ml-3 flex-1 text-lg font-bold text-gray-900">
-          {showHistory
-            ? t('campaign.history_title')
-            : t('campaign.voucher_wallet')}
-        </Text>
+
         <TouchableOpacity
           onPress={() => {
             setShowHistory((prev) => !prev);

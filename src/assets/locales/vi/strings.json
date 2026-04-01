@@ -189,7 +189,8 @@
     "privacy_policy": "Chính sách bảo mật",
     "logout": "Đăng xuất",
     "my_balance": "Ví Lowca",
-    "voucher_wallet": "Ví mã giảm giá"
+    "voucher_wallet": "Ví mã giảm giá",
+    "voucher_marketplace": "Chợ voucher"
   },
   "bottom_tabs": {
     "discover": "Khám phá",
@@ -417,6 +418,25 @@
     "start_quest": "Bắt đầu nhiệm vụ",
     "quest": "Nhiệm vụ đi kèm",
     "no_quest": "Không có nhiệm vụ nào"
+  },
+  "marketplace": {
+    "title": "Chợ voucher",
+    "your_points": "Điểm của bạn: {{points}}",
+    "points": "điểm",
+    "redeem": "Đổi",
+    "sold_out": "Hết hàng",
+    "not_enough_points": "Không đủ điểm",
+    "remaining": "Còn {{count}}",
+    "expires": "Hết hạn",
+    "max_discount": "Giảm tối đa {{amount}}đ",
+    "min_order": "Đơn tối thiểu {{amount}}đ",
+    "empty": "Chưa có voucher nào trong chợ.",
+    "error_load": "Không thể tải chợ voucher. Vui lòng thử lại.",
+    "error_redeem": "Không thể đổi voucher. Vui lòng thử lại.",
+    "confirm_title": "Xác nhận đổi voucher",
+    "confirm_desc": "Đổi \"{{name}}\" với {{points}} điểm?",
+    "redeem_success_title": "Đổi thành công!",
+    "redeem_success_desc": "Voucher đã được thêm vào ví của bạn."
   },
   "quest": {
     "title": "Thử thách",

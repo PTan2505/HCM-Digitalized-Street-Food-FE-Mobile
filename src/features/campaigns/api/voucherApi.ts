@@ -12,6 +12,24 @@ export interface UserVoucherApiDto {
   quantity: number;
 }
 
+export interface MarketplaceVoucherDto {
+  voucherId: number;
+  name: string;
+  description: string | null;
+  type: string;
+  discountValue: number;
+  minAmountRequired: number;
+  maxDiscountValue: number | null;
+  startDate: string;
+  endDate: string;
+  expiredDate: string | null;
+  isActive: boolean;
+  voucherCode: string;
+  redeemPoint: number;
+  quantity: number;
+  usedQuantity: number;
+}
+
 export class VoucherApi {
   private apiClient: ApiClient;
 
@@ -22,6 +40,13 @@ export class VoucherApi {
   async getMyVouchers(): Promise<UserVoucherApiDto[]> {
     const res = await this.apiClient.get<UserVoucherApiDto[]>({
       url: apiUrl.voucher.mine,
+    });
+    return res.data;
+  }
+
+  async getMarketplaceVouchers(): Promise<MarketplaceVoucherDto[]> {
+    const res = await this.apiClient.get<MarketplaceVoucherDto[]>({
+      url: apiUrl.voucher.marketplace,
     });
     return res.data;
   }

@@ -107,9 +107,6 @@ export const DirectCheckoutScreen = ({
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text className="ml-3 text-lg font-bold text-black">
-          {t('checkout.title')}
-        </Text>
       </View>
 
       <ScrollView

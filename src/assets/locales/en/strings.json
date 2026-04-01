@@ -189,7 +189,8 @@
     "privacy_policy": "Privacy Policy",
     "logout": "Logout",
     "my_balance": "Lowca Wallet",
-    "voucher_wallet": "Voucher Wallet"
+    "voucher_wallet": "Voucher Wallet",
+    "voucher_marketplace": "Voucher Marketplace"
   },
   "bottom_tabs": {
     "discover": "Discover",
@@ -417,6 +418,25 @@
     "start_quest": "Start Quest",
     "quest": "Campaign Quest",
     "no_quest": "No quest available"
+  },
+  "marketplace": {
+    "title": "Voucher Marketplace",
+    "your_points": "Your points: {{points}}",
+    "points": "pts",
+    "redeem": "Redeem",
+    "sold_out": "Sold Out",
+    "not_enough_points": "Not enough pts",
+    "remaining": "{{count}} left",
+    "expires": "Expires",
+    "max_discount": "Max {{amount}}đ",
+    "min_order": "Min. order {{amount}}đ",
+    "empty": "No vouchers available in the marketplace right now.",
+    "error_load": "Could not load marketplace. Please try again.",
+    "error_redeem": "Could not redeem voucher. Please try again.",
+    "confirm_title": "Redeem Voucher",
+    "confirm_desc": "Redeem \"{{name}}\" for {{points}} points?",
+    "redeem_success_title": "Redeemed!",
+    "redeem_success_desc": "Your voucher has been added to your wallet."
   },
   "quest": {
     "title": "Challenges",

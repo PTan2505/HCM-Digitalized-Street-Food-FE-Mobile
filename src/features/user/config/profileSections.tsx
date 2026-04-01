@@ -123,6 +123,16 @@ export const getProfileSections = (
           },
         },
         {
+          id: 'vouchers_marketplace',
+          icon: 'ticket-outline',
+          title: t('profile.voucher_marketplace'),
+          badgeColor: '#FF6B6B',
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('VoucherMarketplace');
+          },
+        },
+        {
           id: 'rewards',
           icon: 'gift-outline',
           title: t('profile.rewards'),
