@@ -109,16 +109,15 @@ export const QuestListScreen = (): JSX.Element => {
         >
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
-        <Text className="flex-1 text-xl font-bold text-gray-900">
-          {t('quest.title')}
-        </Text>
       </View>
 
       {/* Tabs */}
       <View className="border-b border-gray-200 px-4">
         <View
           className="flex-row"
-          onLayout={(e) => setTabWidth(e.nativeEvent.layout.width / tabs.length)}
+          onLayout={(e) =>
+            setTabWidth(e.nativeEvent.layout.width / tabs.length)
+          }
         >
           {tabs.map((tab, i) => (
             <TouchableOpacity
@@ -136,7 +135,15 @@ export const QuestListScreen = (): JSX.Element => {
           ))}
         </View>
         <Animated.View
-          style={[{ width: tabWidth, height: 2, backgroundColor: '#a1d973', marginTop: -2 }, indicatorStyle]}
+          style={[
+            {
+              width: tabWidth,
+              height: 2,
+              backgroundColor: '#a1d973',
+              marginTop: -2,
+            },
+            indicatorStyle,
+          ]}
         />
       </View>
 

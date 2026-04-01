@@ -20,6 +20,7 @@ export interface Voucher {
   discountValue: number;
   minOrderValueVnd?: number | null;
   maxDiscountValue?: number | null;
+  startDate?: string | null;
   expiresAt: string;
   claimedAt: string;
   /** 'system' = earned via quest/platform campaign; 'restaurant' = direct vendor claim */
@@ -31,6 +32,8 @@ export interface Voucher {
   campaignName?: string;
   /** Voucher code for display / checkout */
   voucherCode?: string;
+  /** Whether the user's copy is still usable (false = already used) */
+  isAvailable?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -67,18 +70,25 @@ const initialState: CampaignsState = {
 // ---------------------------------------------------------------------------
 const mapApiVoucher = (dto: UserVoucherApiDto): Voucher => ({
   voucherId: String(dto.voucherId),
-  campaignId: '',
+  campaignId: dto.campaignId != null ? String(dto.campaignId) : '',
   title: dto.voucherName,
+  description: dto.description ?? null,
   discountType:
     dto.voucherType === 'PERCENTAGE' ? 'percentage' : 'fixed_amount',
   discountValue: dto.discountValue,
+  minOrderValueVnd: dto.minAmountRequired ?? null,
   maxDiscountValue: dto.maxDiscountValue,
-  // API doesn't return expiry — use a sentinel far-future date so the voucher
-  // shows as active; real expiry is available once the user claims via a campaign.
-  expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+  startDate: dto.startDate ?? null,
+  // Prefer expiredDate (hard cutoff), fall back to endDate (campaign window)
+  expiresAt:
+    dto.expiredDate ??
+    dto.endDate ??
+    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
   claimedAt: new Date().toISOString(),
-  source: 'system',
+  // No campaignId = marketplace/platform voucher; campaignId = vendor campaign
+  source: dto.campaignId != null ? 'restaurant' : 'system',
   voucherCode: dto.voucherCode,
+  isAvailable: dto.isAvailable,
 });
 
 export const fetchMyVouchers = createAppAsyncThunk(
@@ -124,23 +134,18 @@ const campaignsSlice = createSlice({
       })
       .addCase(fetchMyVouchers.fulfilled, (state, action) => {
         state.vouchersLoading = false;
-        // Merge: keep existing rich vouchers, add/update from API
-        const existing = new Map(state.vouchers.map((v) => [v.voucherId, v]));
+        // Full upsert: API is the source of truth — replace existing entries,
+        // keep locally-added vouchers (e.g. addVoucher) that the API didn't return.
+        const incoming = new Map(action.payload.map((v) => [v.voucherId, v]));
+        const merged = state.vouchers.map((v) =>
+          incoming.has(v.voucherId) ? incoming.get(v.voucherId)! : v
+        );
         action.payload.forEach((apiVoucher) => {
-          if (!existing.has(apiVoucher.voucherId)) {
-            existing.set(apiVoucher.voucherId, apiVoucher);
-          } else {
-            // Patch voucherCode if missing on the existing entry
-            const current = existing.get(apiVoucher.voucherId)!;
-            if (!current.voucherCode && apiVoucher.voucherCode) {
-              existing.set(apiVoucher.voucherId, {
-                ...current,
-                voucherCode: apiVoucher.voucherCode,
-              });
-            }
+          if (!merged.some((v) => v.voucherId === apiVoucher.voucherId)) {
+            merged.push(apiVoucher);
           }
         });
-        state.vouchers = Array.from(existing.values());
+        state.vouchers = merged;
       })
       .addCase(fetchMyVouchers.rejected, (state, action) => {
         state.vouchersLoading = false;
@@ -168,13 +173,17 @@ export const selectVouchersError = (state: RootState): string | null =>
 export const selectActiveVouchers = createSelector(
   [selectVouchers],
   (vouchers): Voucher[] =>
-    vouchers.filter((v) => new Date(v.expiresAt) > new Date())
+    vouchers.filter(
+      (v) => new Date(v.expiresAt) > new Date() && v.isAvailable !== false
+    )
 );
 
 export const selectExpiredVouchers = createSelector(
   [selectVouchers],
   (vouchers): Voucher[] =>
-    vouchers.filter((v) => new Date(v.expiresAt) <= new Date())
+    vouchers.filter(
+      (v) => new Date(v.expiresAt) <= new Date() || v.isAvailable === false
+    )
 );
 
 export const selectSystemVouchers = createSelector(

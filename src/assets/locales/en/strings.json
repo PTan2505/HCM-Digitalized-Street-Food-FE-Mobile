@@ -399,7 +399,7 @@
     "expired": "Expired",
     "expiring_soon": "Expiring Soon",
     "voucher_tab_all": "All",
-    "voucher_tab_system": "Platform",
+    "voucher_tab_system": "Lowca Voucher",
     "voucher_tab_vendor": "Restaurant",
     "history": "History",
     "history_title": "Used / Expired",
@@ -417,7 +417,10 @@
     "quest_tasks": "Tasks",
     "start_quest": "Start Quest",
     "quest": "Campaign Quest",
-    "no_quest": "No quest available"
+    "no_quest": "No quest available",
+    "valid_until": "Valid until {{date}}",
+    "starts_on": "Starts {{date}}",
+    "voucher_not_available": "Already used"
   },
   "marketplace": {
     "title": "Voucher Marketplace",

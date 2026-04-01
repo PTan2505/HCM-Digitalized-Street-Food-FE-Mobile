@@ -399,7 +399,7 @@
     "expired": "Hết hạn",
     "expiring_soon": "Sắp hết hạn",
     "voucher_tab_all": "Tất cả",
-    "voucher_tab_system": "Hệ thống",
+    "voucher_tab_system": "Lowca Voucher",
     "voucher_tab_vendor": "Nhà hàng",
     "history": "Lịch sử",
     "history_title": "Mã đã dùng / hết hạn",
@@ -417,7 +417,10 @@
     "quest_tasks": "Nhiệm vụ",
     "start_quest": "Bắt đầu nhiệm vụ",
     "quest": "Nhiệm vụ đi kèm",
-    "no_quest": "Không có nhiệm vụ nào"
+    "no_quest": "Không có nhiệm vụ nào",
+    "valid_until": "Hiệu lực đến {{date}}",
+    "starts_on": "Bắt đầu {{date}}",
+    "voucher_not_available": "Đã sử dụng"
   },
   "marketplace": {
     "title": "Chợ voucher",
