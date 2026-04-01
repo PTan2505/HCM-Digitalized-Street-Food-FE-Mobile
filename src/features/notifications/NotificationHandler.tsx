@@ -1,5 +1,6 @@
 import { useNotificationNavigation } from '@features/notifications/hooks/useNotificationNavigation';
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
+import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { selectUser } from '@slices/auth';
 
@@ -16,6 +17,7 @@ export const NotificationHandler = (): null => {
 
   const { lastResponse } = useNotifications(isAuthenticated);
   useNotificationNavigation(lastResponse, isAuthenticated);
+  useNotificationSocket(isAuthenticated);
 
   return null;
 };

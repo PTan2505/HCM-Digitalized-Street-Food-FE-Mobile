@@ -86,10 +86,6 @@ export const SystemCampaignDetailScreen = ({
               {campaign.name}
             </Text>
 
-            <Text className="mb-4 text-base leading-6 text-white/90">
-              {campaign.description}
-            </Text>
-
             <View className="mb-6 flex-row items-center">
               <Ionicons name="calendar-outline" size={16} color="white" />
               <Text className="ml-2 text-sm text-white/80">
@@ -101,6 +97,9 @@ export const SystemCampaignDetailScreen = ({
 
         {/* Quest section */}
         <View className="px-4 pt-4">
+          <Text className="mb-4 text-base leading-6 text-black">
+            {campaign.description}
+          </Text>
           <Text className="mb-3 text-base font-bold text-gray-900">
             {t('campaign.quest')}
           </Text>

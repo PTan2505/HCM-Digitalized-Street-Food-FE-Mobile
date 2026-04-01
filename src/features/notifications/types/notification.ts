@@ -3,7 +3,11 @@
  * via Expo Push Notification service.
  */
 
-export type NotificationType = 'vendor_reply' | 'order_status';
+export type NotificationType =
+  | 'vendor_reply'
+  | 'order_status'
+  | 'quest_task_completed'
+  | 'quest_completed';
 
 /** The `data` field inside a push notification payload. */
 export interface NotificationData {
@@ -17,6 +21,9 @@ export interface NotificationData {
   // order_status
   orderId?: number;
   orderStatus?: string;
+
+  // quest_task_completed / quest_completed
+  questId?: number;
 }
 
 /** A single notification item returned by GET /api/notifications. */

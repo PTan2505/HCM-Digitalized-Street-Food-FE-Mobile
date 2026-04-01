@@ -79,6 +79,13 @@ export const useNotificationNavigation = (
         }
         break;
 
+      case 'quest_task_completed':
+      case 'quest_completed':
+        if (data.questId) {
+          navigationRef.navigate('QuestDetail', { questId: data.questId });
+        }
+        break;
+
       default:
         break;
     }
