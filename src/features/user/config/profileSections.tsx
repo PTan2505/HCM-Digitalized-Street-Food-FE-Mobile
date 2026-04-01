@@ -124,7 +124,7 @@ export const getProfileSections = (
         },
         {
           id: 'vouchers_marketplace',
-          icon: 'ticket-outline',
+          icon: 'storefront-outline',
           title: t('profile.voucher_marketplace'),
           badgeColor: '#FF6B6B',
           rightIcon: 'chevron-forward',
