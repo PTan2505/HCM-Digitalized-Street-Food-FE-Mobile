@@ -313,7 +313,7 @@ export const HomeScreen = (): JSX.Element => {
           <Title>{t('what_want_eat')}</Title>
         </View>
 
-        <View className="flex-row px-4 pt-2">
+        <View className="flex-row pt-2">
           {categoriesLoading ? (
             <View className="flex-1 items-center py-4">
               <ActivityIndicator color="#a1d973" />
@@ -333,8 +333,15 @@ export const HomeScreen = (): JSX.Element => {
               renderItem={({ item }) => (
                 <CategoryCard
                   title={item.name}
-                  image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
-                  onPress={() => console.log(`Selected ${item.name}`)}
+                  image={
+                    item.imageUrl ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`
+                  }
+                  onPress={() =>
+                    navigation.navigate('Search', {
+                      selectedCategoryId: String(item.categoryId),
+                    })
+                  }
                 />
               )}
             />

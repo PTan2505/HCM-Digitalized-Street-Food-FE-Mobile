@@ -38,7 +38,7 @@ export const fetchActiveBranches = createAppAsyncThunk(
   async (
     {
       page = 1,
-      pageSize = 10,
+      pageSize = 2,
       lat,
       lng,
       distance,

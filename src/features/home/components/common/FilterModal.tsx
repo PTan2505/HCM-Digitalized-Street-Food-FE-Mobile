@@ -258,7 +258,10 @@ const FilterModal = ({
                   renderItem={({ item }) => (
                     <CategoryCard
                       title={item.name}
-                      image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
+                      image={
+                        item.imageUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`
+                      }
                       onPress={() =>
                         toggleSelection(
                           item.categoryId.toString(),

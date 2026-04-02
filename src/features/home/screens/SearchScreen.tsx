@@ -33,6 +33,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 type SearchScreenProps = StaticScreenProps<{
   autoFocus?: boolean;
   openFilter?: boolean;
+  selectedCategoryId?: string;
 }>;
 
 const DEFAULT_MIN_PRICE = 0;
@@ -56,7 +57,7 @@ const FilterChip = ({
 
 export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { t } = useTranslation();
-  const { autoFocus, openFilter } = route.params ?? {};
+  const { autoFocus, openFilter, selectedCategoryId } = route.params ?? {};
   const [keyword, setKeyword] = useState('');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filterSection, setFilterSection] = useState<FilterSection | null>(
@@ -223,6 +224,27 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
       activeFilters.minPrice > DEFAULT_MIN_PRICE ||
       activeFilters.maxPrice < DEFAULT_MAX_PRICE ||
       activeFilters.distance !== DEFAULT_DISTANCE);
+
+  useEffect(() => {
+    if (!selectedCategoryId) return;
+
+    const categoryFilter: FilterState = {
+      spaceTypes: [],
+      categoryIds: [selectedCategoryId],
+      minPrice: DEFAULT_MIN_PRICE,
+      maxPrice: DEFAULT_MAX_PRICE,
+      distance: DEFAULT_DISTANCE,
+      hasParking: false,
+      openNow: false,
+      amenities: [],
+      tasteTags: [],
+      dietaryTags: [],
+    };
+
+    setActiveFilters(categoryFilter);
+    setHasSearched(true);
+    triggerSearch('', categoryFilter);
+  }, [selectedCategoryId, triggerSearch]);
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
