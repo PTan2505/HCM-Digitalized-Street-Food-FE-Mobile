@@ -362,7 +362,10 @@ export const WithdrawScreen = (): JSX.Element => {
 
             {/* Sheet */}
             <Animated.View
-              style={[{ paddingBottom: insets.bottom, height: SCREEN_HEIGHT * 0.75 }, sheetAnimatedStyle]}
+              style={[
+                { paddingBottom: insets.bottom, height: SCREEN_HEIGHT * 0.75 },
+                sheetAnimatedStyle,
+              ]}
               className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white pt-4"
             >
               {/* Drag handle */}
