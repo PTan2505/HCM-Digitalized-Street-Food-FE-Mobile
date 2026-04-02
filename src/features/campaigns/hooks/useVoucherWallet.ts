@@ -3,7 +3,7 @@ import {
   addVoucher,
   fetchMyVouchers,
   selectActiveVouchers,
-  selectRestaurantVouchers,
+  selectCampaignVouchers,
   selectSystemVouchers,
   selectVouchersError,
   selectVouchersLoading,
@@ -11,14 +11,14 @@ import {
 } from '@slices/campaigns';
 import { useCallback, useEffect } from 'react';
 
-export type VoucherTab = 'all' | 'system' | 'restaurant';
+export type VoucherTab = 'all' | 'campaign' | 'system' | 'restaurant';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const useVoucherWallet = () => {
   const dispatch = useAppDispatch();
   const activeVouchers = useAppSelector(selectActiveVouchers);
+  const campaignVouchers = useAppSelector(selectCampaignVouchers);
   const systemVouchers = useAppSelector(selectSystemVouchers);
-  const restaurantVouchers = useAppSelector(selectRestaurantVouchers);
   const isLoading = useAppSelector(selectVouchersLoading);
   const error = useAppSelector(selectVouchersError);
 
@@ -40,35 +40,39 @@ export const useVoucherWallet = () => {
   const getDisplayedVouchers = useCallback(
     (tab: VoucherTab) => {
       switch (tab) {
+        case 'campaign':
+          return campaignVouchers;
         case 'system':
           return systemVouchers;
         case 'restaurant':
-          return restaurantVouchers;
+          return campaignVouchers;
         default:
           return activeVouchers;
       }
     },
-    [activeVouchers, systemVouchers, restaurantVouchers]
+    [activeVouchers, campaignVouchers, systemVouchers]
   );
 
   const tabCount = useCallback(
     (tab: VoucherTab): number => {
       switch (tab) {
+        case 'campaign':
+          return campaignVouchers.length;
         case 'system':
           return systemVouchers.length;
         case 'restaurant':
-          return restaurantVouchers.length;
+          return campaignVouchers.length;
         default:
           return activeVouchers.length;
       }
     },
-    [activeVouchers, systemVouchers, restaurantVouchers]
+    [activeVouchers, campaignVouchers, systemVouchers]
   );
 
   return {
     activeVouchers,
+    campaignVouchers,
     systemVouchers,
-    restaurantVouchers,
     isLoading,
     error,
     handleRefresh,

@@ -7,12 +7,14 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { Voucher } from '@slices/campaigns';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
+  LayoutChangeEvent,
   RefreshControl,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -30,8 +32,19 @@ interface TabConfig {
   labelKey: string;
 }
 
+interface TabLayout {
+  x: number;
+  width: number;
+}
+
+interface AnimatedTabLabelProps {
+  isActive: boolean;
+  label: string;
+}
+
 const TABS: TabConfig[] = [
   { key: 'all', labelKey: 'campaign.voucher_tab_all' },
+  { key: 'campaign', labelKey: 'campaign.voucher_tab_campaign' },
   { key: 'system', labelKey: 'campaign.voucher_tab_system' },
   { key: 'restaurant', labelKey: 'campaign.voucher_tab_vendor' },
 ];
@@ -54,6 +67,31 @@ const isExpiringSoon = (voucher: Voucher): boolean => {
   return hoursLeft > 0 && hoursLeft <= 24;
 };
 
+const AnimatedTabLabel = ({
+  isActive,
+  label,
+}: AnimatedTabLabelProps): JSX.Element => {
+  const activeProgress = useSharedValue(isActive ? 1 : 0);
+
+  useEffect(() => {
+    activeProgress.value = withTiming(isActive ? 1 : 0, { duration: 220 });
+  }, [activeProgress, isActive]);
+
+  const textStyle = useAnimatedStyle(() => ({
+    color: interpolateColor(
+      activeProgress.value,
+      [0, 1],
+      ['#6B7280', '#89D151']
+    ),
+  }));
+
+  return (
+    <Animated.Text className="text-sm font-semibold" style={textStyle}>
+      {label}
+    </Animated.Text>
+  );
+};
+
 export const VoucherWalletScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -64,37 +102,56 @@ export const VoucherWalletScreen = (): JSX.Element => {
   const [expandedVoucherId, setExpandedVoucherId] = useState<number | null>(
     null
   );
-  const [tabWidth, setTabWidth] = useState(0);
+  const [tabLayouts, setTabLayouts] = useState<
+    Partial<Record<VoucherTab, TabLayout>>
+  >({});
 
   const indicatorX = useSharedValue(0);
-  const tabActives = TABS.map((_, i) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useSharedValue(i === 0 ? 1 : 0)
-  );
+  const indicatorWidth = useSharedValue(0);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorX.value }],
+    width: indicatorWidth.value,
   }));
 
-  const tabTextStyles = tabActives.map((v) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useAnimatedStyle(() => ({
-      color: interpolateColor(v.value, [0, 1], ['#9CA3AF', '#7AB82D']),
-    }))
+  const animateIndicator = useCallback(
+    (tab: VoucherTab) => {
+      const layout = tabLayouts[tab];
+      if (!layout) {
+        return;
+      }
+
+      indicatorX.value = withTiming(layout.x, { duration: 220 });
+      indicatorWidth.value = withTiming(layout.width, { duration: 220 });
+    },
+    [indicatorWidth, indicatorX, tabLayouts]
   );
+
+  useEffect(() => {
+    animateIndicator(activeTab);
+  }, [activeTab, animateIndicator]);
 
   const handleTabChange = useCallback(
     (key: VoucherTab) => {
-      const newIdx = TABS.findIndex((tab) => tab.key === key);
-      indicatorX.value = withTiming(newIdx * tabWidth, { duration: 250 });
-      tabActives.forEach((v, i) => {
-        v.value = withTiming(i === newIdx ? 1 : 0, { duration: 250 });
-      });
       setActiveTab(key);
       setExpandedVoucherId(null);
+      animateIndicator(key);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tabWidth]
+    [animateIndicator]
+  );
+
+  const handleTabLayout = useCallback(
+    (tab: VoucherTab, event: LayoutChangeEvent) => {
+      const { x, width } = event.nativeEvent.layout;
+      setTabLayouts((prev) => {
+        const previousLayout = prev[tab];
+        if (previousLayout?.x === x && previousLayout?.width === width) {
+          return prev;
+        }
+        return { ...prev, [tab]: { x, width } };
+      });
+    },
+    []
   );
 
   const handleVoucherPress = useCallback((voucher: Voucher) => {
@@ -118,7 +175,6 @@ export const VoucherWalletScreen = (): JSX.Element => {
       <View className="flex-row items-center justify-between px-4 pb-8 pt-3">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="mr-3"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons name="arrow-back" size={24} color="#111827" />
@@ -135,30 +191,36 @@ export const VoucherWalletScreen = (): JSX.Element => {
       </View>
 
       {/* Tabs */}
-      <View className="border-b border-gray-200 px-4">
-        <View
-          className="flex-row"
-          onLayout={(e) =>
-            setTabWidth(e.nativeEvent.layout.width / TABS.length)
-          }
-        >
-          {TABS.map((tab, i) => {
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
+        className="border-b border-gray-200"
+        style={{ flexGrow: 0 }}
+      >
+        <View className="relative flex-row gap-2">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.key;
             const count = tabCount(tab.key);
             return (
               <TouchableOpacity
                 key={tab.key}
                 onPress={() => handleTabChange(tab.key)}
-                className="flex-1 flex-row items-center justify-center gap-1 pb-3"
+                onLayout={(event) => handleTabLayout(tab.key, event)}
+                className={`flex-row items-center gap-1 px-4 py-1`}
               >
-                <Animated.Text
-                  className="text-sm font-semibold"
-                  style={tabTextStyles[i]}
-                >
-                  {t(tab.labelKey)}
-                </Animated.Text>
+                <AnimatedTabLabel isActive={isActive} label={t(tab.labelKey)} />
                 {count > 0 && (
-                  <View className="rounded-full bg-gray-100 px-1.5 py-0.5">
-                    <Text className="text-xs font-bold text-gray-500">
+                  <View
+                    className={`rounded-full px-1.5 py-0.5 ${
+                      isActive ? 'bg-white/30' : 'bg-gray-200'
+                    }`}
+                  >
+                    <Text
+                      className={`text-xs font-bold ${
+                        isActive ? 'text-white' : 'text-gray-500'
+                      }`}
+                    >
                       {count}
                     </Text>
                   </View>
@@ -166,19 +228,22 @@ export const VoucherWalletScreen = (): JSX.Element => {
               </TouchableOpacity>
             );
           })}
+
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              {
+                position: 'absolute',
+                bottom: -12,
+                left: 0,
+                height: 2,
+                backgroundColor: '#a1d973',
+              },
+              indicatorStyle,
+            ]}
+          />
         </View>
-        <Animated.View
-          style={[
-            {
-              width: tabWidth,
-              height: 2,
-              backgroundColor: '#a1d973',
-              marginTop: -2,
-            },
-            indicatorStyle,
-          ]}
-        />
-      </View>
+      </ScrollView>
 
       {/* Content */}
       {isLoading && displayedVouchers.length === 0 ? (

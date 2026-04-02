@@ -157,15 +157,20 @@ export const selectExpiredVouchers = createSelector(
     vouchers.filter((v) => getExpiresAt(v) <= new Date() || !v.isAvailable)
 );
 
+/** Marketplace / platform vouchers — no campaign attached */
 export const selectSystemVouchers = createSelector(
   [selectActiveVouchers],
   (vouchers): Voucher[] => vouchers.filter((v) => v.campaignId == null)
 );
 
-export const selectRestaurantVouchers = createSelector(
+/** All vouchers tied to a campaign (restaurant or platform campaign) */
+export const selectCampaignVouchers = createSelector(
   [selectActiveVouchers],
   (vouchers): Voucher[] => vouchers.filter((v) => v.campaignId != null)
 );
+
+/** Alias kept for backward compatibility — same as campaign vouchers */
+export const selectRestaurantVouchers = selectCampaignVouchers;
 
 export const selectQuests = (state: RootState): QuestProgress[] =>
   state.campaigns.quests ?? [];

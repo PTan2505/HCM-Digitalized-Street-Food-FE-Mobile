@@ -104,14 +104,14 @@ export const VoucherHistoryScreen = (): JSX.Element => {
       <View className="flex-row items-center px-4 pb-8 pt-3">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="mr-3"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900">
+        <Text className="flex-1 text-center text-xl font-bold text-gray-900">
           {t('campaign.history_title')}
         </Text>
+        <View style={{ width: 24 }} />
       </View>
 
       {/* Tabs */}
