@@ -6,6 +6,7 @@ import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScre
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
+import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
 import { RestaurantDeepLinkScreen } from '@features/home/screens/RestaurantDeepLinkScreen';
@@ -101,6 +102,9 @@ const RootStack = createNativeStackNavigator({
     CurrentPicks: {
       screen: CurrentPicksScreen,
       linking: 'current-picks',
+    },
+    ListBranch: {
+      screen: ListBranchScreen,
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
