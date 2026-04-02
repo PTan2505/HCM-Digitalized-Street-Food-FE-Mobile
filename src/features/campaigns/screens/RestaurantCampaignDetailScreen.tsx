@@ -43,18 +43,23 @@ export const RestaurantCampaignDetailScreen = ({
     if (!campaign) return;
 
     const voucher: Voucher = {
-      voucherId: `v_${campaign.campaignId}_${Date.now()}`,
-      campaignId: String(campaign.campaignId),
-      title: campaign.name,
-      description: campaign.description ?? '',
-      discountType: campaign.discountType ?? 'percentage',
+      userVoucherId: 0,
+      voucherId: campaign.campaignId ?? 0,
+      voucherCode: '',
+      voucherName: campaign.name,
+      description: campaign.description ?? null,
+      voucherType:
+        campaign.discountType === 'percentage' ? 'PERCENTAGE' : 'AMOUNT',
       discountValue: campaign.discountValue ?? 0,
-      minOrderValueVnd: campaign.minOrderValueVnd ?? null,
-      expiresAt: campaign.expiresAt ?? '',
-      claimedAt: new Date().toISOString(),
-      source: 'restaurant',
-      vendorId: campaign.vendorId ?? '',
-      vendorName: campaign.vendorName ?? '',
+      minAmountRequired: campaign.minOrderValueVnd ?? null,
+      maxDiscountValue: null,
+      startDate: null,
+      endDate: campaign.expiresAt ?? null,
+      expiredDate: null,
+      isActive: true,
+      campaignId: campaign.campaignId ?? null,
+      quantity: 1,
+      isAvailable: true,
     };
 
     handleClaimVoucher(voucher);

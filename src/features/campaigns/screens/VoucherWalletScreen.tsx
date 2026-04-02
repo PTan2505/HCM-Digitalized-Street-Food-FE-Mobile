@@ -37,16 +37,19 @@ const TABS: TabConfig[] = [
   { key: 'history', labelKey: 'campaign.history' },
 ];
 
-const isExpired = (voucher: Voucher): boolean =>
-  new Date(voucher.expiresAt) <= new Date();
+const getExpiresAt = (voucher: Voucher): Date =>
+  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
 
-const isUsed = (voucher: Voucher): boolean => voucher.isAvailable === false;
+const isExpired = (voucher: Voucher): boolean =>
+  getExpiresAt(voucher) <= new Date();
+
+const isUsed = (voucher: Voucher): boolean => !voucher.isAvailable;
 
 const isNotYetActive = (voucher: Voucher): boolean =>
   voucher.startDate != null && new Date(voucher.startDate) > new Date();
 
 const isExpiringSoon = (voucher: Voucher): boolean => {
-  const expiresAt = new Date(voucher.expiresAt);
+  const expiresAt = getExpiresAt(voucher);
   const now = new Date();
   const hoursLeft = (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60);
   return hoursLeft > 0 && hoursLeft <= 24;
@@ -59,7 +62,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
     useVoucherWallet();
 
   const [activeTab, setActiveTab] = useState<VoucherTab>('all');
-  const [expandedVoucherId, setExpandedVoucherId] = useState<string | null>(
+  const [expandedVoucherId, setExpandedVoucherId] = useState<number | null>(
     null
   );
   const [tabWidth, setTabWidth] = useState(0);
@@ -214,7 +217,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
       ) : (
         <FlatList
           data={displayedVouchers}
-          keyExtractor={(item) => item.voucherId}
+          keyExtractor={(item) => String(item.voucherId)}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -240,19 +243,20 @@ export const VoucherWalletScreen = (): JSX.Element => {
                   <TicketVoucherCard
                     disabled={disabled}
                     discountText={
-                      item.discountType === 'percentage'
+                      item.voucherType.toUpperCase().includes('PERCENT')
                         ? `${item.discountValue}%`
                         : `${item.discountValue.toLocaleString('vi-VN')}đ`
                     }
-                    title={item.title}
+                    title={item.voucherName}
                     subtitle={
-                      item.source === 'system'
-                        ? item.campaignName
-                        : item.vendorName
+                      item.maxDiscountValue != null
+                        ? t('campaign.max_discount', {
+                            amount:
+                              item.maxDiscountValue.toLocaleString('vi-VN'),
+                          })
+                        : undefined
                     }
-                    expiresText={new Date(item.expiresAt).toLocaleDateString(
-                      'vi-VN'
-                    )}
+                    expiresText={getExpiresAt(item).toLocaleDateString('vi-VN')}
                     secondaryMetaText={
                       used
                         ? t('campaign.voucher_not_available')
@@ -280,16 +284,22 @@ export const VoucherWalletScreen = (): JSX.Element => {
                               : 'checkmark-circle-outline'
                     }
                     tertiaryMetaText={
-                      item.minOrderValueVnd != null
+                      item.minAmountRequired != null
                         ? t('campaign.min_order', {
                             amount:
-                              item.minOrderValueVnd.toLocaleString('vi-VN'),
+                              item.minAmountRequired.toLocaleString('vi-VN'),
                           })
                         : undefined
                     }
-                    footerText={
-                      item.voucherCode ?? t('campaign.voucher_wallet')
+                    actionLabel={
+                      disabled ? undefined : t('campaign.voucher_apply')
                     }
+                    onActionPress={
+                      disabled
+                        ? undefined
+                        : (): void => handleVoucherPress(item)
+                    }
+                    actionDisabled={disabled}
                   />
                 </TouchableOpacity>
 
@@ -308,23 +318,20 @@ export const VoucherWalletScreen = (): JSX.Element => {
                       </View>
                     )}
                     <Text className="text-sm text-gray-500">
-                      {item.source === 'system'
+                      {item.campaignId == null
                         ? t('campaign.scope_participating')
-                        : t('campaign.scope_restaurant', {
-                            name: item.vendorName ?? '',
-                          })}
+                        : t('campaign.scope_restaurant', { name: '' })}
                     </Text>
                     <Text className="mt-0.5 text-sm text-gray-400">
                       {t('campaign.valid_until', {
-                        date: new Date(item.expiresAt).toLocaleDateString(
-                          'vi-VN'
-                        ),
+                        date: getExpiresAt(item).toLocaleDateString('vi-VN'),
                       })}
                     </Text>
-                    {item.minOrderValueVnd != null && (
+                    {item.minAmountRequired != null && (
                       <Text className="mt-0.5 text-sm text-gray-400">
-                        {t('campaign.min_order')}:{' '}
-                        {item.minOrderValueVnd.toLocaleString('vi-VN')}đ
+                        {t('campaign.min_order', {
+                          amount: item.minAmountRequired.toLocaleString('vi-VN'),
+                        })}
                       </Text>
                     )}
                     {item.description ? (

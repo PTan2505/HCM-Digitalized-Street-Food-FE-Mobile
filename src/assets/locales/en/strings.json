@@ -385,7 +385,7 @@
     "save_voucher": "Save Voucher",
     "voucher_saved": "Voucher Saved!",
     "voucher_saved_desc": "Check your voucher wallet to view it.",
-    "min_order": "Min. order",
+    "min_order": "Min. order {{amount}}đ",
     "scope_participating": "Valid at participating restaurants",
     "scope_restaurant": "Valid only at {{name}}",
     "voucher_wallet": "My Vouchers",
@@ -420,7 +420,10 @@
     "no_quest": "No quest available",
     "valid_until": "Valid until {{date}}",
     "starts_on": "Starts {{date}}",
-    "voucher_not_available": "Already used"
+    "voucher_not_available": "Already used",
+    "voucher_apply": "Apply",
+    "voucher_apply_disabled": "Unavailable",
+    "max_discount": "Max {{amount}}đ off"
   },
   "marketplace": {
     "title": "Voucher Marketplace",

@@ -20,7 +20,7 @@ interface TicketVoucherCardProps {
   secondaryMetaIcon?: IoniconName;
   tertiaryMetaText?: string;
   tertiaryMetaIcon?: IoniconName;
-  footerText: string;
+  footerText?: string;
   actionLabel?: string;
   onActionPress?: () => void;
   isActionLoading?: boolean;
@@ -140,12 +140,16 @@ export const TicketVoucherCard = ({
           </View>
 
           <View className="mt-2 flex-row items-center justify-between">
-            <View className="flex-row items-center rounded-full bg-yellow-400 px-2.5 py-1">
-              <Ionicons name="star" size={11} color="#FFFFFF" />
-              <Text className="ml-1 text-[10px] font-bold text-white">
-                {footerText}
-              </Text>
-            </View>
+            {footerText ? (
+              <View className="flex-row items-center rounded-full bg-yellow-400 px-2.5 py-1">
+                <Ionicons name="star" size={11} color="#FFFFFF" />
+                <Text className="ml-1 text-[10px] font-bold text-white">
+                  {footerText}
+                </Text>
+              </View>
+            ) : (
+              <View />
+            )}
 
             {shouldShowAction ? (
               <TouchableOpacity

@@ -6,34 +6,27 @@ import {
   createSlice,
   type PayloadAction,
 } from '@reduxjs/toolkit';
-import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 
 // ---------------------------------------------------------------------------
-// Voucher type (not generated — local to the mobile client)
+// Voucher — mirrors UserVoucherResponseDto from the backend
 // ---------------------------------------------------------------------------
 export interface Voucher {
-  voucherId: string;
-  campaignId: string;
-  title: string;
-  description?: string | null;
-  discountType: 'percentage' | 'fixed_amount';
+  userVoucherId: number;
+  voucherId: number;
+  voucherCode: string;
+  voucherName: string;
+  description: string | null;
+  voucherType: string;
   discountValue: number;
-  minOrderValueVnd?: number | null;
-  maxDiscountValue?: number | null;
-  startDate?: string | null;
-  expiresAt: string;
-  claimedAt: string;
-  /** 'system' = earned via quest/platform campaign; 'restaurant' = direct vendor claim */
-  source: 'system' | 'restaurant';
-  /** For restaurant vouchers: the specific vendor */
-  vendorId?: string;
-  vendorName?: string;
-  /** For system vouchers: the campaign name (used for scope display) */
-  campaignName?: string;
-  /** Voucher code for display / checkout */
-  voucherCode?: string;
-  /** Whether the user's copy is still usable (false = already used) */
-  isAvailable?: boolean;
+  minAmountRequired: number | null;
+  maxDiscountValue: number | null;
+  startDate: string | null;
+  endDate: string | null;
+  expiredDate: string | null;
+  isActive: boolean;
+  campaignId: number | null;
+  quantity: number;
+  isAvailable: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -66,37 +59,19 @@ const initialState: CampaignsState = {
 };
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+const getExpiresAt = (v: Voucher): Date =>
+  new Date(v.expiredDate ?? v.endDate ?? '9999-12-31');
+
+// ---------------------------------------------------------------------------
 // Thunk — fetch the authenticated user's vouchers from the server
 // ---------------------------------------------------------------------------
-const mapApiVoucher = (dto: UserVoucherApiDto): Voucher => ({
-  voucherId: String(dto.voucherId),
-  campaignId: dto.campaignId != null ? String(dto.campaignId) : '',
-  title: dto.voucherName,
-  description: dto.description ?? null,
-  discountType:
-    dto.voucherType === 'PERCENTAGE' ? 'percentage' : 'fixed_amount',
-  discountValue: dto.discountValue,
-  minOrderValueVnd: dto.minAmountRequired ?? null,
-  maxDiscountValue: dto.maxDiscountValue,
-  startDate: dto.startDate ?? null,
-  // Prefer expiredDate (hard cutoff), fall back to endDate (campaign window)
-  expiresAt:
-    dto.expiredDate ??
-    dto.endDate ??
-    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-  claimedAt: new Date().toISOString(),
-  // No campaignId = marketplace/platform voucher; campaignId = vendor campaign
-  source: dto.campaignId != null ? 'restaurant' : 'system',
-  voucherCode: dto.voucherCode,
-  isAvailable: dto.isAvailable,
-});
-
 export const fetchMyVouchers = createAppAsyncThunk(
   'campaigns/fetchMyVouchers',
   async (_, { rejectWithValue }) => {
     try {
-      const data = await axiosApi.voucherApi.getMyVouchers();
-      return data.map(mapApiVoucher);
+      return await axiosApi.voucherApi.getMyVouchers();
     } catch {
       return rejectWithValue('Failed to load vouchers');
     }
@@ -173,27 +148,23 @@ export const selectVouchersError = (state: RootState): string | null =>
 export const selectActiveVouchers = createSelector(
   [selectVouchers],
   (vouchers): Voucher[] =>
-    vouchers.filter(
-      (v) => new Date(v.expiresAt) > new Date() && v.isAvailable !== false
-    )
+    vouchers.filter((v) => getExpiresAt(v) > new Date() && v.isAvailable)
 );
 
 export const selectExpiredVouchers = createSelector(
   [selectVouchers],
   (vouchers): Voucher[] =>
-    vouchers.filter(
-      (v) => new Date(v.expiresAt) <= new Date() || v.isAvailable === false
-    )
+    vouchers.filter((v) => getExpiresAt(v) <= new Date() || !v.isAvailable)
 );
 
 export const selectSystemVouchers = createSelector(
   [selectActiveVouchers],
-  (vouchers): Voucher[] => vouchers.filter((v) => v.source === 'system')
+  (vouchers): Voucher[] => vouchers.filter((v) => v.campaignId == null)
 );
 
 export const selectRestaurantVouchers = createSelector(
   [selectActiveVouchers],
-  (vouchers): Voucher[] => vouchers.filter((v) => v.source === 'restaurant')
+  (vouchers): Voucher[] => vouchers.filter((v) => v.campaignId != null)
 );
 
 export const selectQuests = (state: RootState): QuestProgress[] =>

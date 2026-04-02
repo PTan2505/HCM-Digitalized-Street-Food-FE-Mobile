@@ -12,6 +12,9 @@ interface VoucherCardProps {
   onPress: () => void;
 }
 
+const getExpiresAt = (voucher: Voucher): Date =>
+  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
+
 export const VoucherCard = ({
   voucher,
   isExpired,
@@ -21,17 +24,16 @@ export const VoucherCard = ({
 }: VoucherCardProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const discountLabel =
-    voucher.discountType === 'percentage'
-      ? `${voucher.discountValue}%`
-      : `${voucher.discountValue.toLocaleString()}đ`;
+  const discountLabel = voucher.voucherType.toUpperCase().includes('PERCENT')
+    ? `${voucher.discountValue}%`
+    : `${voucher.discountValue.toLocaleString()}đ`;
 
-  const expiryDate = new Date(voucher.expiresAt).toLocaleDateString();
+  const expiryDate = getExpiresAt(voucher).toLocaleDateString();
 
   const scopeLabel =
-    voucher.source === 'system'
+    voucher.campaignId == null
       ? t('campaign.scope_participating')
-      : t('campaign.scope_restaurant', { name: voucher.vendorName ?? '' });
+      : t('campaign.scope_restaurant', { name: '' });
 
   return (
     <TouchableOpacity
@@ -67,7 +69,7 @@ export const VoucherCard = ({
               className={`flex-1 text-sm font-bold ${isExpired ? 'text-gray-400' : 'text-gray-900'}`}
               numberOfLines={1}
             >
-              {voucher.title}
+              {voucher.voucherName}
             </Text>
             {isExpired && (
               <View className="ml-2 rounded bg-gray-300 px-1.5 py-0.5">
@@ -85,12 +87,6 @@ export const VoucherCard = ({
             )}
           </View>
 
-          <Text className="mt-0.5 text-xs text-gray-400">
-            {voucher.source === 'system'
-              ? voucher.campaignName
-              : voucher.vendorName}
-          </Text>
-
           <View className="mt-1 flex-row items-center">
             <Ionicons name="time-outline" size={12} color="#9CA3AF" />
             <Text className="ml-1 text-xs text-gray-400">
@@ -104,10 +100,11 @@ export const VoucherCard = ({
       {isExpanded && (
         <View className="border-t border-dashed border-gray-200 px-4 py-3">
           <Text className="mb-1 text-xs text-gray-500">{scopeLabel}</Text>
-          {voucher.minOrderValueVnd != null && (
+          {voucher.minAmountRequired != null && (
             <Text className="text-xs text-gray-400">
-              {t('campaign.min_order')}:{' '}
-              {voucher.minOrderValueVnd.toLocaleString()}đ
+              {t('campaign.min_order', {
+                amount: voucher.minAmountRequired.toLocaleString(),
+              })}
             </Text>
           )}
           {voucher.description && (
