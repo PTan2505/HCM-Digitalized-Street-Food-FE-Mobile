@@ -65,7 +65,10 @@ const OrderHistoryItem = ({
           className="rounded-full px-2.5 py-1"
           style={{ backgroundColor: `${statusColor}20` }}
         >
-          <Text className="text-xs font-semibold" style={{ color: statusColor }}>
+          <Text
+            className="text-xs font-semibold"
+            style={{ color: statusColor }}
+          >
             {statusLabel}
           </Text>
         </View>

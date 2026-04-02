@@ -11,7 +11,10 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
 const POLL_INTERVAL = 10_000;
-const TERMINAL_STATUSES: number[] = [ORDER_STATUS.Complete, ORDER_STATUS.Cancelled];
+const TERMINAL_STATUSES: number[] = [
+  ORDER_STATUS.Complete,
+  ORDER_STATUS.Cancelled,
+];
 
 export const useOrderStatus = (
   orderId: number
