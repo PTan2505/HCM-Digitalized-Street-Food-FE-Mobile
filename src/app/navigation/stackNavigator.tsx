@@ -43,6 +43,7 @@ import { QuestListScreen } from '@features/quests/screens/QuestListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
+import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
@@ -212,6 +213,9 @@ const RootStack = createNativeStackNavigator({
         parse: { questId: Number },
       },
       params: {} as { questId: number },
+    },
+    Withdraw: {
+      screen: WithdrawScreen,
     },
   },
 });

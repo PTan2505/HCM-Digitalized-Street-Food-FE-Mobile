@@ -8,6 +8,7 @@ import { getProfileSections } from '@features/user/config/profileSections';
 import { ProfileSection } from '@features/user/types/profileConfig';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
 import getHighResAvatar from '@utils/getHighResAvatar';
 import React, { JSX, useCallback, useMemo } from 'react';
@@ -19,7 +20,8 @@ export const ProfileScreen = (): JSX.Element => {
   const { t, i18n } = useTranslation();
   const user = useAppSelector(selectUser);
   const { onLogout } = useLogin();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   // Get profile sections configuration
   const changeLanguage = useCallback(
@@ -121,6 +123,9 @@ export const ProfileScreen = (): JSX.Element => {
             <Text className="text-xl font-bold text-gray-900">
               {t('profile.title', 'Hồ sơ')}
             </Text>
+            <Pressable onPress={() => navigation.navigate('PersonalCart', {})}>
+              <Ionicons name="cart-outline" size={24} color="black" />
+            </Pressable>
           </View>
 
           <View className="items-center">

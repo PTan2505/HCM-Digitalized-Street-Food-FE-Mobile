@@ -190,7 +190,8 @@
     "logout": "Đăng xuất",
     "my_balance": "Ví Lowca",
     "voucher_wallet": "Ví mã giảm giá",
-    "voucher_marketplace": "Chợ voucher"
+    "voucher_marketplace": "Chợ voucher",
+    "personal-features": "Tính năng cá nhân"
   },
   "bottom_tabs": {
     "discover": "Khám phá",
@@ -237,7 +238,14 @@
     "invalid_name": "Tên không hợp lệ!",
     "invalid_last_name": "Họ không hợp lệ!",
     "empty_first_name": "Vui lòng nhập tên!",
-    "username_min_length": "Tên người dùng phải có ít nhất 3 ký tự!"
+    "username_min_length": "Tên người dùng phải có ít nhất 3 ký tự!",
+    "withdraw_empty_bank": "Vui lòng chọn ngân hàng!",
+    "withdraw_empty_account_number": "Vui lòng nhập số tài khoản!",
+    "withdraw_invalid_account_number": "Số tài khoản không được vượt quá 30 ký tự!",
+    "withdraw_empty_amount": "Vui lòng nhập số tiền!",
+    "withdraw_min_amount": "Số tiền tối thiểu là 1.000 đ!",
+    "withdraw_empty_description": "Vui lòng nhập mô tả!",
+    "withdraw_max_description": "Mô tả không được vượt quá 255 ký tự!"
   },
   "cart": {
     "title": "Giỏ hàng",
@@ -481,5 +489,29 @@
       "voucherOff": "Giảm",
       "voucherRemain": "Còn lại {{count}}"
     }
+  },
+  "withdraw": {
+    "title": "Rút tiền",
+    "available_balance": "Số dư khả dụng",
+    "bank": "Ngân hàng",
+    "select_bank": "Chọn ngân hàng",
+    "account_number": "Số tài khoản",
+    "account_number_placeholder": "Nhập số tài khoản",
+    "amount": "Số tiền (đ)",
+    "amount_placeholder": "Tối thiểu 10.000 đ",
+    "description": "Mô tả",
+    "description_placeholder": "VD: Rút tiền về tài khoản cá nhân",
+    "submit": "Gửi yêu cầu rút tiền",
+    "submitting": "Đang gửi...",
+    "success_title": "Thành công",
+    "success_message": "Yêu cầu rút tiền đã được gửi thành công.",
+    "error_title": "Lỗi",
+    "error_message": "Không thể gửi yêu cầu rút tiền. Vui lòng thử lại.",
+    "search_bank": "Tìm ngân hàng...",
+    "no_bank_found": "Không tìm thấy ngân hàng"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Hủy"
   }
 }

@@ -19,6 +19,7 @@ import { NotificationApi } from '@features/notifications/api/notificationApi';
 import { QuestApi } from '@features/quests/api/questApi';
 import { VoucherApi } from '@features/campaigns/api/voucherApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
+import { UserPaymentApi } from '@features/user/api/paymentApi';
 
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserDietaryApi } from '@features/user/api/userDietaryApi';
@@ -48,4 +49,5 @@ export const axiosApi = {
   notificationApi: new NotificationApi(axiosClient),
   questApi: new QuestApi(axiosClient),
   voucherApi: new VoucherApi(axiosClient),
+  userPaymentApi: new UserPaymentApi(axiosClient),
 };

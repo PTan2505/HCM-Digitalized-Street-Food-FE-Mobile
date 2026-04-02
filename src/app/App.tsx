@@ -14,6 +14,7 @@ import '@utils/i18n';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 setGlobalStyles();
 
@@ -36,8 +37,10 @@ export default function App(): ReactNode {
   }
 
   return (
-    <AppProvider>
-      <Navigation theme={CustomTheme} />
-    </AppProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProvider>
+        <Navigation theme={CustomTheme} />
+      </AppProvider>
+    </GestureHandlerRootView>
   );
 }
