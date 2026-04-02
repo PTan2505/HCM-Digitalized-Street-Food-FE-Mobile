@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import {
   useVoucherWallet,
@@ -34,7 +34,6 @@ const TABS: TabConfig[] = [
   { key: 'all', labelKey: 'campaign.voucher_tab_all' },
   { key: 'system', labelKey: 'campaign.voucher_tab_system' },
   { key: 'restaurant', labelKey: 'campaign.voucher_tab_vendor' },
-  { key: 'history', labelKey: 'campaign.history' },
 ];
 
 const getExpiresAt = (voucher: Voucher): Date =>
@@ -107,18 +106,16 @@ export const VoucherWalletScreen = (): JSX.Element => {
   const displayedVouchers = getDisplayedVouchers(activeTab);
 
   const emptyKey =
-    activeTab === 'history'
-      ? 'campaign.voucher_empty_history'
-      : activeTab === 'system'
-        ? 'campaign.voucher_empty_system'
-        : activeTab === 'restaurant'
-          ? 'campaign.voucher_empty_vendor'
-          : 'campaign.voucher_empty';
+    activeTab === 'system'
+      ? 'campaign.voucher_empty_system'
+      : activeTab === 'restaurant'
+        ? 'campaign.voucher_empty_vendor'
+        : 'campaign.voucher_empty';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 pb-2 pt-3">
+      <View className="flex-row items-center justify-between px-4 pb-8 pt-3">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           className="mr-3"
@@ -129,6 +126,12 @@ export const VoucherWalletScreen = (): JSX.Element => {
         <Text className="text-xl font-bold text-gray-900">
           {t('campaign.voucher_wallet')}
         </Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('VoucherHistory')}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <MaterialIcons name="history" size={24} color="#111827" />
+        </TouchableOpacity>
       </View>
 
       {/* Tabs */}
@@ -203,16 +206,14 @@ export const VoucherWalletScreen = (): JSX.Element => {
           <Text className="mt-4 text-center text-base text-gray-400">
             {t(emptyKey)}
           </Text>
-          {activeTab !== 'history' && (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="mt-4 rounded-full bg-[#a1d973] px-6 py-2.5"
-            >
-              <Text className="text-base font-semibold text-white">
-                {t('campaign.discover_campaigns')}
-              </Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2.5"
+          >
+            <Text className="text-base font-semibold text-white">
+              {t('campaign.discover_campaigns')}
+            </Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -330,7 +331,8 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     {item.minAmountRequired != null && (
                       <Text className="mt-0.5 text-sm text-gray-400">
                         {t('campaign.min_order', {
-                          amount: item.minAmountRequired.toLocaleString('vi-VN'),
+                          amount:
+                            item.minAmountRequired.toLocaleString('vi-VN'),
                         })}
                       </Text>
                     )}

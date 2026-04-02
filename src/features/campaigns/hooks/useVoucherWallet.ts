@@ -3,7 +3,6 @@ import {
   addVoucher,
   fetchMyVouchers,
   selectActiveVouchers,
-  selectExpiredVouchers,
   selectRestaurantVouchers,
   selectSystemVouchers,
   selectVouchersError,
@@ -12,13 +11,12 @@ import {
 } from '@slices/campaigns';
 import { useCallback, useEffect } from 'react';
 
-export type VoucherTab = 'all' | 'system' | 'restaurant' | 'history';
+export type VoucherTab = 'all' | 'system' | 'restaurant';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const useVoucherWallet = () => {
   const dispatch = useAppDispatch();
   const activeVouchers = useAppSelector(selectActiveVouchers);
-  const expiredVouchers = useAppSelector(selectExpiredVouchers);
   const systemVouchers = useAppSelector(selectSystemVouchers);
   const restaurantVouchers = useAppSelector(selectRestaurantVouchers);
   const isLoading = useAppSelector(selectVouchersLoading);
@@ -46,13 +44,11 @@ export const useVoucherWallet = () => {
           return systemVouchers;
         case 'restaurant':
           return restaurantVouchers;
-        case 'history':
-          return expiredVouchers;
         default:
           return activeVouchers;
       }
     },
-    [activeVouchers, expiredVouchers, systemVouchers, restaurantVouchers]
+    [activeVouchers, systemVouchers, restaurantVouchers]
   );
 
   const tabCount = useCallback(
@@ -62,18 +58,15 @@ export const useVoucherWallet = () => {
           return systemVouchers.length;
         case 'restaurant':
           return restaurantVouchers.length;
-        case 'history':
-          return expiredVouchers.length;
         default:
           return activeVouchers.length;
       }
     },
-    [activeVouchers, expiredVouchers, systemVouchers, restaurantVouchers]
+    [activeVouchers, systemVouchers, restaurantVouchers]
   );
 
   return {
     activeVouchers,
-    expiredVouchers,
     systemVouchers,
     restaurantVouchers,
     isLoading,

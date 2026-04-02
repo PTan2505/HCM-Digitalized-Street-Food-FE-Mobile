@@ -48,7 +48,7 @@ export const TicketVoucherCard = ({
   return (
     <View className="mb-3 overflow-hidden rounded-3xl opacity-100 shadow-sm">
       <LinearGradient
-        colors={disabled ? ['#dedede', '#dedede'] : ['#89D151', '#FFFFFF']}
+        colors={disabled ? ['#dedede', '#dedede'] : ['#89D151', '#cef5b0']}
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0.9 }}
@@ -59,7 +59,7 @@ export const TicketVoucherCard = ({
         >
           <View className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-white/90" />
           <View className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full bg-white/90" />
-          <View className="absolute bottom-2 right-0 top-2 border-r border-dashed border-white/60" />
+          <View className="absolute bottom-2 right-0 top-2 border-r-2 border-dashed border-white/60" />
           <Text
             className="text-[11px] font-extrabold tracking-[1.5px] text-black/95"
             numberOfLines={2}
