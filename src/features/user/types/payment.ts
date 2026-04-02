@@ -567,11 +567,4 @@ export const BANK_OPTIONS: Record<string, BankOption> = {
       'https://static.momocdn.net/app/img/momo_app_v2/new_version/All_team/bank/ic_mvas.png',
     isDisburse: true,
   },
-  MoMo: {
-    bin: '970477',
-    shortName: 'MoMo',
-    name: 'Công ty Dịch vụ đi động trực tuyến M_Service',
-    bankLogoUrl: 'https://static.momocdn.net/app/img/payment/logovuong.png',
-    isDisburse: true,
-  },
 };
