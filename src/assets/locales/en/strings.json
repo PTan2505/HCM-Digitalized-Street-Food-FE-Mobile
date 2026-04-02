@@ -190,7 +190,8 @@
     "logout": "Logout",
     "my_balance": "Lowca Wallet",
     "voucher_wallet": "Voucher Wallet",
-    "voucher_marketplace": "Voucher Marketplace"
+    "voucher_marketplace": "Voucher Marketplace",
+    "personal-features": "Personal Features"
   },
   "bottom_tabs": {
     "discover": "Discover",
@@ -237,7 +238,14 @@
     "invalid_name": "Invalid name!",
     "invalid_last_name": "Invalid last name!",
     "empty_first_name": "Please enter first name!",
-    "username_min_length": "Username must be at least 3 characters!"
+    "username_min_length": "Username must be at least 3 characters!",
+    "withdraw_empty_bank": "Please select a bank!",
+    "withdraw_empty_account_number": "Please enter account number!",
+    "withdraw_invalid_account_number": "Account number must not exceed 30 characters!",
+    "withdraw_empty_amount": "Please enter amount!",
+    "withdraw_min_amount": "Amount must be at least 1,000 đ!",
+    "withdraw_empty_description": "Please enter description!",
+    "withdraw_max_description": "Description must not exceed 255 characters!"
   },
   "cart": {
     "title": "Cart",
@@ -481,5 +489,29 @@
       "voucherOff": "Off",
       "voucherRemain": "{{count}} left"
     }
+  },
+  "withdraw": {
+    "title": "Withdraw",
+    "available_balance": "Available balance",
+    "bank": "Bank",
+    "select_bank": "Select bank",
+    "account_number": "Account number",
+    "account_number_placeholder": "Enter account number",
+    "amount": "Amount (đ)",
+    "amount_placeholder": "Minimum 10,000 đ",
+    "description": "Description",
+    "description_placeholder": "e.g. Withdraw to personal account",
+    "submit": "Submit withdrawal",
+    "submitting": "Submitting...",
+    "success_title": "Success",
+    "success_message": "Your withdrawal request has been submitted successfully.",
+    "error_title": "Error",
+    "error_message": "Failed to submit withdrawal request. Please try again.",
+    "search_bank": "Search bank...",
+    "no_bank_found": "No bank found"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel"
   }
 }

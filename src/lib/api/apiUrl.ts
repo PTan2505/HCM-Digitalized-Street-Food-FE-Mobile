@@ -96,6 +96,7 @@ export const apiUrl = {
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',
+    userTransfer: '/api/Payment/user/transfer',
   },
   notification: {
     registerToken: '/api/notifications/register-token',
