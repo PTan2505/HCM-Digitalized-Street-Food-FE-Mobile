@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
 import type { Dish } from '@features/home/types/branch';
 import { useAppSelector } from '@hooks/reduxHooks';
-import { selectCart } from '@slices/directOrdering';
 import { useNavigation } from '@react-navigation/native';
+import { selectCart } from '@slices/directOrdering';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,7 @@ const CONTAINER_PADDING = 0;
 const CONTAINER_WIDTH = SCREEN_WIDTH - CONTAINER_PADDING;
 /** Each card is 78% of the container → ~1.28 cards visible at once */
 const CARD_WIDTH = Math.round(CONTAINER_WIDTH * 0.78);
-const DEFAULT_CARD_HEIGHT = 300;
+const DEFAULT_CARD_HEIGHT = 30;
 
 export type { Review } from './ReviewCard';
 

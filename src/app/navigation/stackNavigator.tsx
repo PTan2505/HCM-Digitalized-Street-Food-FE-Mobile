@@ -2,9 +2,11 @@ import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
 import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';
 import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
+import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
+import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
 import { RestaurantDeepLinkScreen } from '@features/home/screens/RestaurantDeepLinkScreen';
@@ -26,10 +28,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUserStatus } from '@slices/auth';
 import { ActivityIndicator, View } from 'react-native';
 
+import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScreen';
+import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
+import { SystemCampaignDetailScreen } from '@features/campaigns/screens/SystemCampaignDetailScreen';
+import { VoucherHistoryScreen } from '@features/campaigns/screens/VoucherHistoryScreen';
+import { VoucherMarketplaceScreen } from '@features/campaigns/screens/VoucherMarketplaceScreen';
+import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
+import { QuestDetailScreen } from '@features/quests/screens/QuestDetailScreen';
+import { QuestListScreen } from '@features/quests/screens/QuestListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
@@ -93,6 +103,9 @@ const RootStack = createNativeStackNavigator({
       screen: CurrentPicksScreen,
       linking: 'current-picks',
     },
+    ListBranch: {
+      screen: ListBranchScreen,
+    },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
     },
@@ -135,6 +148,15 @@ const RootStack = createNativeStackNavigator({
         note?: string;
       },
     },
+    PaymentQR: {
+      screen: PaymentQRScreen,
+      params: {} as {
+        orderId: number;
+        qrCode: string;
+        totalAmount: number;
+        branchName: string;
+      },
+    },
     OrderStatus: {
       screen: OrderStatusScreen,
       linking: {
@@ -154,6 +176,42 @@ const RootStack = createNativeStackNavigator({
     Notifications: {
       screen: NotificationScreen,
       linking: 'notifications',
+    },
+    CampaignList: {
+      screen: CampaignListScreen,
+      linking: 'campaigns',
+    },
+    SystemCampaignDetail: {
+      screen: SystemCampaignDetailScreen,
+      params: {} as { campaignId: string },
+    },
+    RestaurantCampaignDetail: {
+      screen: RestaurantCampaignDetailScreen,
+      params: {} as { campaignId: string },
+    },
+    VoucherWallet: {
+      screen: VoucherWalletScreen,
+      linking: 'vouchers',
+    },
+    VoucherHistory: {
+      screen: VoucherHistoryScreen,
+      linking: 'vouchers/history',
+    },
+    VoucherMarketplace: {
+      screen: VoucherMarketplaceScreen,
+      linking: 'vouchers/marketplace',
+    },
+    QuestList: {
+      screen: QuestListScreen,
+      linking: 'quests',
+    },
+    QuestDetail: {
+      screen: QuestDetailScreen,
+      linking: {
+        path: 'quests/:questId',
+        parse: { questId: Number },
+      },
+      params: {} as { questId: number },
     },
   },
 });

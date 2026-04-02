@@ -9,9 +9,15 @@ import { FeedbackTagApi } from '@features/home/api/feedbackTagApi';
 import { StallSearchApi } from '@features/home/api/stallSearchApi';
 import { TasteApi } from '@features/home/api/tasteApi';
 import { VendorApi } from '@features/home/api/vendorApi';
-import { CartApi, OrderApi } from '@features/direct-ordering/api/cartApi';
+import {
+  CartApi,
+  OrderApi,
+  PaymentApi,
+} from '@features/direct-ordering/api/cartApi';
 import { GhostPinApi } from '@features/maps/api/ghostPinApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
+import { QuestApi } from '@features/quests/api/questApi';
+import { VoucherApi } from '@features/campaigns/api/voucherApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
@@ -38,5 +44,8 @@ export const axiosApi = {
   ghostPinApi: new GhostPinApi(axiosClient),
   cartApi: new CartApi(axiosClient),
   orderApi: new OrderApi(axiosClient),
+  paymentApi: new PaymentApi(axiosClient),
   notificationApi: new NotificationApi(axiosClient),
+  questApi: new QuestApi(axiosClient),
+  voucherApi: new VoucherApi(axiosClient),
 };

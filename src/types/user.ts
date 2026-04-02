@@ -12,4 +12,5 @@ export interface User {
   phoneNumber?: string | null;
   userInfoSetup?: boolean;
   dietarySetup?: boolean;
+  moneyBalance?: number;
 }

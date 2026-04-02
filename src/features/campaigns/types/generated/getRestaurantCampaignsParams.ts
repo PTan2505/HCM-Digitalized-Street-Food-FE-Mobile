@@ -23,4 +23,10 @@ export type GetRestaurantCampaignsParams = {
    * User longitude for proximity filtering
    */
   lng?: number;
+  /**
+   * Filter by campaign type: true = system campaigns, false = branch/vendor campaigns, omit = all
+   */
+  isSystem?: boolean;
+  page?: number;
+  pageSize?: number;
 };

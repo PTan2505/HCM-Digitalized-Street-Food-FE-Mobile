@@ -81,7 +81,12 @@ export const markAllNotificationsRead = createAppAsyncThunk(
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
-  reducers: {},
+  reducers: {
+    receiveNotification(state, action: { payload: NotificationDto }) {
+      state.items.unshift(action.payload);
+      state.unreadCount += 1;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // fetchNotifications
@@ -133,6 +138,7 @@ const notificationsSlice = createSlice({
   },
 });
 
+export const { receiveNotification } = notificationsSlice.actions;
 export default notificationsSlice.reducer;
 
 export const selectNotifications = (state: RootState): NotificationDto[] =>

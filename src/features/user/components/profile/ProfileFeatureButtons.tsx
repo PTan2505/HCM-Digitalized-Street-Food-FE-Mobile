@@ -16,7 +16,7 @@ export const ProfileFeatureButtons = ({
         <Pressable
           key={item.id}
           onPress={item.onPress}
-          className="flex-1 items-center rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+          className="flex-1 items-center rounded-2xl border border-gray-200 bg-white p-4"
         >
           {item.icon && (
             <View

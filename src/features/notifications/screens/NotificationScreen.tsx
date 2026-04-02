@@ -56,6 +56,9 @@ const getNotificationIcon = (
       return { name: 'receipt-outline', color: '#F59E0B' };
     case 'NewFeedback':
       return { name: 'star-outline', color: '#10B981' };
+    case 'QuestTaskCompleted':
+    case 'QuestCompleted':
+      return { name: 'trophy-outline', color: '#a1d973' };
     default:
       return { name: 'notifications-outline', color: '#6B7280' };
   }
@@ -112,6 +115,10 @@ export const NotificationScreen = (): JSX.Element => {
               branchName: '',
               readOnly: true,
             });
+            break;
+          case 'QuestTaskCompleted':
+          case 'QuestCompleted':
+            navigation.navigate('QuestDetail', { questId: item.referenceId });
             break;
           case 'VendorReply':
             // referenceId is feedbackId — fetch feedback → branch → vendor for full data

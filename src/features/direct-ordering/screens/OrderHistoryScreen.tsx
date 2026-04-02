@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import type {
   OrderResponse,
   OrderStatus,
 } from '@features/direct-ordering/api/cartApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   fetchOrderHistoryThunk,
@@ -23,23 +25,64 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  Pending: '#f59e0b',
-  Confirmed: '#3b82f6',
-  Preparing: '#8b5cf6',
-  Ready: '#22c55e',
-  Completed: '#a1d973',
-  Rejected: '#ef4444',
-  Cancelled: '#9ca3af',
+  [ORDER_STATUS.Pending]: '#f59e0b',
+  [ORDER_STATUS.AwaitingVendorConfirmation]: '#3b82f6',
+  [ORDER_STATUS.Paid]: '#8b5cf6',
+  [ORDER_STATUS.Complete]: '#a1d973',
+  [ORDER_STATUS.Cancelled]: '#9ca3af',
 };
 
 const STATUS_KEY_MAP: Record<OrderStatus, string> = {
-  Pending: 'pending',
-  Confirmed: 'confirmed',
-  Preparing: 'preparing',
-  Ready: 'ready',
-  Completed: 'completed',
-  Rejected: 'rejected',
-  Cancelled: 'cancelled',
+  [ORDER_STATUS.Pending]: 'pending',
+  [ORDER_STATUS.AwaitingVendorConfirmation]: 'awaitingVendorConfirmation',
+  [ORDER_STATUS.Paid]: 'paid',
+  [ORDER_STATUS.Complete]: 'complete',
+  [ORDER_STATUS.Cancelled]: 'cancelled',
+};
+
+const OrderHistoryItem = ({
+  item,
+  onPress,
+  statusColor,
+  statusLabel,
+}: {
+  item: OrderResponse;
+  onPress: () => void;
+  statusColor: string;
+  statusLabel: string;
+}): JSX.Element => {
+  const displayName = useBranchDisplayName(item.branchId);
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className="border-b border-gray-50 px-4 py-3"
+    >
+      <View className="flex-row items-center justify-between">
+        <Text className="flex-1 text-base font-semibold text-black">
+          {displayName ?? item.branchName}
+        </Text>
+        <View
+          className="rounded-full px-2.5 py-1"
+          style={{ backgroundColor: `${statusColor}20` }}
+        >
+          <Text
+            className="text-xs font-semibold"
+            style={{ color: statusColor }}
+          >
+            {statusLabel}
+          </Text>
+        </View>
+      </View>
+      <View className="mt-1 flex-row items-center justify-between">
+        <Text className="text-xs text-gray-400">
+          {new Date(item.createdAt).toLocaleDateString('vi-VN')}
+        </Text>
+        <Text className="text-sm font-semibold text-[#00B14F]">
+          {`${item.finalAmount.toLocaleString('vi-VN')}₫`}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 export const OrderHistoryScreen = (): JSX.Element => {
@@ -80,35 +123,12 @@ export const OrderHistoryScreen = (): JSX.Element => {
   const renderOrder = ({ item }: { item: OrderResponse }): JSX.Element => {
     const statusColor = STATUS_COLORS[item.status] ?? '#9ca3af';
     return (
-      <TouchableOpacity
+      <OrderHistoryItem
+        item={item}
         onPress={() => handleOrderPress(item)}
-        className="border-b border-gray-50 px-4 py-3"
-      >
-        <View className="flex-row items-center justify-between">
-          <Text className="flex-1 text-base font-semibold text-black">
-            {item.branchName}
-          </Text>
-          <View
-            className="rounded-full px-2.5 py-1"
-            style={{ backgroundColor: `${statusColor}20` }}
-          >
-            <Text
-              className="text-xs font-semibold"
-              style={{ color: statusColor }}
-            >
-              {t(`order.status.${STATUS_KEY_MAP[item.status]}`)}
-            </Text>
-          </View>
-        </View>
-        <View className="mt-1 flex-row items-center justify-between">
-          <Text className="text-xs text-gray-400">
-            {new Date(item.createdAt).toLocaleDateString('vi-VN')}
-          </Text>
-          <Text className="text-sm font-semibold text-[#00B14F]">
-            {`${item.finalAmount.toLocaleString('vi-VN')}₫`}
-          </Text>
-        </View>
-      </TouchableOpacity>
+        statusColor={statusColor}
+        statusLabel={t(`order.status.${STATUS_KEY_MAP[item.status]}`)}
+      />
     );
   };
 

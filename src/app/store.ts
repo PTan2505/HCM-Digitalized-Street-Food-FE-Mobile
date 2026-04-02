@@ -2,9 +2,11 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '@slices/auth';
 import branchesReducer from '@slices/branches';
+import campaignsReducer from '@slices/campaigns';
 import dietaryReducer from '@slices/dietary';
 import directOrderingReducer from '@slices/directOrdering';
 import notificationsReducer from '@slices/notifications';
+import questsReducer from '@slices/quests';
 import tastesReducer from '@slices/tastes';
 import vendorsReducer from '@slices/vendors';
 
@@ -16,6 +18,8 @@ const rootReducer = combineReducers({
   tastes: tastesReducer,
   directOrdering: directOrderingReducer,
   notifications: notificationsReducer,
+  campaigns: campaignsReducer,
+  quests: questsReducer,
 });
 
 export const store = configureStore({

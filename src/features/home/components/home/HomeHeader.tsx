@@ -12,8 +12,8 @@ const HomeHeader = (): JSX.Element => {
   const unreadCount = useAppSelector(selectUnreadCount);
 
   return (
-    <View className="flex-row items-center justify-between px-4 pt-4">
-      <SvgIcon width={100} height={100} icon={lowcaLogo} />
+    <View className="flex-row items-center justify-between px-4">
+      <SvgIcon width={150} height={100} icon={lowcaLogo} />
 
       <View className="flex-row gap-3">
         <TouchableOpacity
