@@ -213,7 +213,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
                 {count > 0 && (
                   <View
                     className={`rounded-full px-1.5 py-0.5 ${
-                      isActive ? 'bg-white/30' : 'bg-gray-200'
+                      isActive ? 'bg-gray-300' : 'bg-gray-200'
                     }`}
                   >
                     <Text
