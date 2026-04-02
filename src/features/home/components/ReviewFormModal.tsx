@@ -14,7 +14,7 @@ import {
   takePhotoWithCamera,
 } from '@utils/imagePicker';
 import type { JSX } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -73,6 +73,9 @@ export const ReviewFormModal = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isCheckingLimit, setIsCheckingLimit] = useState(false);
   const [canSubmitReview, setCanSubmitReview] = useState(true);
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [commentY, setCommentY] = useState(0);
 
   // Fetch available tags once
   useEffect(() => {
@@ -298,9 +301,11 @@ export const ReviewFormModal = ({
         </View>
 
         <ScrollView
+          ref={scrollViewRef}
           className="flex-1 px-4"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          automaticallyAdjustKeyboardInsets
         >
           {/* Star rating */}
           <View className="mb-6 mt-5 items-center">
@@ -544,7 +549,10 @@ export const ReviewFormModal = ({
           )}
 
           {/* Comment */}
-          <View className="mb-5">
+          <View
+            className="mb-5"
+            onLayout={(e) => setCommentY(e.nativeEvent.layout.y)}
+          >
             <Text className="mb-2 text-sm font-medium text-gray-700">
               Nhận xét
             </Text>
@@ -558,6 +566,14 @@ export const ReviewFormModal = ({
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({
+                    y: commentY - 16,
+                    animated: true,
+                  });
+                }, 100);
+              }}
               className="rounded-xl border border-gray-200 p-3 text-sm text-gray-900"
               style={{ minHeight: 100 }}
             />

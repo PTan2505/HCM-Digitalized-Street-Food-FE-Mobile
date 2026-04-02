@@ -223,6 +223,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
             filters?.maxPrice !== undefined && filters.maxPrice < 5000000
               ? filters.maxPrice
               : undefined,
+          CategoryIds: filters?.categoryIds
+            ?.map(Number)
+            .filter((n) => !isNaN(n) && n > 0),
         })
       );
     },

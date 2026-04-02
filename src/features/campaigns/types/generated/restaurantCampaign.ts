@@ -16,21 +16,27 @@ The `data` field contains the schema documented per endpoint.
 import type { DiscountType } from './discountType';
 
 export interface RestaurantCampaign {
-  campaignId: string;
-  vendorId: string;
-  vendorName: string;
-  title: string;
-  /** @nullable */
+  campaignId: number;
+  createdByBranchId?: number | null;
+  createdByVendorId?: number | null;
+  name: string;
   description?: string | null;
-  discountType: DiscountType;
-  /** Percentage (0–100) or fixed amount in VND depending on discountType */
-  discountValue: number;
-  /** @nullable */
+  targetSegment?: string | null;
+  registrationStartDate?: string | null;
+  registrationEndDate?: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string | null;
+  imageUrl?: string | null;
+  isSystemCampaign: boolean;
+  // Additional restaurant-specific fields
+  discountType?: DiscountType;
+  discountValue?: number;
   minOrderValueVnd?: number | null;
-  expiresAt: string;
-  /**
-   * Null means unlimited
-   * @nullable
-   */
+  expiresAt?: string;
   remainingClaims?: number | null;
+  vendorId?: string;
+  vendorName?: string;
 }

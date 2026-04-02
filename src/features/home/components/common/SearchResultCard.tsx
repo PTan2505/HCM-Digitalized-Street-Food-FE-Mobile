@@ -35,9 +35,7 @@ const SearchResultCard = ({
   onPress,
 }: SearchResultCardProps): JSX.Element => {
   const { t } = useTranslation();
-  const { isLoading, isOpen } = useWorkSchedule(
-    branch.isActive ? branch.branchId : null
-  );
+  const { isLoading, isOpen } = useWorkSchedule(branch.branchId);
 
   const resolvedImageUri =
     imageUri ??

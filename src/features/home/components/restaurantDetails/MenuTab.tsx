@@ -27,6 +27,7 @@ interface MenuTabProps {
   dishes: Dish[];
   branchId: number;
   isOpen: boolean;
+  isSubscribed: boolean;
   displayName: string;
 }
 
@@ -34,6 +35,7 @@ const MenuTab = ({
   dishes,
   branchId,
   isOpen,
+  isSubscribed,
   displayName,
 }: MenuTabProps): JSX.Element => {
   const { t } = useTranslation();
@@ -110,6 +112,10 @@ const MenuTab = ({
 
   const handleAdd = useCallback(
     (dish: Dish) => {
+      if (!isSubscribed) {
+        Alert.alert(t('auth.error'), t('cart.not_subscribed_notice'));
+        return;
+      }
       if (cart && cart.items.length > 0 && cart.branchId !== branchId) {
         Alert.alert(t('cart.replace_title'), t('cart.replace_message'), [
           { text: t('cart.cancel'), style: 'cancel' },
@@ -126,7 +132,7 @@ const MenuTab = ({
       }
       addOrIncrement(dish);
     },
-    [cart, branchId, t, dispatch, addOrIncrement]
+    [cart, branchId, t, dispatch, addOrIncrement, isSubscribed]
   );
 
   const handleDecrement = useCallback(
@@ -152,7 +158,7 @@ const MenuTab = ({
 
   const renderDish = (dish: Dish): JSX.Element => {
     const qty = getCartQuantity(dish.dishId);
-    const disabled = dish.isSoldOut || !isOpen;
+    const disabled = dish.isSoldOut || !isOpen || !isSubscribed;
 
     return (
       <View key={dish.dishId} className="mb-4 flex-row">
@@ -227,9 +233,19 @@ const MenuTab = ({
   };
 
   return (
-    <View className={`${cart && cart.items.length > 0 ? 'mb-28' : ''} flex-1`}>
+    <View className="mb-28 flex-1">
+      {/* Not subscribed notice */}
+      {!isSubscribed && (
+        <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-red-50 px-4 py-3">
+          <Ionicons name="ban-outline" size={20} color="#ef4444" />
+          <Text className="flex-1 text-xs leading-4 text-red-600">
+            {t('cart.not_subscribed_notice')}
+          </Text>
+        </View>
+      )}
+
       {/* Closed notice */}
-      {!isOpen && (
+      {isSubscribed && !isOpen && (
         <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-amber-50 px-4 py-3">
           <Ionicons name="information-circle" size={20} color="#f59e0b" />
           <Text className="flex-1 text-xs leading-4 text-amber-700">

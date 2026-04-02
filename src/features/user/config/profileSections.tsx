@@ -27,26 +27,7 @@ export const getProfileSections = (
     {
       id: 'action-cards',
       type: 'action-cards',
-      actionCards: [
-        {
-          id: 'points',
-          icon: 'star',
-          title: t('profile.my_points'),
-          subtitle: `${user?.point ?? 0} ${t('profile.points')}`,
-          backgroundColor: '#FFF9E6',
-          onPress: (): void => {
-            // Navigate to points screen
-          },
-        },
-        {
-          id: 'cart-tracking',
-          icon: 'cart-outline',
-          title: t('cart.title'),
-          subtitle: t('profile.view_history'),
-          backgroundColor: '#E8F5E9',
-          onPress: (): void => navigation.navigate('PersonalCart'),
-        },
-      ],
+      actionCards: [],
       containerClassName: 'px-4 mb-4',
       visible: true,
     },
@@ -74,15 +55,35 @@ export const getProfileSections = (
 
     // Feature Buttons Section
     {
-      id: 'feature-buttons',
-      type: 'feature-buttons',
+      id: 'personal-features',
+      type: 'list-items',
+      title: t('profile.personal-features'),
       items: [
         {
-          id: 'cart-tracking',
-          icon: 'cart-outline',
-          title: t('cart.title'),
-          onPress: (): void => navigation.navigate('PersonalCart'),
-          color: '#9FD356',
+          id: 'balance',
+          icon: 'wallet-outline',
+          title: t('profile.my_balance'),
+          rightText: `${(user?.moneyBalance ?? 0).toLocaleString('vn-VN')} đ`,
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('Withdraw');
+          },
+        },
+        {
+          id: 'vouchers',
+          icon: 'ticket-outline',
+          title: t('profile.voucher_wallet'),
+          badgeColor: '#FF6B6B',
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('VoucherWallet');
+          },
+        },
+        {
+          id: 'order-history',
+          icon: 'bag-handle-outline',
+          title: t('order.my_orders'),
+          onPress: (): void => navigation.navigate('OrderHistory'),
         },
 
         {
@@ -90,10 +91,10 @@ export const getProfileSections = (
           icon: 'location-outline',
           title: t('profile.my_ghost_pins'),
           onPress: (): void => navigation.navigate('MyGhostPins'),
-          color: '#FF6B6B',
         },
       ],
-      containerClassName: 'px-4 mb-6',
+      containerClassName: 'mb-6',
+      titleClassName: 'px-4 mb-3 text-base font-bold text-gray-900',
       visible: true,
     },
 
@@ -112,6 +113,17 @@ export const getProfileSections = (
             // Navigate to points detail
           },
         },
+
+        {
+          id: 'vouchers_marketplace',
+          icon: 'storefront-outline',
+          title: t('profile.voucher_marketplace'),
+          badgeColor: '#FF6B6B',
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('VoucherMarketplace');
+          },
+        },
         {
           id: 'rewards',
           icon: 'gift-outline',
@@ -126,8 +138,9 @@ export const getProfileSections = (
           id: 'challenges',
           icon: 'trophy-outline',
           title: t('profile.challenges'),
+          rightIcon: 'chevron-forward',
           onPress: (): void => {
-            // Navigate to challenges
+            navigation.navigate('QuestList');
           },
         },
       ],

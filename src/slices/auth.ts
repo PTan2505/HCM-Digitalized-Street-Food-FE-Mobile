@@ -8,6 +8,7 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import {
+  type PayloadAction,
   createSlice,
   isFulfilled,
   isPending,
@@ -303,6 +304,11 @@ export const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateMoneyBalance: (state, action: PayloadAction<number>) => {
+      if (state.value) {
+        state.value.moneyBalance = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -357,7 +363,7 @@ export const authSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { clearError } = authSlice.actions;
+export const { clearError, updateMoneyBalance } = authSlice.actions;
 
 export default authSlice.reducer;
 

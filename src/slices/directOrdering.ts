@@ -2,6 +2,7 @@ import type { RootState } from '@app/store';
 import type {
   CartResponse,
   CheckoutCartRequest,
+  ConfirmPaymentRequest,
   OrderResponse,
   PaginatedOrders,
 } from '@features/direct-ordering/api/cartApi';
@@ -18,6 +19,8 @@ export interface DirectOrderingState {
   cartError: string | null;
   activeOrder: OrderResponse | null;
   checkoutPaymentUrl: string | null;
+  checkoutOrderCode: number | null;
+  checkoutQrCode: string | null;
   orderLoading: boolean;
   orderError: string | null;
   orderHistory: PaginatedOrders | null;
@@ -31,6 +34,8 @@ const initialState: DirectOrderingState = {
   cartError: null,
   activeOrder: null,
   checkoutPaymentUrl: null,
+  checkoutOrderCode: null,
+  checkoutQrCode: null,
   orderLoading: false,
   orderError: null,
   orderHistory: null,
@@ -157,6 +162,18 @@ export const checkoutThunk = createAppAsyncThunk(
   }
 );
 
+export const confirmPaymentThunk = createAppAsyncThunk(
+  'directOrdering/confirmPayment',
+  async (data: ConfirmPaymentRequest, { rejectWithValue }) => {
+    try {
+      const res = await axiosApi.paymentApi.confirmOrderPayment(data);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const fetchOrderThunk = createAppAsyncThunk(
   'directOrdering/fetchOrder',
   async (orderId: number, { rejectWithValue }) => {
@@ -198,6 +215,8 @@ const directOrderingSlice = createSlice({
     clearActiveOrder: (state) => {
       state.activeOrder = null;
       state.checkoutPaymentUrl = null;
+      state.checkoutOrderCode = null;
+      state.checkoutQrCode = null;
     },
     clearOrderError: (state) => {
       state.orderError = null;
@@ -284,8 +303,10 @@ const directOrderingSlice = createSlice({
         state.orderLoading = false;
         state.activeOrder = action.payload.order;
         state.checkoutPaymentUrl = action.payload.payment.paymentUrl ?? null;
-        state.cart = null;
-        state.cartDisplayName = null;
+        state.checkoutOrderCode = action.payload.payment.orderCode ?? null;
+        state.checkoutQrCode = action.payload.payment.qrCode ?? null;
+        // Cart is NOT cleared here — backend keeps it so user can re-checkout
+        // if payment is abandoned. Cart is cleared only when PAID is confirmed.
       })
       .addCase(checkoutThunk.rejected, (state, action) => {
         state.orderLoading = false;
@@ -329,6 +350,10 @@ export const selectActiveOrder = (state: RootState): OrderResponse | null =>
   state.directOrdering.activeOrder;
 export const selectCheckoutPaymentUrl = (state: RootState): string | null =>
   state.directOrdering.checkoutPaymentUrl;
+export const selectCheckoutOrderCode = (state: RootState): number | null =>
+  state.directOrdering.checkoutOrderCode;
+export const selectCheckoutQrCode = (state: RootState): string | null =>
+  state.directOrdering.checkoutQrCode;
 export const selectOrderLoading = (state: RootState): boolean =>
   state.directOrdering.orderLoading;
 export const selectOrderError = (state: RootState): string | null =>

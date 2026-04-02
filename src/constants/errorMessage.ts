@@ -21,4 +21,11 @@ export const VALIDATE_ERROR_MESSAGES = {
   INVALID_LAST_NAME: 'validation.invalid_last_name',
   EMPTY_FIRST_NAME: 'validation.empty_first_name',
   USERNAME_MIN_LENGTH: 'validation.username_min_length',
+  WITHDRAW_EMPTY_BANK: 'validation.withdraw_empty_bank',
+  WITHDRAW_EMPTY_ACCOUNT_NUMBER: 'validation.withdraw_empty_account_number',
+  WITHDRAW_INVALID_ACCOUNT_NUMBER: 'validation.withdraw_invalid_account_number',
+  WITHDRAW_EMPTY_AMOUNT: 'validation.withdraw_empty_amount',
+  WITHDRAW_MIN_AMOUNT: 'validation.withdraw_min_amount',
+  WITHDRAW_EMPTY_DESCRIPTION: 'validation.withdraw_empty_description',
+  WITHDRAW_MAX_DESCRIPTION: 'validation.withdraw_max_description',
 } as const;

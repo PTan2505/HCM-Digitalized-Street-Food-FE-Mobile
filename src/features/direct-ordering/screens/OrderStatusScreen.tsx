@@ -1,36 +1,37 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { OrderStatus } from '@features/direct-ordering/api/cartApi';
+import {
+  ORDER_STATUS,
+  type OrderStatus,
+} from '@features/direct-ordering/api/cartApi';
 import { useOrderStatus } from '@features/direct-ordering/hooks/useOrderStatus';
-import { useNavigation, StaticScreenProps } from '@react-navigation/native';
+import { usePickupCode } from '@features/direct-ordering/hooks/usePickupCode';
+import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { ProgressStep, ProgressSteps } from 'react-native-progress-steps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const STEPS: OrderStatus[] = [
-  'Pending',
-  'Confirmed',
-  'Preparing',
-  'Ready',
-  'Completed',
+  ORDER_STATUS.Pending,
+  ORDER_STATUS.AwaitingVendorConfirmation,
+  ORDER_STATUS.Paid,
+  ORDER_STATUS.Complete,
 ];
 
 const STATUS_KEY_MAP: Record<OrderStatus, string> = {
-  Pending: 'pending',
-  Confirmed: 'confirmed',
-  Preparing: 'preparing',
-  Ready: 'ready',
-  Completed: 'completed',
-  Rejected: 'rejected',
-  Cancelled: 'cancelled',
+  [ORDER_STATUS.Pending]: 'pending',
+  [ORDER_STATUS.AwaitingVendorConfirmation]: 'awaitingVendorConfirmation',
+  [ORDER_STATUS.Paid]: 'paid',
+  [ORDER_STATUS.Complete]: 'complete',
+  [ORDER_STATUS.Cancelled]: 'cancelled',
 };
 
 type OrderStatusScreenProps = StaticScreenProps<{
@@ -42,39 +43,16 @@ type OrderStatusScreenProps = StaticScreenProps<{
 export const OrderStatusScreen = ({
   route,
 }: OrderStatusScreenProps): JSX.Element => {
-  const { orderId, branchName } = route.params;
+  const { orderId } = route.params;
   const { t } = useTranslation();
   const navigation = useNavigation();
   const { order } = useOrderStatus(orderId);
-  const prevStatusRef = useRef<string | undefined>(undefined);
-
-  // Toast on status transitions
-  useEffect(() => {
-    if (!order || !prevStatusRef.current) {
-      prevStatusRef.current = order?.status;
-      return;
-    }
-    const prev = prevStatusRef.current;
-    prevStatusRef.current = order.status;
-
-    if (prev !== order.status) {
-      if (order.status === 'Confirmed') {
-        Alert.alert('', t('order.confirmed_toast'));
-      } else if (order.status === 'Rejected') {
-        Alert.alert('', t('order.rejected_message'));
-      } else if (order.status === 'Ready') {
-        Alert.alert('', t('order.ready_banner'));
-      }
-    }
-  }, [order, t]);
-
-  const getStatusLabel = (status: OrderStatus): string => {
-    return t(`order.status.${STATUS_KEY_MAP[status]}`);
-  };
+  const { pickupCode } = usePickupCode(orderId, order?.status);
+  const displayName = useBranchDisplayName(order?.branchId ?? 0);
 
   const getStepIndex = (): number => {
     if (!order) return 0;
-    if (order.status === 'Rejected' || order.status === 'Cancelled') return -1;
+    if (order.status === ORDER_STATUS.Cancelled) return -1;
     return STEPS.indexOf(order.status);
   };
 
@@ -90,6 +68,12 @@ export const OrderStatusScreen = ({
       </SafeAreaView>
     );
   }
+
+  const formattedDate = new Date(order.createdAt).toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
@@ -107,92 +91,143 @@ export const OrderStatusScreen = ({
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        {/* Branch Name */}
-        <View className="border-b border-gray-100 px-4 py-4">
-          <Text className="text-base font-bold text-black">{branchName}</Text>
-          <Text className="mt-1 text-xs text-gray-400">
-            {t('order.placed_at')}{' '}
-            {new Date(order.createdAt).toLocaleString('vi-VN')}
+        {/* Confirmation Banner */}
+        <View className="border-b border-gray-100 px-4 pb-5 pt-4">
+          <Text className="text-2xl font-bold text-black">
+            {order.status === ORDER_STATUS.Cancelled
+              ? t('order.cancelled_title')
+              : t('order.confirmed_title')}
+          </Text>
+          <Text className="mt-2 text-base font-semibold text-gray-700">
+            {displayName ?? order.branchName}
+          </Text>
+          {order.table ? (
+            <Text className="mt-1 text-sm text-gray-500">
+              {t('order.table_label')} {order.table}
+            </Text>
+          ) : (
+            <Text className="mt-1 text-sm text-gray-500">
+              {t('order.take_away')}
+            </Text>
+          )}
+          <Text className="mt-1 text-sm text-gray-500">
+            {t('order.date_label')} {formattedDate}
+          </Text>
+          <Text className="mt-1 text-sm text-gray-500">
+            {t('order.receipt_number')} #{order.orderId}
           </Text>
         </View>
 
         {/* Step Indicator */}
         {currentStep >= 0 ? (
-          <View className="px-6 py-6">
-            {STEPS.map((step, index) => {
-              const isActive = index <= currentStep;
-              const isLast = index === STEPS.length - 1;
-              return (
-                <View key={step} className="flex-row">
-                  <View className="items-center">
-                    <View
-                      className={`h-6 w-6 items-center justify-center rounded-full ${
-                        isActive ? 'bg-[#a1d973]' : 'bg-gray-200'
-                      }`}
-                    >
-                      {isActive && (
-                        <Ionicons name="checkmark" size={14} color="#fff" />
-                      )}
-                    </View>
-                    {!isLast && (
-                      <View
-                        className={`h-8 w-0.5 ${isActive ? 'bg-[#a1d973]' : 'bg-gray-200'}`}
-                      />
-                    )}
-                  </View>
-                  <Text
-                    className={`ml-3 text-sm ${
-                      isActive ? 'font-semibold text-black' : 'text-gray-400'
-                    }`}
-                  >
-                    {getStatusLabel(step)}
-                  </Text>
-                </View>
-              );
-            })}
+          <View className="border-b border-gray-100" style={{ height: 120 }}>
+            <ProgressSteps
+              activeStep={currentStep}
+              isComplete={order.status === ORDER_STATUS.Complete}
+              labelFontSize={12}
+              completedProgressBarColor="#a1d973"
+              progressBarColor="#EBEBE4"
+              activeStepIconBorderColor="#a1d973"
+              completedStepIconColor="#a1d973"
+              disabledStepIconColor="#EBEBE4"
+              activeLabelColor="#a1d973"
+              completedLabelColor="#a1d973"
+              completedCheckColor="#fff"
+              topOffset={16}
+              marginBottom={0}
+            >
+              {STEPS.map((step) => (
+                <ProgressStep
+                  key={step}
+                  label={t(`order.status.${STATUS_KEY_MAP[step]}`)}
+                  removeBtnRow
+                />
+              ))}
+            </ProgressSteps>
           </View>
         ) : (
-          <View className="items-center px-4 py-8">
-            <Ionicons
-              name={
-                order.status === 'Cancelled' ? 'close-circle' : 'alert-circle'
-              }
-              size={48}
-              color={order.status === 'Cancelled' ? '#999' : '#ef4444'}
-            />
+          <View className="items-center border-b border-gray-100 px-4 py-8">
+            <Ionicons name="close-circle" size={48} color="#ef4444" />
             <Text className="mt-3 text-center text-base font-semibold text-gray-600">
-              {order.status === 'Rejected'
-                ? t('order.rejected_message')
-                : t('order.cancel_success')}
+              {t('order.rejected_message')}
+            </Text>
+          </View>
+        )}
+
+        {/* Pickup Code */}
+        {pickupCode && (
+          <View className="mx-4 my-4 items-center rounded-2xl border border-[#a1d973] bg-[#f6ffed] px-4 py-5">
+            <Text className="text-sm font-semibold text-gray-500">
+              {t('order.pickup_code_label')}
+            </Text>
+            <Text className="mt-1 text-4xl font-bold tracking-widest text-black">
+              {pickupCode.verificationCode}
             </Text>
           </View>
         )}
 
         {/* Items */}
-        <View className="border-t border-gray-100 px-4 py-4">
-          {order.items.map((item) => (
-            <View
-              key={item.dishId}
-              className="mb-1 flex-row items-center justify-between"
-            >
-              <Text className="text-sm text-black">
-                {item.dishName} × {item.quantity}
+        <View className="gap-4 border-b border-gray-100 px-4 py-4">
+          {order.items.map((item, index) => (
+            <View key={item.dishId} className="flex-row items-center">
+              <Text className="text-sm font-medium text-black">
+                {index + 1}.
+              </Text>
+              <Text className="ml-4 flex-1 text-sm font-medium text-black">
+                {item.dishName}
+              </Text>
+              <Text className="ml-4 flex-1 text-sm font-medium text-black">
+                x{item.quantity}
+              </Text>
+              <Text className="text-sm font-semibold text-black">
+                {(item.price * item.quantity).toLocaleString('vi-VN')}₫
               </Text>
             </View>
           ))}
-          <View className="mt-3 flex-row items-center justify-between border-t border-gray-100 pt-3">
+        </View>
+
+        {/* Payment Method */}
+        {order.paymentMethod ? (
+          <View className="border-b border-gray-100 px-4 py-4">
+            <Text className="mb-3 text-sm font-semibold text-gray-700">
+              {t('order.payment_method_label')}
+            </Text>
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="card-outline" size={20} color="#333" />
+              <Text className="text-sm text-gray-700">
+                {t(`order.payment_method.${order.paymentMethod}`)}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
+        {/* Summary */}
+        <View className="px-4 py-4">
+          <View className="flex-row items-center justify-between py-1">
+            <Text className="text-sm text-gray-500">{t('order.subtotal')}</Text>
+            <Text className="text-sm text-black">
+              {order.totalAmount.toLocaleString('vi-VN')}₫
+            </Text>
+          </View>
+          {/* Voucher discount — will be expanded later */}
+          {order.discountAmount != null && order.discountAmount > 0 ? (
+            <View className="flex-row items-center justify-between py-1">
+              <Text className="text-sm text-gray-500">
+                {t('order.discount')}
+              </Text>
+              <Text className="text-sm text-[#00B14F]">
+                -{order.discountAmount.toLocaleString('vi-VN')}₫
+              </Text>
+            </View>
+          ) : null}
+          <View className="mt-2 flex-row items-center justify-between border-t border-gray-100 pt-3">
             <Text className="text-base font-bold text-black">
               {t('cart.total')}
             </Text>
             <Text className="text-lg font-bold text-[#00B14F]">
-              {`${order.finalAmount.toLocaleString('vi-VN')}₫`}
+              {order.finalAmount.toLocaleString('vi-VN')}₫
             </Text>
           </View>
-          {order.paymentMethod ? (
-            <Text className="mt-1 text-xs text-gray-400">
-              {t('order.payment_via')} {order.paymentMethod}
-            </Text>
-          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>

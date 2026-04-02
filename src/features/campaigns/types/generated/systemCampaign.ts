@@ -13,23 +13,21 @@ The `data` field contains the schema documented per endpoint.
 **Authentication:** All endpoints (except public ones) require `Authorization: Bearer <accessToken>` header.
  * OpenAPI spec version: 1.0.0
  */
-import type { VendorTierLevel } from './vendorTierLevel';
 
 export interface SystemCampaign {
-  campaignId: string;
-  title: string;
-  description: string;
-  /**
-   * Human-readable reward description
-   * @nullable
-   */
-  reward?: string | null;
-  /** @nullable */
-  requirements?: string | null;
-  minTier: VendorTierLevel;
-  /** True for Diamond tier vendors — automatically enrolled */
-  isAutoEnroll?: boolean;
-  startAt: string;
-  endAt: string;
-  isJoined: boolean;
+  campaignId: number;
+  createdByBranchId?: number | null;
+  createdByVendorId?: number | null;
+  name: string;
+  description?: string | null;
+  targetSegment?: string | null;
+  registrationStartDate?: string | null;
+  registrationEndDate?: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string | null;
+  imageUrl?: string;
+  isSystemCampaign: boolean;
 }

@@ -10,17 +10,26 @@ import {
 } from '@slices/dietary';
 import { fetchTastes, selectTastes, selectTastesStatus } from '@slices/tastes';
 import type { JSX } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   Modal,
+  Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
+import {
+  default as Animated,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import CategoryCard from './CategoryCard';
 
 interface FilterModalProps {
@@ -59,6 +68,19 @@ const FilterModal = ({
   const tastesStatus = useAppSelector(selectTastesStatus);
   const dietaryPreferences = useAppSelector(selectDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
+  const [backdropVisible, setBackdropVisible] = useState(visible);
+  const backdropProgress = useSharedValue(visible ? 1 : 0);
+  const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      backdropProgress.value,
+      [0, 1],
+      ['rgba(0,0,0,0)', 'rgba(0,0,0,0.5)']
+    ),
+  }));
 
   // Sync internal state with external activeFilters when modal opens
   useEffect(() => {
@@ -96,6 +118,32 @@ const FilterModal = ({
       dispatch(getAllDietaryPreferences());
     }
   }, [dispatch, tastesStatus, dietaryStatus, dietaryPreferences.length]);
+
+  useEffect(() => {
+    if (visible) {
+      if (closeBackdropTimeoutRef.current) {
+        clearTimeout(closeBackdropTimeoutRef.current);
+        closeBackdropTimeoutRef.current = null;
+      }
+      setBackdropVisible(true);
+      backdropProgress.value = withTiming(1, { duration: 220 });
+      return;
+    }
+
+    backdropProgress.value = withTiming(0, { duration: 220 });
+    closeBackdropTimeoutRef.current = setTimeout(() => {
+      setBackdropVisible(false);
+      closeBackdropTimeoutRef.current = null;
+    }, 220);
+  }, [backdropProgress, visible]);
+
+  useEffect((): (() => void) => {
+    return (): void => {
+      if (closeBackdropTimeoutRef.current) {
+        clearTimeout(closeBackdropTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const toggleSelection = (
     item: string,
@@ -150,14 +198,30 @@ const FilterModal = ({
   }));
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View className="flex-1 justify-end bg-black/50">
-        <View className="rounded-t-3xl bg-white" style={{ maxHeight: '90%' }}>
+    <>
+      {backdropVisible && (
+        <>
+          <Animated.View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, backdropAnimatedStyle]}
+          />
+          {visible && (
+            <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+          )}
+        </>
+      )}
+
+      <Modal
+        visible={visible}
+        transparent
+        animationType="slide"
+        onRequestClose={onClose}
+      >
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View
+          className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white"
+          style={{ maxHeight: '90%' }}
+        >
           <View className="items-center border-b border-gray-200 px-6 py-4">
             <Text className="text-xl font-semibold text-gray-900">
               {t('filter')}
@@ -258,7 +322,10 @@ const FilterModal = ({
                   renderItem={({ item }) => (
                     <CategoryCard
                       title={item.name}
-                      image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
+                      image={
+                        item.imageUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`
+                      }
                       onPress={() =>
                         toggleSelection(
                           item.categoryId.toString(),
@@ -524,8 +591,8 @@ const FilterModal = ({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 

@@ -1,4 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
+import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
@@ -13,9 +15,6 @@ import {
   fetchActiveBranches,
   selectBranchImageMap,
   selectBranches,
-  selectBranchesCurrentPage,
-  selectBranchesHasNext,
-  selectBranchesLoadingMore,
   selectBranchesStatus,
   selectMultiBranchVendorIds,
   updateBranchRating,
@@ -60,87 +59,24 @@ export const HomeScreen = (): JSX.Element => {
   const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const branchesStatus = useAppSelector(selectBranchesStatus);
-  const branchesHasNext = useAppSelector(selectBranchesHasNext);
-  const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
-  const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords } = useLocationPermission();
+  const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useSystemCampaigns();
+  const { restaurantCampaigns } = useRestaurantCampaigns(userCoords);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
-  // useRef gives an immediate lock that prevents double-fires from onEndReached
-  // before Redux has time to flip loadingMore / status in state.
-  const isFetchingMoreRef = useRef(false);
-
-  // True once user has actively dragged the list.
-  const hasUserDragged = useRef(false);
   // Track pulling state in ref to prevent unnecessary re-renders
   const isPullingRef = useRef(false);
-  // After each successful page load this is set to false.
-  // It flips back to true only when the user scrolls away from the trigger
-  // zone (distanceFromBottom > 600), ensuring we don't auto-chain requests.
-  const canTriggerNextLoad = useRef(true);
 
-  // Mirror Redux pagination values in refs so handleLoadMore always reads the
-  // latest values — closing over Redux state causes stale closures where
-  // branchesCurrentPage is still 1 even after page 2 has been stored in Redux.
-  const hasNextRef = useRef(branchesHasNext);
-  const currentPageRef = useRef<number>(branchesCurrentPage);
-  const branchesStatusRef = useRef(branchesStatus);
-  hasNextRef.current = branchesHasNext;
-  currentPageRef.current = branchesCurrentPage;
-  branchesStatusRef.current = branchesStatus;
-
-  const handleLoadMore = useCallback(() => {
-    // Guard: skip if already fetching or no more pages
-    if (isFetchingMoreRef.current) return;
-    if (!hasNextRef.current) return;
-
-    const currentPage = currentPageRef.current;
-    const nextPage = currentPage + 1;
-    console.log('[handleLoadMore] fetching page', nextPage);
-    isFetchingMoreRef.current = true;
-    canTriggerNextLoad.current = false;
-    currentPageRef.current = nextPage;
-
-    dispatch(
-      fetchActiveBranches({
-        page: nextPage,
-        lat: userCoords?.latitude,
-        lng: userCoords?.longitude,
-        distance: userCoords ? 5 : undefined,
-        dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
-      })
-    )
-      .then((result) => {
-        console.log('[handleLoadMore] page', nextPage, 'result:', result.type);
-      })
-      .catch((err: unknown) => {
-        // Roll back so the page can be retried.
-        currentPageRef.current = currentPage;
-        console.warn('[handleLoadMore] error:', err);
-      })
-      .finally(() => {
-        isFetchingMoreRef.current = false;
-        console.log('[handleLoadMore] lock released');
-      });
-    // dispatch is stable — no other deps needed since we read state via refs.
-  }, [dispatch, userCoords, userDietaryPreferences]);
-
-  // Manual scroll-position check — far more reliable than onEndReached,
-  // which fires on layout changes even without user interaction.
+  // Detect pull-to-refresh gesture for immediate spinner feedback.
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
-      const isScrollable = contentSize.height > layoutMeasurement.height;
-      const distanceFromBottom =
-        contentSize.height - layoutMeasurement.height - contentOffset.y;
-
-      // Detect pull-to-refresh gesture for immediate spinner feedback
-      // Only update state when it actually changes to prevent flickering
+      const { contentOffset } = e.nativeEvent;
       const shouldBePulling = contentOffset.y < -50 && !refreshing;
 
       if (shouldBePulling && !isPullingRef.current) {
@@ -150,38 +86,14 @@ export const HomeScreen = (): JSX.Element => {
         !shouldBePulling &&
         isPullingRef.current &&
         contentOffset.y >= -10 &&
-        !refreshing // Don't reset during refresh - let onRefresh completion handle it
+        !refreshing
       ) {
         isPullingRef.current = false;
         setIsPulling(false);
       }
-
-      // Re-arm only when the user has scrolled well away from the bottom AND
-      // no fetch is in-flight. Guarding against in-flight prevents the
-      // content-growth scroll event (new items added → contentSize expands →
-      // distanceFromBottom jumps > 600) from immediately re-arming the gate.
-      if (distanceFromBottom > 600 && !isFetchingMoreRef.current) {
-        canTriggerNextLoad.current = true;
-      }
-
-      if (
-        isScrollable &&
-        hasUserDragged.current &&
-        canTriggerNextLoad.current &&
-        !isFetchingMoreRef.current &&
-        distanceFromBottom < 300
-      ) {
-        handleLoadMore();
-      }
     },
-    [handleLoadMore, refreshing]
+    [refreshing]
   );
-
-  const banners = [
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
-  ];
 
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
@@ -233,6 +145,17 @@ export const HomeScreen = (): JSX.Element => {
   useEffect(() => {
     void dispatch(fetchUnreadCount());
   }, [dispatch]);
+
+  const handleCampaignPress = useCallback(
+    (campaignId: string, campaignType: 'system' | 'restaurant') => {
+      if (campaignType === 'system') {
+        navigation.navigate('SystemCampaignDetail', { campaignId });
+      } else {
+        navigation.navigate('RestaurantCampaignDetail', { campaignId });
+      }
+    },
+    [navigation]
+  );
 
   // Callback to update branch rating in Redux when navigating back from detail screens
   const handleRatingUpdate = useCallback(
@@ -290,13 +213,20 @@ export const HomeScreen = (): JSX.Element => {
             navigation.navigate('Search', { openFilter: true })
           }
         />
-        <BannerCarousel banners={banners} />
+        <BannerCarousel
+          items={systemCampaigns}
+          onCampaignPress={handleCampaignPress}
+          onLoadMore={() => {
+            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+          }}
+          hasMore={hasNextPage}
+        />
 
         <View className="px-4 py-2">
           <Title>{t('what_want_eat')}</Title>
         </View>
 
-        <View className="flex-row px-4 pt-2">
+        <View className="flex-row pt-2">
           {categoriesLoading ? (
             <View className="flex-1 items-center py-4">
               <ActivityIndicator color="#a1d973" />
@@ -316,8 +246,15 @@ export const HomeScreen = (): JSX.Element => {
               renderItem={({ item }) => (
                 <CategoryCard
                   title={item.name}
-                  image={`https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`}
-                  onPress={() => console.log(`Selected ${item.name}`)}
+                  image={
+                    item.imageUrl ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`
+                  }
+                  onPress={() =>
+                    navigation.navigate('Search', {
+                      selectedCategoryId: String(item.categoryId),
+                    })
+                  }
                 />
               )}
             />
@@ -346,17 +283,40 @@ export const HomeScreen = (): JSX.Element => {
           </TouchableOpacity>
         </View>
 
-        <View className="px-4 pb-2 pt-6">
+        <TouchableOpacity
+          className="flex-row items-center justify-between px-4 pb-2 pt-6"
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('ListBranch', {})}
+        >
           <Title>{t('places_might_like')}</Title>
-        </View>
+          <Ionicons name="chevron-forward-circle" size={24} color="#89D151" />
+        </TouchableOpacity>
       </LinearGradient>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [categories, categoriesLoading, banners, insets.top, refreshing, t]
+    [
+      categories,
+      categoriesLoading,
+      systemCampaigns,
+      handleCampaignPress,
+      insets.top,
+      refreshing,
+      t,
+    ]
   );
 
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-[#B8E986]">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top + 200, // Cover the notch + some extra
+          backgroundColor: '#B8E986',
+        }}
+      />
       {branchesStatus === 'pending' ? (
         <>
           {ListHeader}
@@ -395,7 +355,7 @@ export const HomeScreen = (): JSX.Element => {
       ) : (
         <View>
           <FlatList
-            data={branches}
+            data={branches.slice(0, 10)}
             keyExtractor={(item) => String(item.branchId)}
             numColumns={2}
             showsVerticalScrollIndicator={false}
@@ -461,23 +421,7 @@ export const HomeScreen = (): JSX.Element => {
               </View>
             }
             onScroll={handleScroll}
-            onScrollBeginDrag={() => {
-              hasUserDragged.current = true;
-            }}
-            onScrollEndDrag={() => {
-              // Do NOT reset isPulling here — if pull was strong enough to trigger
-              // onRefresh, this fires before refreshing=true is set, causing a
-              // 1-frame flicker. handleScroll resets isPulling when the list
-              // bounces back (contentOffset >= -10 && !refreshing).
-            }}
             scrollEventThrottle={16}
-            ListFooterComponent={
-              branchesLoadingMore ? (
-                <View className="items-center py-4">
-                  <ActivityIndicator color="#a1d973" />
-                </View>
-              ) : null
-            }
           />
           {(refreshing || isPulling) && (
             <>

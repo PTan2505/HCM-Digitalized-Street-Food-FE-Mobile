@@ -47,6 +47,7 @@ export interface PaymentLinkResult {
   paymentUrl?: string | null;
   orderCode?: number | null;
   paymentLinkId?: string | null;
+  qrCode?: string | null;
   requiresConfirmation: boolean;
 }
 
@@ -57,19 +58,23 @@ export interface CheckoutCartResponse {
 
 // ── Order types ──
 
-export type OrderStatus =
-  | 'Pending'
-  | 'Confirmed'
-  | 'Preparing'
-  | 'Ready'
-  | 'Completed'
-  | 'Rejected'
-  | 'Cancelled';
+// Matches BO.Entities.OrderStatus integer enum values
+export const ORDER_STATUS = {
+  Pending: 0,
+  AwaitingVendorConfirmation: 1,
+  Paid: 2,
+  Cancelled: 3,
+  Complete: 4,
+} as const;
+
+export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
 export interface OrderDishResponse {
   dishId: number;
   dishName: string;
   quantity: number;
+  price: number;
+  dishImageUrl?: string | null; // not yet returned by BE — add to OrderDishResponseDto when ready
 }
 
 export interface OrderResponse {
@@ -77,6 +82,7 @@ export interface OrderResponse {
   userId: number;
   branchId: number;
   branchName: string;
+  displayName?: string | null;
   status: OrderStatus;
   table?: string | null;
   paymentMethod?: string | null;
@@ -98,6 +104,30 @@ export interface PaginatedOrders {
   hasPrevious?: boolean;
   hasNext?: boolean;
   items: OrderResponse[];
+}
+
+// ── Pickup code types ──
+
+export interface PickupCodeResponse {
+  orderId: number;
+  verificationCode: string;
+  qrContent: string;
+}
+
+// ── Payment types ──
+
+export interface ConfirmPaymentRequest {
+  orderCode: number;
+  status?: string | null;
+  transactionId?: string | null;
+  code?: string | null;
+}
+
+export interface PaymentStatusResponse {
+  success: boolean;
+  message?: string | null;
+  orderStatus?: string | null;
+  paymentStatus?: string | null;
 }
 
 // ── API class ──
@@ -150,6 +180,23 @@ export class CartApi {
   }
 }
 
+export class PaymentApi {
+  private apiClient: ApiClient;
+
+  constructor(client: ApiClient) {
+    this.apiClient = client;
+  }
+
+  confirmOrderPayment(
+    data: ConfirmPaymentRequest
+  ): Promise<ApiResponse<PaymentStatusResponse>> {
+    return this.apiClient.post<PaymentStatusResponse, ConfirmPaymentRequest>({
+      url: apiUrl.payment.orderConfirm,
+      data,
+    });
+  }
+}
+
 export class OrderApi {
   private apiClient: ApiClient;
 
@@ -171,7 +218,9 @@ export class OrderApi {
     });
   }
 
-  getPickupCode(id: number): Promise<ApiResponse<string>> {
-    return this.apiClient.get<string>({ url: apiUrl.order.pickupCode(id) });
+  getPickupCode(id: number): Promise<ApiResponse<PickupCodeResponse>> {
+    return this.apiClient.get<PickupCodeResponse>({
+      url: apiUrl.order.pickupCode(id),
+    });
   }
 }

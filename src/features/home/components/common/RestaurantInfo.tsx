@@ -57,9 +57,12 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
   const todayWeekday = new Date().getDay();
   const { schedules } = restaurant;
   const todaySchedule = schedules?.find((s) => s.weekday === todayWeekday);
-  const hoursLabel = todaySchedule
-    ? `${WEEKDAY_SHORT[todayWeekday]}: ${formatTime(todaySchedule.openTime)} - ${formatTime(todaySchedule.closeTime)}`
-    : t('actions.updating');
+  const hoursLabel =
+    schedules && schedules.length > 0
+      ? todaySchedule
+        ? `${WEEKDAY_SHORT[todayWeekday]}: ${formatTime(todaySchedule.openTime)} - ${formatTime(todaySchedule.closeTime)}`
+        : `${WEEKDAY_SHORT[todayWeekday]}: ${t('actions.closed')}`
+      : t('actions.updating');
 
   return (
     <View className="p-4">
