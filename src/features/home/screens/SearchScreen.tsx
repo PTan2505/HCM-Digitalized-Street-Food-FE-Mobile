@@ -92,11 +92,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
       search({
         Keyword: kw || undefined,
-        ...(hasDistanceFilter && coords
+        ...(coords
           ? {
               Lat: coords.latitude,
               Long: coords.longitude,
-              Distance: filters?.distance,
+              ...(hasDistanceFilter ? { Distance: filters?.distance } : {}),
             }
           : {}),
         DietaryIds: filters?.dietaryTags
