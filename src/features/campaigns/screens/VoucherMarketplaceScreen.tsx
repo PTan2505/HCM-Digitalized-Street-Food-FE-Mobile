@@ -142,21 +142,21 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center bg-transparent px-4 py-3">
+      <View className="flex-row items-center justify-between bg-transparent px-4 py-3">
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
+        <View className="flex-row items-center rounded-full bg-amber-50 px-4 py-3">
+          <Ionicons name="star" size={20} color="#F59E0B" />
+          <Text className="ml-2 text-sm font-semibold text-amber-700">
+            {t('marketplace.your_points', {
+              points: userPoints.toLocaleString('vi-VN'),
+            })}
+          </Text>
+        </View>
       </View>
 
       {/* Points banner */}
-      <View className="mx-4 mt-3 flex-row items-center rounded-xl bg-amber-50 px-4 py-3">
-        <Ionicons name="star" size={20} color="#F59E0B" />
-        <Text className="ml-2 text-sm font-semibold text-amber-700">
-          {t('marketplace.your_points', {
-            points: userPoints.toLocaleString('vi-VN'),
-          })}
-        </Text>
-      </View>
 
       {/* Content */}
       {isLoading && availableVouchers.length === 0 ? (

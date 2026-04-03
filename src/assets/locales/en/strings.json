@@ -513,5 +513,12 @@
   "common": {
     "ok": "OK",
     "cancel": "Cancel"
+  },
+  "home_quick_actions": {
+    "section_title": "Explore Lowca",
+    "ghost_pin": "Share New Stall",
+    "quest": "Quests",
+    "voucher_market": "Voucher Market",
+    "personal_cart": "Cart"
   }
 }

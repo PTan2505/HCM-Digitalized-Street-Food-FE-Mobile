@@ -513,5 +513,12 @@
   "common": {
     "ok": "OK",
     "cancel": "Hủy"
+  },
+  "home_quick_actions": {
+    "section_title": "Khám phá Lowca",
+    "ghost_pin": "Chia sẻ quán ăn mới",
+    "quest": "Thử thách",
+    "voucher_market": "Chợ Voucher",
+    "personal_cart": "Giỏ hàng"
   }
 }
