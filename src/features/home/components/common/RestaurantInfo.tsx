@@ -37,7 +37,6 @@ export interface RestaurantInfoData {
   priceRange: string;
   rating: number;
   totalReviewCount: number;
-  isVegetarian?: boolean;
   dietaryPreferenceNames: string[];
   address: string;
   isOpen: boolean;

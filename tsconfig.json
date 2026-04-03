@@ -16,6 +16,7 @@
     "noUnusedParameters": false,
     "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": false,
+    "ignoreDeprecations": "6.0",
     /* PATH ALIASES (Matches Web) */
     "baseUrl": "./src",
     "paths": {

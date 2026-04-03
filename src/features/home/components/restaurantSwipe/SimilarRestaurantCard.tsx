@@ -1,25 +1,44 @@
-import type { JSX } from 'react';
-import { View, TouchableOpacity } from 'react-native';
-import ImageCarouselWithProgress from './ImageCarouselWithProgress';
 import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/common/RestaurantInfo';
-import ActionButtons from './ActionButtons';
+import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
+import { useBranchImages } from '@features/home/hooks/useBranchImages';
+import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
+import { getPriceRange } from '@utils/priceUtils';
+import type { JSX } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import ActionButtons from './ActionButtons';
+import ImageCarouselWithProgress from './ImageCarouselWithProgress';
+
+const PLACEHOLDER_IMAGE =
+  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
 
 interface SimilarRestaurantCardProps {
-  restaurant: RestaurantInfoData;
+  restaurant: Omit<RestaurantInfoData, 'priceRange' | 'isOpen' | 'schedules'>;
+  branchId: number;
   branch?: ActiveBranch;
-  images: string[];
   onPress: () => void;
 }
 
 const SimilarRestaurantCard = ({
   restaurant,
+  branchId,
   branch,
-  images,
   onPress,
 }: SimilarRestaurantCardProps): JSX.Element => {
+  const { imageUrls } = useBranchImages(branchId);
+  const { isOpen, schedules } = useWorkSchedule(branchId);
+  const { dishes } = useBranchDishes(branchId);
+  const images = imageUrls.length > 0 ? imageUrls : [PLACEHOLDER_IMAGE];
+
+  const restaurantInfo: RestaurantInfoData = {
+    ...restaurant,
+    priceRange: getPriceRange(dishes),
+    isOpen,
+    schedules,
+  };
+
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <View className="mb-4">
@@ -29,7 +48,7 @@ const SimilarRestaurantCard = ({
           </View>
 
           <View className="overflow-hidden rounded-b-3xl bg-white">
-            <RestaurantInfo restaurant={restaurant} />
+            <RestaurantInfo restaurant={restaurantInfo} />
             {branch && (
               <ActionButtons branch={branch} displayName={restaurant.name} />
             )}

@@ -7,13 +7,25 @@ import ImageCarouselWithProgress from '@features/home/components/restaurantSwipe
 import SimilarRestaurantCard from '@features/home/components/restaurantSwipe/SimilarRestaurantCard';
 import SwipeUpPrompt from '@features/home/components/restaurantSwipe/SwipeUpPrompt';
 import { useBranchImages } from '@features/home/hooks/useBranchImages';
+import { useSimilarBranches } from '@features/home/hooks/useSimilarBranches';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { computeDisplayName } from '@slices/branches';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useState } from 'react';
-import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import {
+  ActivityIndicator,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 type RestaurantSwipeScreenProps = StaticScreenProps<{
@@ -25,10 +37,14 @@ type RestaurantSwipeScreenProps = StaticScreenProps<{
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
 
+const LOAD_MORE_THRESHOLD = 300;
+
 export const RestaurantSwipeScreen = ({
   route,
 }: RestaurantSwipeScreenProps): JSX.Element => {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
+  const { t } = useTranslation();
   const { branch, displayName, onRatingUpdate } = route.params;
   const [avgRating, setAvgRating] = useState(branch.avgRating);
   const [totalReviewCount, setTotalReviewCount] = useState(
@@ -48,6 +64,12 @@ export const RestaurantSwipeScreen = ({
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
   const { imageUrls } = useBranchImages(branch.branchId);
+  const {
+    branches: similarBranches,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useSimilarBranches(branch.branchId);
 
   const restaurantImages =
     imageUrls.length > 0 ? imageUrls : [PLACEHOLDER_IMAGE];
@@ -62,73 +84,26 @@ export const RestaurantSwipeScreen = ({
     isOpen,
     // —— fields not yet in API response, placeholder until updated ——
     priceRange: getPriceRange(branch.dishes),
-    isVegetarian: false,
-    dietaryPreferenceNames: branch.dietaryPreferenceNames,
+    dietaryPreferenceNames: branch.dietaryPreferenceNames ?? [],
     schedules,
   };
 
-  const similarRestaurants = [
-    {
-      restaurant: {
-        name: 'Quan Chay Huong Sen',
-        priceRange: '150k - 350k',
-        rating: 4.3,
-        totalReviewCount: 128,
-        isVegetarian: true,
-        dietaryPreferenceNames: ['Món Chay'],
-        address: '123 Nguyen Van Linh, Quan 7, Ho Chi Minh',
-        hours: '9:00 - 22:00 (Thứ 2 - Chủ Nhật)',
-        isOpen: true,
-      },
-      images: [
-        'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=800&h=1200',
-        'https://images.unsplash.com/photo-1592861956120-e524fc739696?w=800&h=1200',
-        'https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=800&h=1200',
-      ],
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { layoutMeasurement, contentOffset, contentSize } =
+        event.nativeEvent;
+      const distanceFromBottom =
+        contentSize.height - layoutMeasurement.height - contentOffset.y;
+      if (
+        distanceFromBottom < LOAD_MORE_THRESHOLD &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        fetchNextPage();
+      }
     },
-    {
-      restaurant: {
-        name: 'Nha Hang Thien Huong',
-        priceRange: '180k - 450k',
-        rating: 4.7,
-        totalReviewCount: 256,
-        isVegetarian: true,
-        dietaryPreferenceNames: ['Món Hoa'],
-        address: '456 Le Van Viet, Quan 9, Ho Chi Minh',
-        hours: '7:00 - 21:00 (Thứ 2 - Thứ 7)',
-        isOpen: true,
-      },
-      images: [
-        'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=1200',
-        'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=1200',
-        'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=800&h=1200',
-      ],
-    },
-    {
-      restaurant: {
-        name: 'Bistro Xanh Healthy',
-        priceRange: '100k - 300k',
-        rating: 4.6,
-        totalReviewCount: 89,
-        isVegetarian: true,
-        dietaryPreferenceNames: ['Món Việt'],
-        address: '789 Vo Van Ngan, Thu Duc, Ho Chi Minh',
-        hours: '8:00 - 20:00 (Thứ 2 - Chủ Nhật)',
-        isOpen: false,
-      },
-      images: [
-        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=1200',
-        'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=1200',
-        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=1200',
-      ],
-    },
-  ];
-
-  const handleOpenRestaurant = (
-    restaurantData: RestaurantInfoData & { images: string[] }
-  ): void => {
-    console.log('Opening restaurant:', restaurantData);
-  };
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
 
   return (
     <GestureHandlerRootView className="flex-1">
@@ -144,7 +119,12 @@ export const RestaurantSwipeScreen = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={400}
+        >
           <View style={{ height: 450 }}>
             <ImageCarouselWithProgress images={restaurantImages} />
           </View>
@@ -161,19 +141,70 @@ export const RestaurantSwipeScreen = ({
           <SwipeUpPrompt />
 
           <View className="px-0 pb-8">
-            {similarRestaurants.map((item, index) => (
-              <SimilarRestaurantCard
-                key={index}
-                restaurant={item.restaurant}
-                images={item.images}
-                onPress={() =>
-                  handleOpenRestaurant({
-                    ...item.restaurant,
-                    images: item.images,
-                  })
-                }
-              />
-            ))}
+            {similarBranches.map((similarBranch) => {
+              const similarActiveBranch: ActiveBranch = {
+                branchId: similarBranch.branchId,
+                vendorId: similarBranch.vendorId,
+                vendorName: similarBranch.vendorName,
+                managerId: 0,
+                name: similarBranch.name,
+                phoneNumber: '',
+                email: '',
+                addressDetail: similarBranch.addressDetail,
+                ward: similarBranch.ward ?? '',
+                city: similarBranch.city,
+                lat: similarBranch.lat,
+                long: similarBranch.long,
+                createdAt: '',
+                updatedAt: null,
+                isVerified: true,
+                avgRating: similarBranch.avgRating,
+                totalReviewCount: similarBranch.totalReviewCount,
+                totalRatingSum:
+                  similarBranch.avgRating * similarBranch.totalReviewCount,
+                dietaryPreferenceNames: [],
+                isActive: true,
+                isSubscribed: similarBranch.isSubscribed,
+                tierId: 0,
+                tierName: '',
+                finalScore: similarBranch.similarityScore,
+                distanceKm: null,
+                dishes: [],
+              };
+              const isMultiBranch =
+                similarBranch.name !== similarBranch.vendorName;
+              const similarDisplayName = computeDisplayName(
+                similarActiveBranch,
+                isMultiBranch,
+                t('branch')
+              );
+              return (
+                <SimilarRestaurantCard
+                  key={similarBranch.branchId}
+                  branchId={similarBranch.branchId}
+                  branch={similarActiveBranch}
+                  restaurant={{
+                    name: similarDisplayName,
+                    rating: similarBranch.avgRating,
+                    totalReviewCount: similarBranch.totalReviewCount,
+                    address: [
+                      similarBranch.addressDetail,
+                      similarBranch.ward,
+                      similarBranch.city,
+                    ]
+                      .filter(Boolean)
+                      .join(', '),
+                    dietaryPreferenceNames: [],
+                  }}
+                  onPress={() => {}}
+                />
+              );
+            })}
+            {isFetchingNextPage && (
+              <View className="items-center py-4">
+                <ActivityIndicator size="small" color="#9FD356" />
+              </View>
+            )}
           </View>
         </ScrollView>
       </View>

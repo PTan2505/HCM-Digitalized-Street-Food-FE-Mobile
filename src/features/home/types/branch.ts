@@ -147,6 +147,34 @@ export interface PaginatedMyGhostPinBranches {
   items: MyGhostPinBranch[];
 }
 
+export interface SimilarBranch {
+  branchId: number;
+  vendorId: number;
+  vendorName: string;
+  name: string;
+  addressDetail: string;
+  ward?: string;
+  city: string;
+  lat: number;
+  long: number;
+  avgRating: number;
+  totalReviewCount: number;
+  isSubscribed: boolean;
+  commonDishCount: number;
+  similarityScore: number;
+  sharedDishNames: string[];
+}
+
+export interface PaginatedSimilarBranches {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: SimilarBranch[];
+}
+
 export interface PaginatedBranchImages {
   currentPage: number;
   pageSize: number;
