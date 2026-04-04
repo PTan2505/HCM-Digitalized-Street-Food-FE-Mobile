@@ -1,5 +1,5 @@
-import type { SystemCampaign } from '@features/campaigns/types/generated';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/campaigns/api/generated';
+import type { SystemCampaign } from '@features/campaigns/types/generated';
 import { queryKeys } from '@lib/queryKeys';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
@@ -32,6 +32,7 @@ export const useSystemCampaigns = (): {
       });
     },
     initialPageParam: 1,
+    staleTime: 5 * 60 * 1000,
     getNextPageParam: (lastPage) =>
       lastPage?.hasNext ? (lastPage.currentPage ?? 1) + 1 : undefined,
   });
