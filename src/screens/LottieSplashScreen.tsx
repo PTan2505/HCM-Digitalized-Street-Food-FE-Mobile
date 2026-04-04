@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import SplashScreen from '../../assets/splashScreen.json';
 
 interface Props {
-  onFinish?: () => void;
+  onFinish?: (isCancelled: boolean) => void;
 }
 
 // memo prevents re-renders when AppSplashGate re-renders during splash

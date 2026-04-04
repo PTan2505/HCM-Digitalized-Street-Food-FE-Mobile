@@ -70,9 +70,20 @@ export function AppSplashGate({
   // Safety-net: if the Lottie native module isn't linked (e.g. missing pod),
   // onAnimationFinish never fires and the app would be stuck forever.
   // Animation is ~12s, so 15s gives it full play time + a small buffer.
+  // Stored in a ref so handleAnimationFinish can cancel it when the animation
+  // finishes naturally (AppSplashGate never unmounts, so cleanup alone isn't enough).
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect((): (() => void) => {
-    const timer = setTimeout(() => setAnimationFinished(true), 15000);
-    return () => clearTimeout(timer);
+    const startTime = Date.now();
+    fallbackTimerRef.current = setTimeout(() => {
+      console.warn(
+        `[SplashGate] ⚠️ 15s timeout fired — Lottie onAnimationFinish never called. Elapsed: ${Date.now() - startTime}ms`
+      );
+      setAnimationFinished(true);
+    }, 15000);
+    return () => {
+      if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    };
   }, []);
 
   const dispatch = useAppDispatch();
@@ -153,10 +164,40 @@ export function AppSplashGate({
     animationFinished &&
     (branchesStatus === 'succeeded' || branchesStatus === 'failed');
 
+  // Log every time isReady flips to true so we know exactly which condition
+  // was the last to satisfy (helps diagnose early-exit bug).
+  const splashStartRef = useRef(Date.now());
+  const prevIsReadyRef = useRef(false);
+  if (isReady && !prevIsReadyRef.current) {
+    prevIsReadyRef.current = true;
+    const elapsed = Date.now() - splashStartRef.current;
+    console.log(
+      `[SplashGate] ✅ isReady after ${elapsed}ms | fontsLoaded=${fontsLoaded} animationFinished=${animationFinished} branchesStatus=${branchesStatus}`
+    );
+    if (elapsed < 5000) {
+      console.warn(
+        `[SplashGate] ⚠️ Splash ended suspiciously fast (${elapsed}ms). Possible premature onAnimationFinish.`
+      );
+    }
+  }
+
   // Stable reference — prevents lottie-react-native from firing
   // onAnimationFinish prematurely when AppSplashGate re-renders
   // (auth/location/branches state changes create many re-renders during splash).
-  const handleAnimationFinish = useCallback(() => {
+  const handleAnimationFinish = useCallback((isCancelled: boolean) => {
+    const elapsed = Date.now() - splashStartRef.current;
+    if (isCancelled) {
+      // Fired when the animation is interrupted (e.g. hot reload / Fast Refresh
+      // causes LottieView to remount). Ignore — the new instance will play fully.
+      console.log(
+        `[SplashGate] 🎬 onAnimationFinish isCancelled=true after ${elapsed}ms — ignoring`
+      );
+      return;
+    }
+    console.log(
+      `[SplashGate] 🎬 onAnimationFinish isCancelled=false after ${elapsed}ms — proceeding`
+    );
+    if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
     setAnimationFinished(true);
   }, []);
 
