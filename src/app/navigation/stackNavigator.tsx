@@ -25,8 +25,7 @@ import {
 } from '@react-navigation/native';
 import { navigationRef } from '@utils/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { selectUserStatus } from '@slices/auth';
-import { ActivityIndicator, View } from 'react-native';
+import { selectUser } from '@slices/auth';
 
 import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScreen';
 import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
@@ -234,22 +233,19 @@ declare global {
 const StaticNavigation = createStaticNavigation(RootStack);
 
 export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
-  const userStatus = useAppSelector(selectUserStatus);
-
-  // Show loading indicator only while initially checking authentication (idle state)
-  // Don't show loading during pending state to avoid unmounting screens during API calls
-  if (userStatus === 'idle') {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  // AppSplashGate ensures auth is resolved before Navigation mounts,
+  // so we can use the user object directly to pick the correct initial route
+  // and avoid the Auth→Main flash on cold start.
+  const user = useAppSelector(selectUser);
 
   return (
     <StaticNavigation
       ref={navigationRef}
       theme={theme}
+      initialState={{
+        index: 0,
+        routes: [{ name: user !== null ? 'Main' : 'Auth' }],
+      }}
       linking={{
         prefixes: ['lowca://', process.env.EXPO_PUBLIC_WEB_URL ?? ''],
       }}

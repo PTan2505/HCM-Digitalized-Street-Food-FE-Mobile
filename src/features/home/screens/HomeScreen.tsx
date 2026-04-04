@@ -139,6 +139,9 @@ export const HomeScreen = (): JSX.Element => {
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
+    // AppSplashGate already dispatched the initial fetch during the splash screen.
+    // Skip if branches are no longer idle to avoid overwriting the preloaded data.
+    if (branchesStatus !== 'idle') return;
     if (!userCoords) return;
     // If the user completed dietary setup, wait until prefs are loaded.
     // This prevents dispatching a fetch without DietaryIds that could complete
@@ -163,6 +166,7 @@ export const HomeScreen = (): JSX.Element => {
       })
     );
   }, [
+    branchesStatus,
     userCoords,
     user?.dietarySetup,
     dietaryStatus,
