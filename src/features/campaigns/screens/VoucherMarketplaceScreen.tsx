@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { MarketplaceVoucherDto } from '@features/campaigns/api/voucherApi';
+import type { VoucherDto } from '@features/campaigns/api/voucherApi';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useVoucherMarketplace } from '@features/campaigns/hooks/useVoucherMarketplace';
 import { useNavigation } from '@react-navigation/native';
@@ -17,21 +17,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const formatDiscount = (voucher: MarketplaceVoucherDto): string => {
+const formatDiscount = (voucher: VoucherDto): string => {
   if (voucher.type.toUpperCase() === 'PERCENT') {
     return `${voucher.discountValue}%`;
   }
   return `${voucher.discountValue.toLocaleString('vi-VN')}đ`;
 };
 
-const remainingQuantity = (voucher: MarketplaceVoucherDto): number =>
+const remainingQuantity = (voucher: VoucherDto): number =>
   voucher.quantity - voucher.usedQuantity;
 
-const displayExpiry = (voucher: MarketplaceVoucherDto): Date =>
+const displayExpiry = (voucher: VoucherDto): Date =>
   new Date(voucher.expiredDate ?? voucher.endDate);
 
 interface MarketplaceCardProps {
-  item: MarketplaceVoucherDto;
+  item: VoucherDto;
   userPoints: number;
   isRedeeming: boolean;
   onRedeem: (voucherId: number) => void;
@@ -122,7 +122,7 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
     }
   }, [redeemState.success, redeemState.error, clearRedeemState, t]);
 
-  const confirmRedeem = (voucher: MarketplaceVoucherDto): void => {
+  const confirmRedeem = (voucher: VoucherDto): void => {
     Alert.alert(
       t('marketplace.confirm_title'),
       t('marketplace.confirm_desc', {
@@ -142,11 +142,21 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center justify-between bg-transparent px-4 py-3">
+      <View className="flex-row items-center bg-transparent px-4 py-3">
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
-        <View className="flex-row items-center rounded-full bg-amber-50 px-4 py-3">
+        <View
+          className="absolute left-0 right-0 items-center"
+          pointerEvents="none"
+        >
+          <Text className="text-xl font-bold text-gray-900">
+            {t('marketplace.title')}
+          </Text>
+        </View>
+      </View>
+      <View className="self-end">
+        <View className="w-fit flex-row items-center rounded-full bg-amber-50 px-4 py-3">
           <Ionicons name="star" size={20} color="#F59E0B" />
           <Text className="ml-2 text-sm font-semibold text-amber-700">
             {t('marketplace.your_points', {

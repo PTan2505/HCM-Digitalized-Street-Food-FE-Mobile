@@ -22,6 +22,7 @@ import type {
   RestaurantCampaign,
   SystemCampaign,
   UserQuestProgress,
+  VendorCampaignBranch,
 } from '../types/generated';
 
 import { orvalMutator } from '../../../lib/api/orvalMutator';
@@ -149,6 +150,32 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
     });
   };
 
+  /**
+   * Returns all branches participating in any vendor-created campaign, sorted by score.
+   * Anonymous endpoint — no auth required.
+   * @summary List branches in any active vendor campaign
+   */
+  const getVendorCampaignBranches = (params?: {
+    pageNumber?: number;
+    pageSize?: number;
+    lat?: number | null;
+    lng?: number | null;
+  }) => {
+    return orvalMutator<{
+      currentPage: number;
+      pageSize: number;
+      totalPages: number;
+      totalCount: number;
+      hasPrevious: boolean;
+      hasNext: boolean;
+      items: VendorCampaignBranch[];
+    }>({
+      url: `/api/Campaign/vendor/branches`,
+      method: 'GET',
+      params,
+    });
+  };
+
   return {
     getSystemCampaigns,
     joinSystemCampaign,
@@ -158,6 +185,7 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
     getPublicQuests,
     getCampaignQuestProgress,
     enrollInQuest,
+    getVendorCampaignBranches,
   };
 };
 export type GetSystemCampaignsResult = NonNullable<

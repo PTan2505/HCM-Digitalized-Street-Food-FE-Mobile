@@ -23,6 +23,7 @@
   "search_placeholder": "Search restaurants, coffee...",
   "what_want_eat": "What Do You Want To Eat?",
   "places_might_like": "Stall Might You Like",
+  "discount_branches_title": "Now On Promotion",
   "from": "From",
   "to": "To",
   "filter": "Filter",
@@ -520,5 +521,9 @@
     "quest": "Quests",
     "voucher_market": "Voucher Market",
     "personal_cart": "Cart"
+  },
+  "voucher": {
+    "discount": "Discount",
+    "min_order": "Minimum order"
   }
 }

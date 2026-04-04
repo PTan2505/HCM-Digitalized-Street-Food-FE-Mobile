@@ -1,7 +1,7 @@
-import type { MarketplaceVoucherDto } from '@features/campaigns/api/voucherApi';
+import type { VoucherDto } from '@features/campaigns/api/voucherApi';
 import { useAppSelector } from '@hooks/reduxHooks';
-import { selectUser } from '@slices/auth';
 import { axiosApi } from '@lib/api/apiInstance';
+import { selectUser } from '@slices/auth';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,7 +17,7 @@ export const useVoucherMarketplace = () => {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
 
-  const [vouchers, setVouchers] = useState<MarketplaceVoucherDto[]>([]);
+  const [vouchers, setVouchers] = useState<VoucherDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [redeemState, setRedeemState] = useState<RedeemState>({

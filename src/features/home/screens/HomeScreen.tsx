@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
+import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
+import type { ActiveBranch } from '@features/home/types/branch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -51,6 +53,7 @@ import CategoryCard from '../components/common/CategoryCard';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
 import { QuickActionGrid } from '../components/home/QuickActionGrid';
+import { VendorCampaignPlaceCard } from '../components/home/VendorCampaignPlaceCard';
 import { getHomeQuickActions } from '../config/homeQuickActions';
 
 export const HomeScreen = (): JSX.Element => {
@@ -70,6 +73,8 @@ export const HomeScreen = (): JSX.Element => {
   const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSystemCampaigns();
   const { restaurantCampaigns } = useRestaurantCampaigns(userCoords);
+  const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
+    useVendorCampaignBranches(userCoords);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -198,6 +203,51 @@ export const HomeScreen = (): JSX.Element => {
     [dispatch]
   );
 
+  const vendorCampaignVouchersByBranchId = useMemo(() => {
+    const map: Record<
+      number,
+      Array<{ voucherId: number; discountValue: number; type: string }>
+    > = {};
+    vendorCampaignBranches.forEach((b) => {
+      const vouchers = b.campaigns.flatMap((c) => c.vouchers);
+      if (vouchers.length > 0) map[b.branchId] = vouchers;
+    });
+    return map;
+  }, [vendorCampaignBranches]);
+
+  const vendorCampaignActiveBranches = useMemo<ActiveBranch[]>(
+    () =>
+      vendorCampaignBranches.map((b) => ({
+        branchId: b.branchId,
+        vendorId: b.vendorId,
+        vendorName: b.vendorName ?? b.name,
+        managerId: b.managerId ?? 0,
+        name: b.name,
+        phoneNumber: b.phoneNumber,
+        email: b.email,
+        addressDetail: b.addressDetail,
+        ward: b.ward,
+        city: b.city,
+        lat: b.lat,
+        long: b.long,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt ?? null,
+        isVerified: b.isVerified,
+        avgRating: b.avgRating,
+        totalReviewCount: b.totalReviewCount,
+        totalRatingSum: 0,
+        isActive: b.isActive,
+        isSubscribed: false,
+        tierId: b.tierId,
+        tierName: b.tierName,
+        finalScore: b.finalScore,
+        distanceKm: b.distanceKm ?? null,
+        dietaryPreferenceNames: [],
+        dishes: [],
+      })),
+    [vendorCampaignBranches]
+  );
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     // Don't reset isPulling here - let refreshing take over seamlessly
@@ -301,13 +351,88 @@ export const HomeScreen = (): JSX.Element => {
           )}
         </View>
 
+        {vendorCampaignActiveBranches.length > 0 && (
+          <>
+            <TouchableOpacity
+              className="flex-row items-center gap-2 px-4 py-2"
+              activeOpacity={0.7}
+              onPress={() =>
+                navigation.navigate('ListBranch', {
+                  items: vendorCampaignActiveBranches,
+                  title: t('discount_branches_title'),
+                })
+              }
+            >
+              <Title>{t('discount_branches_title')}</Title>
+              <Ionicons
+                name="chevron-forward-circle"
+                size={20}
+                color="#89D151"
+              />
+            </TouchableOpacity>
+            <View className="px-4">
+              {Array.from({
+                length: Math.ceil(vendorCampaignActiveBranches.length / 2),
+              }).map((_, rowIndex) => {
+                const left = vendorCampaignActiveBranches[rowIndex * 2];
+                const right = vendorCampaignActiveBranches[rowIndex * 2 + 1];
+                return (
+                  <View
+                    key={rowIndex}
+                    className="mb-3 flex-row justify-between"
+                  >
+                    <View className="w-[49%]">
+                      <VendorCampaignPlaceCard
+                        branch={left}
+                        imageUri={vendorCampaignImageMap[left.branchId]}
+                        userCoords={userCoords}
+                        vouchers={
+                          vendorCampaignVouchersByBranchId[left.branchId]
+                        }
+                        onRatingUpdate={(avgRating, totalReviewCount) =>
+                          handleRatingUpdate(
+                            left.branchId,
+                            avgRating,
+                            totalReviewCount
+                          )
+                        }
+                      />
+                    </View>
+                    {right ? (
+                      <View className="w-[49%]">
+                        <VendorCampaignPlaceCard
+                          branch={right}
+                          imageUri={vendorCampaignImageMap[right.branchId]}
+                          userCoords={userCoords}
+                          vouchers={
+                            vendorCampaignVouchersByBranchId[right.branchId]
+                          }
+                          onRatingUpdate={(avgRating, totalReviewCount) =>
+                            handleRatingUpdate(
+                              right.branchId,
+                              avgRating,
+                              totalReviewCount
+                            )
+                          }
+                        />
+                      </View>
+                    ) : (
+                      <View className="w-[49%]" />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        )}
+
         <TouchableOpacity
-          className="flex-row items-center justify-between px-4 py-2"
+          className="flex-row items-center gap-2 px-4 py-2"
           activeOpacity={0.7}
           onPress={() => navigation.navigate('ListBranch', {})}
         >
           <Title>{t('places_might_like')}</Title>
-          <Ionicons name="chevron-forward-circle" size={24} color="#89D151" />
+          <Ionicons name="chevron-forward-circle" size={20} color="#89D151" />
         </TouchableOpacity>
       </LinearGradient>
     ),
@@ -316,11 +441,16 @@ export const HomeScreen = (): JSX.Element => {
       categories,
       categoriesLoading,
       systemCampaigns,
+      vendorCampaignActiveBranches,
+      vendorCampaignImageMap,
+      vendorCampaignVouchersByBranchId,
       handleCampaignPress,
+      handleRatingUpdate,
       handleSearchBarLayout,
       insets.top,
       refreshing,
       t,
+      userCoords,
     ]
   );
 

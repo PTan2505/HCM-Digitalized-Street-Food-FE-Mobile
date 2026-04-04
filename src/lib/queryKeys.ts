@@ -61,6 +61,8 @@ export const queryKeys = {
       ['campaigns', 'restaurant', { lat, lng }] as const,
     nearby: (lat: number, lng: number) =>
       ['campaigns', 'nearby', { lat, lng }] as const,
+    vendorBranches: (lat?: number | null, lng?: number | null) =>
+      ['campaigns', 'vendorBranches', { lat, lng }] as const,
   },
 
   quests: {
