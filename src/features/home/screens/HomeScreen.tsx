@@ -72,7 +72,7 @@ export const HomeScreen = (): JSX.Element => {
   const { coords: userCoords } = useLocationPermission();
   const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSystemCampaigns();
-  const { restaurantCampaigns } = useRestaurantCampaigns(userCoords);
+  useRestaurantCampaigns(userCoords);
   const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
     useVendorCampaignBranches(userCoords);
   const [refreshing, setRefreshing] = useState(false);

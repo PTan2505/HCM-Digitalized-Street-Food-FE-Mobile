@@ -17,7 +17,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const DietaryPreferencesScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
-  const [aiDisclaimerChecked, setAiDisclaimerChecked] = useState(false);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const dietaryOptions = useAppSelector(selectDietaryPreferences);
   const isSubmitting = dietaryStatus === 'pending';

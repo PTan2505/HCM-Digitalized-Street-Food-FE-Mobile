@@ -1,12 +1,18 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { VoucherDto } from '@features/campaigns/api/voucherApi';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { VendorTier } from '@features/home/types/stall';
 import type { UserCoords } from '@features/maps/hooks/useLocationPermission';
 import type { JSX } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+
+export interface VoucherChip {
+  voucherId: number;
+  discountValue: number;
+  type: string;
+  minAmountRequired?: number | null;
+}
 
 const TIER_COLORS: Record<VendorTier, string> = {
   diamond: '#60A5FA',
@@ -32,7 +38,7 @@ interface PlaceCardProps {
   isFlashBoosted?: boolean;
   /** undefined = don't show badge (e.g. not yet fetched) */
   isOpen?: boolean;
-  vouchers?: VoucherDto[];
+  vouchers?: VoucherChip[];
 }
 
 const formatVoucherDiscount = (discountValue: number, type: string): string => {
@@ -195,7 +201,7 @@ export const PlaceCard = ({
                     color="#fff"
                   />
                 </View>
-                <View className="gap-2 px-2 py-1.5">
+                <View className="h-11 justify-center gap-2 px-2 py-1.5">
                   <Text className="text-[9px] font-bold text-[#EE6612]">
                     {t('voucher.discount')}{' '}
                     {formatVoucherDiscount(item.discountValue, item.type)}
