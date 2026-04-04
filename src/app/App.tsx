@@ -1,6 +1,6 @@
 import { CustomTheme } from '@app/navigation/customNavigationTheme';
 import { Navigation } from '@app/navigation/stackNavigator';
-import { AppProvider } from '@app/provider';
+import { AppProvider, AppSplashGate } from '@app/provider';
 import {
   Nunito_300Light,
   Nunito_400Regular,
@@ -13,7 +13,6 @@ import {
 import '@utils/i18n';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 setGlobalStyles();
@@ -28,18 +27,12 @@ export default function App(): ReactNode {
     'Nunito-ExtraBold': Nunito_800ExtraBold,
   });
 
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProvider>
-        <Navigation theme={CustomTheme} />
+        <AppSplashGate fontsLoaded={fontsLoaded ?? false}>
+          <Navigation theme={CustomTheme} />
+        </AppSplashGate>
       </AppProvider>
     </GestureHandlerRootView>
   );

@@ -19,32 +19,44 @@ export default {
     },
   },
   plugins: [
-    function ({ addComponents }) {
+    function ({ addComponents, addUtilities }) {
+      // React Native cannot auto-select font weight variants from a single fontFamily.
+      // fontWeight: '700' + fontFamily: 'Nunito' stays Regular.
+      // Override Tailwind's weight utilities to set the correct named font file instead.
+      addUtilities({
+        '.font-light': { fontFamily: 'Nunito-Light' },
+        '.font-normal': { fontFamily: 'Nunito' },
+        '.font-medium': { fontFamily: 'Nunito-Medium' },
+        '.font-semibold': { fontFamily: 'Nunito-SemiBold' },
+        '.font-bold': { fontFamily: 'Nunito-Bold' },
+        '.font-extrabold': { fontFamily: 'Nunito-ExtraBold' },
+      });
+
       addComponents({
         '.title-xl': {
           fontSize: '32px',
           lineHeight: '40px',
-          fontWeight: '700',
+          fontFamily: 'Nunito-Bold',
         },
         '.title-lg': {
           fontSize: '24px',
           lineHeight: '32px',
-          fontWeight: '700',
+          fontFamily: 'Nunito-Bold',
         },
         '.title-md': {
           fontSize: '20px',
           lineHeight: '28px',
-          fontWeight: '600',
+          fontFamily: 'Nunito-SemiBold',
         },
         '.title-sm': {
           fontSize: '18px',
           lineHeight: '24px',
-          fontWeight: '600',
+          fontFamily: 'Nunito-SemiBold',
         },
         '.title-xs': {
           fontSize: '16px',
           lineHeight: '22px',
-          fontWeight: '600',
+          fontFamily: 'Nunito-SemiBold',
         },
       });
     },
