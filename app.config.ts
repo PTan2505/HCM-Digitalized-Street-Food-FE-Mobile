@@ -1,4 +1,4 @@
-import type { ExpoConfig, ConfigContext } from 'expo/config';
+import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -27,7 +27,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSLocationAlwaysAndWhenInUseUsageDescription:
         'Allow Lowca to access your location to show nearby street food vendors.',
       NSCameraUsageDescription: 'Allow Lowca to access your camera.',
-      NSPhotoLibraryUsageDescription: 'Allow Lowca to access your photo library.',
+      NSPhotoLibraryUsageDescription:
+        'Allow Lowca to access your photo library.',
       ITSAppUsesNonExemptEncryption: false,
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: true,

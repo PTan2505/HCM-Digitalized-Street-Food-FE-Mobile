@@ -1,4 +1,5 @@
 import { store } from '@app/store';
+import { getLowcaAPIUnimplementedEndpoints } from '@features/campaigns/api/generated';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { NotificationHandler } from '@features/notifications/NotificationHandler';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -23,6 +24,8 @@ import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
 import LottieSplashScreen from '../screens/LottieSplashScreen';
+
+const campaignApi = getLowcaAPIUnimplementedEndpoints();
 
 function AppInitializer({
   children,
@@ -80,7 +83,7 @@ export function AppSplashGate({
         `[SplashGate] ⚠️ 15s timeout fired — Lottie onAnimationFinish never called. Elapsed: ${Date.now() - startTime}ms`
       );
       setAnimationFinished(true);
-    }, 15000);
+    }, 8000);
     return () => {
       if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
     };
@@ -110,6 +113,68 @@ export function AppSplashGate({
   useEffect(() => {
     void dispatch(fetchUnreadCount());
   }, [dispatch]);
+
+  // Prefetch public system campaigns for the initial campaign feed.
+  useEffect(() => {
+    void queryClientInstance.prefetchInfiniteQuery({
+      queryKey: queryKeys.campaigns.system,
+      queryFn: async ({ pageParam }) => {
+        return await campaignApi.getRestaurantCampaigns({
+          isSystem: true,
+          page: pageParam,
+          pageSize: 10,
+        });
+      },
+      initialPageParam: 1,
+      staleTime: 5 * 60 * 1000,
+    });
+  }, [queryClientInstance]);
+
+  // Prefetch vendor campaign branches; uses location when available and
+  // gracefully falls back to non-location ranking when coords are unavailable.
+  const vendorCampaignLat = coords?.latitude ?? null;
+  const vendorCampaignLng = coords?.longitude ?? null;
+  useEffect(() => {
+    void queryClientInstance.prefetchQuery({
+      queryKey: queryKeys.campaigns.vendorBranches(
+        vendorCampaignLat,
+        vendorCampaignLng
+      ),
+      queryFn: async () => {
+        const result = await campaignApi.getVendorCampaignBranches({
+          pageNumber: 1,
+          pageSize: 10,
+          lat: vendorCampaignLat,
+          lng: vendorCampaignLng,
+        });
+
+        const items = result?.items ?? [];
+        const imageResults = await Promise.all(
+          items.map((branch) =>
+            axiosApi.branchApi
+              .getBranchImages(branch.branchId, 1, 1)
+              .then((res) => ({
+                branchId: branch.branchId,
+                imageUrl: res.items[0]?.imageUrl ?? null,
+              }))
+              .catch(() => ({ branchId: branch.branchId, imageUrl: null }))
+          )
+        );
+
+        const imageMap: Record<number, string> = Object.fromEntries(
+          imageResults
+            .filter(
+              (r): r is { branchId: number; imageUrl: string } =>
+                r.imageUrl !== null
+            )
+            .map((r) => [r.branchId, r.imageUrl])
+        );
+
+        return { items, imageMap };
+      },
+      staleTime: 5 * 60 * 1000,
+    });
+  }, [queryClientInstance, vendorCampaignLat, vendorCampaignLng]);
 
   // Dispatch the initial branch fetch.
   // Waits for auth to settle and dietary (if applicable) to load.

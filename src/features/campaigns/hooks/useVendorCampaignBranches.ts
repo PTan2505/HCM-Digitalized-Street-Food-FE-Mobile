@@ -53,6 +53,7 @@ export const useVendorCampaignBranches = (
 
       return { items, imageMap };
     },
+    staleTime: 5 * 60 * 1000,
   });
 
   return {
