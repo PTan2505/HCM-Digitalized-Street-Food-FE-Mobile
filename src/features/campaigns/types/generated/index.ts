@@ -68,6 +68,7 @@ export * from './userQuestTaskProgress';
 export * from './updateCartItemRequest';
 export * from './updatePersonalCartItemRequest';
 export * from './velocityCheckResponse';
+export * from './vendorCampaignBranch';
 export * from './vendorTierLevel';
 export * from './voteTally';
 export * from './walletBalance';

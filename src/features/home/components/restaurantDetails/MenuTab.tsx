@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import type { Dish } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import {
@@ -24,7 +25,6 @@ const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=400';
 
 interface MenuTabProps {
-  dishes: Dish[];
   branchId: number;
   isOpen: boolean;
   isSubscribed: boolean;
@@ -32,12 +32,12 @@ interface MenuTabProps {
 }
 
 const MenuTab = ({
-  dishes,
   branchId,
   isOpen,
   isSubscribed,
   displayName,
 }: MenuTabProps): JSX.Element => {
+  const { dishes } = useBranchDishes(branchId);
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
@@ -176,7 +176,7 @@ const MenuTab = ({
           >
             {dish.description}
           </Text>
-          {dish.tasteNames.length > 0 && (
+          {(dish.tasteNames?.length ?? 0) > 0 && (
             <View className="my-1 flex-row flex-wrap gap-1">
               {dish.tasteNames.map((taste) => (
                 <View

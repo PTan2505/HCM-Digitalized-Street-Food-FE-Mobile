@@ -10,7 +10,9 @@ export interface SearchBranchResult {
   lat: number;
   long: number;
   avgRating: number;
+  totalReviewCount: number;
   finalScore: number;
+  distanceKm: number | null;
   isVerified: boolean;
   isActive: boolean;
   dishes: {

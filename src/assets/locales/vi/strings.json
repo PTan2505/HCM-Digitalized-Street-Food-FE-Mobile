@@ -23,6 +23,7 @@
   "search_placeholder": "Tìm nhà hàng, quán cà phê...",
   "what_want_eat": "Bạn muốn ăn gì?",
   "places_might_like": "Những quán bạn có thể thích",
+  "discount_branches_title": "Đang có khuyến mãi",
   "from": "Từ",
   "to": "đến",
   "filter": "Bộ lọc",
@@ -513,5 +514,16 @@
   "common": {
     "ok": "OK",
     "cancel": "Hủy"
+  },
+  "home_quick_actions": {
+    "section_title": "Khám phá Lowca",
+    "ghost_pin": "Chia sẻ quán ăn mới",
+    "quest": "Thử thách",
+    "voucher_market": "Chợ Voucher",
+    "personal_cart": "Giỏ hàng"
+  },
+  "voucher": {
+    "discount": "Giảm giá",
+    "min_order": "Đơn tối thiểu"
   }
 }

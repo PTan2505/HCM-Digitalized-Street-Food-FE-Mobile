@@ -57,8 +57,8 @@ export const TicketVoucherCard = ({
         <View
           className={`relative w-[100px] items-center justify-center ${disabled ? 'bg-[#dedede]' : 'bg-[rgba(137,209,81,0.8)]'} px-1 py-2`}
         >
-          <View className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-white/90" />
-          <View className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full bg-white/90" />
+          <View className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-white" />
+          <View className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full bg-white" />
           <View className="absolute bottom-2 right-0 top-2 border-r-2 border-dashed border-white/60" />
           <Text
             className="text-[11px] font-extrabold tracking-[1.5px] text-black/95"

@@ -23,6 +23,7 @@
   "search_placeholder": "Search restaurants, coffee...",
   "what_want_eat": "What Do You Want To Eat?",
   "places_might_like": "Stall Might You Like",
+  "discount_branches_title": "Now On Promotion",
   "from": "From",
   "to": "To",
   "filter": "Filter",
@@ -513,5 +514,16 @@
   "common": {
     "ok": "OK",
     "cancel": "Cancel"
+  },
+  "home_quick_actions": {
+    "section_title": "Explore Lowca",
+    "ghost_pin": "Share New Stall",
+    "quest": "Quests",
+    "voucher_market": "Voucher Market",
+    "personal_cart": "Cart"
+  },
+  "voucher": {
+    "discount": "Discount",
+    "min_order": "Minimum order"
   }
 }

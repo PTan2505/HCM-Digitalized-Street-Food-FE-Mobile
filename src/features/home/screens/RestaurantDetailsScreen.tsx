@@ -12,6 +12,7 @@ import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import TabsBar from '@features/home/components/restaurantDetails/TabsBar';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
+import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useBranchImages } from '@features/home/hooks/useBranchImages';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
@@ -95,6 +96,7 @@ export const RestaurantDetailsScreen = ({
   );
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
+  const { dishes } = useBranchDishes(branch.branchId);
   const {
     feedbacks,
     averageRating,
@@ -293,11 +295,10 @@ export const RestaurantDetailsScreen = ({
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,
-    priceRange: getPriceRange(branch.dishes),
+    priceRange: getPriceRange(dishes),
     rating: averageRating,
     totalReviewCount: totalCount,
-    isVegetarian: false,
-    dietaryPreferenceNames: branch.dietaryPreferenceNames,
+    dietaryPreferenceNames: branch.dietaryPreferenceNames ?? [],
     address: [branch.addressDetail, branch.ward, branch.city]
       .filter(Boolean)
       .join(', '),
@@ -308,7 +309,7 @@ export const RestaurantDetailsScreen = ({
   };
 
   const reviews: Review[] = feedbacks.map((f): Review => {
-    const dishName = branch.dishes.find((d) => d.dishId === f.dishId)?.name;
+    const dishName = dishes.find((d) => d.dishId === f.dishId)?.name;
     const createdAt = new Date(f.createdAt);
     return {
       id: String(f.id),
@@ -427,7 +428,6 @@ export const RestaurantDetailsScreen = ({
 
         {activeTab === 'menu' && (
           <MenuTab
-            dishes={branch.dishes}
             branchId={branch.branchId}
             isOpen={isOpen}
             isSubscribed={branch.isSubscribed}
@@ -447,7 +447,7 @@ export const RestaurantDetailsScreen = ({
             ownFeedbackId={ownFeedback?.id}
             branchId={branch.branchId}
             displayName={displayName}
-            dishes={branch.dishes}
+            dishes={branch.dishes ?? []}
             branchLat={branch.lat}
             branchLong={branch.long}
             onWriteReview={handleOpenWriteReview}
