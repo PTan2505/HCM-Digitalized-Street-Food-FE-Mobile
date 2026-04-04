@@ -1,6 +1,5 @@
 import { store } from '@app/store';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
-import * as Location from 'expo-location';
 import { NotificationHandler } from '@features/notifications/NotificationHandler';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -19,6 +18,7 @@ import {
 } from '@slices/dietary';
 import { fetchUnreadCount } from '@slices/notifications';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import * as Location from 'expo-location';
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
