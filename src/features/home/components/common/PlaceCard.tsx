@@ -167,42 +167,49 @@ export const PlaceCard = ({
 
       {vouchers && vouchers.length > 0 && (
         <View
-          onTouchStart={(e) => { touchStartX.current = e.nativeEvent.pageX; }}
+          onTouchStart={(e) => {
+            touchStartX.current = e.nativeEvent.pageX;
+          }}
           onTouchEnd={(e) => {
             const dx = Math.abs(e.nativeEvent.pageX - touchStartX.current);
             if (dx < 8) onPress?.();
           }}
         >
-        <FlatList
-          data={vouchers}
-          keyExtractor={(v) => String(v.voucherId)}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 6, paddingTop: 0, gap: 4 }}
-          renderItem={({ item }) => (
-            <View className="flex-row items-center overflow-hidden rounded-md border border-[#EE6612]/20 bg-[#FFF8F5]">
-              <View className="items-center justify-center self-stretch bg-[#EE6612] px-1.5">
-                <MaterialCommunityIcons
-                  name="ticket-percent"
-                  size={10}
-                  color="#fff"
-                />
-              </View>
-              <View className="gap-2 px-2 py-1.5">
-                <Text className="text-[9px] font-bold text-[#EE6612]">
-                  {t('voucher.discount')}{' '}
-                  {formatVoucherDiscount(item.discountValue, item.type)}
-                </Text>
-                {!!item.minAmountRequired && (
-                  <Text className="text-[9px] text-[#EE6612]">
-                    {t('voucher.min_order')}
-                    {`${item.minAmountRequired.toLocaleString('vi-VN')}đ`}
+          <FlatList
+            data={vouchers}
+            keyExtractor={(v) => String(v.voucherId)}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 8,
+              paddingBottom: 6,
+              paddingTop: 0,
+              gap: 4,
+            }}
+            renderItem={({ item }) => (
+              <View className="flex-row items-center overflow-hidden rounded-md border border-[#EE6612]/20 bg-[#FFF8F5]">
+                <View className="items-center justify-center self-stretch bg-[#EE6612] px-1.5">
+                  <MaterialCommunityIcons
+                    name="ticket-percent"
+                    size={10}
+                    color="#fff"
+                  />
+                </View>
+                <View className="gap-2 px-2 py-1.5">
+                  <Text className="text-[9px] font-bold text-[#EE6612]">
+                    {t('voucher.discount')}{' '}
+                    {formatVoucherDiscount(item.discountValue, item.type)}
                   </Text>
-                )}
+                  {!!item.minAmountRequired && (
+                    <Text className="text-[9px] text-[#EE6612]">
+                      {t('voucher.min_order')}
+                      {`${item.minAmountRequired.toLocaleString('vi-VN')}đ`}
+                    </Text>
+                  )}
+                </View>
               </View>
-            </View>
-          )}
-        />
+            )}
+          />
         </View>
       )}
     </View>

@@ -1,4 +1,7 @@
-import { PlaceCard, type VoucherChip } from '@features/home/components/common/PlaceCard';
+import {
+  PlaceCard,
+  type VoucherChip,
+} from '@features/home/components/common/PlaceCard';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { UserCoords } from '@features/maps/hooks/useLocationPermission';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -35,9 +38,10 @@ export const VendorCampaignPlaceCard = ({
   const displayNameFromId = useBranchDisplayName(branch.branchId);
 
   // Fallback: find vendorName by vendorId from any Redux branch of the same vendor
-  const vendorNameFromRedux = useAppSelector((state) =>
-    state.branches.branches.find((b) => b.vendorId === branch.vendorId)
-      ?.vendorName
+  const vendorNameFromRedux = useAppSelector(
+    (state) =>
+      state.branches.branches.find((b) => b.vendorId === branch.vendorId)
+        ?.vendorName
   );
   const isMultiBranch = useAppSelector((state) =>
     selectIsMultiBranchVendor(state, branch.vendorId)

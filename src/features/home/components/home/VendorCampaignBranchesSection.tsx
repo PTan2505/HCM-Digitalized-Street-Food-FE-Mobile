@@ -4,13 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import Title from '../common/Title';
 
 interface BranchCardProps {
@@ -19,7 +13,11 @@ interface BranchCardProps {
   onPress: () => void;
 }
 
-const BranchCard = ({ branch, imageUri, onPress }: BranchCardProps): JSX.Element => {
+const BranchCard = ({
+  branch,
+  imageUri,
+  onPress,
+}: BranchCardProps): JSX.Element => {
   const { t } = useTranslation();
 
   const distanceLabel =
