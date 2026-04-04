@@ -7,6 +7,7 @@ import type {
   PaginatedBranches,
   PaginatedDishes,
   PaginatedMyGhostPinBranches,
+  PaginatedSimilarBranches,
   WorkSchedule,
 } from '@features/home/types/branch';
 
@@ -83,6 +84,18 @@ export class BranchApi {
   async getMyGhostPins(): Promise<PaginatedMyGhostPinBranches> {
     const res = await this.apiClient.get<PaginatedMyGhostPinBranches>({
       url: apiUrl.branch.myGhostPins,
+    });
+    return res.data;
+  }
+
+  async getSimilarBranches(
+    branchId: number,
+    pageNumber = 1,
+    pageSize = 5
+  ): Promise<PaginatedSimilarBranches> {
+    const res = await this.apiClient.get<PaginatedSimilarBranches>({
+      url: apiUrl.branch.similar(branchId),
+      params: { pageNumber, pageSize },
     });
     return res.data;
   }

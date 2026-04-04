@@ -139,9 +139,9 @@ const SearchResultCard = ({
             {branch.dietaryPreferenceNames.slice(0, 3).map((name) => (
               <View
                 key={name}
-                className="rounded-full bg-[#F0FAE8] px-2 py-0.5"
+                className="rounded-full bg-[#ffc8a6] px-2 py-0.5"
               >
-                <Text className="text-[10px] font-medium text-[#06AA4C]">
+                <Text className="text-[10px] font-medium text-black">
                   {name}
                 </Text>
               </View>

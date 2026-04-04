@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
+import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
 import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
+import type { ActiveBranch } from '@features/home/types/branch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -31,7 +33,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   FlatList,
+  type LayoutChangeEvent,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Platform,
@@ -47,6 +52,9 @@ import {
 import CategoryCard from '../components/common/CategoryCard';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
+import { QuickActionGrid } from '../components/home/QuickActionGrid';
+import { VendorCampaignPlaceCard } from '../components/home/VendorCampaignPlaceCard';
+import { getHomeQuickActions } from '../config/homeQuickActions';
 
 export const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
@@ -64,20 +72,32 @@ export const HomeScreen = (): JSX.Element => {
   const { coords: userCoords } = useLocationPermission();
   const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSystemCampaigns();
-  const { restaurantCampaigns } = useRestaurantCampaigns(userCoords);
+  useRestaurantCampaigns(userCoords);
+  const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
+    useVendorCampaignBranches(userCoords);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   // Track pulling state in ref to prevent unnecessary re-renders
   const isPullingRef = useRef(false);
+  // Y offset of the SearchBar within the scroll content (set via onLayout)
+  const searchBarOffsetRef = useRef(100);
+  const showStickyBarRef = useRef(false);
+  const stickyAnim = useRef(new Animated.Value(0)).current;
+
+  const handleSearchBarLayout = useCallback((e: LayoutChangeEvent) => {
+    searchBarOffsetRef.current = e.nativeEvent.layout.y;
+  }, []);
 
   // Detect pull-to-refresh gesture for immediate spinner feedback.
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const { contentOffset } = e.nativeEvent;
-      const shouldBePulling = contentOffset.y < -50 && !refreshing;
+      const y = contentOffset.y;
+      const shouldBePulling = y < -50 && !refreshing;
 
       if (shouldBePulling && !isPullingRef.current) {
         isPullingRef.current = true;
@@ -85,15 +105,33 @@ export const HomeScreen = (): JSX.Element => {
       } else if (
         !shouldBePulling &&
         isPullingRef.current &&
-        contentOffset.y >= -10 &&
+        y >= -10 &&
         !refreshing
       ) {
         isPullingRef.current = false;
         setIsPulling(false);
       }
+
+      // Sticky SearchBar: show when the in-list SearchBar scrolls out of view
+      const shouldShow = y > searchBarOffsetRef.current;
+      if (shouldShow !== showStickyBarRef.current) {
+        showStickyBarRef.current = shouldShow;
+        setShowStickyBar(shouldShow);
+      }
     },
     [refreshing]
   );
+
+  useEffect(() => {
+    Animated.timing(stickyAnim, {
+      toValue: showStickyBar ? 1 : 0,
+      duration: 220,
+      easing: showStickyBar
+        ? Easing.out(Easing.cubic)
+        : Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [showStickyBar, stickyAnim]);
 
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
@@ -165,6 +203,51 @@ export const HomeScreen = (): JSX.Element => {
     [dispatch]
   );
 
+  const vendorCampaignVouchersByBranchId = useMemo(() => {
+    const map: Record<
+      number,
+      Array<{ voucherId: number; discountValue: number; type: string }>
+    > = {};
+    vendorCampaignBranches.forEach((b) => {
+      const vouchers = b.campaigns.flatMap((c) => c.vouchers);
+      if (vouchers.length > 0) map[b.branchId] = vouchers;
+    });
+    return map;
+  }, [vendorCampaignBranches]);
+
+  const vendorCampaignActiveBranches = useMemo<ActiveBranch[]>(
+    () =>
+      vendorCampaignBranches.map((b) => ({
+        branchId: b.branchId,
+        vendorId: b.vendorId,
+        vendorName: b.vendorName ?? b.name,
+        managerId: b.managerId ?? 0,
+        name: b.name,
+        phoneNumber: b.phoneNumber,
+        email: b.email,
+        addressDetail: b.addressDetail,
+        ward: b.ward,
+        city: b.city,
+        lat: b.lat,
+        long: b.long,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt ?? null,
+        isVerified: b.isVerified,
+        avgRating: b.avgRating,
+        totalReviewCount: b.totalReviewCount,
+        totalRatingSum: 0,
+        isActive: b.isActive,
+        isSubscribed: false,
+        tierId: b.tierId,
+        tierName: b.tierName,
+        finalScore: b.finalScore,
+        distanceKm: b.distanceKm ?? null,
+        dietaryPreferenceNames: [],
+        dishes: [],
+      })),
+    [vendorCampaignBranches]
+  );
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     // Don't reset isPulling here - let refreshing take over seamlessly
@@ -207,12 +290,14 @@ export const HomeScreen = (): JSX.Element => {
       >
         <HomeHeader />
 
-        <SearchBar
-          onPress={() => navigation.navigate('Search', { autoFocus: true })}
-          onFilterPress={() =>
-            navigation.navigate('Search', { openFilter: true })
-          }
-        />
+        <View onLayout={handleSearchBarLayout}>
+          <SearchBar
+            onPress={() => navigation.navigate('Search', { autoFocus: true })}
+            onFilterPress={() =>
+              navigation.navigate('Search', { openFilter: true })
+            }
+          />
+        </View>
         <BannerCarousel
           items={systemCampaigns}
           onCampaignPress={handleCampaignPress}
@@ -221,6 +306,11 @@ export const HomeScreen = (): JSX.Element => {
           }}
           hasMore={hasNextPage}
         />
+
+        <View className="px-4 py-2">
+          <Title>{t('home_quick_actions.section_title')}</Title>
+        </View>
+        <QuickActionGrid actions={getHomeQuickActions(t, navigation)} />
 
         <View className="px-4 py-2">
           <Title>{t('what_want_eat')}</Title>
@@ -261,35 +351,88 @@ export const HomeScreen = (): JSX.Element => {
           )}
         </View>
 
-        {/* Ghost Pin creation entry point */}
-        <View className="px-4 pt-4">
-          <TouchableOpacity
-            onPress={() => navigation.navigate('GhostPinCreation')}
-            className="flex-row items-center rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm"
-            activeOpacity={0.7}
-          >
-            <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#a1d973]/15">
-              <Ionicons name="add-circle-outline" size={22} color="#a1d973" />
+        {vendorCampaignActiveBranches.length > 0 && (
+          <>
+            <TouchableOpacity
+              className="flex-row items-center gap-2 px-4 py-2"
+              activeOpacity={0.7}
+              onPress={() =>
+                navigation.navigate('ListBranch', {
+                  items: vendorCampaignActiveBranches,
+                  title: t('discount_branches_title'),
+                })
+              }
+            >
+              <Title>{t('discount_branches_title')}</Title>
+              <Ionicons
+                name="chevron-forward-circle"
+                size={20}
+                color="#89D151"
+              />
+            </TouchableOpacity>
+            <View className="px-4">
+              {Array.from({
+                length: Math.ceil(vendorCampaignActiveBranches.length / 2),
+              }).map((_, rowIndex) => {
+                const left = vendorCampaignActiveBranches[rowIndex * 2];
+                const right = vendorCampaignActiveBranches[rowIndex * 2 + 1];
+                return (
+                  <View
+                    key={rowIndex}
+                    className="mb-3 flex-row justify-between"
+                  >
+                    <View className="w-[49%]">
+                      <VendorCampaignPlaceCard
+                        branch={left}
+                        imageUri={vendorCampaignImageMap[left.branchId]}
+                        userCoords={userCoords}
+                        vouchers={
+                          vendorCampaignVouchersByBranchId[left.branchId]
+                        }
+                        onRatingUpdate={(avgRating, totalReviewCount) =>
+                          handleRatingUpdate(
+                            left.branchId,
+                            avgRating,
+                            totalReviewCount
+                          )
+                        }
+                      />
+                    </View>
+                    {right ? (
+                      <View className="w-[49%]">
+                        <VendorCampaignPlaceCard
+                          branch={right}
+                          imageUri={vendorCampaignImageMap[right.branchId]}
+                          userCoords={userCoords}
+                          vouchers={
+                            vendorCampaignVouchersByBranchId[right.branchId]
+                          }
+                          onRatingUpdate={(avgRating, totalReviewCount) =>
+                            handleRatingUpdate(
+                              right.branchId,
+                              avgRating,
+                              totalReviewCount
+                            )
+                          }
+                        />
+                      </View>
+                    ) : (
+                      <View className="w-[49%]" />
+                    )}
+                  </View>
+                );
+              })}
             </View>
-            <View className="flex-1">
-              <Text className="text-sm font-bold text-gray-800">
-                Thêm quán ăn mới
-              </Text>
-              <Text className="text-xs text-gray-500">
-                Ghim quán ăn đường phố chưa có trên bản đồ
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
+          </>
+        )}
 
         <TouchableOpacity
-          className="flex-row items-center justify-between px-4 pb-2 pt-6"
+          className="flex-row items-center gap-2 px-4 py-2"
           activeOpacity={0.7}
           onPress={() => navigation.navigate('ListBranch', {})}
         >
           <Title>{t('places_might_like')}</Title>
-          <Ionicons name="chevron-forward-circle" size={24} color="#89D151" />
+          <Ionicons name="chevron-forward-circle" size={20} color="#89D151" />
         </TouchableOpacity>
       </LinearGradient>
     ),
@@ -298,10 +441,16 @@ export const HomeScreen = (): JSX.Element => {
       categories,
       categoriesLoading,
       systemCampaigns,
+      vendorCampaignActiveBranches,
+      vendorCampaignImageMap,
+      vendorCampaignVouchersByBranchId,
       handleCampaignPress,
+      handleRatingUpdate,
+      handleSearchBarLayout,
       insets.top,
       refreshing,
       t,
+      userCoords,
     ]
   );
 
@@ -456,6 +605,56 @@ export const HomeScreen = (): JSX.Element => {
           )}
         </View>
       )}
+      {/* Sticky SearchBar — appears when the in-list bar scrolls out of view */}
+      <Animated.View
+        pointerEvents={showStickyBar ? 'auto' : 'none'}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          elevation: 100,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 4,
+          opacity: stickyAnim,
+          transform: [
+            {
+              translateY: stickyAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-12, 0],
+              }),
+            },
+          ],
+        }}
+      >
+        <LinearGradient
+          colors={['#B8E986', '#FFFFFF']}
+          style={{ paddingTop: insets.top, paddingBottom: 4 }}
+        >
+          <SearchBar
+            onPress={() => navigation.navigate('Search', { autoFocus: true })}
+            onFilterPress={() =>
+              navigation.navigate('Search', { openFilter: true })
+            }
+          />
+        </LinearGradient>
+        {/* Soft fade-out — multi-stop cubic curve for a natural blend */}
+        <LinearGradient
+          colors={[
+            'rgba(255,255,255,1)',
+            'rgba(255,255,255,0.7)',
+            'rgba(255,255,255,0.3)',
+            'rgba(255,255,255,0.05)',
+            'rgba(255,255,255,0)',
+          ]}
+          locations={[0, 0.3, 0.6, 0.85, 1]}
+          style={{ height: 32 }}
+          pointerEvents="none"
+        />
+      </Animated.View>
     </SafeAreaView>
   );
 };

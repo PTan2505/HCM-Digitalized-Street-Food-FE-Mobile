@@ -20,7 +20,7 @@ export interface UserVoucherApiDto {
   isAvailable: boolean;
 }
 
-export interface MarketplaceVoucherDto {
+export interface VoucherDto {
   voucherId: number;
   name: string;
   description: string | null;
@@ -52,8 +52,8 @@ export class VoucherApi {
     return res.data;
   }
 
-  async getMarketplaceVouchers(): Promise<MarketplaceVoucherDto[]> {
-    const res = await this.apiClient.get<MarketplaceVoucherDto[]>({
+  async getMarketplaceVouchers(): Promise<VoucherDto[]> {
+    const res = await this.apiClient.get<VoucherDto[]>({
       url: apiUrl.voucher.marketplace,
     });
     return res.data;

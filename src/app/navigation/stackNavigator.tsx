@@ -106,6 +106,7 @@ const RootStack = createNativeStackNavigator({
     },
     ListBranch: {
       screen: ListBranchScreen,
+      params: {} as { items?: ActiveBranch[]; title?: string },
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
