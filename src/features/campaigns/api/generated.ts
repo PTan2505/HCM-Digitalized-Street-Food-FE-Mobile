@@ -16,7 +16,7 @@ The `data` field contains the schema documented per endpoint.
 import type {
   CreateRestaurantCampaignRequest,
   GetNearbyCampaignsParams,
-  GetRestaurantCampaignsParams,
+  GetPublicCampaignsParams,
   NearbyCampaign,
   QuestResponse,
   RestaurantCampaign,
@@ -64,7 +64,7 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
    * Returns active voucher campaigns from verified vendors near the user (or all if no location provided).
    * @summary List available restaurant (vendor) voucher campaigns
    */
-  const getRestaurantCampaigns = (params?: GetRestaurantCampaignsParams) => {
+  const getPublicCampaigns = (params?: GetPublicCampaignsParams) => {
     return orvalMutator<{
       currentPage: number;
       pageSize: number;
@@ -179,7 +179,7 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
   return {
     getSystemCampaigns,
     joinSystemCampaign,
-    getRestaurantCampaigns,
+    getPublicCampaigns,
     createRestaurantCampaign,
     getNearbyCampaigns,
     getPublicQuests,
@@ -202,12 +202,10 @@ export type JoinSystemCampaignResult = NonNullable<
     >
   >
 >;
-export type GetRestaurantCampaignsResult = NonNullable<
+export type GetPublicCampaignsResult = NonNullable<
   Awaited<
     ReturnType<
-      ReturnType<
-        typeof getLowcaAPIUnimplementedEndpoints
-      >['getRestaurantCampaigns']
+      ReturnType<typeof getLowcaAPIUnimplementedEndpoints>['getPublicCampaigns']
     >
   >
 >;

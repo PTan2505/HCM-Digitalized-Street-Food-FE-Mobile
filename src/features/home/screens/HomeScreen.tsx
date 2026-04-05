@@ -75,7 +75,7 @@ export const HomeScreen = (): JSX.Element => {
     useSystemCampaigns();
   useRestaurantCampaigns(userCoords);
   const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
-    useVendorCampaignBranches(userCoords);
+    useVendorCampaignBranches(userCoords, permissionStatus);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);

@@ -102,7 +102,7 @@ export function AppSplashGate({
     void queryClientInstance.prefetchInfiniteQuery({
       queryKey: queryKeys.campaigns.system,
       queryFn: async ({ pageParam }) => {
-        return await campaignApi.getRestaurantCampaigns({
+        return await campaignApi.getPublicCampaigns({
           isSystem: true,
           page: pageParam,
           pageSize: 10,
