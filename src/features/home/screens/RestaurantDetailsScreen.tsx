@@ -193,16 +193,11 @@ export const RestaurantDetailsScreen = ({
     const address = [branch.addressDetail, branch.ward, branch.city]
       .filter(Boolean)
       .join(', ');
-    const deepLink =
-      Platform.OS === 'android'
-        ? `${process.env.EXPO_PUBLIC_WEB_URL}/restaurant/${branch.branchId}`
-        : `lowca://restaurant/${branch.branchId}`;
+    const webLink = `${process.env.EXPO_PUBLIC_WEB_URL}/restaurant/${branch.branchId}`;
     const infoText = `🍜 ${displayName}\n\n${stars} ${branch.avgRating.toFixed(1)}/5.0\n📍 ${address}`;
 
     Share.share({
-      message:
-        Platform.OS === 'android' ? `${infoText}\n\n${deepLink}` : infoText,
-      url: Platform.OS === 'ios' ? deepLink : undefined,
+      message: `${infoText}\n\n${webLink}`,
     })
       .then((result) => {
         if (result.action === Share.sharedAction) {

@@ -32,7 +32,7 @@ export * from './feedbackSubmitResponse';
 export * from './flashBoostRequest';
 export * from './flashBoostStatus';
 export * from './getNearbyCampaignsParams';
-export * from './getRestaurantCampaignsParams';
+export * from './getPublicCampaignsParams';
 export * from './ghostPin';
 export * from './ghostPinStatus';
 export * from './groupParticipant';

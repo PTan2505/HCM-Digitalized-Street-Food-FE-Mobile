@@ -1,4 +1,5 @@
 import type { RootState } from '@app/store';
+import { userLogout } from '@slices/auth';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
@@ -114,6 +115,9 @@ export const dietarySlice = createSlice({
       .addCase(getUserDietaryPreferences.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
+      })
+      .addCase(userLogout.fulfilled, () => {
+        return initialState;
       });
   },
 });
