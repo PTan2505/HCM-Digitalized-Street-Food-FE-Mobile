@@ -3,11 +3,13 @@ import type { VendorCampaignBranch } from '@features/campaigns/types/generated';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import { useQuery } from '@tanstack/react-query';
+import * as Location from 'expo-location';
 
 const campaignApi = getLowcaAPIUnimplementedEndpoints();
 
 export const useVendorCampaignBranches = (
-  coords?: { latitude: number; longitude: number } | null
+  coords?: { latitude: number; longitude: number } | null,
+  permissionStatus?: Location.PermissionStatus
 ): {
   branches: VendorCampaignBranch[];
   imageMap: Record<number, string>;
@@ -18,8 +20,16 @@ export const useVendorCampaignBranches = (
   const lat = coords?.latitude ?? null;
   const lng = coords?.longitude ?? null;
 
+  // Don't fetch until permission is settled — if still UNDETERMINED the user
+  // may be about to grant location, and we'd get a worse (no-location) result.
+  // Once GRANTED or DENIED the query fires; DENIED fetches with lat/lng null.
+  const enabled =
+    permissionStatus === undefined ||
+    permissionStatus !== Location.PermissionStatus.UNDETERMINED;
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.campaigns.vendorBranches(lat, lng),
+    enabled,
     queryFn: async () => {
       const result = await campaignApi.getVendorCampaignBranches({
         pageNumber: 1,

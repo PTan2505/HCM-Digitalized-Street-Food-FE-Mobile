@@ -7,6 +7,7 @@ import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/home/types/branch';
+import * as Location from 'expo-location';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -69,12 +70,12 @@ export const HomeScreen = (): JSX.Element => {
   const branchesStatus = useAppSelector(selectBranchesStatus);
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
-  const { coords: userCoords } = useLocationPermission();
+  const { coords: userCoords, permissionStatus } = useLocationPermission();
   const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useSystemCampaigns();
   useRestaurantCampaigns(userCoords);
   const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
-    useVendorCampaignBranches(userCoords);
+    useVendorCampaignBranches(userCoords, permissionStatus);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -139,13 +140,19 @@ export const HomeScreen = (): JSX.Element => {
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    // AppSplashGate already dispatched the initial fetch during the splash screen.
-    // Skip if branches are no longer idle to avoid overwriting the preloaded data.
     if (branchesStatus !== 'idle') return;
-    if (!userCoords) return;
+    // Wait for location permission to settle before fetching.
+    // UNDETERMINED: dialog not yet answered; GRANTED+no coords: still resolving.
+    // If DENIED, proceed immediately without coordinates.
+    if (permissionStatus === Location.PermissionStatus.UNDETERMINED) return;
+    if (
+      permissionStatus === Location.PermissionStatus.GRANTED &&
+      userCoords === null
+    )
+      return;
     // If the user completed dietary setup, wait until prefs are loaded.
     // This prevents dispatching a fetch without DietaryIds that could complete
-    // *after* the dietary-enriched fetch and overwrite the empty result.
+    // *after* the dietary-enriched fetch and overwrite the result.
     if (
       user?.dietarySetup &&
       dietaryStatus !== 'succeeded' &&
@@ -159,14 +166,15 @@ export const HomeScreen = (): JSX.Element => {
     void dispatch(
       fetchActiveBranches({
         page: 1,
-        lat: userCoords.latitude,
-        lng: userCoords.longitude,
-        distance: 5,
+        lat: userCoords?.latitude,
+        lng: userCoords?.longitude,
+        distance: userCoords ? 5 : undefined,
         dietaryIds,
       })
     );
   }, [
     branchesStatus,
+    permissionStatus,
     userCoords,
     user?.dietarySetup,
     dietaryStatus,

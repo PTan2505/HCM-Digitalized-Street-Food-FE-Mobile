@@ -24,7 +24,7 @@ export const useRestaurantCampaigns = (
       coords?.longitude
     ),
     queryFn: async () => {
-      const data = await campaignApi.getRestaurantCampaigns({
+      const data = await campaignApi.getPublicCampaigns({
         isSystem: false,
         ...(coords ? { lat: coords.latitude, lng: coords.longitude } : {}),
       });
