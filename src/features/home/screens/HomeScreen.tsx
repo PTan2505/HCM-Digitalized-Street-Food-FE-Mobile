@@ -249,7 +249,7 @@ export const HomeScreen = (): JSX.Element => {
         totalReviewCount: b.totalReviewCount,
         totalRatingSum: 0,
         isActive: b.isActive,
-        isSubscribed: false,
+        isSubscribed: b.isSubscribed,
         tierId: b.tierId,
         tierName: b.tierName,
         finalScore: b.finalScore,
