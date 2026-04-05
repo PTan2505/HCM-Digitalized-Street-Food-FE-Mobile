@@ -48,5 +48,6 @@ export interface VendorCampaignBranch {
   tierName: string;
   finalScore: number;
   distanceKm?: number | null;
+  isSubscribed: boolean;
   campaigns: BranchCampaignInfo[];
 }
