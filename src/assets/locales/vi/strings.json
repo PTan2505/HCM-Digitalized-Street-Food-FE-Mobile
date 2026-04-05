@@ -254,14 +254,14 @@
     "empty_hint": "Hãy thêm món ăn từ menu",
     "clear": "Xoá giỏ hàng",
     "clear_confirm": "Bạn có chắc muốn xoá giỏ hàng?",
-    "place_order": "Đặt hàng",
+    "place_order": "Đặt món",
     "note_placeholder": "Ghi chú cho quán (ví dụ: ít cay, không hành...)",
     "note_label": "Ghi chú",
     "total": "Tổng cộng",
     "items_count": "{{count}} món",
     "stall_closed": "Đang đóng cửa",
     "stall_closed_notice": "Bạn chưa thể tạo đơn hàng nếu quán đang đóng cửa hoặc chưa cập nhật lịch làm việc.",
-    "not_subscribed_notice": "Quán này hiện chưa đăng ký dịch vụ đặt hàng trực tuyến.",
+    "not_subscribed_notice": "Quán này hiện chưa đăng ký dịch vụ đặt món trực tuyến.",
     "payment_failed": "Thanh toán không thành công hoặc đã bị huỷ. Vui lòng thử lại.",
     "cancel": "Hủy",
     "add": "Thêm",
@@ -278,14 +278,32 @@
     "bank_transfer": "Chuyển khoản",
     "viet_qr": "VietQR",
     "order_summary": "Tóm tắt đơn hàng",
-    "confirm": "Xác nhận đặt hàng",
+    "confirm": "Xác nhận đặt món",
     "confirming": "Đang xử lý...",
     "insufficient_balance": "Số dư ví không đủ — vui lòng chọn phương thức khác",
     "empty_cart": "Giỏ hàng trống",
-    "error": "Không thể đặt hàng. Vui lòng thử lại.",
+    "error": "Không thể đặt món. Vui lòng thử lại.",
     "payment_failed": "Thanh toán không thành công hoặc đã bị huỷ. Vui lòng thử lại.",
     "payment_qr_title": "Thanh toán QR",
-    "payment_qr_instruction": "Quét mã QR bằng ứng dụng ngân hàng để thanh toán đơn hàng"
+    "payment_qr_instruction": "Quét mã QR bằng ứng dụng ngân hàng để thanh toán đơn hàng",
+    "payment_qr_order_id": "Mã đơn hàng",
+    "payment_qr_share": "Chia sẻ mã QR",
+    "payment_qr_share_error": "Không thể chia sẻ mã QR. Vui lòng thử lại.",
+    "payment_qr_view_order": "Xem trạng thái đơn",
+    "voucher": "Voucher",
+    "select_voucher": "Chọn voucher",
+    "no_voucher": "Không dùng voucher",
+    "voucher_applied": "Đã áp dụng voucher",
+    "voucher_discount": "Giảm giá",
+    "voucher_final_amount": "Tổng thanh toán",
+    "voucher_min_required": "Đơn tối thiểu {{amount}}",
+    "voucher_no_min": "Không giới hạn đơn",
+    "voucher_max_discount": "Tối đa {{amount}}",
+    "voucher_expires": "HSD: {{date}}",
+    "voucher_need_more": "Cần thêm {{amount}} để áp dụng",
+    "voucher_apply": "Áp dụng",
+    "voucher_selected": "Đã chọn",
+    "voucher_auto_applied": "Voucher tốt nhất đã được áp dụng tự động"
   },
   "order": {
     "status_title": "Trạng thái đơn hàng",
@@ -307,7 +325,7 @@
       "complete": "Hoàn thành",
       "cancelled": "Đã huỷ"
     },
-    "confirmed_title": "Đặt hàng thành công!",
+    "confirmed_title": "Đặt món thành công!",
     "cancelled_title": "Đơn hàng đã huỷ",
     "table_label": "Bàn số",
     "take_away": "Mang đi",
@@ -367,6 +385,7 @@
   "common": {
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
+    "ok": "OK",
     "cancel": "Hủy"
   },
   "campaign": {
@@ -510,10 +529,6 @@
     "error_message": "Không thể gửi yêu cầu rút tiền. Vui lòng thử lại.",
     "search_bank": "Tìm ngân hàng...",
     "no_bank_found": "Không tìm thấy ngân hàng"
-  },
-  "common": {
-    "ok": "OK",
-    "cancel": "Hủy"
   },
   "home_quick_actions": {
     "section_title": "Khám phá Lowca",

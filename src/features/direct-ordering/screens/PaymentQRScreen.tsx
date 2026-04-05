@@ -8,11 +8,20 @@ import {
   selectCheckoutOrderCode,
 } from '@slices/directOrdering';
 import { useNavigation, StaticScreenProps } from '@react-navigation/native';
+import * as Sharing from 'expo-sharing';
 import type { JSX } from 'react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, AppState, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  AppState,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import ViewShot from 'react-native-view-shot';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type PaymentQRScreenProps = StaticScreenProps<{
@@ -32,6 +41,8 @@ export const PaymentQRScreen = ({
   const orderCode = useAppSelector(selectCheckoutOrderCode);
   const { paymentStatus } = usePaymentSocket(orderCode);
   const orderCodeRef = useRef(orderCode);
+  const qrShotRef = useRef<ViewShot>(null);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     orderCodeRef.current = orderCode;
@@ -74,6 +85,31 @@ export const PaymentQRScreen = ({
     }
   }, [paymentStatus, dispatch, navigation, orderId, branchName, t]);
 
+  const handleShare = useCallback(async () => {
+    if (!qrShotRef.current?.capture) return;
+    setSharing(true);
+    try {
+      const uri = await qrShotRef.current.capture();
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        Alert.alert(t('auth.error'), t('checkout.payment_qr_share_error'));
+        return;
+      }
+      await Sharing.shareAsync(uri, {
+        mimeType: 'image/png',
+        dialogTitle: t('checkout.payment_qr_share'),
+      });
+    } catch {
+      Alert.alert(t('auth.error'), t('checkout.payment_qr_share_error'));
+    } finally {
+      setSharing(false);
+    }
+  }, [t]);
+
+  const handleViewOrder = useCallback(() => {
+    navigation.navigate('OrderStatus', { orderId, branchName });
+  }, [navigation, orderId, branchName]);
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
@@ -92,9 +128,11 @@ export const PaymentQRScreen = ({
           {t('checkout.payment_qr_instruction')}
         </Text>
 
-        {/* QR Code */}
+        {/* QR Code — wrapped in ViewShot for capture */}
         <View className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <QRCode value={qrCode} size={220} />
+          <ViewShot ref={qrShotRef} options={{ format: 'png', quality: 1 }}>
+            <QRCode value={qrCode} size={220} />
+          </ViewShot>
         </View>
 
         {/* Amount */}
@@ -107,6 +145,46 @@ export const PaymentQRScreen = ({
 
         {/* Branch name */}
         <Text className="mt-2 text-sm text-gray-400">{branchName}</Text>
+
+        {/* Order ID */}
+        <View className="mt-3 flex-row items-center gap-1">
+          <Text className="text-xs text-gray-400">
+            {t('checkout.payment_qr_order_id')}:
+          </Text>
+          <Text className="text-xs font-semibold text-gray-600">
+            #{orderId}
+          </Text>
+        </View>
+
+        {/* Action Buttons */}
+        <View className="mt-8 w-full gap-3">
+          <TouchableOpacity
+            onPress={handleShare}
+            disabled={sharing}
+            className="flex-row items-center justify-center gap-2 rounded-2xl border border-[#a1d973] py-3.5"
+          >
+            {sharing ? (
+              <ActivityIndicator size="small" color="#7AB82D" />
+            ) : (
+              <>
+                <Ionicons name="share-outline" size={20} color="#7AB82D" />
+                <Text className="text-sm font-semibold text-[#7AB82D]">
+                  {t('checkout.payment_qr_share')}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleViewOrder}
+            className="flex-row items-center justify-center gap-2 rounded-2xl bg-[#a1d973] py-3.5"
+          >
+            <Ionicons name="receipt-outline" size={20} color="#fff" />
+            <Text className="text-sm font-semibold text-white">
+              {t('checkout.payment_qr_view_order')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );

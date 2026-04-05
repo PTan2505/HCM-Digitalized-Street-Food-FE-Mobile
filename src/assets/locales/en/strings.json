@@ -285,7 +285,25 @@
     "error": "Could not place order. Please try again.",
     "payment_failed": "Payment was not completed or was cancelled. Please try again.",
     "payment_qr_title": "QR Payment",
-    "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order"
+    "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order",
+    "payment_qr_order_id": "Order ID",
+    "payment_qr_share": "Share QR Code",
+    "payment_qr_share_error": "Could not share QR code. Please try again.",
+    "payment_qr_view_order": "View Order Status",
+    "voucher": "Voucher",
+    "select_voucher": "Select voucher",
+    "no_voucher": "No voucher",
+    "voucher_applied": "Voucher applied",
+    "voucher_discount": "Discount",
+    "voucher_final_amount": "Total",
+    "voucher_min_required": "Min. order {{amount}}",
+    "voucher_no_min": "No minimum order",
+    "voucher_max_discount": "Max {{amount}}",
+    "voucher_expires": "Exp: {{date}}",
+    "voucher_need_more": "Need {{amount}} more to apply",
+    "voucher_apply": "Apply",
+    "voucher_selected": "Selected",
+    "voucher_auto_applied": "Best voucher auto-applied"
   },
   "order": {
     "status_title": "Order Status",
@@ -367,6 +385,7 @@
   "common": {
     "vietnamese": "Vietnamese",
     "english": "English",
+    "ok": "OK",
     "cancel": "Cancel"
   },
   "campaign": {
@@ -510,10 +529,6 @@
     "error_message": "Failed to submit withdrawal request. Please try again.",
     "search_bank": "Search bank...",
     "no_bank_found": "No bank found"
-  },
-  "common": {
-    "ok": "OK",
-    "cancel": "Cancel"
   },
   "home_quick_actions": {
     "section_title": "Explore Lowca",

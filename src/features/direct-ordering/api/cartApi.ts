@@ -37,7 +37,7 @@ export interface UpdateCartItemRequest {
 export interface CheckoutCartRequest {
   table?: string | null;
   paymentMethod?: string | null;
-  discountAmount?: number | null;
+  voucherId?: number | null;
   isTakeAway: boolean;
 }
 

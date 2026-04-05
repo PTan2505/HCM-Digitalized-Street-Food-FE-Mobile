@@ -57,12 +57,27 @@ export const PersonalCartScreen = ({
     {}
   );
   const prevCartRef = useRef(cart);
+  const itemOrderRef = useRef<number[]>([]);
 
   useEffect(() => {
     if (cart !== prevCartRef.current) {
       prevCartRef.current = cart;
       setOptimisticQty({});
     }
+
+    if (!cart) {
+      itemOrderRef.current = [];
+      return;
+    }
+    const tracked = new Set(itemOrderRef.current);
+    cart.items.forEach((item) => {
+      if (!tracked.has(item.dishId)) {
+        itemOrderRef.current.push(item.dishId);
+      }
+    });
+    itemOrderRef.current = itemOrderRef.current.filter((id) =>
+      cart.items.some((item) => item.dishId === id)
+    );
   }, [cart]);
 
   useEffect(() => {
@@ -280,53 +295,59 @@ export const PersonalCartScreen = ({
             contentContainerStyle={{ paddingBottom: 120 }}
           >
             {/* Cart Items */}
-            {cart.items.map((item) => (
-              <View
-                key={item.dishId}
-                className="flex-row items-center border-b border-gray-50 px-4 py-3"
-              >
-                <Image
-                  source={{ uri: item.dishImageUrl ?? PLACEHOLDER_DISH }}
-                  className="mr-3 h-14 w-14 rounded-lg bg-gray-100"
-                />
-                <View className="flex-1">
-                  <Text className="text-base font-semibold text-black">
-                    {item.dishName}
-                  </Text>
-                  <Text className="mt-0.5 text-sm text-gray-400">
-                    {`${item.unitPrice.toLocaleString('vi-VN')}đ`}
+            {[...cart.items]
+              .sort(
+                (a, b) =>
+                  itemOrderRef.current.indexOf(a.dishId) -
+                  itemOrderRef.current.indexOf(b.dishId)
+              )
+              .map((item) => (
+                <View
+                  key={item.dishId}
+                  className="flex-row items-center border-b border-gray-50 px-4 py-3"
+                >
+                  <Image
+                    source={{ uri: item.dishImageUrl ?? PLACEHOLDER_DISH }}
+                    className="mr-3 h-14 w-14 rounded-lg bg-gray-100"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-black">
+                      {item.dishName}
+                    </Text>
+                    <Text className="mt-0.5 text-sm text-gray-400">
+                      {`${item.unitPrice.toLocaleString('vi-VN')}đ`}
+                    </Text>
+                  </View>
+
+                  <View className="flex-row items-center rounded-full bg-gray-100">
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleUpdateQuantity(item.dishId, item.quantity, -1)
+                      }
+                      disabled={cartLoading}
+                      className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
+                    >
+                      <Text className="text-lg font-bold text-white">−</Text>
+                    </TouchableOpacity>
+                    <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
+                      {item.quantity}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleUpdateQuantity(item.dishId, item.quantity, 1)
+                      }
+                      disabled={cartLoading}
+                      className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
+                    >
+                      <Text className="text-lg font-bold text-white">+</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text className="ml-3 min-w-[50px] text-right text-base font-semibold text-black">
+                    {`${Math.round(item.lineTotal / 1000)}k`}
                   </Text>
                 </View>
-
-                <View className="flex-row items-center rounded-full bg-gray-100">
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleUpdateQuantity(item.dishId, item.quantity, -1)
-                    }
-                    disabled={cartLoading}
-                    className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
-                  >
-                    <Text className="text-lg font-bold text-white">−</Text>
-                  </TouchableOpacity>
-                  <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
-                    {item.quantity}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleUpdateQuantity(item.dishId, item.quantity, 1)
-                    }
-                    disabled={cartLoading}
-                    className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
-                  >
-                    <Text className="text-lg font-bold text-white">+</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <Text className="ml-3 min-w-[50px] text-right text-base font-semibold text-black">
-                  {`${Math.round(item.lineTotal / 1000)}k`}
-                </Text>
-              </View>
-            ))}
+              ))}
 
             {/* Note */}
             <View className="px-4 py-4">
