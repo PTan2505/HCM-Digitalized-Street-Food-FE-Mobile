@@ -43,6 +43,14 @@ function AppInitializer({
     }
   }, [dispatch, userStatus]);
 
+  // Reset the fetch guard when the user logs out so the next user's
+  // dietary preferences are fetched fresh on login.
+  useEffect(() => {
+    if (!user) {
+      hasFetchedDietaryRef.current = false;
+    }
+  }, [user]);
+
   // Load user's dietary preferences once — guarded by ref because the auth
   // slice's global isPending/isFulfilled matchers flip userStatus on every
   // thunk dispatch, which would re-trigger this effect without the guard.
