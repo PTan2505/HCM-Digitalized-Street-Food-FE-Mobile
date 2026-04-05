@@ -18,7 +18,7 @@ import {
 import { selectDietaryPreferences } from '@slices/dietary';
 import { selectTastes } from '@slices/tastes';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -68,7 +68,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
-  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
+  const reduxMultiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const dietaryPreferences = useAppSelector(selectDietaryPreferences);
   const tastes = useAppSelector(selectTastes);
   const { categories } = useCategories();
@@ -83,6 +83,17 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
 
   const { coords } = useLocationPermission();
   const { stalls, isLoading, error, search, clearError } = useStallSearch();
+
+  const multiBranchVendorIds = useMemo(() => {
+    const vendorCounts = new Map<number, number>();
+    for (const stall of stalls) {
+      vendorCounts.set(stall.vendorId, (vendorCounts.get(stall.vendorId) ?? 0) + 1);
+    }
+    const fromSearch = Array.from(vendorCounts.entries())
+      .filter(([, count]) => count > 1)
+      .map(([vendorId]) => vendorId);
+    return [...new Set([...reduxMultiBranchVendorIds, ...fromSearch])];
+  }, [stalls, reduxMultiBranchVendorIds]);
 
   const triggerSearch = useCallback(
     (kw: string, filters: FilterState | null) => {
