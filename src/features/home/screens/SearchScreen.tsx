@@ -87,7 +87,10 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const multiBranchVendorIds = useMemo(() => {
     const vendorCounts = new Map<number, number>();
     for (const stall of stalls) {
-      vendorCounts.set(stall.vendorId, (vendorCounts.get(stall.vendorId) ?? 0) + 1);
+      vendorCounts.set(
+        stall.vendorId,
+        (vendorCounts.get(stall.vendorId) ?? 0) + 1
+      );
     }
     const fromSearch = Array.from(vendorCounts.entries())
       .filter(([, count]) => count > 1)
