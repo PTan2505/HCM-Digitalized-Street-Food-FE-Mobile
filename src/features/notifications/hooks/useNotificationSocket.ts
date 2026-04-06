@@ -7,59 +7,92 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
 const HUB_URL = `${process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '')}/hubs/notifications`;
+const MAX_RETRY_DELAY_MS = 30_000;
+const INITIAL_RETRY_DELAY_MS = 2_000;
 
 export const useNotificationSocket = (isAuthenticated: boolean): void => {
   const dispatch = useAppDispatch();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
-  const startConnection = (connection: signalR.HubConnection): void => {
-    if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-    connection.start().catch(() => {});
-  };
-
-  const stopConnection = (connection: signalR.HubConnection): void => {
-    if (connection.state === signalR.HubConnectionState.Disconnected) return;
-    connection.stop().catch(() => {});
-  };
-
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const buildAndStart = (): signalR.HubConnection => {
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(HUB_URL, {
-          accessTokenFactory: () => tokenManagement.getAccessToken(),
-        })
-        .withAutomaticReconnect()
-        .configureLogging(signalR.LogLevel.Warning)
-        .build();
+    let cancelled = false;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-      connection.on('ReceiveNotification', (notification: NotificationDto) => {
-        dispatch(receiveNotification(notification));
-      });
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => tokenManagement.getAccessToken(),
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build();
 
-      startConnection(connection);
+    connection.on('ReceiveNotification', (notification: NotificationDto) => {
+      dispatch(receiveNotification(notification));
+    });
 
-      return connection;
+    connectionRef.current = connection;
+
+    // Retry with exponential backoff on initial connection failure.
+    // withAutomaticReconnect() only handles drops after a successful connection.
+    const scheduleRetry = (delay: number): void => {
+      console.log(`[NotificationSocket] Retrying in ${delay}ms...`);
+      retryTimeout = setTimeout(() => {
+        retryTimeout = null;
+        connect(delay);
+      }, delay);
     };
 
-    connectionRef.current = buildAndStart();
+    const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
+      if (cancelled) return;
+      if (connection.state !== signalR.HubConnectionState.Disconnected) return;
+      console.log('[NotificationSocket] Connecting...');
+      connection
+        .start()
+        .then(() => {
+          console.log('[NotificationSocket] Connected');
+        })
+        .catch((err: unknown) => {
+          console.warn('[NotificationSocket] Connection failed:', err);
+          if (cancelled) return;
+          scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+        });
+    };
+
+    const disconnect = (): void => {
+      if (retryTimeout !== null) {
+        clearTimeout(retryTimeout);
+        retryTimeout = null;
+      }
+      if (
+        connection.state === signalR.HubConnectionState.Disconnected ||
+        connection.state === signalR.HubConnectionState.Connecting
+      )
+        return;
+      console.log('[NotificationSocket] Disconnecting...');
+      connection.stop().catch(() => {});
+    };
+
+    connect();
 
     const subscription = AppState.addEventListener('change', (nextState) => {
-      const conn = connectionRef.current;
-      if (!conn) return;
+      if (cancelled) return;
       if (nextState === 'active') {
-        startConnection(conn);
+        connect();
         return;
       }
-
-      stopConnection(conn);
+      // 'inactive' is a transient iOS state (phone call, Control Center, etc.)
+      // — do not disconnect, it will settle back to 'active' shortly.
+      if (nextState === 'background') {
+        disconnect();
+      }
     });
 
     return (): void => {
+      cancelled = true;
       subscription.remove();
-      const conn = connectionRef.current;
-      if (conn) stopConnection(conn);
+      disconnect();
       connectionRef.current = null;
     };
   }, [isAuthenticated, dispatch]);
