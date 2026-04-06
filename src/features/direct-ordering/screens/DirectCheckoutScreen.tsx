@@ -1,5 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
+import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
   checkoutThunk,
@@ -9,7 +12,7 @@ import {
   selectOrderLoading,
 } from '@slices/directOrdering';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -31,6 +34,25 @@ type DirectCheckoutScreenProps = StaticScreenProps<{
   note?: string;
 }>;
 
+const calculateDiscount = (
+  voucher: UserVoucherApiDto,
+  totalAmount: number
+): number => {
+  const isPercent =
+    voucher.voucherType.toUpperCase() === 'PERCENT' ||
+    voucher.voucherType.toUpperCase() === 'PERCENTAGE';
+  let discount = isPercent
+    ? (totalAmount * voucher.discountValue) / 100
+    : voucher.discountValue;
+  if (
+    voucher.maxDiscountValue !== null &&
+    discount > voucher.maxDiscountValue
+  ) {
+    discount = voucher.maxDiscountValue;
+  }
+  return Math.min(Math.max(discount, 0), totalAmount);
+};
+
 export const DirectCheckoutScreen = ({
   route,
 }: DirectCheckoutScreenProps): JSX.Element => {
@@ -44,6 +66,39 @@ export const DirectCheckoutScreen = ({
   const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
+  const [vouchers, setVouchers] = useState<UserVoucherApiDto[]>([]);
+  const [vouchersLoading, setVouchersLoading] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] =
+    useState<UserVoucherApiDto | null>(null);
+  const hasAutoAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (!cart?.branchId) return;
+    setVouchersLoading(true);
+    axiosApi.voucherApi
+      .getApplicableVouchers(cart.branchId)
+      .then(setVouchers)
+      .catch(() => setVouchers([]))
+      .finally(() => setVouchersLoading(false));
+  }, [cart?.branchId]);
+
+  useEffect(() => {
+    if (vouchers.length === 0 || hasAutoAppliedRef.current || !cart) return;
+    hasAutoAppliedRef.current = true;
+    const applicable = vouchers.filter(
+      (v) =>
+        v.minAmountRequired === null || cart.totalAmount >= v.minAmountRequired
+    );
+    if (applicable.length === 0) return;
+    const best = applicable.reduce((a, b) =>
+      calculateDiscount(a, cart.totalAmount) >=
+      calculateDiscount(b, cart.totalAmount)
+        ? a
+        : b
+    );
+    setSelectedVoucher(best);
+  }, [vouchers, cart]);
+
   useEffect(() => {
     return (): void => {
       dispatch(clearOrderError());
@@ -56,6 +111,16 @@ export const DirectCheckoutScreen = ({
     }
   }, [orderError, t]);
 
+  const discountAmount = useMemo(() => {
+    if (!selectedVoucher || !cart) return 0;
+    return calculateDiscount(selectedVoucher, cart.totalAmount);
+  }, [selectedVoucher, cart]);
+
+  const finalAmount = useMemo(
+    () => (cart ? cart.totalAmount - discountAmount : 0),
+    [cart, discountAmount]
+  );
+
   const getPaymentLabel = (key: string): string => {
     const labels: Record<string, string> = {
       wallet: t('checkout.wallet'),
@@ -64,6 +129,13 @@ export const DirectCheckoutScreen = ({
     };
     return labels[key] ?? key;
   };
+
+  const handleSelectVoucher = useCallback(
+    (voucher: UserVoucherApiDto | null) => {
+      setSelectedVoucher(voucher);
+    },
+    []
+  );
 
   const handleConfirm = useCallback(async () => {
     if (!cart || cart.items.length === 0) {
@@ -77,6 +149,7 @@ export const DirectCheckoutScreen = ({
           paymentMethod: selectedMethod,
           isTakeAway,
           table: note ?? undefined,
+          voucherId: selectedVoucher?.voucherId ?? null,
         })
       ).unwrap();
 
@@ -97,6 +170,7 @@ export const DirectCheckoutScreen = ({
     cart,
     navigation,
     branchName,
+    selectedVoucher,
     t,
   ]);
 
@@ -137,15 +211,80 @@ export const DirectCheckoutScreen = ({
               {t('cart.note_label')}: {note}
             </Text>
           ) : null}
-          <View className="mt-3 flex-row items-center justify-between border-t border-gray-100 pt-3">
-            <Text className="text-base font-bold text-black">
-              {t('cart.total')}
-            </Text>
-            <Text className="text-lg font-bold text-[#00B14F]">
-              {cart ? `${cart.totalAmount.toLocaleString('vi-VN')}₫` : '—'}
-            </Text>
+          <View className="mt-3 border-t border-gray-100 pt-3">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm text-gray-500">{t('cart.total')}</Text>
+              <Text className="text-sm text-black">
+                {cart ? `${cart.totalAmount.toLocaleString('vi-VN')}₫` : '—'}
+              </Text>
+            </View>
+            {discountAmount > 0 && (
+              <View className="mt-1 flex-row items-center justify-between">
+                <Text className="text-sm text-[#00B14F]">
+                  {t('checkout.voucher_discount')}
+                </Text>
+                <Text className="text-sm font-semibold text-[#00B14F]">
+                  {`-${discountAmount.toLocaleString('vi-VN')}₫`}
+                </Text>
+              </View>
+            )}
+            <View className="mt-2 flex-row items-center justify-between border-t border-gray-100 pt-2">
+              <Text className="text-base font-bold text-black">
+                {t('checkout.voucher_final_amount')}
+              </Text>
+              <Text className="text-lg font-bold text-[#00B14F]">
+                {`${finalAmount.toLocaleString('vi-VN')}₫`}
+              </Text>
+            </View>
           </View>
         </View>
+
+        {/* Voucher Row */}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('VoucherSelect', {
+              vouchers,
+              totalAmount: cart?.totalAmount ?? 0,
+              selectedUserVoucherId: selectedVoucher?.userVoucherId ?? null,
+              onSelect: handleSelectVoucher,
+            })
+          }
+          disabled={vouchersLoading}
+          className="flex-row items-center justify-between border-b border-gray-100 px-4 py-4"
+        >
+          <View className="flex-row items-center gap-2">
+            <Ionicons
+              name="pricetag-outline"
+              size={20}
+              color={COLORS.primaryLight}
+            />
+            <Text className="text-sm font-semibold text-black">
+              {t('checkout.voucher')}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            {vouchersLoading ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : selectedVoucher ? (
+              <View className="items-end">
+                <Text
+                  className="max-w-[160px] text-sm font-semibold text-primary-light"
+                  numberOfLines={1}
+                >
+                  {selectedVoucher.voucherName}
+                </Text>
+                <Text className="text-xs text-[#00B14F]">
+                  {`-${discountAmount.toLocaleString('vi-VN')}₫`}
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-sm text-gray-400">
+                {t('checkout.select_voucher')}
+              </Text>
+            )}
+            <Ionicons name="chevron-forward" size={16} color="#ccc" />
+          </View>
+        </TouchableOpacity>
 
         {/* Take Away Toggle */}
         <TouchableOpacity
@@ -154,7 +293,7 @@ export const DirectCheckoutScreen = ({
         >
           <Text className="text-sm font-semibold text-black">Mang đi</Text>
           <View
-            className={`h-5 w-5 items-end justify-end rounded border-2 ${isTakeAway ? 'border-[#a1d973] bg-[#a1d973]' : 'border-gray-300 bg-white'}`}
+            className={`h-5 w-5 items-end justify-end rounded border-2 ${isTakeAway ? 'border-primary bg-primary' : 'border-gray-300 bg-white'}`}
           >
             {isTakeAway && <Ionicons name="checkmark" size={13} color="#fff" />}
           </View>
@@ -171,26 +310,32 @@ export const DirectCheckoutScreen = ({
               onPress={() => setSelectedMethod(method.key)}
               className={`mb-2 flex-row items-center rounded-xl border px-4 py-3.5 ${
                 selectedMethod === method.key
-                  ? 'border-[#a1d973] bg-[#f4fce3]'
+                  ? 'border-primary bg-[#f4fce3]'
                   : 'border-gray-200'
               }`}
             >
               <Ionicons
                 name={method.icon}
                 size={22}
-                color={selectedMethod === method.key ? '#7AB82D' : '#999'}
+                color={
+                  selectedMethod === method.key ? COLORS.primaryLight : '#999'
+                }
               />
               <Text
                 className={`ml-3 flex-1 text-sm font-semibold ${
                   selectedMethod === method.key
-                    ? 'text-[#7AB82D]'
+                    ? 'text-primary-light'
                     : 'text-black'
                 }`}
               >
                 {getPaymentLabel(method.key)}
               </Text>
               {selectedMethod === method.key && (
-                <Ionicons name="checkmark-circle" size={20} color="#7AB82D" />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={COLORS.primaryLight}
+                />
               )}
             </TouchableOpacity>
           ))}
@@ -202,7 +347,7 @@ export const DirectCheckoutScreen = ({
         <TouchableOpacity
           onPress={handleConfirm}
           disabled={orderLoading}
-          className="items-center rounded-2xl bg-[#a1d973] py-4"
+          className="items-center rounded-2xl bg-primary py-4"
         >
           {orderLoading ? (
             <ActivityIndicator color="#fff" />

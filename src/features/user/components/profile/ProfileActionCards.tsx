@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { ProfileActionCard } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -36,7 +37,7 @@ export const ProfileActionCards = ({
               <Ionicons
                 name={card.icon as keyof typeof Ionicons.glyphMap}
                 size={24}
-                color="#9FD356"
+                color={COLORS.primary}
               />
             )}
           </View>

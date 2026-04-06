@@ -285,12 +285,34 @@
     "error": "Could not place order. Please try again.",
     "payment_failed": "Payment was not completed or was cancelled. Please try again.",
     "payment_qr_title": "QR Payment",
-    "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order"
+    "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order",
+    "payment_qr_order_id": "Order ID",
+    "payment_qr_share": "Share QR Code",
+    "payment_qr_share_error": "Could not share QR code. Please try again.",
+    "payment_qr_view_order": "View Order Status",
+    "voucher": "Voucher",
+    "select_voucher": "Select voucher",
+    "no_voucher": "No voucher",
+    "voucher_applied": "Voucher applied",
+    "voucher_discount": "Discount",
+    "voucher_final_amount": "Total",
+    "voucher_min_required": "Min. order {{amount}}",
+    "voucher_no_min": "No minimum order",
+    "voucher_max_discount": "Max {{amount}}",
+    "voucher_expires": "Exp: {{date}}",
+    "voucher_need_more": "Need {{amount}} more to apply",
+    "voucher_apply": "Apply",
+    "voucher_selected": "Selected",
+    "voucher_auto_applied": "Best voucher auto-applied",
+    "voucher_search_placeholder": "Enter promo or gift code here",
+    "voucher_saves": "Save {{amount}}",
+    "skip_voucher": "Skip voucher and continue"
   },
   "order": {
     "status_title": "Order Status",
     "history_title": "Order History",
     "my_orders": "My Orders",
+    "item_count": "{{count}} items",
     "no_orders": "You have no orders yet",
     "cancel": "Cancel Order",
     "cancel_confirm": "Are you sure you want to cancel this order?",
@@ -367,6 +389,7 @@
   "common": {
     "vietnamese": "Vietnamese",
     "english": "English",
+    "ok": "OK",
     "cancel": "Cancel"
   },
   "campaign": {
@@ -434,6 +457,30 @@
     "voucher_apply": "Apply",
     "voucher_apply_disabled": "Unavailable",
     "max_discount": "Max {{amount}}đ off"
+  },
+  "voucher_wallet": {
+    "voucher_wallet": "My Vouchers",
+    "retry": "Retry",
+    "voucher_active": "Active",
+    "voucher_empty": "No vouchers yet. Discover campaigns to earn or claim vouchers!",
+    "voucher_empty_system": "No platform vouchers yet.",
+    "voucher_empty_vendor": "No restaurant vouchers yet.",
+    "discover_campaigns": "Discover Campaigns",
+    "expired": "Expired",
+    "expiring_soon": "Expiring Soon",
+    "voucher_tab_all": "All",
+    "voucher_tab_campaign": "Campaign",
+    "voucher_tab_system": "Lowca",
+    "voucher_tab_vendor": "Restaurant",
+    "history": "History",
+    "valid_until": "Valid until {{date}}",
+    "starts_on": "Starts {{date}}",
+    "voucher_not_available": "Already used",
+    "voucher_apply": "Apply",
+    "max_discount": "Max {{amount}}đ off",
+    "min_order": "Min. order {{amount}}đ",
+    "scope_participating": "Valid at participating restaurants",
+    "scope_restaurant": "Valid only at {{name}}"
   },
   "marketplace": {
     "title": "Voucher Marketplace",
@@ -510,10 +557,6 @@
     "error_message": "Failed to submit withdrawal request. Please try again.",
     "search_bank": "Search bank...",
     "no_bank_found": "No bank found"
-  },
-  "common": {
-    "ok": "OK",
-    "cancel": "Cancel"
   },
   "home_quick_actions": {
     "section_title": "Explore Lowca",

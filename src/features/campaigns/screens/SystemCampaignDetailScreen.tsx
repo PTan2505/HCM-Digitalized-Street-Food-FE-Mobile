@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { useCampaignQuest } from '@features/campaigns/hooks/useCampaignQuests';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
@@ -76,7 +77,7 @@ export const SystemCampaignDetailScreen = ({
             style={{ padding: 16 }}
           >
             {/* Campaign badge */}
-            <View className="mb-3 self-start rounded-full bg-[#a1d973] px-3 py-1">
+            <View className="mb-3 self-start rounded-full bg-primary px-3 py-1">
               <Text className="text-xs font-bold text-white">
                 {t('campaign.platform_event')}
               </Text>
@@ -105,7 +106,7 @@ export const SystemCampaignDetailScreen = ({
           </Text>
 
           {questLoading ? (
-            <ActivityIndicator size="small" color="#a1d973" />
+            <ActivityIndicator size="small" color={COLORS.primary} />
           ) : quest ? (
             <TouchableOpacity
               className="rounded-2xl border border-gray-100 bg-gray-50 p-4"
@@ -116,7 +117,11 @@ export const SystemCampaignDetailScreen = ({
             >
               <View className="mb-1 flex-row items-center justify-between">
                 <View className="flex-row items-center">
-                  <Ionicons name="trophy-outline" size={18} color="#7AB82D" />
+                  <Ionicons
+                    name="trophy-outline"
+                    size={18}
+                    color={COLORS.primaryLight}
+                  />
                   <Text className="ml-2 text-base font-bold text-gray-900">
                     {quest.title}
                   </Text>

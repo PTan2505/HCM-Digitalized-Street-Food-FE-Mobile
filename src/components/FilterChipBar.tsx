@@ -4,6 +4,7 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 
+import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 
 import type { JSX } from 'react';
@@ -44,17 +45,17 @@ export const FilterChipBar = ({
   const chipClass = (section: FilterSection): string =>
     `flex-row items-center rounded-full border px-4 py-2 ${
       isActive(section)
-        ? 'border-[#06AA4C] bg-[#E8F8F0]'
+        ? 'border-primary-dark bg-[#E8F8F0]'
         : 'border-gray-300 bg-white'
     }`;
 
   const textClass = (section: FilterSection): string =>
     `ml-2 text-sm font-medium ${
-      isActive(section) ? 'text-[#06AA4C]' : 'text-gray-600'
+      isActive(section) ? 'text-primary-dark' : 'text-gray-600'
     }`;
 
   const iconColor = (section: FilterSection): string =>
-    isActive(section) ? '#06AA4C' : '#6B7280';
+    isActive(section) ? COLORS.primaryDark : '#6B7280';
 
   return (
     <ScrollView

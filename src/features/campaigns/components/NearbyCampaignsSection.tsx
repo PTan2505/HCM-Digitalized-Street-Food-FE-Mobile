@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { useNearbyCampaigns } from '@features/campaigns/hooks/useNearbyCampaigns';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import * as Location from 'expo-location';
@@ -50,7 +51,7 @@ export const NearbyCampaignsSection = (): JSX.Element | null => {
           key={c.campaignId}
           className="mb-2 flex-row items-center rounded-lg bg-gray-50 p-3"
         >
-          <Ionicons name="location-outline" size={16} color="#a1d973" />
+          <Ionicons name="location-outline" size={16} color={COLORS.primary} />
           <View className="ml-3 flex-1">
             <Text className="text-sm font-semibold text-gray-800">
               {c.title}

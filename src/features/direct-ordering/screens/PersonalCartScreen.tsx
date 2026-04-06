@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -57,12 +58,27 @@ export const PersonalCartScreen = ({
     {}
   );
   const prevCartRef = useRef(cart);
+  const itemOrderRef = useRef<number[]>([]);
 
   useEffect(() => {
     if (cart !== prevCartRef.current) {
       prevCartRef.current = cart;
       setOptimisticQty({});
     }
+
+    if (!cart) {
+      itemOrderRef.current = [];
+      return;
+    }
+    const tracked = new Set(itemOrderRef.current);
+    cart.items.forEach((item) => {
+      if (!tracked.has(item.dishId)) {
+        itemOrderRef.current.push(item.dishId);
+      }
+    });
+    itemOrderRef.current = itemOrderRef.current.filter((id) =>
+      cart.items.some((item) => item.dishId === id)
+    );
   }, [cart]);
 
   useEffect(() => {
@@ -106,7 +122,7 @@ export const PersonalCartScreen = ({
           isVerified: branchDetail.isVerified,
           avgRating: branchDetail.avgRating,
           isActive: branchDetail.isActive,
-          isSubscribed: false,
+          isSubscribed: branchDetail.isSubscribed,
           tierId: branchDetail.tierId,
           tierName: branchDetail.tierName ?? '',
           finalScore: 0,
@@ -263,7 +279,11 @@ export const PersonalCartScreen = ({
         )}
       </View>
 
-      {isEmpty ? (
+      {cartLoading && !cart ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : isEmpty ? (
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="cart-outline" size={64} color="#ccc" />
           <Text className="mt-4 text-lg font-semibold text-gray-400">
@@ -280,53 +300,59 @@ export const PersonalCartScreen = ({
             contentContainerStyle={{ paddingBottom: 120 }}
           >
             {/* Cart Items */}
-            {cart.items.map((item) => (
-              <View
-                key={item.dishId}
-                className="flex-row items-center border-b border-gray-50 px-4 py-3"
-              >
-                <Image
-                  source={{ uri: item.dishImageUrl ?? PLACEHOLDER_DISH }}
-                  className="mr-3 h-14 w-14 rounded-lg bg-gray-100"
-                />
-                <View className="flex-1">
-                  <Text className="text-base font-semibold text-black">
-                    {item.dishName}
-                  </Text>
-                  <Text className="mt-0.5 text-sm text-gray-400">
-                    {`${item.unitPrice.toLocaleString('vi-VN')}đ`}
+            {[...cart.items]
+              .sort(
+                (a, b) =>
+                  itemOrderRef.current.indexOf(a.dishId) -
+                  itemOrderRef.current.indexOf(b.dishId)
+              )
+              .map((item) => (
+                <View
+                  key={item.dishId}
+                  className="flex-row items-center border-b border-gray-50 px-4 py-3"
+                >
+                  <Image
+                    source={{ uri: item.dishImageUrl ?? PLACEHOLDER_DISH }}
+                    className="mr-3 h-14 w-14 rounded-lg bg-gray-100"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-black">
+                      {item.dishName}
+                    </Text>
+                    <Text className="mt-0.5 text-sm text-gray-400">
+                      {`${item.unitPrice.toLocaleString('vi-VN')}đ`}
+                    </Text>
+                  </View>
+
+                  <View className="flex-row items-center rounded-full bg-gray-100">
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleUpdateQuantity(item.dishId, item.quantity, -1)
+                      }
+                      disabled={cartLoading}
+                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
+                    >
+                      <Text className="text-lg font-bold text-white">−</Text>
+                    </TouchableOpacity>
+                    <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
+                      {item.quantity}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleUpdateQuantity(item.dishId, item.quantity, 1)
+                      }
+                      disabled={cartLoading}
+                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
+                    >
+                      <Text className="text-lg font-bold text-white">+</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text className="ml-3 min-w-[50px] text-right text-base font-semibold text-black">
+                    {`${Math.round(item.lineTotal / 1000)}k`}
                   </Text>
                 </View>
-
-                <View className="flex-row items-center rounded-full bg-gray-100">
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleUpdateQuantity(item.dishId, item.quantity, -1)
-                    }
-                    disabled={cartLoading}
-                    className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
-                  >
-                    <Text className="text-lg font-bold text-white">−</Text>
-                  </TouchableOpacity>
-                  <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
-                    {item.quantity}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleUpdateQuantity(item.dishId, item.quantity, 1)
-                    }
-                    disabled={cartLoading}
-                    className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
-                  >
-                    <Text className="text-lg font-bold text-white">+</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <Text className="ml-3 min-w-[50px] text-right text-base font-semibold text-black">
-                  {`${Math.round(item.lineTotal / 1000)}k`}
-                </Text>
-              </View>
-            ))}
+              ))}
 
             {/* Note */}
             <View className="px-4 py-4">
@@ -347,7 +373,7 @@ export const PersonalCartScreen = ({
             {/* Menu */}
             {menuLoading ? (
               <View className="items-center py-8">
-                <ActivityIndicator color="#a1d973" />
+                <ActivityIndicator color={COLORS.primary} />
               </View>
             ) : menuDishes.length > 0 ? (
               <View className="border-t border-gray-100">
@@ -365,7 +391,7 @@ export const PersonalCartScreen = ({
                         })
                       }
                     >
-                      <Text className="text-sm font-semibold text-[#a1d973]">
+                      <Text className="text-sm font-semibold text-primary">
                         {t('cart.view_all_menu')}
                       </Text>
                     </TouchableOpacity>
@@ -463,7 +489,7 @@ export const PersonalCartScreen = ({
                                     ) : !isOpen ? null : qty === 0 ? (
                                       <TouchableOpacity
                                         onPress={() => handleMenuAdd(dish)}
-                                        className="rounded-full bg-[#a1d973] px-4 py-1.5"
+                                        className="rounded-full bg-primary px-4 py-1.5"
                                       >
                                         <Text className="text-sm font-semibold text-white">
                                           {t('cart.add')}
@@ -480,7 +506,7 @@ export const PersonalCartScreen = ({
                                           <Ionicons
                                             name="remove-circle"
                                             size={32}
-                                            color="#a1d973"
+                                            color={COLORS.primary}
                                           />
                                         </TouchableOpacity>
                                         <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
@@ -493,7 +519,7 @@ export const PersonalCartScreen = ({
                                           <Ionicons
                                             name="add-circle"
                                             size={32}
-                                            color="#a1d973"
+                                            color={COLORS.primary}
                                           />
                                         </TouchableOpacity>
                                       </View>
@@ -555,7 +581,7 @@ export const PersonalCartScreen = ({
                                 ) : !isOpen ? null : qty === 0 ? (
                                   <TouchableOpacity
                                     onPress={() => handleMenuAdd(dish)}
-                                    className="rounded-full bg-[#a1d973] px-4 py-1.5"
+                                    className="rounded-full bg-primary px-4 py-1.5"
                                   >
                                     <Text className="text-sm font-semibold text-white">
                                       {t('cart.add')}
@@ -570,7 +596,7 @@ export const PersonalCartScreen = ({
                                       <Ionicons
                                         name="remove-circle"
                                         size={32}
-                                        color="#a1d973"
+                                        color={COLORS.primary}
                                       />
                                     </TouchableOpacity>
                                     <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
@@ -583,7 +609,7 @@ export const PersonalCartScreen = ({
                                       <Ionicons
                                         name="add-circle"
                                         size={32}
-                                        color="#a1d973"
+                                        color={COLORS.primary}
                                       />
                                     </TouchableOpacity>
                                   </View>
@@ -617,7 +643,7 @@ export const PersonalCartScreen = ({
             <TouchableOpacity
               onPress={handlePlaceOrder}
               disabled={!isOpen || cartLoading}
-              className={`items-center rounded-2xl py-4 ${isOpen ? 'bg-[#a1d973]' : 'bg-gray-300'}`}
+              className={`items-center rounded-2xl py-4 ${isOpen ? 'bg-primary' : 'bg-gray-300'}`}
             >
               {cartLoading ? (
                 <ActivityIndicator color="#fff" />

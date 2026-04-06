@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { HomeQuickAction } from '@features/home/config/homeQuickActions';
 import type { JSX } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -18,11 +19,11 @@ export const QuickActionGrid = ({ actions }: Props): JSX.Element => {
           activeOpacity={0.75}
           className="w-1/4 items-center px-4 pb-3"
         >
-          <View className="mb-2 aspect-square w-full items-center justify-center rounded-2xl bg-[#EE6612]/20">
+          <View className="mb-2 aspect-square w-full items-center justify-center rounded-2xl bg-secondary/20">
             <Ionicons
               name={action.ionIcon as 'location'}
               size={32}
-              color="#EE6612"
+              color={COLORS.secondary}
             />
             <Text
               className="text-center text-xs font-bold text-gray-800"

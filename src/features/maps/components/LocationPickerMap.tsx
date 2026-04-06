@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import {
   getPlaceDetail,
   reverseGeocode,
@@ -217,7 +218,7 @@ export const LocationPickerMap = React.forwardRef<
     // Brief loading state while resolving user location (typically <50ms)
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#a1d973" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -568,7 +569,7 @@ const LocationPickerMapInner = React.forwardRef<
           <Ionicons
             name="location-sharp"
             size={48}
-            color="#a1d973"
+            color={COLORS.primary}
             style={{
               textShadowColor: 'rgba(0,0,0,0.3)',
               textShadowOffset: { width: 0, height: 2 },
@@ -622,7 +623,9 @@ const LocationPickerMapInner = React.forwardRef<
             }}
             returnKeyType="search"
           />
-          {isSearching && <ActivityIndicator size="small" color="#a1d973" />}
+          {isSearching && (
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          )}
           {searchText.length > 0 && !isSearching && (
             <Pressable
               onPress={() => {
@@ -652,7 +655,7 @@ const LocationPickerMapInner = React.forwardRef<
                   <Ionicons
                     name="location-outline"
                     size={16}
-                    color="#a1d973"
+                    color={COLORS.primary}
                     style={{ marginRight: 10 }}
                   />
                   <View className="flex-1">
@@ -693,7 +696,7 @@ const LocationPickerMapInner = React.forwardRef<
           <Ionicons
             name="location-sharp"
             size={20}
-            color="#a1d973"
+            color={COLORS.primary}
             style={{ marginTop: 2, marginRight: 8 }}
           />
           <View className="flex-1">
@@ -702,7 +705,7 @@ const LocationPickerMapInner = React.forwardRef<
             </Text>
             {isReverseGeocoding ? (
               <View className="mt-1 flex-row items-center">
-                <ActivityIndicator size="small" color="#a1d973" />
+                <ActivityIndicator size="small" color={COLORS.primary} />
                 <Text className="ml-2 text-sm text-gray-400">
                   Đang tìm địa chỉ...
                 </Text>
@@ -740,7 +743,7 @@ const LocationPickerMapInner = React.forwardRef<
           className={`items-center rounded-xl py-3.5 ${
             isReverseGeocoding
               ? 'bg-gray-300'
-              : 'bg-[#a1d973] active:bg-[#8fc75f]'
+              : 'bg-primary active:bg-primary-light'
           }`}
         >
           <Text className="text-base font-bold text-white">
@@ -758,7 +761,7 @@ const LocationPickerMapInner = React.forwardRef<
           onPress={handleLocateMe}
           className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg active:bg-gray-100"
         >
-          <Ionicons name="navigate" size={22} color="#a1d973" />
+          <Ionicons name="navigate" size={22} color={COLORS.primary} />
         </Pressable>
       </View>
     </View>

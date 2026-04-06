@@ -112,5 +112,7 @@ export const apiUrl = {
     marketplace: '/api/vouchers/marketplace',
     byId: (id: number): string => `/api/vouchers/${id}`,
     claim: (id: number): string => `/api/vouchers/${id}/claim`,
+    applicableByBranch: (branchId: number): string =>
+      `/api/vouchers/mine/branch/${branchId}`,
   },
 };

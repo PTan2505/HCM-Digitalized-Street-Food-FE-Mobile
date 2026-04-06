@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -47,13 +48,25 @@ export const QuestListScreen = (): JSX.Element => {
   }));
 
   const tab0TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab0Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+    color: interpolateColor(
+      tab0Active.value,
+      [0, 1],
+      ['#9CA3AF', COLORS.primaryLight]
+    ),
   }));
   const tab1TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab1Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+    color: interpolateColor(
+      tab1Active.value,
+      [0, 1],
+      ['#9CA3AF', COLORS.primaryLight]
+    ),
   }));
   const tab2TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab2Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+    color: interpolateColor(
+      tab2Active.value,
+      [0, 1],
+      ['#9CA3AF', COLORS.primaryLight]
+    ),
   }));
   const tabTextStyles = [tab0TextStyle, tab1TextStyle, tab2TextStyle];
 
@@ -139,7 +152,7 @@ export const QuestListScreen = (): JSX.Element => {
             {
               width: tabWidth,
               height: 2,
-              backgroundColor: '#a1d973',
+              backgroundColor: COLORS.primary,
               marginTop: -2,
             },
             indicatorStyle,
@@ -149,7 +162,7 @@ export const QuestListScreen = (): JSX.Element => {
 
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : activeTab === 'discover' ? (
         <FlatList
@@ -160,8 +173,8 @@ export const QuestListScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#a1d973']}
-              tintColor="#a1d973"
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
             />
           }
           renderItem={({ item }) => {
@@ -204,8 +217,8 @@ export const QuestListScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#a1d973']}
-              tintColor="#a1d973"
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
             />
           }
           renderItem={({ item }) => (
@@ -255,8 +268,8 @@ export const QuestListScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#a1d973']}
-              tintColor="#a1d973"
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
             />
           }
           renderItem={({ item }) => (

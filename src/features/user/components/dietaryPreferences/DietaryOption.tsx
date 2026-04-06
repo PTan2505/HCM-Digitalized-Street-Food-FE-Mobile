@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -22,7 +23,7 @@ const DietaryOption = (props: DietaryOptionProps): JSX.Element => {
             (props.dietaryPreference.icon as never) || ('food-variant' as never)
           }
           size={24}
-          color="#7AB82D"
+          color={COLORS.primaryLight}
         />
       </View>
 

@@ -59,6 +59,13 @@ export class VoucherApi {
     return res.data;
   }
 
+  async getApplicableVouchers(branchId: number): Promise<UserVoucherApiDto[]> {
+    const res = await this.apiClient.get<UserVoucherApiDto[]>({
+      url: apiUrl.voucher.applicableByBranch(branchId),
+    });
+    return res.data;
+  }
+
   async claimVoucher(voucherId: number): Promise<UserVoucherApiDto> {
     const res = await this.apiClient.post<UserVoucherApiDto, null>({
       url: apiUrl.voucher.claim(voucherId),

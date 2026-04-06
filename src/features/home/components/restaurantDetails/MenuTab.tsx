@@ -1,3 +1,5 @@
+import TabBar from '@components/TabBar';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import type { Dish } from '@features/home/types/branch';
@@ -10,16 +12,9 @@ import {
   updateCartItemThunk,
 } from '@slices/directOrdering';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=400';
@@ -41,9 +36,7 @@ const MenuTab = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
-  const [activeCategory, setActiveCategory] = useState<string | undefined>(
-    'all'
-  );
+  const [activeCategory, setActiveCategory] = useState<string>('all');
 
   // Optimistic quantity overrides — updated instantly on press, cleared when cart syncs
   const [optimisticQty, setOptimisticQty] = useState<Record<number, number>>(
@@ -58,7 +51,22 @@ const MenuTab = ({
     }
   }, [cart]);
 
-  const categories = ['all', ...new Set(dishes.map((d) => d.categoryName))];
+  const categories = useMemo(
+    () => [
+      'all',
+      ...new Set(dishes.map((d) => d.categoryName ?? t('actions.other'))),
+    ],
+    [dishes, t]
+  );
+
+  const categoryTabs = useMemo(
+    () =>
+      categories.map((cat) => ({
+        key: cat,
+        label: cat === 'all' ? t('actions.all') : cat,
+      })),
+    [categories, t]
+  );
 
   const filteredDishes =
     activeCategory === 'all'
@@ -201,7 +209,7 @@ const MenuTab = ({
             ) : disabled ? null : qty === 0 ? (
               <TouchableOpacity
                 onPress={() => handleAdd(dish)}
-                className="rounded-full bg-[#a1d973] px-4 py-1.5"
+                className="rounded-full bg-primary px-4 py-1.5"
               >
                 <Text className="text-sm font-semibold text-white">
                   {t('cart.add')}
@@ -213,7 +221,11 @@ const MenuTab = ({
                   onPress={() => handleDecrement(dish)}
                   className="h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <Ionicons name="remove-circle" size={32} color="#a1d973" />
+                  <Ionicons
+                    name="remove-circle"
+                    size={32}
+                    color={COLORS.primary}
+                  />
                 </TouchableOpacity>
                 <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
                   {qty}
@@ -222,7 +234,11 @@ const MenuTab = ({
                   onPress={() => handleAdd(dish)}
                   className="h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <Ionicons name="add-circle" size={32} color="#a1d973" />
+                  <Ionicons
+                    name="add-circle"
+                    size={32}
+                    color={COLORS.primary}
+                  />
                 </TouchableOpacity>
               </View>
             )}
@@ -255,31 +271,16 @@ const MenuTab = ({
       )}
 
       {/* Category Tabs */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="border-b border-gray-200 px-4 pt-4"
-      >
-        {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            className={`mr-2 flex-row items-center justify-center border-b-2 px-3 py-2 ${
-              activeCategory === cat ? 'border-[#FF6B35]' : 'border-transparent'
-            }`}
-            onPress={() => setActiveCategory(cat)}
-          >
-            <Text
-              className={`text-sm capitalize ${
-                activeCategory === cat
-                  ? 'font-semibold text-[#FF6B35]'
-                  : 'text-black-400'
-              }`}
-            >
-              {cat === 'all' ? t('actions.all') : cat}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <View className="pt-4">
+        <TabBar<string>
+          tabs={categoryTabs}
+          activeTab={activeCategory}
+          onTabChange={setActiveCategory}
+          activeColor="#FF6B35"
+          inactiveColor="#999999"
+          indicatorColor="#FF6B35"
+        />
+      </View>
 
       {/* Menu Items */}
       {activeCategory === 'all' ? (

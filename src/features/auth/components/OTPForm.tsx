@@ -153,7 +153,7 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           <Text className="text-base font-semibold">{t('auth.back')}</Text>
         </Pressable>
         <View className="gap-2 px-1">
-          <Text className="text-xl font-semibold text-[#a1d973]">
+          <Text className="text-xl font-semibold text-primary">
             {t('auth.enter_otp_message')} {maskPhoneNumber(props.phoneNumber)}
           </Text>
         </View>
@@ -171,9 +171,7 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           >
             <Text
               className={`text-lg font-semibold ${
-                countdown > 0 || isResending
-                  ? 'text-gray-400'
-                  : 'text-[#a1d973]'
+                countdown > 0 || isResending ? 'text-gray-400' : 'text-primary'
               }`}
             >
               {isResending

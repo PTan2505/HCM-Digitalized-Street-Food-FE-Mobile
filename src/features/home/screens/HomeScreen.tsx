@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
@@ -293,7 +294,7 @@ export const HomeScreen = (): JSX.Element => {
   const ListHeader = useMemo(
     () => (
       <LinearGradient
-        colors={['#B8E986', '#FFFFFF']}
+        colors={[COLORS.primaryGradientHero, '#FFFFFF']}
         locations={[0, 0.4]}
         style={{
           paddingTop:
@@ -331,7 +332,7 @@ export const HomeScreen = (): JSX.Element => {
         <View className="flex-row pt-2">
           {categoriesLoading ? (
             <View className="flex-1 items-center py-4">
-              <ActivityIndicator color="#a1d973" />
+              <ActivityIndicator color={COLORS.primary} />
             </View>
           ) : (
             <FlatList
@@ -379,7 +380,7 @@ export const HomeScreen = (): JSX.Element => {
               <Ionicons
                 name="chevron-forward-circle"
                 size={20}
-                color="#89D151"
+                color={COLORS.primaryGradientFrom}
               />
             </TouchableOpacity>
             <View className="px-4">
@@ -444,7 +445,11 @@ export const HomeScreen = (): JSX.Element => {
           onPress={() => navigation.navigate('ListBranch', {})}
         >
           <Title>{t('places_might_like')}</Title>
-          <Ionicons name="chevron-forward-circle" size={20} color="#89D151" />
+          <Ionicons
+            name="chevron-forward-circle"
+            size={20}
+            color={COLORS.primaryGradientFrom}
+          />
         </TouchableOpacity>
       </LinearGradient>
     ),
@@ -475,14 +480,14 @@ export const HomeScreen = (): JSX.Element => {
           left: 0,
           right: 0,
           height: insets.top + 200, // Cover the notch + some extra
-          backgroundColor: '#B8E986',
+          backgroundColor: COLORS.primaryGradientHero,
         }}
       />
       {branchesStatus === 'pending' ? (
         <>
           {ListHeader}
           <View className="flex-1 items-center justify-center bg-white">
-            <ActivityIndicator size="large" color="#a1d973" />
+            <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         </>
       ) : branchesStatus === 'failed' ? (
@@ -505,7 +510,7 @@ export const HomeScreen = (): JSX.Element => {
                   })
                 )
               }
-              className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+              className="mt-4 rounded-full bg-primary-dark px-6 py-2"
             >
               <Text className="text-sm font-semibold text-white">
                 {t('search.retry')}
@@ -532,8 +537,8 @@ export const HomeScreen = (): JSX.Element => {
                 progressViewOffset={
                   Platform.OS === 'android' ? insets.top + 60 : 0
                 }
-                colors={['#a1d973']} // Android spinner color
-                tintColor="#a1d973" // iOS spinner color
+                colors={[COLORS.primary]} // Android spinner color
+                tintColor={COLORS.primary} // iOS spinner color
                 progressBackgroundColor="#ffffff" // Android spinner background
               />
             }
@@ -610,7 +615,7 @@ export const HomeScreen = (): JSX.Element => {
                     elevation: 5,
                   }}
                 >
-                  <ActivityIndicator size="small" color="#a1d973" />
+                  <ActivityIndicator size="small" color={COLORS.primary} />
                 </View>
               </View>
             </>
@@ -643,7 +648,7 @@ export const HomeScreen = (): JSX.Element => {
         }}
       >
         <LinearGradient
-          colors={['#B8E986', '#FFFFFF']}
+          colors={[COLORS.primaryGradientHero, '#FFFFFF']}
           style={{ paddingTop: insets.top, paddingBottom: 4 }}
         >
           <SearchBar

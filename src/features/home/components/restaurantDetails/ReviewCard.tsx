@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { JSX } from 'react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -194,7 +195,7 @@ const ReviewCard = ({
         shadowRadius: 10,
         elevation: 3,
         borderWidth: review.isOwn ? 1.5 : 0,
-        borderColor: review.isOwn ? '#9FD356' : 'transparent',
+        borderColor: review.isOwn ? COLORS.primary : 'transparent',
       }}
     >
       {/* Header */}
@@ -231,7 +232,7 @@ const ReviewCard = ({
           <Text
             className={`text-xs font-semibold ${
               review.upVotes - review.downVotes > 0
-                ? 'text-[#7AB82D]'
+                ? 'text-primary-light'
                 : review.upVotes - review.downVotes < 0
                   ? 'text-red-400'
                   : 'text-gray-400'
@@ -331,13 +332,15 @@ const ReviewCard = ({
                     review.userVote === 'up' ? 'thumbs-up' : 'thumbs-up-outline'
                   }
                   size={18}
-                  color={review.userVote === 'up' ? '#7AB82D' : '#9CA3AF'}
+                  color={
+                    review.userVote === 'up' ? COLORS.primaryLight : '#9CA3AF'
+                  }
                 />
               </TouchableOpacity>
               <Text
                 className={`min-w-[16px] text-center text-xs font-semibold ${
                   review.upVotes - review.downVotes > 0
-                    ? 'text-[#7AB82D]'
+                    ? 'text-primary-light'
                     : review.upVotes - review.downVotes < 0
                       ? 'text-red-400'
                       : 'text-gray-400'
@@ -485,8 +488,12 @@ const ReviewCard = ({
       {review.vendorReply ? (
         <View className="rounded-xl bg-gray-50 p-3">
           <View className="mb-1.5 flex-row items-center gap-1.5">
-            <Ionicons name="storefront-outline" size={14} color="#7AB82D" />
-            <Text className="text-xs font-bold text-[#7AB82D]">
+            <Ionicons
+              name="storefront-outline"
+              size={14}
+              color={COLORS.primaryLight}
+            />
+            <Text className="text-xs font-bold text-primary-light">
               {review.vendorName ?? review.vendorReply.repliedBy}
             </Text>
             <Text className="text-[10px] text-gray-400">

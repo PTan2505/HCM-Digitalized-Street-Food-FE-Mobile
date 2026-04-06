@@ -47,7 +47,7 @@ export const VoucherCard = ({
         {/* Discount badge */}
         <View
           className={`w-20 items-center justify-center ${
-            isExpired ? 'bg-gray-200' : 'bg-[#a1d973]'
+            isExpired ? 'bg-gray-200' : 'bg-primary'
           }`}
         >
           <Text

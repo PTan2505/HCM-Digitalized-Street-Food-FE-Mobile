@@ -2,6 +2,7 @@ import markerPng from '@assets/icons/marker.png';
 import markerSelectedPng from '@assets/icons/marker-selected.png';
 import MarkerIcon from '@assets/icons/marker.svg';
 import MarkerSelectedIcon from '@assets/icons/marker-selected.svg';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
@@ -224,7 +225,7 @@ const CIRCLE_STYLE = {
     'case',
     ['==', ['get', 'isVerified'], false],
     '#9CA3AF',
-    '#a1d973',
+    COLORS.primary,
   ] as unknown as string,
   circleStrokeWidth: 2,
   circleStrokeColor: '#ffffff',
@@ -303,7 +304,7 @@ const VendorMarker = ({
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="restaurant" size={14} color="#a1d973" />
+            <Ionicons name="restaurant" size={14} color={COLORS.primary} />
           </View>
         )}
       </View>
@@ -393,7 +394,7 @@ const MarkerBitmapItem = ({
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="restaurant" size={14} color="#a1d973" />
+            <Ionicons name="restaurant" size={14} color={COLORS.primary} />
           </View>
         )}
       </View>

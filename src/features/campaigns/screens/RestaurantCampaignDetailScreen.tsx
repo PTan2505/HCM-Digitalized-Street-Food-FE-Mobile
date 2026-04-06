@@ -176,7 +176,7 @@ export const RestaurantCampaignDetailScreen = ({
           onPress={handleClaim}
           disabled={isSoldOut || claimed}
           className={`mt-2 items-center rounded-xl py-4 ${
-            isSoldOut || claimed ? 'bg-gray-200' : 'bg-[#a1d973]'
+            isSoldOut || claimed ? 'bg-gray-200' : 'bg-primary'
           }`}
           activeOpacity={0.8}
         >

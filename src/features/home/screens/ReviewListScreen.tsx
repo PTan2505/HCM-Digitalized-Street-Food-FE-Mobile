@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -248,7 +249,7 @@ export const ReviewListScreen = ({
     if (!isFetchingNextPage) return null;
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#7AB82D" />
+        <ActivityIndicator size="small" color={COLORS.primaryLight} />
       </View>
     );
   }, [isFetchingNextPage]);
@@ -329,7 +330,7 @@ export const ReviewListScreen = ({
       {/* Review List */}
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#7AB82D" />
+          <ActivityIndicator size="large" color={COLORS.primaryLight} />
         </View>
       ) : (
         <FlatList
@@ -362,7 +363,7 @@ export const ReviewListScreen = ({
             }`}
           >
             {isEligibilityLoading ? (
-              <ActivityIndicator size="small" color="#7AB82D" />
+              <ActivityIndicator size="small" color={COLORS.primaryLight} />
             ) : (
               <Text
                 className={`text-base font-semibold ${
@@ -428,7 +429,11 @@ export const ReviewListScreen = ({
                   {t(`review_sort.${option}`)}
                 </Text>
                 {sortBy === option && (
-                  <Ionicons name="checkmark" size={22} color="#7AB82D" />
+                  <Ionicons
+                    name="checkmark"
+                    size={22}
+                    color={COLORS.primaryLight}
+                  />
                 )}
               </TouchableOpacity>
             ))}

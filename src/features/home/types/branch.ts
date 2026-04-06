@@ -38,6 +38,7 @@ export interface BranchDetail {
   createdAt: string;
   updatedAt: string | null;
   isVerified: boolean;
+  isSubscribed: boolean;
   avgRating: number;
   totalReviewCount: number;
   isActive: boolean;

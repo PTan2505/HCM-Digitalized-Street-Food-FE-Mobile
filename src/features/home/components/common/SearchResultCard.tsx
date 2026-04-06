@@ -156,7 +156,7 @@ const SearchResultCard = ({
               className={`self-start rounded-full px-2 py-0.5 ${isOpen ? 'bg-[#E8F5E9]' : 'bg-[#F3F4F6]'}`}
             >
               <Text
-                className={`text-[10px] font-semibold ${isOpen ? 'text-[#06AA4C]' : 'text-[#6B7280]'}`}
+                className={`text-[10px] font-semibold ${isOpen ? 'text-primary-dark' : 'text-[#6B7280]'}`}
               >
                 {isOpen ? t('actions.open') : t('actions.closed')}
               </Text>

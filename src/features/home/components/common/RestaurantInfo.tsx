@@ -70,7 +70,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
       </View>
 
       <View className="mb-2 flex-row items-center gap-2">
-        <Text className="text-sm font-semibold text-[#06AA4C]">
+        <Text className="text-sm font-semibold text-primary-dark">
           {restaurant.priceRange}
         </Text>
         <View className="flex-row items-center gap-0.5">

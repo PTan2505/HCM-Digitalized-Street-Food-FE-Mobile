@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/common/RestaurantInfo';
@@ -202,7 +203,7 @@ export const RestaurantSwipeScreen = ({
             })}
             {isFetchingNextPage && (
               <View className="items-center py-4">
-                <ActivityIndicator size="small" color="#9FD356" />
+                <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
             )}
           </View>

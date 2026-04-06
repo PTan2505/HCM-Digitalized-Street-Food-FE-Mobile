@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { cssInterop } from 'nativewind';
 import type { ComponentProps, JSX } from 'react';
@@ -48,7 +49,11 @@ export const TicketVoucherCard = ({
   return (
     <View className="mb-3 overflow-hidden rounded-3xl opacity-100 shadow-sm">
       <LinearGradient
-        colors={disabled ? ['#dedede', '#dedede'] : ['#89D151', '#cef5b0']}
+        colors={
+          disabled
+            ? ['#dedede', '#dedede']
+            : [COLORS.primaryGradientFrom, COLORS.primaryGradientTo]
+        }
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0.9 }}
@@ -156,7 +161,7 @@ export const TicketVoucherCard = ({
                 onPress={onActionPress}
                 disabled={actionDisabled}
                 className={`h-10 min-w-[88px] items-center justify-center rounded-full px-3 py-1.5 ${
-                  actionDisabled ? 'bg-white/60' : 'bg-[#EE6612]'
+                  actionDisabled ? 'bg-white/60' : 'bg-secondary'
                 }`}
               >
                 {isActionLoading ? (

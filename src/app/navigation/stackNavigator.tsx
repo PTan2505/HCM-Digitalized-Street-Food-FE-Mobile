@@ -4,6 +4,8 @@ import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHisto
 import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
 import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
+import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
+import { VoucherSelectScreen } from '@features/direct-ordering/screens/VoucherSelectScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
@@ -147,6 +149,15 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branchName: string;
         note?: string;
+      },
+    },
+    VoucherSelect: {
+      screen: VoucherSelectScreen,
+      params: {} as {
+        vouchers: UserVoucherApiDto[];
+        totalAmount: number;
+        selectedUserVoucherId?: number | null;
+        onSelect: (voucher: UserVoucherApiDto | null) => void;
       },
     },
     PaymentQR: {

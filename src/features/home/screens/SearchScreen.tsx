@@ -1,4 +1,5 @@
 import { FilterChipBar } from '@components/FilterChipBar';
+import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
@@ -21,7 +22,6 @@ import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   FlatList,
   InteractionManager,
   Text,
@@ -48,16 +48,37 @@ const FilterChip = ({
   onRemove: () => void;
 }): JSX.Element => (
   <View className="mr-2 flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-    <Text className="mr-1 text-sm font-medium text-[#06AA4C]">{label}</Text>
+    <Text className="mr-1 text-sm font-medium text-primary-dark">{label}</Text>
     <TouchableOpacity onPress={onRemove} hitSlop={6}>
-      <Ionicons name="close" size={14} color="#06AA4C" />
+      <Ionicons name="close" size={14} color={COLORS.primaryDark} />
     </TouchableOpacity>
+  </View>
+);
+
+const SearchResultSkeleton = (): JSX.Element => (
+  <View className="mx-1 mb-4 rounded-2xl border border-gray-200 bg-white p-3">
+    <View className="flex-row items-center gap-3">
+      <View className="h-10 w-10 rounded-full bg-gray-100" />
+      <View className="flex-1">
+        <View className="h-4 w-2/3 rounded bg-gray-100" />
+        <View className="mt-2 h-3 w-1/2 rounded bg-gray-100" />
+        <View className="mt-2 h-3 w-1/3 rounded bg-gray-100" />
+      </View>
+    </View>
+  </View>
+);
+
+const SearchSkeletonList = (): JSX.Element => (
+  <View className="pb-4">
+    {Array.from({ length: 4 }).map((_, idx) => (
+      <SearchResultSkeleton key={`search-skeleton-${idx}`} />
+    ))}
   </View>
 );
 
 export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { t } = useTranslation();
-  const { autoFocus, openFilter, selectedCategoryId } = route.params ?? {};
+  const { autoFocus, openFilter, selectedCategoryId } = route?.params ?? {};
   const [keyword, setKeyword] = useState('');
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filterSection, setFilterSection] = useState<FilterSection | null>(
@@ -65,6 +86,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   );
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(Boolean(autoFocus));
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
@@ -185,14 +207,18 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   );
 
   const renderEmptyOrError = (): JSX.Element => {
-    if (!hasSearched) return <View />;
-    if (isLoading) {
-      return (
-        <View className="flex-1 items-center justify-center py-20">
-          <ActivityIndicator size="large" color="#06AA4C" />
-        </View>
-      );
+    const shouldShowFocusSkeleton =
+      isInputFocused &&
+      !hasSearched &&
+      !keyword.trim() &&
+      activeFilters == null;
+
+    if (shouldShowFocusSkeleton || (hasSearched && isLoading)) {
+      return <SearchSkeletonList />;
     }
+
+    if (!hasSearched) return <View />;
+
     if (error) {
       return (
         <View className="flex-1 items-center justify-center px-6 py-20">
@@ -205,7 +231,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
               clearError();
               triggerSearch(keyword, activeFilters);
             }}
-            className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+            className="mt-4 rounded-full bg-primary-dark px-6 py-2"
           >
             <Text className="text-sm font-semibold text-white">
               {t('search.retry')}
@@ -274,6 +300,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           <View className="flex-1">
             <SearchBar
               onSearch={handleSearch}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
               showFilterButton
               onFilterPress={() => {
                 setFilterSection(null);

@@ -86,7 +86,7 @@ const UserProfileForm = (): JSX.Element => {
                     ? { uri: getHighResAvatar(user?.avatarUrl) }
                     : noAvt
               }
-              className="h-[128] w-[128] rounded-[64] border-[2px] border-[#a1d973] shadow-2xl"
+              className="h-[128] w-[128] rounded-[64] border-[2px] border-primary shadow-2xl"
             />
             <View className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-primary">
               <Text className="text-white">📷</Text>
