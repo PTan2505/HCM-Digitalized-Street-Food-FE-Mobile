@@ -43,11 +43,7 @@ export const usePaymentSocket = (
     connection.on('PaymentStatusUpdate', (payload: PaymentStatusPayload) => {
       if (payload.orderCode !== orderCodeRef.current) return;
       const status = payload.status.toUpperCase();
-      if (
-        status === 'PAID' ||
-        status === 'CANCELLED' ||
-        status === 'EXPIRED'
-      ) {
+      if (status === 'PAID' || status === 'CANCELLED' || status === 'EXPIRED') {
         setPaymentStatus(status as PaymentSocketStatus);
       }
     });
@@ -74,7 +70,10 @@ export const usePaymentSocket = (
           console.log(`[PaymentSocket] Connected (orderCode=${orderCode})`);
         })
         .catch((err: unknown) => {
-          console.warn(`[PaymentSocket] Connection failed (orderCode=${orderCode}):`, err);
+          console.warn(
+            `[PaymentSocket] Connection failed (orderCode=${orderCode}):`,
+            err
+          );
           if (cancelled) return;
           scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
         });
