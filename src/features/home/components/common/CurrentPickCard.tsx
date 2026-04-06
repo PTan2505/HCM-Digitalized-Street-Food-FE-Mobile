@@ -100,7 +100,11 @@ const CurrentPickCard = ({
         </View>
 
         <View className="mb-2 flex-row items-center gap-1">
-          <Ionicons name="pricetag-outline" size={14} color={COLORS.primaryDark} />
+          <Ionicons
+            name="pricetag-outline"
+            size={14}
+            color={COLORS.primaryDark}
+          />
           <Text className="text-[14px] font-bold text-primary-dark">
             {priceRange}
           </Text>

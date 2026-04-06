@@ -49,7 +49,11 @@ export const TicketVoucherCard = ({
   return (
     <View className="mb-3 overflow-hidden rounded-3xl opacity-100 shadow-sm">
       <LinearGradient
-        colors={disabled ? ['#dedede', '#dedede'] : [COLORS.primaryGradientFrom, COLORS.primaryGradientTo]}
+        colors={
+          disabled
+            ? ['#dedede', '#dedede']
+            : [COLORS.primaryGradientFrom, COLORS.primaryGradientTo]
+        }
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0.9 }}

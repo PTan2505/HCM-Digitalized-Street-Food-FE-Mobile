@@ -253,7 +253,11 @@ export const DirectCheckoutScreen = ({
           className="flex-row items-center justify-between border-b border-gray-100 px-4 py-4"
         >
           <View className="flex-row items-center gap-2">
-            <Ionicons name="pricetag-outline" size={20} color={COLORS.primaryLight} />
+            <Ionicons
+              name="pricetag-outline"
+              size={20}
+              color={COLORS.primaryLight}
+            />
             <Text className="text-sm font-semibold text-black">
               {t('checkout.voucher')}
             </Text>
@@ -313,7 +317,9 @@ export const DirectCheckoutScreen = ({
               <Ionicons
                 name={method.icon}
                 size={22}
-                color={selectedMethod === method.key ? COLORS.primaryLight : '#999'}
+                color={
+                  selectedMethod === method.key ? COLORS.primaryLight : '#999'
+                }
               />
               <Text
                 className={`ml-3 flex-1 text-sm font-semibold ${
@@ -325,7 +331,11 @@ export const DirectCheckoutScreen = ({
                 {getPaymentLabel(method.key)}
               </Text>
               {selectedMethod === method.key && (
-                <Ionicons name="checkmark-circle" size={20} color={COLORS.primaryLight} />
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={COLORS.primaryLight}
+                />
               )}
             </TouchableOpacity>
           ))}

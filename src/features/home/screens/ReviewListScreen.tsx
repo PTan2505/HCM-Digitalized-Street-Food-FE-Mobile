@@ -429,7 +429,11 @@ export const ReviewListScreen = ({
                   {t(`review_sort.${option}`)}
                 </Text>
                 {sortBy === option && (
-                  <Ionicons name="checkmark" size={22} color={COLORS.primaryLight} />
+                  <Ionicons
+                    name="checkmark"
+                    size={22}
+                    color={COLORS.primaryLight}
+                  />
                 )}
               </TouchableOpacity>
             ))}

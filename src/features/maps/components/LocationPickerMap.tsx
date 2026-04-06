@@ -623,7 +623,9 @@ const LocationPickerMapInner = React.forwardRef<
             }}
             returnKeyType="search"
           />
-          {isSearching && <ActivityIndicator size="small" color={COLORS.primary} />}
+          {isSearching && (
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          )}
           {searchText.length > 0 && !isSearching && (
             <Pressable
               onPress={() => {

@@ -332,7 +332,9 @@ const ReviewCard = ({
                     review.userVote === 'up' ? 'thumbs-up' : 'thumbs-up-outline'
                   }
                   size={18}
-                  color={review.userVote === 'up' ? COLORS.primaryLight : '#9CA3AF'}
+                  color={
+                    review.userVote === 'up' ? COLORS.primaryLight : '#9CA3AF'
+                  }
                 />
               </TouchableOpacity>
               <Text
@@ -486,7 +488,11 @@ const ReviewCard = ({
       {review.vendorReply ? (
         <View className="rounded-xl bg-gray-50 p-3">
           <View className="mb-1.5 flex-row items-center gap-1.5">
-            <Ionicons name="storefront-outline" size={14} color={COLORS.primaryLight} />
+            <Ionicons
+              name="storefront-outline"
+              size={14}
+              color={COLORS.primaryLight}
+            />
             <Text className="text-xs font-bold text-primary-light">
               {review.vendorName ?? review.vendorReply.repliedBy}
             </Text>

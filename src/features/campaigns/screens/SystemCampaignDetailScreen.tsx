@@ -117,7 +117,11 @@ export const SystemCampaignDetailScreen = ({
             >
               <View className="mb-1 flex-row items-center justify-between">
                 <View className="flex-row items-center">
-                  <Ionicons name="trophy-outline" size={18} color={COLORS.primaryLight} />
+                  <Ionicons
+                    name="trophy-outline"
+                    size={18}
+                    color={COLORS.primaryLight}
+                  />
                   <Text className="ml-2 text-base font-bold text-gray-900">
                     {quest.title}
                   </Text>

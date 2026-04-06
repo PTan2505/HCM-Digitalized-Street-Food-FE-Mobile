@@ -168,7 +168,11 @@ export const PaymentQRScreen = ({
               <ActivityIndicator size="small" color={COLORS.primaryLight} />
             ) : (
               <>
-                <Ionicons name="share-outline" size={20} color={COLORS.primaryLight} />
+                <Ionicons
+                  name="share-outline"
+                  size={20}
+                  color={COLORS.primaryLight}
+                />
                 <Text className="text-sm font-semibold text-primary-light">
                   {t('checkout.payment_qr_share')}
                 </Text>

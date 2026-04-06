@@ -1,7 +1,7 @@
 import optionIcon from '@assets/icons/option.svg';
-import { COLORS } from '@constants/colors';
 import { FilterChipBar } from '@components/FilterChipBar';
 import SvgIcon from '@components/SvgIcon';
+import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import type { AutocompletePrediction } from '@features/maps/services/geocoding';
@@ -130,7 +130,7 @@ const SearchBar = ({
             placeholderTextColor="#9CA3AF"
             onChangeText={setInputValue}
             value={inputValue}
-            className="ml-3 flex-1 text-base text-gray-900"
+            className="ml-3 flex-1 text-gray-900"
             editable={editable && !onPress}
             pointerEvents={onPress ? 'none' : 'auto'}
             textAlignVertical="center"

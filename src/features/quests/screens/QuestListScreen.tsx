@@ -48,13 +48,25 @@ export const QuestListScreen = (): JSX.Element => {
   }));
 
   const tab0TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab0Active.value, [0, 1], ['#9CA3AF', COLORS.primaryLight]),
+    color: interpolateColor(
+      tab0Active.value,
+      [0, 1],
+      ['#9CA3AF', COLORS.primaryLight]
+    ),
   }));
   const tab1TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab1Active.value, [0, 1], ['#9CA3AF', COLORS.primaryLight]),
+    color: interpolateColor(
+      tab1Active.value,
+      [0, 1],
+      ['#9CA3AF', COLORS.primaryLight]
+    ),
   }));
   const tab2TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab2Active.value, [0, 1], ['#9CA3AF', COLORS.primaryLight]),
+    color: interpolateColor(
+      tab2Active.value,
+      [0, 1],
+      ['#9CA3AF', COLORS.primaryLight]
+    ),
   }));
   const tabTextStyles = [tab0TextStyle, tab1TextStyle, tab2TextStyle];
 

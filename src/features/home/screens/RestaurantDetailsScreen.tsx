@@ -528,10 +528,10 @@ export const RestaurantDetailsScreen = ({
         >
           <Text className="text-base font-bold text-white">{displayName}</Text>
           <View className="mt-1 flex-row items-center justify-between">
-            <Text className="text-secondary text-base font-bold">
+            <Text className="text-base font-bold text-secondary">
               {t('cart.items_count', { count: cart.items.length })}
             </Text>
-            <Text className="text-secondary text-base font-bold">
+            <Text className="text-base font-bold text-secondary">
               {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
             </Text>
           </View>

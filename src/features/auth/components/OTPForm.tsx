@@ -171,9 +171,7 @@ export const OTPForm = (props: OTPFormProps): JSX.Element => {
           >
             <Text
               className={`text-lg font-semibold ${
-                countdown > 0 || isResending
-                  ? 'text-gray-400'
-                  : 'text-primary'
+                countdown > 0 || isResending ? 'text-gray-400' : 'text-primary'
               }`}
             >
               {isResending

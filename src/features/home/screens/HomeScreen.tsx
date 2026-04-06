@@ -445,7 +445,11 @@ export const HomeScreen = (): JSX.Element => {
           onPress={() => navigation.navigate('ListBranch', {})}
         >
           <Title>{t('places_might_like')}</Title>
-          <Ionicons name="chevron-forward-circle" size={20} color={COLORS.primaryGradientFrom} />
+          <Ionicons
+            name="chevron-forward-circle"
+            size={20}
+            color={COLORS.primaryGradientFrom}
+          />
         </TouchableOpacity>
       </LinearGradient>
     ),
