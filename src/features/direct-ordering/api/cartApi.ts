@@ -210,11 +210,12 @@ export class OrderApi {
 
   getMyOrders(
     pageNumber = 1,
-    pageSize = 10
+    pageSize = 10,
+    status?: OrderStatus
   ): Promise<ApiResponse<PaginatedOrders>> {
     return this.apiClient.get<PaginatedOrders>({
       url: apiUrl.order.myOrders,
-      params: { pageNumber, pageSize },
+      params: { pageNumber, pageSize, status },
     });
   }
 

@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -122,7 +122,7 @@ export const PersonalCartScreen = ({
           isVerified: branchDetail.isVerified,
           avgRating: branchDetail.avgRating,
           isActive: branchDetail.isActive,
-          isSubscribed: false,
+          isSubscribed: branchDetail.isSubscribed,
           tierId: branchDetail.tierId,
           tierName: branchDetail.tierName ?? '',
           finalScore: 0,
@@ -279,7 +279,11 @@ export const PersonalCartScreen = ({
         )}
       </View>
 
-      {isEmpty ? (
+      {cartLoading && !cart ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : isEmpty ? (
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="cart-outline" size={64} color="#ccc" />
           <Text className="mt-4 text-lg font-semibold text-gray-400">

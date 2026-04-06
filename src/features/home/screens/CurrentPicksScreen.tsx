@@ -1,14 +1,14 @@
-import React from 'react';
-import { StatusBar, ScrollView, type ImageSourcePropType } from 'react-native';
+import Header from '@components/Header';
+import AddButton from '@features/home/components/currentPicks/AddButton';
+import PickCard from '@features/home/components/currentPicks/PickCard';
+import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { ScrollView, StatusBar, type ImageSourcePropType } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import Header from '@features/home/components/currentPicks/Header';
-import PickCard from '@features/home/components/currentPicks/PickCard';
-import AddButton from '@features/home/components/currentPicks/AddButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface PickItem {
   id: string;

@@ -1,6 +1,7 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
+import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
@@ -30,6 +31,15 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
 
     connection.on('ReceiveNotification', (notification: NotificationDto) => {
       dispatch(receiveNotification(notification));
+
+      if (
+        notification.type === 'OrderStatusUpdate' &&
+        notification.referenceId
+      ) {
+        dispatch(
+          syncOrderToHistoryFromNotificationThunk(notification.referenceId)
+        );
+      }
     });
 
     connectionRef.current = connection;

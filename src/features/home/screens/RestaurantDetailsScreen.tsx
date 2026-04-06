@@ -1,5 +1,6 @@
-import type { VendorTier } from '@custom-types/vendor';
+import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import type { VendorTier } from '@custom-types/vendor';
 import { Ionicons } from '@expo/vector-icons';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
@@ -11,7 +12,6 @@ import RestaurantsMayLikeTab from '@features/home/components/restaurantDetails/R
 import type { Review } from '@features/home/components/restaurantDetails/ReviewsTab';
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
 import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
-import TabsBar from '@features/home/components/restaurantDetails/TabsBar';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
@@ -36,7 +36,7 @@ import { fetchCartThunk, selectCart } from '@slices/directOrdering';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActionSheetIOS,
@@ -71,6 +71,47 @@ export const RestaurantDetailsScreen = ({
   const progress = useSharedValue<number>(0);
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const detailTabs = useMemo(
+    () => [
+      {
+        key: 'menu' as const,
+        label: t('tabs.menu'),
+        icon: ({
+          color,
+        }: {
+          isActive: boolean;
+          color: string;
+        }): JSX.Element => (
+          <Ionicons name="restaurant-outline" size={20} color={color} />
+        ),
+      },
+      {
+        key: 'reviews' as const,
+        label: t('tabs.reviews'),
+        icon: ({
+          color,
+        }: {
+          isActive: boolean;
+          color: string;
+        }): JSX.Element => (
+          <Ionicons name="chatbubble-outline" size={20} color={color} />
+        ),
+      },
+      {
+        key: 'nearby' as const,
+        label: t('tabs.nearby'),
+        icon: ({
+          color,
+        }: {
+          isActive: boolean;
+          color: string;
+        }): JSX.Element => (
+          <Ionicons name="ticket-outline" size={20} color={color} />
+        ),
+      },
+    ],
+    [t]
+  );
 
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
@@ -420,7 +461,15 @@ export const RestaurantDetailsScreen = ({
           </TouchableOpacity>
         </View>
 
-        <TabsBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabBar
+          tabs={detailTabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          variant="equal"
+          activeColor="#FF6B35"
+          inactiveColor="#999999"
+          indicatorColor="#FF6B35"
+        />
 
         {activeTab === 'menu' && (
           <MenuTab
@@ -479,10 +528,10 @@ export const RestaurantDetailsScreen = ({
         >
           <Text className="text-base font-bold text-white">{displayName}</Text>
           <View className="mt-1 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-secondary">
+            <Text className="text-secondary text-base font-bold">
               {t('cart.items_count', { count: cart.items.length })}
             </Text>
-            <Text className="text-base font-bold text-secondary">
+            <Text className="text-secondary text-base font-bold">
               {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
             </Text>
           </View>
