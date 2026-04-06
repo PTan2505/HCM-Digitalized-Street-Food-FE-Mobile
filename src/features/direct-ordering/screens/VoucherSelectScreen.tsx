@@ -133,7 +133,7 @@ export const VoucherSelectScreen = ({
 
           return (
             <TouchableOpacity
-              key={v.userVoucherId}
+              key={v.voucherId}
               onPress={() => {
                 if (!isDisabled) handleSelect(v);
               }}
