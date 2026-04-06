@@ -40,7 +40,7 @@ const BranchCard = ({
             source={{ uri: imageUri }}
             resizeMode="cover"
           />
-          <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-[#EE6612] px-2 py-0.5">
+          <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-secondary px-2 py-0.5">
             <MaterialCommunityIcons name="tag" size={10} color="#fff" />
             <Text className="text-[9px] font-bold text-white">
               {t('campaign.merchant_promo')}

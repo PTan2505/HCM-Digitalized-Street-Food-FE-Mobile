@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { CampaignCard } from '@features/campaigns/components/CampaignCard';
 import { CampaignTypeTabs } from '@features/campaigns/components/CampaignTypeTabs';
 import { NearbyCampaignsSection } from '@features/campaigns/components/NearbyCampaignsSection';
@@ -66,7 +67,7 @@ export const CampaignListScreen = (): JSX.Element => {
 
       {isLoading && !refreshing ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-6">
@@ -75,7 +76,7 @@ export const CampaignListScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={() => void onRefresh()}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2"
+            className="mt-4 rounded-full bg-primary px-6 py-2"
           >
             <Text className="text-sm font-semibold text-white">
               {t('campaign.retry')}
@@ -92,8 +93,8 @@ export const CampaignListScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => void onRefresh()}
-              colors={['#a1d973']}
-              tintColor="#a1d973"
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
             />
           }
           ListHeaderComponent={<NearbyCampaignsSection />}
@@ -126,8 +127,8 @@ export const CampaignListScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => void onRefresh()}
-              colors={['#a1d973']}
-              tintColor="#a1d973"
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
             />
           }
           renderItem={({ item }) => (

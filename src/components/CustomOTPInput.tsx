@@ -8,6 +8,8 @@ import {
 import { Text, View } from 'react-native';
 import { OtpInput, OtpInputRef } from 'react-native-otp-entry';
 
+import { COLORS } from '@constants/colors';
+
 interface CustomOTPInputProps<T extends FieldValues> {
   ref: Ref<OtpInputRef>;
   name: FieldPath<T>;
@@ -37,7 +39,7 @@ export const CustomOTPInput = <T extends FieldValues>(
             {...field}
             ref={ref}
             numberOfDigits={numberOfDigits}
-            focusColor={'#a1d973'}
+            focusColor={COLORS.primary}
             autoFocus={false}
             hideStick={true}
             blurOnFilled={true}
@@ -54,7 +56,7 @@ export const CustomOTPInput = <T extends FieldValues>(
                 minHeight: 48,
               },
               pinCodeTextStyle: {
-                color: '#a1d973',
+                color: COLORS.primary,
               },
             }}
           />

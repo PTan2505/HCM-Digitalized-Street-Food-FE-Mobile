@@ -74,7 +74,7 @@ const PickCard = ({
       >
         <View className="relative mr-4">
           <View
-            className="absolute -left-2 top-3 h-[63px] w-[63px] rounded-[6px] bg-[#EE66127D] opacity-60"
+            className="absolute -left-2 top-3 h-[63px] w-[63px] rounded-[6px] bg-secondary/50 opacity-60"
             style={{ transform: [{ rotate: '-15deg' }] }}
           />
           <View

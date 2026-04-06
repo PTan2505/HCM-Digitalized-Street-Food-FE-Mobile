@@ -63,12 +63,12 @@ const SortModal: (props: SortModalProps) => JSX.Element = ({
                   <View
                     className={`h-6 w-6 rounded-full border-2 ${
                       selectedSort === option.id
-                        ? 'border-[#06AA4C]'
+                        ? 'border-primary-dark'
                         : 'border-gray-300'
                     } items-center justify-center`}
                   >
                     {selectedSort === option.id && (
-                      <View className="h-3.5 w-3.5 rounded-full bg-[#06AA4C]" />
+                      <View className="h-3.5 w-3.5 rounded-full bg-primary-dark" />
                     )}
                   </View>
                 </TouchableOpacity>

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { ProfileSectionItem } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -30,7 +31,7 @@ export const ProfileFeatureButtons = ({
               <Ionicons
                 name={item.icon as keyof typeof Ionicons.glyphMap}
                 size={24}
-                color={item.color ?? '#9FD356'}
+                color={item.color ?? COLORS.primary}
               />
             </View>
           )}

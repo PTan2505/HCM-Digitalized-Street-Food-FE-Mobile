@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
@@ -155,7 +156,7 @@ export const ListBranchScreen = ({
         ListFooterComponent={
           isPaginated && branchesLoadingMore ? (
             <View className="items-center py-4">
-              <ActivityIndicator color="#a1d973" />
+              <ActivityIndicator color={COLORS.primary} />
             </View>
           ) : null
         }

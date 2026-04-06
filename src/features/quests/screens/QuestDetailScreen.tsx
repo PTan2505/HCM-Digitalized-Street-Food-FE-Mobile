@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -48,7 +49,7 @@ export const QuestDetailScreen = ({
         edges={['top', 'left', 'right']}
         className="flex-1 items-center justify-center bg-white"
       >
-        <ActivityIndicator size="large" color="#a1d973" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </SafeAreaView>
     );
   }
@@ -64,7 +65,7 @@ export const QuestDetailScreen = ({
         </Text>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="mt-4 rounded-full bg-[#a1d973] px-6 py-2"
+          className="mt-4 rounded-full bg-primary px-6 py-2"
         >
           <Text className="text-sm font-semibold text-white">{t('back')}</Text>
         </TouchableOpacity>
@@ -133,8 +134,8 @@ export const QuestDetailScreen = ({
               {quest.taskCount} {t('quest.tasks')}
             </Text>
             {myProgress && (
-              <View className="ml-3 rounded-full bg-[#a1d973]/20 px-3 py-0.5">
-                <Text className="text-xs font-semibold text-[#7AB82D]">
+              <View className="ml-3 rounded-full bg-primary/20 px-3 py-0.5">
+                <Text className="text-xs font-semibold text-primary-light">
                   {myProgress.status === 'COMPLETED'
                     ? t('quest.completed')
                     : t('quest.inProgress')}
@@ -151,13 +152,13 @@ export const QuestDetailScreen = ({
 
           {/* Progress summary for enrolled quests */}
           {myProgress && (
-            <View className="mb-4 rounded-xl bg-[#a1d973]/10 p-4">
+            <View className="mb-4 rounded-xl bg-primary/10 p-4">
               <Text className="mb-2 text-sm font-semibold text-gray-800">
                 {t('quest.progress')}
               </Text>
               <View className="mb-1 h-3 overflow-hidden rounded-full bg-gray-200">
                 <View
-                  className="h-full rounded-full bg-[#a1d973]"
+                  className="h-full rounded-full bg-primary"
                   style={{
                     width: `${myProgress.totalTasks > 0 ? (myProgress.completedTasks / myProgress.totalTasks) * 100 : 0}%`,
                   }}
@@ -187,7 +188,7 @@ export const QuestDetailScreen = ({
           <TouchableOpacity
             onPress={onEnroll}
             disabled={enrolling}
-            className="items-center rounded-full bg-[#a1d973] py-3.5"
+            className="items-center rounded-full bg-primary py-3.5"
             activeOpacity={0.8}
           >
             {enrolling ? (

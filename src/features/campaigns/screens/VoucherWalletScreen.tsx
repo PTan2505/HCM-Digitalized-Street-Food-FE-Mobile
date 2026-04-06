@@ -1,4 +1,5 @@
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import {
   useVoucherWallet,
@@ -81,7 +82,7 @@ const AnimatedTabLabel = ({
     color: interpolateColor(
       activeProgress.value,
       [0, 1],
-      ['#6B7280', '#89D151']
+      ['#6B7280', COLORS.primaryGradientFrom]
     ),
   }));
 
@@ -237,7 +238,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
                 bottom: -12,
                 left: 0,
                 height: 2,
-                backgroundColor: '#a1d973',
+                backgroundColor: COLORS.primary,
               },
               indicatorStyle,
             ]}
@@ -248,7 +249,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
       {/* Content */}
       {isLoading && displayedVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error && displayedVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
@@ -258,7 +259,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={handleRefresh}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2.5"
+            className="mt-4 rounded-full bg-primary px-6 py-2.5"
           >
             <Text className="text-base font-semibold text-white">
               {t('campaign.retry')}
@@ -273,7 +274,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2.5"
+            className="mt-4 rounded-full bg-primary px-6 py-2.5"
           >
             <Text className="text-base font-semibold text-white">
               {t('campaign.discover_campaigns')}
@@ -290,8 +291,8 @@ export const VoucherWalletScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isLoading}
               onRefresh={handleRefresh}
-              tintColor="#a1d973"
-              colors={['#a1d973']}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
             />
           }
           renderItem={({ item }) => {

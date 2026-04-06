@@ -17,12 +17,12 @@ export const CampaignTypeTabs = ({
     <View className="flex-row border-b border-gray-200 px-4">
       <TouchableOpacity
         onPress={() => onTabChange('system')}
-        className={`mr-6 pb-3 ${activeTab === 'system' ? 'border-b-2 border-[#a1d973]' : ''}`}
+        className={`mr-6 pb-3 ${activeTab === 'system' ? 'border-b-2 border-primary' : ''}`}
         activeOpacity={0.7}
       >
         <Text
           className={`text-sm font-semibold ${
-            activeTab === 'system' ? 'text-[#7AB82D]' : 'text-gray-400'
+            activeTab === 'system' ? 'text-primary-light' : 'text-gray-400'
           }`}
         >
           {t('campaign.tab_system')}
@@ -31,12 +31,12 @@ export const CampaignTypeTabs = ({
 
       <TouchableOpacity
         onPress={() => onTabChange('restaurant')}
-        className={`pb-3 ${activeTab === 'restaurant' ? 'border-b-2 border-[#a1d973]' : ''}`}
+        className={`pb-3 ${activeTab === 'restaurant' ? 'border-b-2 border-primary' : ''}`}
         activeOpacity={0.7}
       >
         <Text
           className={`text-sm font-semibold ${
-            activeTab === 'restaurant' ? 'text-[#7AB82D]' : 'text-gray-400'
+            activeTab === 'restaurant' ? 'text-primary-light' : 'text-gray-400'
           }`}
         >
           {t('campaign.tab_restaurant')}

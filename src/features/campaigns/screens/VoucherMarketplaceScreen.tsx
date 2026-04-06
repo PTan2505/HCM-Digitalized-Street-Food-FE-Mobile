@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { VoucherDto } from '@features/campaigns/api/voucherApi';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useVoucherMarketplace } from '@features/campaigns/hooks/useVoucherMarketplace';
@@ -171,7 +172,7 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
       {/* Content */}
       {isLoading && availableVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error && availableVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
@@ -181,7 +182,7 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={() => void handleRefresh()}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2"
+            className="mt-4 rounded-full bg-primary px-6 py-2"
           >
             <Text className="text-sm font-semibold text-white">
               {t('campaign.retry')}
@@ -205,8 +206,8 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isLoading}
               onRefresh={() => void handleRefresh()}
-              tintColor="#a1d973"
-              colors={['#a1d973']}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
             />
           }
           renderItem={({ item }) => (

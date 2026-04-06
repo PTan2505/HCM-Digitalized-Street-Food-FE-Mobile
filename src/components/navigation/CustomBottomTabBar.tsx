@@ -149,7 +149,7 @@ export const CustomBottomTabBar = ({
       <View className="relative flex-row items-center justify-between rounded-full bg-white p-[8px] shadow-[0_4px_2px_rgba(0,0,0,0.2)]">
         <Animated.View
           pointerEvents="none"
-          className="absolute bottom-[8px] left-0 top-[8px] rounded-full bg-[#06AA4C]"
+          className="absolute bottom-[8px] left-0 top-[8px] rounded-full bg-primary-dark"
           style={activePillStyle}
         />
         {state.routes.map((route, index) => {

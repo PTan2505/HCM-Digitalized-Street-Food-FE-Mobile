@@ -75,7 +75,7 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
 
       <View className="mb-1 h-2.5 overflow-hidden rounded-full bg-gray-200">
         <View
-          className={`h-full rounded-full ${task.isCompleted ? 'bg-green-500' : 'bg-[#a1d973]'}`}
+          className={`h-full rounded-full ${task.isCompleted ? 'bg-green-500' : 'bg-primary'}`}
           style={{ width: `${progress}%` }}
         />
       </View>

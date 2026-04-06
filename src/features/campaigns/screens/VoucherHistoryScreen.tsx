@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -57,10 +58,10 @@ export const VoucherHistoryScreen = (): JSX.Element => {
   }));
 
   const tab0TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab0Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+    color: interpolateColor(tab0Active.value, [0, 1], ['#9CA3AF', COLORS.primaryLight]),
   }));
   const tab1TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(tab1Active.value, [0, 1], ['#9CA3AF', '#7AB82D']),
+    color: interpolateColor(tab1Active.value, [0, 1], ['#9CA3AF', COLORS.primaryLight]),
   }));
   const tabTextStyles = [tab0TextStyle, tab1TextStyle];
 
@@ -153,7 +154,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
             {
               width: tabWidth,
               height: 2,
-              backgroundColor: '#a1d973',
+              backgroundColor: COLORS.primary,
               marginTop: -2,
             },
             indicatorStyle,
@@ -164,7 +165,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
       {/* Content */}
       {isLoading && displayedVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : displayedVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
@@ -183,8 +184,8 @@ export const VoucherHistoryScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isLoading}
               onRefresh={handleRefresh}
-              tintColor="#a1d973"
-              colors={['#a1d973']}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
             />
           }
           renderItem={({ item }) => (

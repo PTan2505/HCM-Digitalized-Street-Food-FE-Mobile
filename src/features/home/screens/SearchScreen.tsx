@@ -1,4 +1,5 @@
 import { FilterChipBar } from '@components/FilterChipBar';
+import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
@@ -48,9 +49,9 @@ const FilterChip = ({
   onRemove: () => void;
 }): JSX.Element => (
   <View className="mr-2 flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-    <Text className="mr-1 text-sm font-medium text-[#06AA4C]">{label}</Text>
+    <Text className="mr-1 text-sm font-medium text-primary-dark">{label}</Text>
     <TouchableOpacity onPress={onRemove} hitSlop={6}>
-      <Ionicons name="close" size={14} color="#06AA4C" />
+      <Ionicons name="close" size={14} color={COLORS.primaryDark} />
     </TouchableOpacity>
   </View>
 );
@@ -189,7 +190,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     if (isLoading) {
       return (
         <View className="flex-1 items-center justify-center py-20">
-          <ActivityIndicator size="large" color="#06AA4C" />
+          <ActivityIndicator size="large" color={COLORS.primaryDark} />
         </View>
       );
     }
@@ -205,7 +206,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
               clearError();
               triggerSearch(keyword, activeFilters);
             }}
-            className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+            className="mt-4 rounded-full bg-primary-dark px-6 py-2"
           >
             <Text className="text-sm font-semibold text-white">
               {t('search.retry')}

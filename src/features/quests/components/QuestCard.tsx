@@ -63,15 +63,15 @@ export const QuestCard = ({
                 </Text>
               </View>
             ) : (
-              <View className="rounded-full bg-[#a1d973]/20 px-3 py-1">
-                <Text className="text-xs font-semibold text-[#7AB82D]">
+              <View className="rounded-full bg-primary/20 px-3 py-1">
+                <Text className="text-xs font-semibold text-primary-light">
                   {enrolledInfo.completedTasks}/{enrolledInfo.totalTasks}{' '}
                   {t('quest.tasksCompleted')}
                 </Text>
               </View>
             )
           ) : (
-            <View className="rounded-full bg-[#a1d973] px-3 py-1">
+            <View className="rounded-full bg-primary px-3 py-1">
               <Text className="text-xs font-semibold text-white">
                 {t('quest.startQuest')}
               </Text>

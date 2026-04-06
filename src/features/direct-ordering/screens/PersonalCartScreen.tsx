@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -325,7 +326,7 @@ export const PersonalCartScreen = ({
                         handleUpdateQuantity(item.dishId, item.quantity, -1)
                       }
                       disabled={cartLoading}
-                      className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
+                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
                     >
                       <Text className="text-lg font-bold text-white">−</Text>
                     </TouchableOpacity>
@@ -337,7 +338,7 @@ export const PersonalCartScreen = ({
                         handleUpdateQuantity(item.dishId, item.quantity, 1)
                       }
                       disabled={cartLoading}
-                      className="h-8 w-8 items-center justify-center rounded-full bg-[#a1d973]"
+                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
                     >
                       <Text className="text-lg font-bold text-white">+</Text>
                     </TouchableOpacity>
@@ -368,7 +369,7 @@ export const PersonalCartScreen = ({
             {/* Menu */}
             {menuLoading ? (
               <View className="items-center py-8">
-                <ActivityIndicator color="#a1d973" />
+                <ActivityIndicator color={COLORS.primary} />
               </View>
             ) : menuDishes.length > 0 ? (
               <View className="border-t border-gray-100">
@@ -386,7 +387,7 @@ export const PersonalCartScreen = ({
                         })
                       }
                     >
-                      <Text className="text-sm font-semibold text-[#a1d973]">
+                      <Text className="text-sm font-semibold text-primary">
                         {t('cart.view_all_menu')}
                       </Text>
                     </TouchableOpacity>
@@ -484,7 +485,7 @@ export const PersonalCartScreen = ({
                                     ) : !isOpen ? null : qty === 0 ? (
                                       <TouchableOpacity
                                         onPress={() => handleMenuAdd(dish)}
-                                        className="rounded-full bg-[#a1d973] px-4 py-1.5"
+                                        className="rounded-full bg-primary px-4 py-1.5"
                                       >
                                         <Text className="text-sm font-semibold text-white">
                                           {t('cart.add')}
@@ -501,7 +502,7 @@ export const PersonalCartScreen = ({
                                           <Ionicons
                                             name="remove-circle"
                                             size={32}
-                                            color="#a1d973"
+                                            color={COLORS.primary}
                                           />
                                         </TouchableOpacity>
                                         <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
@@ -514,7 +515,7 @@ export const PersonalCartScreen = ({
                                           <Ionicons
                                             name="add-circle"
                                             size={32}
-                                            color="#a1d973"
+                                            color={COLORS.primary}
                                           />
                                         </TouchableOpacity>
                                       </View>
@@ -576,7 +577,7 @@ export const PersonalCartScreen = ({
                                 ) : !isOpen ? null : qty === 0 ? (
                                   <TouchableOpacity
                                     onPress={() => handleMenuAdd(dish)}
-                                    className="rounded-full bg-[#a1d973] px-4 py-1.5"
+                                    className="rounded-full bg-primary px-4 py-1.5"
                                   >
                                     <Text className="text-sm font-semibold text-white">
                                       {t('cart.add')}
@@ -591,7 +592,7 @@ export const PersonalCartScreen = ({
                                       <Ionicons
                                         name="remove-circle"
                                         size={32}
-                                        color="#a1d973"
+                                        color={COLORS.primary}
                                       />
                                     </TouchableOpacity>
                                     <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
@@ -604,7 +605,7 @@ export const PersonalCartScreen = ({
                                       <Ionicons
                                         name="add-circle"
                                         size={32}
-                                        color="#a1d973"
+                                        color={COLORS.primary}
                                       />
                                     </TouchableOpacity>
                                   </View>
@@ -638,7 +639,7 @@ export const PersonalCartScreen = ({
             <TouchableOpacity
               onPress={handlePlaceOrder}
               disabled={!isOpen || cartLoading}
-              className={`items-center rounded-2xl py-4 ${isOpen ? 'bg-[#a1d973]' : 'bg-gray-300'}`}
+              className={`items-center rounded-2xl py-4 ${isOpen ? 'bg-primary' : 'bg-gray-300'}`}
             >
               {cartLoading ? (
                 <ActivityIndicator color="#fff" />

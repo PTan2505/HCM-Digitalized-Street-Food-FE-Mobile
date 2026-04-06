@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import type {
   OrderResponse,
@@ -28,7 +29,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   [ORDER_STATUS.Pending]: '#f59e0b',
   [ORDER_STATUS.AwaitingVendorConfirmation]: '#3b82f6',
   [ORDER_STATUS.Paid]: '#8b5cf6',
-  [ORDER_STATUS.Complete]: '#a1d973',
+  [ORDER_STATUS.Complete]: COLORS.primary,
   [ORDER_STATUS.Cancelled]: '#9ca3af',
 };
 
@@ -153,7 +154,7 @@ export const OrderHistoryScreen = (): JSX.Element => {
         ListEmptyComponent={
           isLoading ? (
             <View className="flex-1 items-center justify-center py-20">
-              <ActivityIndicator size="large" color="#a1d973" />
+              <ActivityIndicator size="large" color={COLORS.primary} />
             </View>
           ) : (
             <View className="flex-1 items-center justify-center py-20">
@@ -167,7 +168,7 @@ export const OrderHistoryScreen = (): JSX.Element => {
         ListFooterComponent={
           isLoading && orderHistory ? (
             <View className="py-4">
-              <ActivityIndicator color="#a1d973" />
+              <ActivityIndicator color={COLORS.primary} />
             </View>
           ) : null
         }

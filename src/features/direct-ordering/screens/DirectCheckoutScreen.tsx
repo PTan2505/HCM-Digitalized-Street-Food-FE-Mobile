@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -252,18 +253,18 @@ export const DirectCheckoutScreen = ({
           className="flex-row items-center justify-between border-b border-gray-100 px-4 py-4"
         >
           <View className="flex-row items-center gap-2">
-            <Ionicons name="pricetag-outline" size={20} color="#7AB82D" />
+            <Ionicons name="pricetag-outline" size={20} color={COLORS.primaryLight} />
             <Text className="text-sm font-semibold text-black">
               {t('checkout.voucher')}
             </Text>
           </View>
           <View className="flex-row items-center gap-2">
             {vouchersLoading ? (
-              <ActivityIndicator size="small" color="#a1d973" />
+              <ActivityIndicator size="small" color={COLORS.primary} />
             ) : selectedVoucher ? (
               <View className="items-end">
                 <Text
-                  className="max-w-[160px] text-sm font-semibold text-[#7AB82D]"
+                  className="max-w-[160px] text-sm font-semibold text-primary-light"
                   numberOfLines={1}
                 >
                   {selectedVoucher.voucherName}
@@ -288,7 +289,7 @@ export const DirectCheckoutScreen = ({
         >
           <Text className="text-sm font-semibold text-black">Mang đi</Text>
           <View
-            className={`h-5 w-5 items-end justify-end rounded border-2 ${isTakeAway ? 'border-[#a1d973] bg-[#a1d973]' : 'border-gray-300 bg-white'}`}
+            className={`h-5 w-5 items-end justify-end rounded border-2 ${isTakeAway ? 'border-primary bg-primary' : 'border-gray-300 bg-white'}`}
           >
             {isTakeAway && <Ionicons name="checkmark" size={13} color="#fff" />}
           </View>
@@ -305,26 +306,26 @@ export const DirectCheckoutScreen = ({
               onPress={() => setSelectedMethod(method.key)}
               className={`mb-2 flex-row items-center rounded-xl border px-4 py-3.5 ${
                 selectedMethod === method.key
-                  ? 'border-[#a1d973] bg-[#f4fce3]'
+                  ? 'border-primary bg-[#f4fce3]'
                   : 'border-gray-200'
               }`}
             >
               <Ionicons
                 name={method.icon}
                 size={22}
-                color={selectedMethod === method.key ? '#7AB82D' : '#999'}
+                color={selectedMethod === method.key ? COLORS.primaryLight : '#999'}
               />
               <Text
                 className={`ml-3 flex-1 text-sm font-semibold ${
                   selectedMethod === method.key
-                    ? 'text-[#7AB82D]'
+                    ? 'text-primary-light'
                     : 'text-black'
                 }`}
               >
                 {getPaymentLabel(method.key)}
               </Text>
               {selectedMethod === method.key && (
-                <Ionicons name="checkmark-circle" size={20} color="#7AB82D" />
+                <Ionicons name="checkmark-circle" size={20} color={COLORS.primaryLight} />
               )}
             </TouchableOpacity>
           ))}
@@ -336,7 +337,7 @@ export const DirectCheckoutScreen = ({
         <TouchableOpacity
           onPress={handleConfirm}
           disabled={orderLoading}
-          className="items-center rounded-2xl bg-[#a1d973] py-4"
+          className="items-center rounded-2xl bg-primary py-4"
         >
           {orderLoading ? (
             <ActivityIndicator color="#fff" />

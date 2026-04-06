@@ -3,6 +3,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -85,7 +86,7 @@ export const DetailCard = ({
           className="flex-row items-center justify-between px-4 py-3"
         >
           <View className="flex-1 flex-row items-center">
-            <Ionicons name="restaurant" size={16} color="#a1d973" />
+            <Ionicons name="restaurant" size={16} color={COLORS.primary} />
             <Text
               className="ml-2 flex-1 text-base font-bold text-gray-900"
               numberOfLines={1}
@@ -171,7 +172,7 @@ export const DetailCard = ({
             {/* Action button */}
             <Pressable
               onPress={onViewDetail}
-              className="mt-3 items-center rounded-xl bg-[#a1d973] py-3"
+              className="mt-3 items-center rounded-xl bg-primary py-3"
             >
               <Text className="text-sm font-bold text-white">Xem chi tiết</Text>
             </Pressable>

@@ -303,7 +303,10 @@
     "voucher_need_more": "Cần thêm {{amount}} để áp dụng",
     "voucher_apply": "Áp dụng",
     "voucher_selected": "Đã chọn",
-    "voucher_auto_applied": "Voucher tốt nhất đã được áp dụng tự động"
+    "voucher_auto_applied": "Voucher tốt nhất đã được áp dụng tự động",
+    "voucher_search_placeholder": "Nhập mã khuyến mãi hoặc mã quà tặng tại đây",
+    "voucher_saves": "Giảm {{amount}}",
+    "skip_voucher": "Bỏ qua ưu đãi và tiếp tục"
   },
   "order": {
     "status_title": "Trạng thái đơn hàng",

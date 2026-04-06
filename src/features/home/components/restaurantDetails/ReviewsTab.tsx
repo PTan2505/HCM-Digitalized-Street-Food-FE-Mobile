@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
 import type { Dish } from '@features/home/types/branch';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -118,7 +119,7 @@ const ReviewsTab = ({
               </Text>
             </View>
             <View className="flex-row content-around items-baseline justify-around">
-              <Text className="text-[50px] font-bold text-[#06AA4C]">
+              <Text className="text-[50px] font-bold text-primary-dark">
                 {averageRating.toFixed(1)}
               </Text>
               <Text className="text-base text-gray-600">
@@ -182,7 +183,7 @@ const ReviewsTab = ({
                 className={`items-center rounded-xl py-3 ${canReview && !isEligibilityLoading ? 'bg-primary' : 'bg-gray-200'}`}
               >
                 {isEligibilityLoading ? (
-                  <ActivityIndicator size="small" color="#7AB82D" />
+                  <ActivityIndicator size="small" color={COLORS.primaryLight} />
                 ) : (
                   <Text
                     className={`text-sm font-semibold ${canReview ? 'text-white' : 'text-gray-400'}`}
@@ -245,7 +246,7 @@ const ReviewsTab = ({
           activeDotStyle={{
             borderRadius: 100,
             overflow: 'hidden',
-            backgroundColor: '#06AA4C',
+            backgroundColor: COLORS.primaryDark,
           }}
           containerStyle={[
             {

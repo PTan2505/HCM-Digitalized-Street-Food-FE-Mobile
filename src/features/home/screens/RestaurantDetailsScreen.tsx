@@ -1,4 +1,5 @@
 import type { VendorTier } from '@custom-types/vendor';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
@@ -363,10 +364,10 @@ export const RestaurantDetailsScreen = ({
             onPress={() =>
               navigation.navigate('Map', { initialBranch: branch })
             }
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-[#a1d973] py-2.5"
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-primary py-2.5"
           >
-            <Ionicons name="map-outline" size={18} color="#a1d973" />
-            <Text className="text-sm font-semibold text-[#a1d973]">
+            <Ionicons name="map-outline" size={18} color={COLORS.primary} />
+            <Text className="text-sm font-semibold text-primary">
               {t('actions.view_on_map')}
             </Text>
           </TouchableOpacity>
@@ -410,7 +411,7 @@ export const RestaurantDetailsScreen = ({
                 });
               }
             }}
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-[#a1d973] py-2.5"
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-2.5"
           >
             <Ionicons name="navigate-outline" size={18} color="#fff" />
             <Text className="text-sm font-semibold text-white">
@@ -474,14 +475,14 @@ export const RestaurantDetailsScreen = ({
               isOpen,
             })
           }
-          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-[#a1d973] px-5 py-4 shadow-lg"
+          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-primary px-5 py-4 shadow-lg"
         >
           <Text className="text-base font-bold text-white">{displayName}</Text>
           <View className="mt-1 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-[#EE6612]">
+            <Text className="text-base font-bold text-secondary">
               {t('cart.items_count', { count: cart.items.length })}
             </Text>
-            <Text className="text-base font-bold text-[#EE6612]">
+            <Text className="text-base font-bold text-secondary">
               {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
             </Text>
           </View>

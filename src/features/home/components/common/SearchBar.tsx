@@ -1,4 +1,5 @@
 import optionIcon from '@assets/icons/option.svg';
+import { COLORS } from '@constants/colors';
 import { FilterChipBar } from '@components/FilterChipBar';
 import SvgIcon from '@components/SvgIcon';
 import type { FilterSection, FilterState } from '@custom-types/filter';
@@ -203,8 +204,8 @@ const SearchBar = ({
             onPress={onSearchArea}
             className="flex-row items-center gap-1.5 rounded-full bg-white px-4 py-2 shadow-lg"
           >
-            <Ionicons name="refresh" size={14} color="#a1d973" />
-            <Text className="text-sm font-semibold text-[#a1d973]">
+            <Ionicons name="refresh" size={14} color={COLORS.primary} />
+            <Text className="text-sm font-semibold text-primary">
               {searchAreaButtonText}
             </Text>
           </TouchableOpacity>

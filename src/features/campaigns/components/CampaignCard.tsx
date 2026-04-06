@@ -38,8 +38,8 @@ export const CampaignCard = ({
         activeOpacity={0.7}
       >
         <View className="mb-2 flex-row items-center justify-between">
-          <View className="rounded-full bg-[#a1d973]/20 px-2 py-0.5">
-            <Text className="text-xs font-semibold text-[#7AB82D]">
+          <View className="rounded-full bg-primary/20 px-2 py-0.5">
+            <Text className="text-xs font-semibold text-primary-light">
               {t('campaign.platform_event')}
             </Text>
           </View>

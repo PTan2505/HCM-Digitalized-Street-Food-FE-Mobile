@@ -80,7 +80,7 @@ export const CustomInput = <T extends FieldValues>(
               (fieldState.error
                 ? 'border-b-[#FE4763]'
                 : isFocused
-                  ? 'border-b-[#a1d973]'
+                  ? 'border-b-primary'
                   : 'border-b-[#E5E5E5]')
             }
           >

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import type { Dish } from '@features/home/types/branch';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -201,7 +202,7 @@ const MenuTab = ({
             ) : disabled ? null : qty === 0 ? (
               <TouchableOpacity
                 onPress={() => handleAdd(dish)}
-                className="rounded-full bg-[#a1d973] px-4 py-1.5"
+                className="rounded-full bg-primary px-4 py-1.5"
               >
                 <Text className="text-sm font-semibold text-white">
                   {t('cart.add')}
@@ -213,7 +214,7 @@ const MenuTab = ({
                   onPress={() => handleDecrement(dish)}
                   className="h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <Ionicons name="remove-circle" size={32} color="#a1d973" />
+                  <Ionicons name="remove-circle" size={32} color={COLORS.primary} />
                 </TouchableOpacity>
                 <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
                   {qty}
@@ -222,7 +223,7 @@ const MenuTab = ({
                   onPress={() => handleAdd(dish)}
                   className="h-10 w-10 items-center justify-center rounded-full"
                 >
-                  <Ionicons name="add-circle" size={32} color="#a1d973" />
+                  <Ionicons name="add-circle" size={32} color={COLORS.primary} />
                 </TouchableOpacity>
               </View>
             )}

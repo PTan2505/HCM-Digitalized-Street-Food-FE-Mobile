@@ -303,7 +303,10 @@
     "voucher_need_more": "Need {{amount}} more to apply",
     "voucher_apply": "Apply",
     "voucher_selected": "Selected",
-    "voucher_auto_applied": "Best voucher auto-applied"
+    "voucher_auto_applied": "Best voucher auto-applied",
+    "voucher_search_placeholder": "Enter promo or gift code here",
+    "voucher_saves": "Save {{amount}}",
+    "skip_voucher": "Skip voucher and continue"
   },
   "order": {
     "status_title": "Order Status",

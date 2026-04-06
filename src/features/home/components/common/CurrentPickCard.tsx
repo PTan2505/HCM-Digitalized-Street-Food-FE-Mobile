@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import type { JSX } from 'react';
 import {
   View,
@@ -99,14 +100,14 @@ const CurrentPickCard = ({
         </View>
 
         <View className="mb-2 flex-row items-center gap-1">
-          <Ionicons name="pricetag-outline" size={14} color="#06AA4C" />
-          <Text className="text-[14px] font-bold text-[#06AA4C]">
+          <Ionicons name="pricetag-outline" size={14} color={COLORS.primaryDark} />
+          <Text className="text-[14px] font-bold text-primary-dark">
             {priceRange}
           </Text>
         </View>
 
         <View className="flex-row items-center gap-2">
-          <View className="rounded-[16px] bg-[#06AA4C] px-2.5 py-1">
+          <View className="rounded-[16px] bg-primary-dark px-2.5 py-1">
             <Text className="text-[11px] font-medium text-white">{tag}</Text>
           </View>
           {openStatus && (
@@ -114,7 +115,7 @@ const CurrentPickCard = ({
               className={`rounded-full px-2 py-0.5 ${openStatus === 'open' ? 'bg-[#E8F5E9]' : 'bg-[#F3F4F6]'}`}
             >
               <Text
-                className={`text-[10px] font-semibold ${openStatus === 'open' ? 'text-[#06AA4C]' : 'text-[#6B7280]'}`}
+                className={`text-[10px] font-semibold ${openStatus === 'open' ? 'text-primary-dark' : 'text-[#6B7280]'}`}
               >
                 {openStatus === 'open'
                   ? t('actions.open')
@@ -128,7 +129,7 @@ const CurrentPickCard = ({
 
       <TouchableOpacity
         onPress={onBookmarkPress}
-        className="absolute right-3 top-3 h-[22px] w-[22px] items-center justify-center rounded-full bg-[#EE6612CC]"
+        className="absolute right-3 top-3 h-[22px] w-[22px] items-center justify-center rounded-full bg-secondary/80"
       >
         <Ionicons name="bookmark" size={12} color="white" />
       </TouchableOpacity>

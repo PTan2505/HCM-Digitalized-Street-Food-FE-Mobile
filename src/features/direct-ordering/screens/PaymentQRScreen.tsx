@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import { usePaymentSocket } from '@features/direct-ordering/hooks/usePaymentSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import {
@@ -161,14 +162,14 @@ export const PaymentQRScreen = ({
           <TouchableOpacity
             onPress={handleShare}
             disabled={sharing}
-            className="flex-row items-center justify-center gap-2 rounded-2xl border border-[#a1d973] py-3.5"
+            className="flex-row items-center justify-center gap-2 rounded-2xl border border-primary py-3.5"
           >
             {sharing ? (
-              <ActivityIndicator size="small" color="#7AB82D" />
+              <ActivityIndicator size="small" color={COLORS.primaryLight} />
             ) : (
               <>
-                <Ionicons name="share-outline" size={20} color="#7AB82D" />
-                <Text className="text-sm font-semibold text-[#7AB82D]">
+                <Ionicons name="share-outline" size={20} color={COLORS.primaryLight} />
+                <Text className="text-sm font-semibold text-primary-light">
                   {t('checkout.payment_qr_share')}
                 </Text>
               </>
@@ -177,7 +178,7 @@ export const PaymentQRScreen = ({
 
           <TouchableOpacity
             onPress={handleViewOrder}
-            className="flex-row items-center justify-center gap-2 rounded-2xl bg-[#a1d973] py-3.5"
+            className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5"
           >
             <Ionicons name="receipt-outline" size={20} color="#fff" />
             <Text className="text-sm font-semibold text-white">

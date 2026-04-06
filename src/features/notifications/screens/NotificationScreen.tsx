@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -58,7 +59,7 @@ const getNotificationIcon = (
       return { name: 'star-outline', color: '#10B981' };
     case 'QuestTaskCompleted':
     case 'QuestCompleted':
-      return { name: 'trophy-outline', color: '#a1d973' };
+      return { name: 'trophy-outline', color: COLORS.primary };
     default:
       return { name: 'notifications-outline', color: '#6B7280' };
   }
@@ -205,7 +206,7 @@ export const NotificationScreen = (): JSX.Element => {
             </Text>
           </View>
           {!item.isRead && (
-            <View className="ml-2 mt-2 h-2.5 w-2.5 rounded-full bg-[#a1d973]" />
+            <View className="ml-2 mt-2 h-2.5 w-2.5 rounded-full bg-primary" />
           )}
         </TouchableOpacity>
       );
@@ -228,7 +229,7 @@ export const NotificationScreen = (): JSX.Element => {
           disabled={unreadCount === 0}
         >
           <Text
-            className={`text-sm font-medium ${unreadCount > 0 ? 'text-[#a1d973]' : 'text-gray-300'}`}
+            className={`text-sm font-medium ${unreadCount > 0 ? 'text-primary' : 'text-gray-300'}`}
           >
             {t('notification.mark_all_read')}
           </Text>
@@ -238,7 +239,7 @@ export const NotificationScreen = (): JSX.Element => {
       {/* Content */}
       {status === 'pending' ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
         <FlatList
@@ -264,7 +265,7 @@ export const NotificationScreen = (): JSX.Element => {
           ListFooterComponent={
             loadingMore ? (
               <View className="items-center py-4">
-                <ActivityIndicator color="#a1d973" />
+                <ActivityIndicator color={COLORS.primary} />
               </View>
             ) : null
           }

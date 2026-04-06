@@ -80,7 +80,7 @@ export const PlaceCard = ({
               source={{ uri: resolvedImageUri }}
               resizeMode="cover"
             />
-            <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-[#EE6612]">
+            <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-secondary">
               <MaterialCommunityIcons name="bookmark" size={14} color="#fff" />
             </View>
             {isFlashBoosted && (
@@ -160,7 +160,7 @@ export const PlaceCard = ({
                   className={`self-start rounded-full px-2 py-0.5 ${isOpen ? 'bg-[#E8F5E9]' : 'bg-[#F3F4F6]'}`}
                 >
                   <Text
-                    className={`text-[10px] font-semibold ${isOpen ? 'text-[#06AA4C]' : 'text-[#6B7280]'}`}
+                    className={`text-[10px] font-semibold ${isOpen ? 'text-primary-dark' : 'text-[#6B7280]'}`}
                   >
                     {isOpen ? t('actions.open') : t('actions.closed')}
                   </Text>
@@ -193,8 +193,8 @@ export const PlaceCard = ({
               gap: 4,
             }}
             renderItem={({ item }) => (
-              <View className="flex-row items-center overflow-hidden rounded-md border border-[#EE6612]/20 bg-[#FFF8F5]">
-                <View className="items-center justify-center self-stretch bg-[#EE6612] px-1.5">
+              <View className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]">
+                <View className="items-center justify-center self-stretch bg-secondary px-1.5">
                   <MaterialCommunityIcons
                     name="ticket-percent"
                     size={10}
@@ -202,12 +202,12 @@ export const PlaceCard = ({
                   />
                 </View>
                 <View className="h-11 justify-center gap-2 px-2 py-1.5">
-                  <Text className="text-[9px] font-bold text-[#EE6612]">
+                  <Text className="text-[9px] font-bold text-secondary">
                     {t('voucher.discount')}{' '}
                     {formatVoucherDiscount(item.discountValue, item.type)}
                   </Text>
                   {!!item.minAmountRequired && (
-                    <Text className="text-[9px] text-[#EE6612]">
+                    <Text className="text-[9px] text-secondary">
                       {t('voucher.min_order')}
                       {`${item.minAmountRequired.toLocaleString('vi-VN')}đ`}
                     </Text>

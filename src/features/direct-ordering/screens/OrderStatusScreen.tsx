@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import {
   ORDER_STATUS,
   type OrderStatus,
@@ -64,7 +65,7 @@ export const OrderStatusScreen = ({
         edges={['top']}
         className="flex-1 items-center justify-center bg-white"
       >
-        <ActivityIndicator size="large" color="#a1d973" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </SafeAreaView>
     );
   }
@@ -125,13 +126,13 @@ export const OrderStatusScreen = ({
               activeStep={currentStep}
               isComplete={order.status === ORDER_STATUS.Complete}
               labelFontSize={12}
-              completedProgressBarColor="#a1d973"
+              completedProgressBarColor={COLORS.primary}
               progressBarColor="#EBEBE4"
-              activeStepIconBorderColor="#a1d973"
-              completedStepIconColor="#a1d973"
+              activeStepIconBorderColor={COLORS.primary}
+              completedStepIconColor={COLORS.primary}
               disabledStepIconColor="#EBEBE4"
-              activeLabelColor="#a1d973"
-              completedLabelColor="#a1d973"
+              activeLabelColor={COLORS.primary}
+              completedLabelColor={COLORS.primary}
               completedCheckColor="#fff"
               topOffset={16}
               marginBottom={0}
@@ -156,7 +157,7 @@ export const OrderStatusScreen = ({
 
         {/* Pickup Code */}
         {pickupCode && (
-          <View className="mx-4 my-4 items-center rounded-2xl border border-[#a1d973] bg-[#f6ffed] px-4 py-5">
+          <View className="mx-4 my-4 items-center rounded-2xl border border-primary bg-[#f6ffed] px-4 py-5">
             <Text className="text-sm font-semibold text-gray-500">
               {t('order.pickup_code_label')}
             </Text>

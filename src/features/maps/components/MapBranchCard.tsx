@@ -3,6 +3,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -76,7 +77,7 @@ export const MapBranchCard = ({
             <MaterialCommunityIcons
               name="bookmark-outline"
               size={20}
-              color="#EE6612"
+              color={COLORS.secondary}
             />
           </TouchableOpacity>
         </View>
@@ -111,7 +112,7 @@ export const MapBranchCard = ({
                 key={name}
                 className="rounded-full bg-[#E8F5E9] px-2 py-0.5"
               >
-                <Text className="text-[10px] font-medium text-[#06AA4C]">
+                <Text className="text-[10px] font-medium text-primary-dark">
                   {name}
                 </Text>
               </View>

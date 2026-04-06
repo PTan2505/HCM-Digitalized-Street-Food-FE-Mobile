@@ -1,4 +1,5 @@
 import type { APIErrorResponse } from '@custom-types/apiResponse';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { FeedbackTag } from '@features/home/types/feedback';
@@ -410,7 +411,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               <Ionicons
                 name="location-outline"
                 size={18}
-                color={lat != null ? '#a1d973' : '#9CA3AF'}
+                color={lat != null ? COLORS.primary : '#9CA3AF'}
                 style={{ marginRight: 8 }}
               />
               <TextInput
@@ -422,7 +423,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                 returnKeyType="search"
               />
               {isSearching || isGeocodingAddress ? (
-                <ActivityIndicator size="small" color="#a1d973" />
+                <ActivityIndicator size="small" color={COLORS.primary} />
               ) : (
                 <TouchableOpacity
                   onPress={() => setShowLocationPicker(true)}
@@ -709,7 +710,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           {/* Submit */}
           <TouchableOpacity
             className={`items-center rounded-xl py-4 ${
-              isSubmitting ? 'bg-gray-300' : 'bg-[#a1d973]'
+              isSubmitting ? 'bg-gray-300' : 'bg-primary'
             }`}
             onPress={handleSubmit}
             disabled={isSubmitting}

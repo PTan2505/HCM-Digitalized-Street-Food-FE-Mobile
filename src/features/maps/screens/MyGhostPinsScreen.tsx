@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
 import type { MyGhostPinBranch } from '@features/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
@@ -143,7 +144,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
         </Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('GhostPinCreation')}
-          className="h-9 w-9 items-center justify-center rounded-full bg-[#a1d973]"
+          className="h-9 w-9 items-center justify-center rounded-full bg-primary"
         >
           <Ionicons name="add" size={22} color="#fff" />
         </TouchableOpacity>
@@ -151,7 +152,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
@@ -161,7 +162,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={() => void load()}
-            className="mt-4 rounded-xl bg-[#a1d973] px-6 py-3"
+            className="mt-4 rounded-xl bg-primary px-6 py-3"
           >
             <Text className="font-semibold text-white">Thử lại</Text>
           </TouchableOpacity>
@@ -179,7 +180,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={() => void load(true)}
-              tintColor="#a1d973"
+              tintColor={COLORS.primary}
             />
           }
           ListEmptyComponent={
@@ -193,7 +194,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('GhostPinCreation')}
-                className="mt-5 rounded-xl bg-[#a1d973] px-6 py-3"
+                className="mt-5 rounded-xl bg-primary px-6 py-3"
               >
                 <Text className="font-semibold text-white">Thêm quán mới</Text>
               </TouchableOpacity>
