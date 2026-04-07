@@ -45,6 +45,7 @@ export const PaymentQRScreen = ({
   const { paymentStatus } = usePaymentSocket(orderCode);
   const orderCodeRef = useRef(orderCode);
   const qrShotRef = useRef<ViewShot>(null);
+  const cancelledRef = useRef(false);
   const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
@@ -109,7 +110,24 @@ export const PaymentQRScreen = ({
     }
   }, [t]);
 
+  // Covers swipe-back: fire-and-forget cancel without blocking navigation
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', () => {
+      if (cancelledRef.current) return;
+      cancelledRef.current = true;
+      dispatch(cancelOrderThunk(orderId))
+        .unwrap()
+        .then(() => dispatch(fetchCartThunk()))
+        .catch(() => {});
+    });
+  }, [navigation, dispatch, orderId]);
+
   const handleBack = useCallback(() => {
+    if (cancelledRef.current) {
+      navigation.goBack();
+      return;
+    }
+    cancelledRef.current = true;
     dispatch(cancelOrderThunk(orderId))
       .unwrap()
       .then(() => {

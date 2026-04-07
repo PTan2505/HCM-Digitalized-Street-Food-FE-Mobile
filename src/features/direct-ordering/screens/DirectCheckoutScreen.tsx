@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
@@ -17,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -177,11 +179,10 @@ export const DirectCheckoutScreen = ({
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title={t('checkout.order_summary')}
+        onBackPress={() => navigation.goBack()}
+      />
 
       <ScrollView
         className="flex-1"
@@ -189,18 +190,37 @@ export const DirectCheckoutScreen = ({
       >
         {/* Order Summary */}
         <View className="border-b border-gray-100 px-4 py-4">
-          <Text className="mb-3 text-base font-bold text-black">
-            {t('checkout.order_summary')}
+          <Text className="mb-2 text-lg font-bold text-black">
+            {branchName}
           </Text>
-          <Text className="mb-2 text-base text-gray-500">{branchName}</Text>
           {cart?.items.map((item) => (
             <View
               key={item.dishId}
               className="mb-1 flex-row items-center justify-between"
             >
-              <Text className="text-base text-black">
-                {item.dishName} × {item.quantity}
-              </Text>
+              <View className="mr-3 flex-1 flex-row items-center">
+                {item.dishImageUrl ? (
+                  <Image
+                    source={{ uri: item.dishImageUrl }}
+                    className="h-10 w-10 rounded-lg bg-gray-100"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                    <Ionicons
+                      name="restaurant-outline"
+                      size={18}
+                      color="#999"
+                    />
+                  </View>
+                )}
+                <Text
+                  className="ml-3 flex-1 text-base text-black"
+                  numberOfLines={1}
+                >
+                  {item.dishName} × {item.quantity}
+                </Text>
+              </View>
               <Text className="text-base font-semibold text-black">
                 {`${item.lineTotal.toLocaleString('vi-VN')}đ`}
               </Text>
@@ -229,7 +249,7 @@ export const DirectCheckoutScreen = ({
               </View>
             )}
             <View className="mt-2 flex-row items-center justify-between border-t border-gray-100 pt-2">
-              <Text className="text-base font-bold text-black">
+              <Text className="text-lg font-bold text-black">
                 {t('checkout.voucher_final_amount')}
               </Text>
               <Text className="text-lg font-bold text-[#00B14F]">
