@@ -245,7 +245,7 @@ export const DirectCheckoutScreen = ({
             navigation.navigate('VoucherSelect', {
               vouchers,
               totalAmount: cart?.totalAmount ?? 0,
-              selectedUserVoucherId: selectedVoucher?.userVoucherId ?? null,
+              selectedVoucherId: selectedVoucher?.voucherId ?? null,
               onSelect: handleSelectVoucher,
             })
           }

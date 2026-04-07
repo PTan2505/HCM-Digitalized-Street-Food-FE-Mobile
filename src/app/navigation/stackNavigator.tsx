@@ -156,7 +156,7 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         vouchers: UserVoucherApiDto[];
         totalAmount: number;
-        selectedUserVoucherId?: number | null;
+        selectedVoucherId?: number | null;
         onSelect: (voucher: UserVoucherApiDto | null) => void;
       },
     },

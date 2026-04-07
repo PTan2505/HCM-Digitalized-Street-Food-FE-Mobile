@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 type VoucherSelectScreenProps = StaticScreenProps<{
   vouchers: UserVoucherApiDto[];
   totalAmount: number;
-  selectedUserVoucherId?: number | null;
+  selectedVoucherId?: number | null;
   onSelect: (voucher: UserVoucherApiDto | null) => void;
 }>;
 
@@ -42,19 +42,31 @@ const calculateDiscount = (
 export const VoucherSelectScreen = ({
   route,
 }: VoucherSelectScreenProps): JSX.Element => {
-  const { vouchers, totalAmount, selectedUserVoucherId, onSelect } =
-    route.params;
+  const { vouchers, totalAmount, selectedVoucherId, onSelect } = route.params;
   const { t } = useTranslation();
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSelect = useCallback(
-    (voucher: UserVoucherApiDto | null) => {
-      onSelect(voucher);
-      navigation.goBack();
-    },
-    [onSelect, navigation]
+  const [pendingVoucherId, setPendingVoucherId] = useState<number | null>(
+    selectedVoucherId ?? null
   );
+
+  const handleToggle = useCallback((v: UserVoucherApiDto) => {
+    setPendingVoucherId((prev) => (prev === v.voucherId ? null : v.voucherId));
+  }, []);
+
+  const handleApply = useCallback(() => {
+    const voucher =
+      pendingVoucherId != null
+        ? (vouchers.find((v) => v.voucherId === pendingVoucherId) ?? null)
+        : null;
+    onSelect(voucher);
+    navigation.goBack();
+  }, [pendingVoucherId, vouchers, onSelect, navigation]);
+
+  const handleSkip = useCallback(() => {
+    onSelect(null);
+    navigation.goBack();
+  }, [onSelect, navigation]);
 
   const displayVouchers = useMemo(() => {
     const isDisabled = (v: UserVoucherApiDto): boolean =>
@@ -103,10 +115,9 @@ export const VoucherSelectScreen = ({
         {displayVouchers.map((v) => {
           const isDisabled =
             v.minAmountRequired !== null && totalAmount < v.minAmountRequired;
-          const isSelected = selectedUserVoucherId === v.userVoucherId;
+          const isSelected = pendingVoucherId === v.voucherId;
           const previewDiscount = calculateDiscount(v, totalAmount);
 
-          // Title: Name + discount amount based on current order
           const savingsLabel =
             previewDiscount > 0
               ? t('checkout.voucher_saves', {
@@ -116,7 +127,6 @@ export const VoucherSelectScreen = ({
 
           const titleText = `${v.voucherName} - ${v.voucherType === 'PERCENT' ? `${v.discountValue}%` : `${v.discountValue.toLocaleString('vi-VN')}₫`}`;
 
-          // Subtitle: min required + need_more if disabled
           const minText = v.minAmountRequired
             ? t('checkout.voucher_min_required', {
                 amount: `${v.minAmountRequired.toLocaleString('vi-VN')}₫`,
@@ -135,7 +145,7 @@ export const VoucherSelectScreen = ({
             <TouchableOpacity
               key={v.voucherId}
               onPress={() => {
-                if (!isDisabled) handleSelect(v);
+                if (!isDisabled) handleToggle(v);
               }}
               activeOpacity={isDisabled ? 1 : 0.7}
               className="flex-row items-center border-b border-gray-100 px-4 py-3"
@@ -173,27 +183,19 @@ export const VoucherSelectScreen = ({
                     {subtitleText}
                   </Text>
                 </View>
-                <Text className="text-secondary">{savingsLabel}</Text>
+                {!isDisabled && savingsLabel && (
+                  <Text className="text-secondary">{savingsLabel}</Text>
+                )}
               </View>
 
-              {/* Chevron */}
-              <Ionicons
-                name="chevron-forward"
-                size={16}
-                color="#ccc"
-                style={{ marginHorizontal: 4 }}
-              />
-
-              {/* Checkbox */}
+              {/* Radio button */}
               <View
-                className={`h-5 w-5 items-center justify-center rounded border-2 ${
-                  isSelected
-                    ? 'border-primary-light bg-primary-light'
-                    : 'border-gray-300'
+                className={`ml-3 h-5 w-5 items-center justify-center rounded-full border-2 ${
+                  isSelected ? 'border-primary-light' : 'border-gray-300'
                 }`}
               >
                 {isSelected && (
-                  <Ionicons name="checkmark" size={12} color="#fff" />
+                  <View className="h-2.5 w-2.5 rounded-full bg-primary-light" />
                 )}
               </View>
             </TouchableOpacity>
@@ -201,16 +203,24 @@ export const VoucherSelectScreen = ({
         })}
       </ScrollView>
 
-      {/* Skip button */}
-      <View className="border-t border-gray-100 px-4 py-4">
-        <TouchableOpacity
-          onPress={() => handleSelect(null)}
-          className="items-center py-2"
-        >
-          <Text className="text-sm font-semibold text-gray-500">
-            {t('checkout.skip_voucher')}
-          </Text>
-        </TouchableOpacity>
+      {/* Bottom actions */}
+      <View className="border-t border-gray-100 px-4 pb-10 pt-4">
+        {pendingVoucherId != null ? (
+          <TouchableOpacity
+            onPress={handleApply}
+            className="items-center rounded-2xl bg-primary py-3.5"
+          >
+            <Text className="text-sm font-semibold text-white">
+              {t('checkout.voucher_apply')}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={handleSkip} className="items-center py-2">
+            <Text className="text-sm font-semibold text-gray-500">
+              {t('checkout.skip_voucher')}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );

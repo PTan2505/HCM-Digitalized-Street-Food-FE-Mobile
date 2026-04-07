@@ -215,6 +215,18 @@ export const fetchOrderHistoryThunk = createAppAsyncThunk(
   }
 );
 
+export const cancelOrderThunk = createAppAsyncThunk(
+  'directOrdering/cancelOrder',
+  async (orderId: number, { rejectWithValue }) => {
+    try {
+      const res = await axiosApi.orderApi.cancelOrder(orderId);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const syncOrderToHistoryFromNotificationThunk = createAppAsyncThunk(
   'directOrdering/syncOrderToHistoryFromNotification',
   async (orderId: number, { rejectWithValue }) => {

@@ -1,29 +1,31 @@
-import { Ionicons } from '@expo/vector-icons';
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { usePaymentSocket } from '@features/direct-ordering/hooks/usePaymentSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
+  cancelOrderThunk,
   clearCart,
   confirmPaymentThunk,
   fetchCartThunk,
   selectCheckoutOrderCode,
 } from '@slices/directOrdering';
-import { useNavigation, StaticScreenProps } from '@react-navigation/native';
 import * as Sharing from 'expo-sharing';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Alert,
   AppState,
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import ViewShot from 'react-native-view-shot';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ViewShot from 'react-native-view-shot';
 
 type PaymentQRScreenProps = StaticScreenProps<{
   orderId: number;
@@ -107,6 +109,18 @@ export const PaymentQRScreen = ({
     }
   }, [t]);
 
+  const handleBack = useCallback(() => {
+    dispatch(cancelOrderThunk(orderId))
+      .unwrap()
+      .then(() => {
+        dispatch(fetchCartThunk());
+        navigation.goBack();
+      })
+      .catch(() => {
+        navigation.goBack();
+      });
+  }, [dispatch, navigation, orderId]);
+
   const handleViewOrder = useCallback(() => {
     navigation.navigate('OrderStatus', { orderId, branchName });
   }, [navigation, orderId, branchName]);
@@ -114,14 +128,7 @@ export const PaymentQRScreen = ({
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text className="ml-3 text-lg font-bold text-black">
-          {t('checkout.payment_qr_title')}
-        </Text>
-      </View>
+      <Header title={t('checkout.payment_qr_title')} onBackPress={handleBack} />
 
       <View className="flex-1 items-center justify-center px-6">
         {/* Instruction */}

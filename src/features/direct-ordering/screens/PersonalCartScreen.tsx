@@ -268,8 +268,8 @@ export const PersonalCartScreen = ({
           >
             <Text className="ml-3 text-lg font-bold text-black">
               {cartDisplayName ?? branchName}
+              <Ionicons name="chevron-forward" size={16} color="#333" />
             </Text>
-            <Ionicons name="chevron-forward" size={16} color="#333" />
           </TouchableOpacity>
         )}
         {!isEmpty && (
