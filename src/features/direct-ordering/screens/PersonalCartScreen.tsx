@@ -1,3 +1,5 @@
+import type { TabBarItem } from '@components/TabBar';
+import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
@@ -14,8 +16,6 @@ import {
   selectCartLoading,
   updateCartItemThunk,
 } from '@slices/directOrdering';
-import TabBar from '@components/TabBar';
-import type { TabBarItem } from '@components/TabBar';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -31,7 +31,11 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import { fetchCartThunk, selectCart } from '@slices/directOrdering';
+import {
+  fetchCartThunk,
+  selectCart,
+  selectCartDisplayName,
+} from '@slices/directOrdering';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -115,6 +119,7 @@ export const RestaurantDetailsScreen = ({
 
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
+  const cartDisplayName = useAppSelector(selectCartDisplayName);
   const queryClient = useQueryClient();
 
   // Refetch feedback when screen regains focus (e.g. after notification → ReviewList → goBack)
@@ -387,6 +392,8 @@ export const RestaurantDetailsScreen = ({
     imageUri: b.dishes[0]?.imageUrl,
   }));
 
+  const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
+
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
       <FixedHeaderControls onSharePress={handleSharePress} />
@@ -520,13 +527,15 @@ export const RestaurantDetailsScreen = ({
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('PersonalCart', {
-              branchName: displayName,
+              branchName: cartBranchDisplayName,
               isOpen,
             })
           }
           className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-primary px-5 py-4 shadow-lg"
         >
-          <Text className="text-base font-bold text-white">{displayName}</Text>
+          <Text className="text-base font-bold text-white">
+            {cartBranchDisplayName}
+          </Text>
           <View className="mt-1 flex-row items-center justify-between">
             <Text className="text-base font-bold text-secondary">
               {t('cart.items_count', { count: cart.items.length })}
