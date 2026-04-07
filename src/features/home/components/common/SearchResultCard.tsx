@@ -55,10 +55,10 @@ const SearchResultCard = ({
       className="mb-3 flex-row overflow-hidden rounded-[16px] border border-[#ededed] bg-white"
     >
       {/* Left — image */}
-      <View className="relative h-[120px] w-[120px] overflow-hidden rounded-l-[16px]">
+      <View className="relative w-[120px] self-stretch overflow-hidden rounded-l-[16px]">
         <Image
           source={{ uri: resolvedImageUri }}
-          className="h-full w-full"
+          style={{ flex: 1 }}
           resizeMode="cover"
         />
         {branch.tier && (
@@ -139,9 +139,9 @@ const SearchResultCard = ({
             {branch.dietaryPreferenceNames.slice(0, 3).map((name) => (
               <View
                 key={name}
-                className="rounded-full bg-[#ffc8a6] px-2 py-0.5"
+                className="rounded-full bg-orange-50 px-2 py-0.5"
               >
-                <Text className="text-[10px] font-medium text-black">
+                <Text className="text-[10px] font-medium text-orange-500">
                   {name}
                 </Text>
               </View>

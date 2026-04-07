@@ -80,9 +80,9 @@ export const PlaceCard = ({
               source={{ uri: resolvedImageUri }}
               resizeMode="cover"
             />
-            <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-secondary">
+            {/* <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-secondary">
               <MaterialCommunityIcons name="bookmark" size={14} color="#fff" />
-            </View>
+            </View> */}
             {isFlashBoosted && (
               <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-[#F59E0B] px-2 py-0.5">
                 <Ionicons name="flash" size={10} color="#fff" />

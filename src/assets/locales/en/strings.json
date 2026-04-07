@@ -171,6 +171,7 @@
     "phone_number": "Phone Number",
     "dietary_preferences": "Dietary Preferences",
     "update_dietary_preferences": "Update Dietary Preferences",
+    "favorites": "Favourites",
     "my_ghost_pins": "My shared restaurants",
     "main_menu": "Main Menu",
     "activity": "Activity",
@@ -193,6 +194,11 @@
     "voucher_wallet": "Voucher Wallet",
     "voucher_marketplace": "Voucher Marketplace",
     "personal-features": "Personal Features"
+  },
+  "favorites": {
+    "title": "Favourites",
+    "empty_title": "No favourites yet",
+    "empty_hint": "Tap the heart icon on a restaurant page to save it here"
   },
   "bottom_tabs": {
     "discover": "Discover",
@@ -562,12 +568,61 @@
     "search_bank": "Search bank...",
     "no_bank_found": "No bank found"
   },
+  "ghost_pin_creation": {
+    "title": "Add New Stall",
+    "form": {
+      "name_label": "Stall Name",
+      "name_placeholder": "Enter stall name",
+      "address_label": "Address",
+      "address_placeholder": "Search address...",
+      "submit": "Confirm"
+    },
+    "nearby": {
+      "title": "Nearby stalls found",
+      "description": "There are already {{count}} stalls within a 1km radius. The stall you want to add may already exist:"
+    },
+    "feedback": {
+      "title": "Review (Optional)",
+      "subtitle": "Share more about this stall and add reference images",
+      "your_rating": "Your rating",
+      "tags_label": "Tags (Optional)",
+      "placeholder": "Describe this stall (signature dishes, opening hours, prices, standout features...)",
+      "character_count": "{{count}}/500 characters",
+      "image_section_title": "Reference images",
+      "image_counter": "{{selected}}/{{max}}",
+      "image_hint": "Upload photos of the stall, dishes, menu, or signboard"
+    },
+    "validation": {
+      "name_min_length": "Stall name must be at least 2 characters",
+      "address_required": "Please select an address from suggestions or map"
+    },
+    "submit_error": {
+      "duplicate_nearby": "A nearby stall has already been reported",
+      "default": "Could not create pin. Please try again."
+    },
+    "alert": {
+      "image_limit_title": "Image limit",
+      "image_limit_message": "You can upload up to {{count}} images",
+      "permission_title": "Permission required",
+      "photo_permission_message": "Please allow photo library access in Settings.",
+      "camera_permission_message": "Please allow camera access in Settings.",
+      "add_image_title": "Add image",
+      "choose_image_source": "Choose image source",
+      "take_photo": "Take photo",
+      "choose_from_library": "Choose from library",
+      "success_title": "Success",
+      "success_message": "New stall pin has been created successfully!"
+    },
+    "distance_meters": "{{count}}m",
+    "distance_kilometers": "{{count}}km"
+  },
   "home_quick_actions": {
     "section_title": "Explore Lowca",
     "ghost_pin": "Share New Stall",
     "quest": "Quests",
     "voucher_market": "Voucher Market",
-    "personal_cart": "Cart"
+    "personal_cart": "Cart",
+    "favorites": "Favourites"
   },
   "voucher": {
     "discount": "Discount",

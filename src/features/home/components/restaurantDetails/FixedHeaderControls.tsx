@@ -7,12 +7,14 @@ interface FixedHeaderControlsProps {
   onBackPress?: () => void;
   onSharePress?: () => void;
   onFavoritePress?: () => void;
+  isFavorite?: boolean;
 }
 
 const FixedHeaderControls: (props: FixedHeaderControlsProps) => JSX.Element = ({
   onBackPress,
   onSharePress,
   onFavoritePress,
+  isFavorite = false,
 }) => {
   const navigation = useNavigation();
 
@@ -37,7 +39,11 @@ const FixedHeaderControls: (props: FixedHeaderControlsProps) => JSX.Element = ({
           onPress={onFavoritePress}
           className="h-9 w-9 items-center justify-center rounded-full bg-black/50"
         >
-          <Ionicons name="heart-outline" size={20} color="#FFFFFF" />
+          <Ionicons
+            name={isFavorite ? 'heart' : 'heart-outline'}
+            size={20}
+            color={isFavorite ? '#FF4D4D' : '#FFFFFF'}
+          />
         </TouchableOpacity>
       </View>
     </>

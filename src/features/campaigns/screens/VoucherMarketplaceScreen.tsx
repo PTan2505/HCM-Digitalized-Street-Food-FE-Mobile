@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { VoucherDto } from '@features/campaigns/api/voucherApi';
@@ -143,19 +144,10 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center bg-transparent px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <View
-          className="absolute left-0 right-0 items-center"
-          pointerEvents="none"
-        >
-          <Text className="text-xl font-bold text-gray-900">
-            {t('marketplace.title')}
-          </Text>
-        </View>
-      </View>
+      <Header
+        title={t('marketplace.title')}
+        onBackPress={() => navigation.goBack()}
+      />
       <View className="self-end">
         <View className="w-fit flex-row items-center rounded-full bg-amber-50 px-4 py-3">
           <Ionicons name="star" size={20} color="#F59E0B" />

@@ -19,7 +19,7 @@ const Header = ({
   secondaryAction,
 }: HeaderProps): JSX.Element => {
   return (
-    <View className="flex-row items-center justify-between px-4 py-3">
+    <View className="flex-row items-center justify-between px-4 pb-2 pt-1">
       {onBackPress && (
         <TouchableOpacity
           onPress={onBackPress}

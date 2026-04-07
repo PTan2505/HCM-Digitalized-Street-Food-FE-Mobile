@@ -7,6 +7,7 @@ import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCa
 import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 import { VoucherSelectScreen } from '@features/direct-ordering/screens/VoucherSelectScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
+import { FavoritesScreen } from '@features/home/screens/FavoritesScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
@@ -111,6 +112,10 @@ const RootStack = createNativeStackNavigator({
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
+    },
+    Favorites: {
+      screen: FavoritesScreen,
+      linking: 'favorites',
     },
     SetupUserInfo: {
       screen: EditUserInfoScreen,
