@@ -108,7 +108,7 @@ const OrderHistoryItem = ({
             className="text-base font-semibold text-black"
             numberOfLines={1}
           >
-            {displayName ?? item.branchName}
+            {displayName ?? item.displayName ?? item.branchName}
           </Text>
           <Text className="mt-1 text-sm text-gray-400">
             {new Date(item.createdAt).toLocaleDateString('vi-VN')}
