@@ -48,7 +48,9 @@ const FilterChip = ({
   onRemove: () => void;
 }): JSX.Element => (
   <View className="mr-2 flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-    <Text className="mr-1 text-sm font-medium text-primary-dark">{label}</Text>
+    <Text className="mr-1 text-base font-medium text-primary-dark">
+      {label}
+    </Text>
     <TouchableOpacity onPress={onRemove} hitSlop={6}>
       <Ionicons name="close" size={14} color={COLORS.primaryDark} />
     </TouchableOpacity>
@@ -233,7 +235,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
             }}
             className="mt-4 rounded-full bg-primary-dark px-6 py-2"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('search.retry')}
             </Text>
           </TouchableOpacity>
@@ -247,7 +249,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           <Text className="mt-4 text-center text-base font-medium text-gray-500">
             {t('search.empty')}
           </Text>
-          <Text className="mt-1 text-center text-sm text-gray-400">
+          <Text className="mt-1 text-center text-base text-gray-400">
             {t('search.empty_hint')}
           </Text>
         </View>

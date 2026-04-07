@@ -135,7 +135,7 @@ export const CustomInput = <T extends FieldValues>(
           </View>
 
           {fieldState.error && (
-            <Text className="mt-1 text-sm text-[#FE4763]">
+            <Text className="mt-1 text-base text-[#FE4763]">
               {fieldState.error?.message}
             </Text>
           )}

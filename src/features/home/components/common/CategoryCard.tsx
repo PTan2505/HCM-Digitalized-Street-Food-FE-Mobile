@@ -31,7 +31,7 @@ const CategoryCard = ({
           resizeMode="cover"
         />
       </View>
-      <Text className="text-center text-sm font-medium text-gray-900">
+      <Text className="text-center text-base font-medium text-gray-900">
         {title.toUpperCase()}
       </Text>
     </TouchableOpacity>

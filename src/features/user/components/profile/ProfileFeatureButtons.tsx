@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { ProfileSectionItem } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -35,7 +35,7 @@ export const ProfileFeatureButtons = ({
               />
             </View>
           )}
-          <Text className="text-center text-sm font-semibold text-gray-900">
+          <Text className="text-center text-base font-semibold text-gray-900">
             {item.title}
           </Text>
         </Pressable>

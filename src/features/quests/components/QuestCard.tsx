@@ -42,20 +42,20 @@ export const QuestCard = ({
         </Text>
 
         {quest.description && (
-          <Text className="mb-2 text-sm text-gray-500" numberOfLines={2}>
+          <Text className="mb-2 text-base text-gray-500" numberOfLines={2}>
             {quest.description}
           </Text>
         )}
 
         <View className="flex-row items-center justify-between">
-          <Text className="text-xs text-gray-400">
+          <Text className="text-sm text-gray-400">
             {quest.taskCount} {t('quest.tasks')}
           </Text>
 
           {enrolledInfo ? (
             enrolledInfo.status === 'COMPLETED' ? (
               <View className="rounded-full bg-green-100 px-3 py-1">
-                <Text className="text-xs font-semibold text-green-700">
+                <Text className="text-sm font-semibold text-green-700">
                   {t('quest.completed')}
                   {enrolledInfo.completedAt
                     ? `  ${new Date(enrolledInfo.completedAt).toLocaleDateString('vi-VN')}`
@@ -64,7 +64,7 @@ export const QuestCard = ({
               </View>
             ) : (
               <View className="rounded-full bg-primary/20 px-3 py-1">
-                <Text className="text-xs font-semibold text-primary-light">
+                <Text className="text-sm font-semibold text-primary-light">
                   {enrolledInfo.completedTasks}/{enrolledInfo.totalTasks}{' '}
                   {t('quest.tasksCompleted')}
                 </Text>
@@ -72,7 +72,7 @@ export const QuestCard = ({
             )
           ) : (
             <View className="rounded-full bg-primary px-3 py-1">
-              <Text className="text-xs font-semibold text-white">
+              <Text className="text-sm font-semibold text-white">
                 {t('quest.startQuest')}
               </Text>
             </View>

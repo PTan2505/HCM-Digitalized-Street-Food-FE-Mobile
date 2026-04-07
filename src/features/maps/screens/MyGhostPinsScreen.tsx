@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { MyGhostPinBranch } from '@features/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
@@ -41,7 +41,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
           style={{ backgroundColor: status.bg }}
         >
           <Text
-            className="text-xs font-semibold"
+            className="text-sm font-semibold"
             style={{ color: status.color }}
           >
             {status.label}
@@ -57,7 +57,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
           color="#9CA3AF"
           style={{ marginTop: 2 }}
         />
-        <Text className="flex-1 text-sm text-gray-500" numberOfLines={2}>
+        <Text className="flex-1 text-base text-gray-500" numberOfLines={2}>
           {item.addressDetail}
           {item.ward ? `, ${item.ward}` : ''}
           {item.city ? `, ${item.city}` : ''}
@@ -68,20 +68,20 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
       <View className="flex-row gap-4">
         <View className="flex-row items-center gap-1">
           <Ionicons name="star" size={13} color="#F59E0B" />
-          <Text className="text-xs text-gray-600">
+          <Text className="text-sm text-gray-600">
             {item.avgRating > 0 ? item.avgRating.toFixed(1) : '–'}
           </Text>
         </View>
         <View className="flex-row items-center gap-1">
           <Ionicons name="chatbubble-outline" size={13} color="#9CA3AF" />
-          <Text className="text-xs text-gray-600">
+          <Text className="text-sm text-gray-600">
             {item.totalReviewCount} đánh giá
           </Text>
         </View>
         {item.isVerified && (
           <View className="flex-row items-center gap-1">
             <Ionicons name="checkmark-circle" size={13} color="#16A34A" />
-            <Text className="text-xs text-green-700">Đã xác minh</Text>
+            <Text className="text-sm text-green-700">Đã xác minh</Text>
           </View>
         )}
       </View>
@@ -89,14 +89,14 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
       {/* Reject reason */}
       {item.licenseStatus === 'Reject' && item.licenseRejectReason && (
         <View className="mt-3 rounded-xl bg-red-50 px-3 py-2">
-          <Text className="text-xs text-red-600">
+          <Text className="text-sm text-red-600">
             Lý do từ chối: {item.licenseRejectReason}
           </Text>
         </View>
       )}
 
       {/* Created date */}
-      <Text className="mt-3 text-xs text-gray-400">
+      <Text className="mt-3 text-sm text-gray-400">
         Đã tạo: {new Date(item.createdAt).toLocaleDateString('vi-VN')}
       </Text>
     </View>
@@ -157,7 +157,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
           <Ionicons name="cloud-offline-outline" size={48} color="#D1D5DB" />
-          <Text className="mt-3 text-center text-sm text-gray-500">
+          <Text className="mt-3 text-center text-base text-gray-500">
             {error}
           </Text>
           <TouchableOpacity
@@ -189,7 +189,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
               <Text className="mt-4 text-base font-semibold text-gray-400">
                 Chưa có quán nào
               </Text>
-              <Text className="mt-1 text-center text-sm text-gray-400">
+              <Text className="mt-1 text-center text-base text-gray-400">
                 Thêm quán ăn mới để giúp cộng đồng khám phá
               </Text>
               <TouchableOpacity

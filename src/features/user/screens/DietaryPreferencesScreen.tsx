@@ -93,7 +93,7 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
               <MaterialCommunityIcons name="check" size={14} color="white" />
             )}
           </View>
-          <Text className="flex-1 text-sm leading-5 text-gray-600">
+          <Text className="flex-1 text-base leading-5 text-gray-600">
             {t('dietary.ai_disclaimer')}
           </Text>
         </Pressable> */}

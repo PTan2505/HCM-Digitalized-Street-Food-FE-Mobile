@@ -62,7 +62,7 @@ export const CustomOTPInput = <T extends FieldValues>(
           />
           {fieldState.error && (
             <View style={{ minHeight: 19 }}>
-              <Text className="mt-1 text-sm text-[#FE4763]">
+              <Text className="mt-1 text-base text-[#FE4763]">
                 {fieldState.error?.message}
               </Text>
             </View>

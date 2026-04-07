@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import {
   getPlaceDetail,
   reverseGeocode,
@@ -587,7 +587,7 @@ const LocationPickerMapInner = React.forwardRef<
           style={{ bottom: 120 }}
         >
           <View className="rounded-full bg-black/60 px-3 py-1.5">
-            <Text className="text-xs font-medium text-white">
+            <Text className="text-sm font-medium text-white">
               Kéo bản đồ để chọn vị trí
             </Text>
           </View>
@@ -610,7 +610,7 @@ const LocationPickerMapInner = React.forwardRef<
             style={{ marginRight: 8 }}
           />
           <TextInput
-            className="flex-1 py-2.5 text-sm text-gray-800"
+            className="flex-1 py-2.5 text-base text-gray-800"
             placeholder="Tìm địa chỉ..."
             placeholderTextColor="#9ca3af"
             value={searchText}
@@ -660,14 +660,14 @@ const LocationPickerMapInner = React.forwardRef<
                   />
                   <View className="flex-1">
                     <Text
-                      className="text-sm font-medium text-gray-800"
+                      className="text-base font-medium text-gray-800"
                       numberOfLines={1}
                     >
                       {item.mainText}
                     </Text>
                     {item.secondaryText ? (
                       <Text
-                        className="mt-0.5 text-xs text-gray-500"
+                        className="mt-0.5 text-sm text-gray-500"
                         numberOfLines={1}
                       >
                         {item.secondaryText}
@@ -700,19 +700,19 @@ const LocationPickerMapInner = React.forwardRef<
             style={{ marginTop: 2, marginRight: 8 }}
           />
           <View className="flex-1">
-            <Text className="text-xs font-medium text-gray-400">
+            <Text className="text-sm font-medium text-gray-400">
               Vị trí đã chọn
             </Text>
             {isReverseGeocoding ? (
               <View className="mt-1 flex-row items-center">
                 <ActivityIndicator size="small" color={COLORS.primary} />
-                <Text className="ml-2 text-sm text-gray-400">
+                <Text className="ml-2 text-base text-gray-400">
                   Đang tìm địa chỉ...
                 </Text>
               </View>
             ) : (
               <Text
-                className="mt-0.5 text-sm leading-5 text-gray-800"
+                className="mt-0.5 text-base leading-5 text-gray-800"
                 numberOfLines={2}
               >
                 {address || 'Kéo bản đồ để chọn vị trí'}
@@ -730,7 +730,7 @@ const LocationPickerMapInner = React.forwardRef<
               color="#6b7280"
               style={{ marginRight: 4 }}
             />
-            <Text className="text-xs text-gray-500">
+            <Text className="text-sm text-gray-500">
               {centerCoord[1].toFixed(6)}, {centerCoord[0].toFixed(6)}
             </Text>
           </View>

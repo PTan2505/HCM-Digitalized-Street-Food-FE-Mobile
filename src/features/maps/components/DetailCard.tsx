@@ -1,9 +1,9 @@
+import { COLORS } from '@constants/colors';
 import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
-import { COLORS } from '@constants/colors';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -97,7 +97,7 @@ export const DetailCard = ({
 
           <View className="ml-2 flex-row items-center rounded-full bg-amber-50 px-2 py-0.5">
             <MaterialIcons name="star" size={13} color="#FFB800" />
-            <Text className="ml-0.5 text-xs font-bold text-gray-800">
+            <Text className="ml-0.5 text-sm font-bold text-gray-800">
               {branch.avgRating.toFixed(1)}
             </Text>
           </View>
@@ -122,7 +122,7 @@ export const DetailCard = ({
 
             <View className="absolute bottom-3 left-3 flex-row items-center rounded-full bg-white/90 px-2.5 py-1">
               <MaterialIcons name="star" size={14} color="#FFB800" />
-              <Text className="ml-0.5 text-xs font-bold text-gray-800">
+              <Text className="ml-0.5 text-sm font-bold text-gray-800">
                 {branch.avgRating.toFixed(1)}
               </Text>
             </View>
@@ -133,7 +133,7 @@ export const DetailCard = ({
             <View className="flex-row items-center">
               <Ionicons name="location-sharp" size={14} color="#6b7280" />
               <Text
-                className="ml-1 flex-1 text-sm text-gray-500"
+                className="ml-1 flex-1 text-base text-gray-500"
                 numberOfLines={1}
               >
                 {branch.addressDetail}, {branch.ward}
@@ -149,7 +149,7 @@ export const DetailCard = ({
                     size={13}
                     color="#6b7280"
                   />
-                  <Text className="text-xs text-gray-500">{distanceLabel}</Text>
+                  <Text className="text-sm text-gray-500">{distanceLabel}</Text>
                 </View>
               )}
               {priceRange && (
@@ -159,7 +159,7 @@ export const DetailCard = ({
                     size={13}
                     color="#6b7280"
                   />
-                  <Text className="text-xs text-gray-500">{priceRange}</Text>
+                  <Text className="text-sm text-gray-500">{priceRange}</Text>
                 </View>
               )}
               {branch.isSubscribed && (
@@ -174,7 +174,9 @@ export const DetailCard = ({
               onPress={onViewDetail}
               className="mt-3 items-center rounded-xl bg-primary py-3"
             >
-              <Text className="text-sm font-bold text-white">Xem chi tiết</Text>
+              <Text className="text-base font-bold text-white">
+                Xem chi tiết
+              </Text>
             </Pressable>
           </View>
         </Animated.View>

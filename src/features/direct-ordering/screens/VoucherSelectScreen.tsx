@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
@@ -88,21 +89,17 @@ export const VoucherSelectScreen = ({
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text className="ml-3 text-lg font-bold text-black">
-          {t('checkout.select_voucher')}
-        </Text>
-      </View>
+      <Header
+        title={t('checkout.select_voucher')}
+        onBackPress={() => navigation.goBack()}
+      />
 
       {/* Search bar */}
       <View className="px-4 py-3">
         <View className="flex-row items-center rounded-full bg-gray-100 px-4 py-2.5">
           <Ionicons name="search-outline" size={16} color="#999" />
           <TextInput
-            className="ml-2 flex-1 text-sm text-black"
+            className="ml-2 flex-1 text-base text-black"
             placeholder={t('checkout.voucher_search_placeholder')}
             placeholderTextColor="#999"
             value={searchQuery}
@@ -167,7 +164,7 @@ export const VoucherSelectScreen = ({
                 {/* Text content */}
                 <View className="ml-3">
                   <Text
-                    className={`text-sm font-bold leading-[18px] ${
+                    className={`text-base font-bold leading-[18px] ${
                       isDisabled ? 'text-gray-400' : 'text-black'
                     }`}
                     numberOfLines={2}
@@ -175,7 +172,7 @@ export const VoucherSelectScreen = ({
                     {titleText}
                   </Text>
                   <Text
-                    className={`mt-0.5 text-xs ${
+                    className={`mt-0.5 text-sm ${
                       isDisabled ? 'text-red-400' : 'text-gray-500'
                     }`}
                     numberOfLines={1}
@@ -210,13 +207,13 @@ export const VoucherSelectScreen = ({
             onPress={handleApply}
             className="items-center rounded-2xl bg-primary py-3.5"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('checkout.voucher_apply')}
             </Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={handleSkip} className="items-center py-2">
-            <Text className="text-sm font-semibold text-gray-500">
+            <Text className="text-base font-semibold text-gray-500">
               {t('checkout.skip_voucher')}
             </Text>
           </TouchableOpacity>

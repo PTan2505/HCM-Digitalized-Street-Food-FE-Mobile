@@ -96,7 +96,7 @@ const OrderHistoryItem = ({
       className="mx-4 mb-3 rounded-2xl border border-gray-300 bg-white p-4"
     >
       <View className="mb-2 flex-row items-center justify-between">
-        <Text className="text-xs font-medium text-gray-400">
+        <Text className="text-sm font-medium text-gray-400">
           #{item.orderId}
         </Text>
         <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
@@ -110,7 +110,7 @@ const OrderHistoryItem = ({
           >
             {displayName ?? item.branchName}
           </Text>
-          <Text className="mt-1 text-xs text-gray-400">
+          <Text className="mt-1 text-sm text-gray-400">
             {new Date(item.createdAt).toLocaleDateString('vi-VN')}
           </Text>
         </View>
@@ -121,7 +121,7 @@ const OrderHistoryItem = ({
         >
           <Ionicons name={statusIcon} size={12} color={statusColor} />
           <Text
-            className="ml-1 text-xs font-semibold"
+            className="ml-1 text-sm font-semibold"
             style={{ color: statusColor }}
           >
             {statusLabel}
@@ -130,10 +130,10 @@ const OrderHistoryItem = ({
       </View>
 
       <View className="mt-3 flex-row items-center justify-between border-t border-gray-300 pt-3">
-        <Text className="text-xs font-medium text-gray-400">
+        <Text className="text-sm font-medium text-gray-400">
           {t('order.item_count', { count: item.items.length })}
         </Text>
-        <Text className="text-sm font-semibold text-[#00B14F]">
+        <Text className="text-base font-semibold text-[#00B14F]">
           {`${item.finalAmount.toLocaleString('vi-VN')}₫`}
         </Text>
       </View>

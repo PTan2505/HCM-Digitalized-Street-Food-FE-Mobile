@@ -14,6 +14,8 @@ import {
   selectCartLoading,
   updateCartItemThunk,
 } from '@slices/directOrdering';
+import TabBar from '@components/TabBar';
+import type { TabBarItem } from '@components/TabBar';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -289,7 +291,7 @@ export const PersonalCartScreen = ({
           <Text className="mt-4 text-lg font-semibold text-gray-400">
             {t('cart.empty')}
           </Text>
-          <Text className="mt-1 text-sm text-gray-300">
+          <Text className="mt-1 text-base text-gray-300">
             {t('cart.empty_hint')}
           </Text>
         </View>
@@ -319,7 +321,7 @@ export const PersonalCartScreen = ({
                     <Text className="text-base font-semibold text-black">
                       {item.dishName}
                     </Text>
-                    <Text className="mt-0.5 text-sm text-gray-400">
+                    <Text className="mt-0.5 text-base text-gray-400">
                       {`${item.unitPrice.toLocaleString('vi-VN')}đ`}
                     </Text>
                   </View>
@@ -334,7 +336,7 @@ export const PersonalCartScreen = ({
                     >
                       <Text className="text-lg font-bold text-white">−</Text>
                     </TouchableOpacity>
-                    <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
+                    <Text className="min-w-[28px] text-center text-base font-semibold text-black">
                       {item.quantity}
                     </Text>
                     <TouchableOpacity
@@ -356,7 +358,7 @@ export const PersonalCartScreen = ({
 
             {/* Note */}
             <View className="px-4 py-4">
-              <Text className="mb-2 text-sm font-semibold text-gray-500">
+              <Text className="mb-2 text-base font-semibold text-gray-500">
                 {t('cart.note_label')}
               </Text>
               <TextInput
@@ -366,7 +368,7 @@ export const PersonalCartScreen = ({
                 placeholderTextColor="#bbb"
                 multiline
                 maxLength={200}
-                className="min-h-[60px] rounded-xl border border-gray-200 px-4 py-3 text-sm text-black"
+                className="min-h-[60px] rounded-xl border border-gray-200 px-4 py-3 text-base text-black"
               />
             </View>
 
@@ -378,7 +380,7 @@ export const PersonalCartScreen = ({
             ) : menuDishes.length > 0 ? (
               <View className="border-t border-gray-100">
                 <View className="flex-row items-center justify-between px-4 pb-2 pt-4">
-                  <Text className="text-base font-bold text-black">
+                  <Text className="text-xl font-bold text-black">
                     {t('cart.add_more')}
                   </Text>
                   {menuHasMore && menuBranch && (
@@ -391,7 +393,7 @@ export const PersonalCartScreen = ({
                         })
                       }
                     >
-                      <Text className="text-sm font-semibold text-primary">
+                      <Text className="text-base font-semibold text-primary">
                         {t('cart.view_all_menu')}
                       </Text>
                     </TouchableOpacity>
@@ -399,34 +401,20 @@ export const PersonalCartScreen = ({
                 </View>
 
                 {/* Category Tabs */}
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  className="border-b border-gray-200 px-4"
-                  nestedScrollEnabled
-                >
-                  {menuCategories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      className={`mr-2 flex-row items-center justify-center border-b-2 px-3 py-2 ${
-                        activeCategory === cat
-                          ? 'border-[#FF6B35]'
-                          : 'border-transparent'
-                      }`}
-                      onPress={() => setActiveCategory(cat as string)}
-                    >
-                      <Text
-                        className={`text-sm capitalize ${
-                          activeCategory === cat
-                            ? 'font-semibold text-[#FF6B35]'
-                            : 'text-black-400'
-                        }`}
-                      >
-                        {cat === 'all' ? t('actions.all') : cat}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                <TabBar
+                  tabs={menuCategories
+                    .filter((cat): cat is string => cat != null)
+                    .map(
+                      (cat): TabBarItem<string> => ({
+                        key: cat,
+                        label: cat === 'all' ? t('actions.all') : cat,
+                      })
+                    )}
+                  activeTab={activeCategory}
+                  onTabChange={setActiveCategory}
+                  activeColor="#FF6B35"
+                  indicatorColor="#FF6B35"
+                />
 
                 {/* Dish Items */}
                 {activeCategory === 'all' ? (
@@ -483,7 +471,7 @@ export const PersonalCartScreen = ({
                                       {`${dish.price.toLocaleString('vi-VN')}đ`}
                                     </Text>
                                     {dish.isSoldOut ? (
-                                      <Text className="text-xs text-red-400">
+                                      <Text className="text-sm text-red-400">
                                         {t('actions.sold_out')}
                                       </Text>
                                     ) : !isOpen ? null : qty === 0 ? (
@@ -491,7 +479,7 @@ export const PersonalCartScreen = ({
                                         onPress={() => handleMenuAdd(dish)}
                                         className="rounded-full bg-primary px-4 py-1.5"
                                       >
-                                        <Text className="text-sm font-semibold text-white">
+                                        <Text className="text-base font-semibold text-white">
                                           {t('cart.add')}
                                         </Text>
                                       </TouchableOpacity>
@@ -509,7 +497,7 @@ export const PersonalCartScreen = ({
                                             color={COLORS.primary}
                                           />
                                         </TouchableOpacity>
-                                        <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
+                                        <Text className="min-w-[28px] text-center text-base font-semibold text-black">
                                           {qty}
                                         </Text>
                                         <TouchableOpacity
@@ -575,7 +563,7 @@ export const PersonalCartScreen = ({
                                   {`${dish.price.toLocaleString('vi-VN')}đ`}
                                 </Text>
                                 {dish.isSoldOut ? (
-                                  <Text className="text-xs text-red-400">
+                                  <Text className="text-sm text-red-400">
                                     {t('actions.sold_out')}
                                   </Text>
                                 ) : !isOpen ? null : qty === 0 ? (
@@ -583,7 +571,7 @@ export const PersonalCartScreen = ({
                                     onPress={() => handleMenuAdd(dish)}
                                     className="rounded-full bg-primary px-4 py-1.5"
                                   >
-                                    <Text className="text-sm font-semibold text-white">
+                                    <Text className="text-base font-semibold text-white">
                                       {t('cart.add')}
                                     </Text>
                                   </TouchableOpacity>
@@ -599,7 +587,7 @@ export const PersonalCartScreen = ({
                                         color={COLORS.primary}
                                       />
                                     </TouchableOpacity>
-                                    <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
+                                    <Text className="min-w-[28px] text-center text-base font-semibold text-black">
                                       {qty}
                                     </Text>
                                     <TouchableOpacity
@@ -633,7 +621,7 @@ export const PersonalCartScreen = ({
           {/* Footer */}
           <View className="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white px-4 pb-8 pt-3">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-base font-semibold text-gray-500">
+              <Text className="text-xl font-semibold text-gray-500">
                 {t('cart.total')}
               </Text>
               <Text className="text-xl font-bold text-[#00B14F]">

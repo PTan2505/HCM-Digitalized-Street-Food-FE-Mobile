@@ -203,7 +203,7 @@ const MenuTab = ({
               {`${dish.price.toLocaleString('vi-VN')}đ`}
             </Text>
             {dish.isSoldOut ? (
-              <Text className="text-xs text-red-400">
+              <Text className="text-sm text-red-400">
                 {t('actions.sold_out')}
               </Text>
             ) : disabled ? null : qty === 0 ? (
@@ -211,7 +211,7 @@ const MenuTab = ({
                 onPress={() => handleAdd(dish)}
                 className="rounded-full bg-primary px-4 py-1.5"
               >
-                <Text className="text-sm font-semibold text-white">
+                <Text className="text-base font-semibold text-white">
                   {t('cart.add')}
                 </Text>
               </TouchableOpacity>
@@ -227,7 +227,7 @@ const MenuTab = ({
                     color={COLORS.primary}
                   />
                 </TouchableOpacity>
-                <Text className="min-w-[28px] text-center text-sm font-semibold text-black">
+                <Text className="min-w-[28px] text-center text-base font-semibold text-black">
                   {qty}
                 </Text>
                 <TouchableOpacity
@@ -254,7 +254,7 @@ const MenuTab = ({
       {!isSubscribed && (
         <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-red-50 px-4 py-3">
           <Ionicons name="ban-outline" size={20} color="#ef4444" />
-          <Text className="flex-1 text-xs leading-4 text-red-600">
+          <Text className="flex-1 text-sm leading-4 text-red-600">
             {t('cart.not_subscribed_notice')}
           </Text>
         </View>
@@ -264,7 +264,7 @@ const MenuTab = ({
       {isSubscribed && !isOpen && (
         <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-amber-50 px-4 py-3">
           <Ionicons name="information-circle" size={20} color="#f59e0b" />
-          <Text className="flex-1 text-xs leading-4 text-amber-700">
+          <Text className="flex-1 text-sm leading-4 text-amber-700">
             {t('cart.stall_closed_notice')}
           </Text>
         </View>

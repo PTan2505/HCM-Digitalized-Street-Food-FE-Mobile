@@ -37,7 +37,7 @@ import { VoucherMarketplaceScreen } from '@features/campaigns/screens/VoucherMar
 import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
-import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
+import type { TabType } from '@features/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { QuestDetailScreen } from '@features/quests/screens/QuestDetailScreen';
 import { QuestListScreen } from '@features/quests/screens/QuestListScreen';

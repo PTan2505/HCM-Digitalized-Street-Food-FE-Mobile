@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { VoucherDto } from '@features/campaigns/api/voucherApi';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useVoucherMarketplace } from '@features/campaigns/hooks/useVoucherMarketplace';
@@ -159,7 +159,7 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
       <View className="self-end">
         <View className="w-fit flex-row items-center rounded-full bg-amber-50 px-4 py-3">
           <Ionicons name="star" size={20} color="#F59E0B" />
-          <Text className="ml-2 text-sm font-semibold text-amber-700">
+          <Text className="ml-2 text-base font-semibold text-amber-700">
             {t('marketplace.your_points', {
               points: userPoints.toLocaleString('vi-VN'),
             })}
@@ -177,14 +177,14 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
       ) : error && availableVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
-          <Text className="mt-3 text-center text-sm text-gray-400">
+          <Text className="mt-3 text-center text-base text-gray-400">
             {error}
           </Text>
           <TouchableOpacity
             onPress={() => void handleRefresh()}
             className="mt-4 rounded-full bg-primary px-6 py-2"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('campaign.retry')}
             </Text>
           </TouchableOpacity>

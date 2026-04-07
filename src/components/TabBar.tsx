@@ -65,7 +65,9 @@ const AnimatedTabLabel = ({
 
   return (
     <Animated.Text
-      className={compact ? 'text-sm font-semibold' : 'text-base font-semibold'}
+      className={
+        compact ? 'text-base font-semibold' : 'text-base font-semibold'
+      }
       style={textStyle}
     >
       {label}
@@ -175,7 +177,7 @@ export const TabBar = <T extends TabKey>({
                 }`}
               >
                 <Text
-                  className={`text-xs font-bold ${
+                  className={`text-sm font-bold ${
                     isEqualVariant
                       ? 'text-gray-500'
                       : isActive

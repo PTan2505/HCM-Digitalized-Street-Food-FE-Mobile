@@ -1,5 +1,5 @@
-import type { FilterSection, FilterState } from '@custom-types/filter';
 import { COLORS } from '@constants/colors';
+import type { FilterSection, FilterState } from '@custom-types/filter';
 import FilterModal from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -607,7 +607,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           <GestureDetector gesture={panGesture}>
             <Animated.View className="items-center pb-2 pt-3">
               <View className="h-1 w-10 rounded-full bg-gray-300" />
-              <Text className="mt-1.5 text-xs font-medium text-gray-400">
+              <Text className="mt-1.5 text-sm font-medium text-gray-400">
                 {branches.length > 0
                   ? `${branches.length} quán ăn gần đây`
                   : ''}
@@ -637,7 +637,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
                 }}
                 className="mt-4 rounded-full bg-primary-dark px-6 py-2"
               >
-                <Text className="text-sm font-semibold text-white">
+                <Text className="text-base font-semibold text-white">
                   {t('search.retry')}
                 </Text>
               </TouchableOpacity>

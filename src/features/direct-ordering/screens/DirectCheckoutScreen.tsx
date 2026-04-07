@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -192,38 +192,38 @@ export const DirectCheckoutScreen = ({
           <Text className="mb-3 text-base font-bold text-black">
             {t('checkout.order_summary')}
           </Text>
-          <Text className="mb-2 text-sm text-gray-500">{branchName}</Text>
+          <Text className="mb-2 text-base text-gray-500">{branchName}</Text>
           {cart?.items.map((item) => (
             <View
               key={item.dishId}
               className="mb-1 flex-row items-center justify-between"
             >
-              <Text className="text-sm text-black">
+              <Text className="text-base text-black">
                 {item.dishName} × {item.quantity}
               </Text>
-              <Text className="text-sm font-semibold text-black">
+              <Text className="text-base font-semibold text-black">
                 {`${item.lineTotal.toLocaleString('vi-VN')}đ`}
               </Text>
             </View>
           ))}
           {note ? (
-            <Text className="mt-2 text-xs italic text-gray-400">
+            <Text className="mt-2 text-sm italic text-gray-400">
               {t('cart.note_label')}: {note}
             </Text>
           ) : null}
           <View className="mt-3 border-t border-gray-100 pt-3">
             <View className="flex-row items-center justify-between">
-              <Text className="text-sm text-gray-500">{t('cart.total')}</Text>
-              <Text className="text-sm text-black">
+              <Text className="text-base text-gray-500">{t('cart.total')}</Text>
+              <Text className="text-base text-black">
                 {cart ? `${cart.totalAmount.toLocaleString('vi-VN')}₫` : '—'}
               </Text>
             </View>
             {discountAmount > 0 && (
               <View className="mt-1 flex-row items-center justify-between">
-                <Text className="text-sm text-[#00B14F]">
+                <Text className="text-base text-[#00B14F]">
                   {t('checkout.voucher_discount')}
                 </Text>
-                <Text className="text-sm font-semibold text-[#00B14F]">
+                <Text className="text-base font-semibold text-[#00B14F]">
                   {`-${discountAmount.toLocaleString('vi-VN')}₫`}
                 </Text>
               </View>
@@ -258,7 +258,7 @@ export const DirectCheckoutScreen = ({
               size={20}
               color={COLORS.primaryLight}
             />
-            <Text className="text-sm font-semibold text-black">
+            <Text className="text-base font-semibold text-black">
               {t('checkout.voucher')}
             </Text>
           </View>
@@ -268,17 +268,17 @@ export const DirectCheckoutScreen = ({
             ) : selectedVoucher ? (
               <View className="items-end">
                 <Text
-                  className="max-w-[160px] text-sm font-semibold text-primary-light"
+                  className="max-w-[160px] text-base font-semibold text-primary-light"
                   numberOfLines={1}
                 >
                   {selectedVoucher.voucherName}
                 </Text>
-                <Text className="text-xs text-[#00B14F]">
+                <Text className="text-sm text-[#00B14F]">
                   {`-${discountAmount.toLocaleString('vi-VN')}₫`}
                 </Text>
               </View>
             ) : (
-              <Text className="text-sm text-gray-400">
+              <Text className="text-base text-gray-400">
                 {t('checkout.select_voucher')}
               </Text>
             )}
@@ -291,7 +291,7 @@ export const DirectCheckoutScreen = ({
           onPress={() => setIsTakeAway(!isTakeAway)}
           className="flex-row items-center justify-between border-b border-gray-100 px-4 py-4"
         >
-          <Text className="text-sm font-semibold text-black">Mang đi</Text>
+          <Text className="text-base font-semibold text-black">Mang đi</Text>
           <View
             className={`h-5 w-5 items-end justify-end rounded border-2 ${isTakeAway ? 'border-primary bg-primary' : 'border-gray-300 bg-white'}`}
           >
@@ -322,7 +322,7 @@ export const DirectCheckoutScreen = ({
                 }
               />
               <Text
-                className={`ml-3 flex-1 text-sm font-semibold ${
+                className={`ml-3 flex-1 text-base font-semibold ${
                   selectedMethod === method.key
                     ? 'text-primary-light'
                     : 'text-black'

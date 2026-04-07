@@ -11,7 +11,6 @@ import type { NearbyRestaurant } from '@features/home/components/restaurantDetai
 import RestaurantsMayLikeTab from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
 import type { Review } from '@features/home/components/restaurantDetails/ReviewsTab';
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
-import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
@@ -49,6 +48,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+export type TabType = 'menu' | 'reviews' | 'nearby';
 
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -408,7 +408,7 @@ export const RestaurantDetailsScreen = ({
             className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-primary py-2.5"
           >
             <Ionicons name="map-outline" size={18} color={COLORS.primary} />
-            <Text className="text-sm font-semibold text-primary">
+            <Text className="text-base font-semibold text-primary">
               {t('actions.view_on_map')}
             </Text>
           </TouchableOpacity>
@@ -455,7 +455,7 @@ export const RestaurantDetailsScreen = ({
             className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-2.5"
           >
             <Ionicons name="navigate-outline" size={18} color="#fff" />
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('giving_direction', { defaultValue: 'Chỉ đường' })}
             </Text>
           </TouchableOpacity>

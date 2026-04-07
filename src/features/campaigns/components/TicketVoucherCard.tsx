@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { cssInterop } from 'nativewind';
 import type { ComponentProps, JSX } from 'react';
@@ -88,7 +88,7 @@ export const TicketVoucherCard = ({
           </Text>
 
           <Text
-            className={`mt-0.5 text-xs font-bold ${
+            className={`mt-0.5 text-sm font-bold ${
               disabled ? 'text-[#474747]' : 'text-black'
             }`}
             numberOfLines={1}

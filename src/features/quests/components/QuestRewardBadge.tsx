@@ -116,7 +116,7 @@ export const QuestRewardBadge = ({
     <View className={`items-end rounded-xl px-2.5 py-1.5 ${bg}`}>
       <View className="flex-row items-center gap-x-1">
         <Ionicons name={icon} size={13} color={iconColor} />
-        <Text className={`text-xs font-bold ${textColor}`}>
+        <Text className={`text-sm font-bold ${textColor}`}>
           {normalized === 'VOUCHER' && voucherDisplay
             ? voucherDisplay.name
             : getLabel()}
@@ -124,7 +124,7 @@ export const QuestRewardBadge = ({
       </View>
       {normalized === 'VOUCHER' && voucherDisplay && (
         <>
-          <Text className={`mt-0.5 text-xs font-semibold ${textColor}`}>
+          <Text className={`mt-0.5 text-sm font-semibold ${textColor}`}>
             {voucherDisplay.discount}
           </Text>
           <Text className={`text-[10px] opacity-70 ${textColor}`}>

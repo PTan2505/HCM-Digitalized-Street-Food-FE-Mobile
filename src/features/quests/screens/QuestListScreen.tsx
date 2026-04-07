@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -139,7 +139,7 @@ export const QuestListScreen = (): JSX.Element => {
               className="flex-1 items-center pb-3"
             >
               <Animated.Text
-                className="text-sm font-semibold"
+                className="text-base font-semibold"
                 style={tabTextStyles[i]}
               >
                 {tab.label}

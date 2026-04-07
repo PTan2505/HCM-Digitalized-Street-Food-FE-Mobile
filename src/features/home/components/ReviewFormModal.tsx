@@ -309,7 +309,7 @@ export const ReviewFormModal = ({
         >
           {/* Star rating */}
           <View className="mb-6 mt-5 items-center">
-            <Text className="mb-3 text-sm font-medium text-gray-700">
+            <Text className="mb-3 text-base font-medium text-gray-700">
               Đánh giá của bạn
             </Text>
             <View className="flex-row gap-2">
@@ -332,7 +332,7 @@ export const ReviewFormModal = ({
           {/* Dish selector */}
           {dishes.length > 0 && (
             <View className="mb-5">
-              <Text className="mb-3 text-sm font-medium text-gray-700">
+              <Text className="mb-3 text-base font-medium text-gray-700">
                 Món ăn (Tuỳ chọn)
               </Text>
               <ScrollView
@@ -372,7 +372,7 @@ export const ReviewFormModal = ({
                           />
                           {dish.isSoldOut && (
                             <View className="absolute inset-0 items-center justify-center bg-black/50">
-                              <Text className="text-xs font-semibold text-white">
+                              <Text className="text-sm font-semibold text-white">
                                 HẾT HÀNG
                               </Text>
                             </View>
@@ -399,7 +399,7 @@ export const ReviewFormModal = ({
                             color={dish.isSoldOut ? '#9CA3AF' : '#D1D5DB'}
                           />
                           {dish.isSoldOut && (
-                            <Text className="mt-1 text-xs font-semibold text-gray-500">
+                            <Text className="mt-1 text-sm font-semibold text-gray-500">
                               HẾT HÀNG
                             </Text>
                           )}
@@ -418,7 +418,7 @@ export const ReviewFormModal = ({
                       {/* Dish Details */}
                       <View className="p-3">
                         <Text
-                          className={`mb-1 text-sm font-semibold ${
+                          className={`mb-1 text-base font-semibold ${
                             dish.isSoldOut
                               ? 'text-gray-400'
                               : isSelected
@@ -431,7 +431,7 @@ export const ReviewFormModal = ({
                         </Text>
 
                         <Text
-                          className={`mb-2 text-xs font-medium ${
+                          className={`mb-2 text-sm font-medium ${
                             dish.isSoldOut ? 'text-gray-400' : 'text-primary'
                           }`}
                         >
@@ -440,7 +440,7 @@ export const ReviewFormModal = ({
 
                         {dish.description && (
                           <Text
-                            className={`mb-2 text-xs ${
+                            className={`mb-2 text-sm ${
                               dish.isSoldOut ? 'text-gray-400' : 'text-gray-600'
                             }`}
                             numberOfLines={2}
@@ -512,7 +512,7 @@ export const ReviewFormModal = ({
           {/* Tags */}
           {availableTags.length > 0 && (
             <View className="mb-5">
-              <Text className="mb-3 text-sm font-medium text-gray-700">
+              <Text className="mb-3 text-base font-medium text-gray-700">
                 Nhãn (Tuỳ chọn)
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -535,7 +535,7 @@ export const ReviewFormModal = ({
                       }`}
                     >
                       <Text
-                        className={`text-xs font-medium ${
+                        className={`text-sm font-medium ${
                           isSelected ? 'text-white' : 'text-gray-600'
                         }`}
                       >
@@ -553,7 +553,7 @@ export const ReviewFormModal = ({
             className="mb-5"
             onLayout={(e) => setCommentY(e.nativeEvent.layout.y)}
           >
-            <Text className="mb-2 text-sm font-medium text-gray-700">
+            <Text className="mb-2 text-base font-medium text-gray-700">
               Nhận xét
             </Text>
             <TextInput
@@ -574,10 +574,10 @@ export const ReviewFormModal = ({
                   });
                 }, 100);
               }}
-              className="rounded-xl border border-gray-200 p-3 text-sm text-gray-900"
+              className="rounded-xl border border-gray-200 p-3 text-base text-gray-900"
               style={{ minHeight: 100 }}
             />
-            <Text className="mt-1 text-right text-xs text-gray-400">
+            <Text className="mt-1 text-right text-sm text-gray-400">
               {comment.length}/{MAX_COMMENT_LENGTH}
             </Text>
           </View>
@@ -585,10 +585,10 @@ export const ReviewFormModal = ({
           {/* Images */}
           <View className="mb-5">
             <View className="mb-2 flex-row items-center justify-between">
-              <Text className="text-sm font-medium text-gray-700">
+              <Text className="text-base font-medium text-gray-700">
                 Hình ảnh (Tuỳ chọn)
               </Text>
-              <Text className="text-xs text-gray-400">
+              <Text className="text-sm text-gray-400">
                 {totalImageCount}/{MAX_IMAGES}
               </Text>
             </View>
@@ -652,7 +652,7 @@ export const ReviewFormModal = ({
           {/* Error message */}
           {submitError && (
             <View className="mb-4 rounded-lg bg-red-50 px-3 py-2">
-              <Text className="text-sm text-red-600">{submitError}</Text>
+              <Text className="text-base text-red-600">{submitError}</Text>
             </View>
           )}
         </ScrollView>
@@ -680,7 +680,7 @@ export const ReviewFormModal = ({
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <Text
-                className={`text-sm font-semibold ${
+                className={`text-base font-semibold ${
                   rating === 0 || (!isEditMode && !canSubmitReview)
                     ? 'text-gray-400'
                     : 'text-white'

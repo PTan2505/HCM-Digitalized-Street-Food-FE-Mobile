@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text } from 'react-native';
 import type { JSX } from 'react';
+import React from 'react';
+import { Text, View } from 'react-native';
 
 interface TitleSectionProps {
   title: string;
@@ -43,12 +43,12 @@ const TitleSection = ({
       <Text className="mb-2 text-[20px] font-semibold leading-[22px] text-black">
         {title} {numberLabel}
       </Text>
-      <Text className="mb-2 text-sm text-gray-400">
+      <Text className="mb-2 text-base text-gray-400">
         {locationsCount} {locationsLabel}
       </Text>
 
       <View className="mb-3 flex-row items-center justify-between">
-        <Text className="mr-2 text-sm font-medium text-[#086524]">
+        <Text className="mr-2 text-base font-medium text-[#086524]">
           {expiresLabel}
         </Text>
         <View className="flex-row items-center">
@@ -57,13 +57,17 @@ const TitleSection = ({
               {String(days).padStart(2, '0')} {daysLabel}
             </Text>
           </View>
-          <Text className="mx-1.5 text-sm font-semibold text-[#1D7518]">:</Text>
+          <Text className="mx-1.5 text-base font-semibold text-[#1D7518]">
+            :
+          </Text>
           <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
             <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
               {String(hours).padStart(2, '0')} {hoursLabel}
             </Text>
           </View>
-          <Text className="mx-1.5 text-sm font-semibold text-[#1D7518]">:</Text>
+          <Text className="mx-1.5 text-base font-semibold text-[#1D7518]">
+            :
+          </Text>
           <View className="h-[18px] w-[49px] items-center justify-center rounded-md border-[0.95px] border-[#1D7518] bg-white">
             <Text className="text-[9.45px] font-semibold leading-[100%] text-[#1D7518]">
               {String(minutes).padStart(2, '0')} {minutesLabel}
