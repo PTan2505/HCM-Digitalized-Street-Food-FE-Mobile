@@ -60,6 +60,15 @@ export const getProfileSections = (
       title: t('profile.personal-features'),
       items: [
         {
+          id: 'favorites',
+          icon: 'heart-outline',
+          title: t('profile.favorites'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('Favorites');
+          },
+        },
+        {
           id: 'balance',
           icon: 'wallet-outline',
           title: t('profile.my_balance'),

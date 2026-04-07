@@ -171,6 +171,7 @@
     "phone_number": "Số điện thoại",
     "dietary_preferences": "Sở thích ăn uống",
     "update_dietary_preferences": "Cập nhật sở thích ăn uống",
+    "favorites": "Quán yêu thích",
     "my_ghost_pins": "Quán ăn tôi chia sẻ",
     "main_menu": "Mục chính",
     "activity": "Hoạt động",
@@ -193,6 +194,11 @@
     "voucher_wallet": "Ví mã giảm giá",
     "voucher_marketplace": "Chợ voucher",
     "personal-features": "Tính năng cá nhân"
+  },
+  "favorites": {
+    "title": "Quán yêu thích",
+    "empty_title": "Chưa có quán yêu thích",
+    "empty_hint": "Nhấn vào biểu tượng trái tim trên trang chi tiết quán để lưu lại"
   },
   "bottom_tabs": {
     "discover": "Khám phá",
@@ -562,12 +568,61 @@
     "search_bank": "Tìm ngân hàng...",
     "no_bank_found": "Không tìm thấy ngân hàng"
   },
+  "ghost_pin_creation": {
+    "title": "Thêm quán ăn mới",
+    "form": {
+      "name_label": "Tên quán",
+      "name_placeholder": "Nhập tên quán ăn",
+      "address_label": "Địa chỉ",
+      "address_placeholder": "Tìm kiếm địa chỉ...",
+      "submit": "Xác nhận"
+    },
+    "nearby": {
+      "title": "Có quán ăn gần đây",
+      "description": "Đã có {{count}} quán trong bán kính 1km. Có thể quán bạn muốn thêm đã tồn tại:"
+    },
+    "feedback": {
+      "title": "Đánh giá (Tùy chọn)",
+      "subtitle": "Chia sẻ thêm về quán ăn và thêm ảnh minh họa",
+      "your_rating": "Đánh giá của bạn",
+      "tags_label": "Nhãn (Tuỳ chọn)",
+      "placeholder": "Mô tả về quán (món ăn đặc biệt, giờ mở cửa, giá cả, đặc điểm nổi bật...)",
+      "character_count": "{{count}}/500 ký tự",
+      "image_section_title": "Ảnh minh họa",
+      "image_counter": "{{selected}}/{{max}}",
+      "image_hint": "Tải lên ảnh quán, món ăn, thực đơn hoặc bảng hiệu"
+    },
+    "validation": {
+      "name_min_length": "Tên quán phải có ít nhất 2 ký tự",
+      "address_required": "Vui lòng chọn địa chỉ từ gợi ý hoặc bản đồ"
+    },
+    "submit_error": {
+      "duplicate_nearby": "Đã có quán gần đây được ghi nhận",
+      "default": "Không thể tạo ghim. Vui lòng thử lại."
+    },
+    "alert": {
+      "image_limit_title": "Giới hạn ảnh",
+      "image_limit_message": "Bạn chỉ có thể tải lên tối đa {{count}} ảnh",
+      "permission_title": "Quyền truy cập",
+      "photo_permission_message": "Vui lòng cho phép ứng dụng truy cập thư viện ảnh trong Cài đặt.",
+      "camera_permission_message": "Vui lòng cho phép ứng dụng truy cập máy ảnh trong Cài đặt.",
+      "add_image_title": "Thêm ảnh",
+      "choose_image_source": "Chọn nguồn ảnh",
+      "take_photo": "Chụp ảnh",
+      "choose_from_library": "Chọn từ thư viện",
+      "success_title": "Thành công",
+      "success_message": "Ghim quán ăn đã được tạo thành công!"
+    },
+    "distance_meters": "{{count}}m",
+    "distance_kilometers": "{{count}}km"
+  },
   "home_quick_actions": {
     "section_title": "Khám phá Lowca",
     "ghost_pin": "Chia sẻ quán ăn mới",
     "quest": "Thử thách",
     "voucher_market": "Chợ Voucher",
-    "personal_cart": "Giỏ hàng"
+    "personal_cart": "Giỏ hàng",
+    "favorites": "Quán yêu thích"
   },
   "voucher": {
     "discount": "Giảm giá",

@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -21,13 +21,7 @@ import { selectUserDietaryPreferences } from '@slices/dietary';
 import type { JSX } from 'react';
 import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ListBranchScreenProps = StaticScreenProps<{
@@ -97,18 +91,10 @@ export const ListBranchScreen = ({
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-3 p-1"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1a1a1a" />
-        </TouchableOpacity>
-        <Text className="title-md flex-1">
-          {routeTitle ?? t('places_might_like')}
-        </Text>
-      </View>
+      <Header
+        title={routeTitle ?? t('places_might_like')}
+        onBackPress={() => navigation.goBack()}
+      />
 
       <FlatList
         data={branches}

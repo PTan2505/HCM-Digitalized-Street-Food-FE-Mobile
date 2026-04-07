@@ -18,6 +18,7 @@ import { useBranchImages } from '@features/home/hooks/useBranchImages';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
+import { useFavoriteBranches } from '@features/home/hooks/useFavoriteBranches';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { Feedback } from '@features/home/types/feedback';
@@ -141,6 +142,8 @@ export const RestaurantDetailsScreen = ({
   const [editingFeedback, setEditingFeedback] = useState<Feedback | undefined>(
     undefined
   );
+
+  const { isFavorite, toggleFavorite } = useFavoriteBranches();
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
   const { dishes } = useBranchDishes(branch.branchId);
@@ -396,7 +399,13 @@ export const RestaurantDetailsScreen = ({
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
-      <FixedHeaderControls onSharePress={handleSharePress} />
+      <FixedHeaderControls
+        onSharePress={handleSharePress}
+        isFavorite={isFavorite(branch.branchId)}
+        onFavoritePress={() =>
+          toggleFavorite(branch, displayName, branchImageUrls[0])
+        }
+      />
 
       <ScrollView
         keyboardShouldPersistTaps="handled"
