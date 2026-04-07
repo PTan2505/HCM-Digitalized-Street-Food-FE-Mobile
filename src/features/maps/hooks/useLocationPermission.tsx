@@ -7,32 +7,77 @@ export interface UserCoords {
   longitude: number;
 }
 
+let sharedPermissionStatus: Location.PermissionStatus | null = null;
+let sharedCoords: UserCoords | null = null;
+let permissionRequestPromise: Promise<Location.PermissionStatus> | null = null;
+let coordsRequestPromise: Promise<UserCoords | null> | null = null;
+let hasAutoRequestedForegroundPermission = false;
+let hasAttemptedCurrentPosition = false;
+
+const requestForegroundPermissionOnce =
+  async (): Promise<Location.PermissionStatus> => {
+    permissionRequestPromise ??= Location.requestForegroundPermissionsAsync()
+      .then(({ status }) => status)
+      .then((status) => status)
+      .finally(() => {
+        permissionRequestPromise = null;
+      });
+    return permissionRequestPromise;
+  };
+
+const fetchCoordsOnce = async (): Promise<UserCoords | null> => {
+  if (sharedCoords) {
+    return sharedCoords;
+  }
+  coordsRequestPromise ??= (async (): Promise<UserCoords | null> => {
+    const cached = await Location.getLastKnownPositionAsync();
+    if (cached) {
+      return {
+        latitude: cached.coords.latitude,
+        longitude: cached.coords.longitude,
+      };
+    }
+
+    if (hasAttemptedCurrentPosition) {
+      return null;
+    }
+
+    hasAttemptedCurrentPosition = true;
+    const current = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Balanced,
+    });
+    return {
+      latitude: current.coords.latitude,
+      longitude: current.coords.longitude,
+    };
+  })().finally(() => {
+    coordsRequestPromise = null;
+  });
+
+  const resolved = await coordsRequestPromise;
+  if (resolved) {
+    sharedCoords = resolved;
+  }
+  return resolved;
+};
+
 export const useLocationPermission = (): {
   permissionStatus: Location.PermissionStatus;
   retryPermission: () => void;
   coords: UserCoords | null;
 } => {
   const [permissionStatus, setPermissionStatus] =
-    useState<Location.PermissionStatus>(Location.PermissionStatus.UNDETERMINED);
-  const [coords, setCoords] = useState<UserCoords | null>(null);
+    useState<Location.PermissionStatus>(
+      sharedPermissionStatus ?? Location.PermissionStatus.UNDETERMINED
+    );
+  const [coords, setCoords] = useState<UserCoords | null>(sharedCoords);
 
   const fetchCoords = useCallback(async (): Promise<void> => {
     try {
-      const cached = await Location.getLastKnownPositionAsync();
-      if (cached) {
-        setCoords({
-          latitude: cached.coords.latitude,
-          longitude: cached.coords.longitude,
-        });
-        return;
+      const resolvedCoords = await fetchCoordsOnce();
+      if (resolvedCoords) {
+        setCoords(resolvedCoords);
       }
-      const current = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      setCoords({
-        latitude: current.coords.latitude,
-        longitude: current.coords.longitude,
-      });
     } catch {
       // coords stay null — callers handle gracefully
     }
@@ -44,15 +89,17 @@ export const useLocationPermission = (): {
   const syncPermission = useCallback(async (): Promise<void> => {
     try {
       const { status } = await Location.getForegroundPermissionsAsync();
+      sharedPermissionStatus = status;
       setPermissionStatus(status);
-      if (status === Location.PermissionStatus.GRANTED) {
-        await fetchCoords();
+      if (status === Location.PermissionStatus.DENIED) {
+        sharedCoords = null;
+        setCoords(null);
       }
-    } catch (error) {
-      console.error('Error checking location permission:', error);
+    } catch {
+      sharedPermissionStatus = Location.PermissionStatus.DENIED;
       setPermissionStatus(Location.PermissionStatus.DENIED);
     }
-  }, [fetchCoords]);
+  }, []);
 
   // On mount: show the system dialog only when truly UNDETERMINED (first time).
   // For GRANTED/DENIED we just read the existing status — this prevents multiple
@@ -67,29 +114,46 @@ export const useLocationPermission = (): {
 
         if (cancelled) return;
 
-        if (existingStatus === Location.PermissionStatus.UNDETERMINED) {
-          const { status } = await Location.requestForegroundPermissionsAsync();
-          if (!cancelled) {
-            setPermissionStatus(status);
-            if (status === Location.PermissionStatus.GRANTED) {
-              await fetchCoords();
-            }
-          }
-        } else {
-          setPermissionStatus(existingStatus);
-          if (existingStatus === Location.PermissionStatus.GRANTED) {
-            await fetchCoords();
-          }
+        let nextStatus = existingStatus;
+
+        if (
+          existingStatus === Location.PermissionStatus.UNDETERMINED &&
+          !hasAutoRequestedForegroundPermission
+        ) {
+          hasAutoRequestedForegroundPermission = true;
+          nextStatus = await requestForegroundPermissionOnce();
         }
-      } catch (error) {
+
+        if (cancelled) return;
+
+        sharedPermissionStatus = nextStatus;
+        setPermissionStatus(nextStatus);
+        if (nextStatus === Location.PermissionStatus.GRANTED) {
+          await fetchCoords();
+        } else if (nextStatus === Location.PermissionStatus.DENIED) {
+          // If permission is denied from Settings while app is running,
+          // clear stale coordinates so UI can reflect the denied state.
+          sharedCoords = null;
+          setCoords(null);
+        }
+      } catch {
         if (!cancelled) {
-          console.error('Error requesting location permission:', error);
+          sharedPermissionStatus = Location.PermissionStatus.DENIED;
           setPermissionStatus(Location.PermissionStatus.DENIED);
         }
       }
     };
 
-    void checkPermission();
+    if (sharedPermissionStatus !== null) {
+      setPermissionStatus(sharedPermissionStatus);
+      if (sharedPermissionStatus === Location.PermissionStatus.GRANTED) {
+        void fetchCoords();
+      } else if (sharedPermissionStatus === Location.PermissionStatus.DENIED) {
+        setCoords(null);
+      }
+    } else {
+      void checkPermission();
+    }
 
     return (): void => {
       cancelled = true;

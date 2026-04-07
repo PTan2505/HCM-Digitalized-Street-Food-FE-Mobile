@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
@@ -8,7 +8,6 @@ import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/home/types/branch';
-import * as Location from 'expo-location';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
@@ -30,13 +29,13 @@ import {
 import { fetchUnreadCount } from '@slices/notifications';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Location from 'expo-location';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Animated,
-  Easing,
   FlatList,
   type LayoutChangeEvent,
   type NativeScrollEvent,
@@ -57,6 +56,8 @@ import HomeHeader from '../components/home/HomeHeader';
 import { QuickActionGrid } from '../components/home/QuickActionGrid';
 import { VendorCampaignPlaceCard } from '../components/home/VendorCampaignPlaceCard';
 import { getHomeQuickActions } from '../config/homeQuickActions';
+
+const STICKY_FADE_RANGE_PX = 40;
 
 export const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
@@ -80,18 +81,34 @@ export const HomeScreen = (): JSX.Element => {
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [stickyTriggerY, setStickyTriggerY] = useState(100);
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   // Track pulling state in ref to prevent unnecessary re-renders
   const isPullingRef = useRef(false);
-  // Y offset of the SearchBar within the scroll content (set via onLayout)
-  const searchBarOffsetRef = useRef(100);
+  const isRefreshingRef = useRef(false);
   const showStickyBarRef = useRef(false);
-  const stickyAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const lastScrollLogAtRef = useRef(0);
+
+  const stickyFadeStart = Math.max(0, stickyTriggerY - 8);
+  const stickyFadeEnd = stickyFadeStart + STICKY_FADE_RANGE_PX;
+  const isInitialLoading =
+    branchesStatus === 'pending' && branches.length === 0 && !refreshing;
+  const isInitialError = branchesStatus === 'failed' && branches.length === 0;
+  const stickyProgress = useMemo(
+    () =>
+      scrollY.interpolate({
+        inputRange: [stickyFadeStart, stickyFadeEnd],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+      }),
+    [scrollY, stickyFadeStart, stickyFadeEnd]
+  );
 
   const handleSearchBarLayout = useCallback((e: LayoutChangeEvent) => {
-    searchBarOffsetRef.current = e.nativeEvent.layout.y;
+    setStickyTriggerY(e.nativeEvent.layout.y);
   }, []);
 
   // Detect pull-to-refresh gesture for immediate spinner feedback.
@@ -100,6 +117,10 @@ export const HomeScreen = (): JSX.Element => {
       const { contentOffset } = e.nativeEvent;
       const y = contentOffset.y;
       const shouldBePulling = y < -50 && !refreshing;
+
+      if (y < 0 && Date.now() - lastScrollLogAtRef.current > 300) {
+        lastScrollLogAtRef.current = Date.now();
+      }
 
       if (shouldBePulling && !isPullingRef.current) {
         isPullingRef.current = true;
@@ -114,43 +135,38 @@ export const HomeScreen = (): JSX.Element => {
         setIsPulling(false);
       }
 
-      // Sticky SearchBar: show when the in-list SearchBar scrolls out of view
-      const shouldShow = y > searchBarOffsetRef.current;
-      if (shouldShow !== showStickyBarRef.current) {
-        showStickyBarRef.current = shouldShow;
-        setShowStickyBar(shouldShow);
+      const shouldEnablePointer = y >= stickyFadeEnd - 2;
+      if (shouldEnablePointer !== showStickyBarRef.current) {
+        showStickyBarRef.current = shouldEnablePointer;
+        setShowStickyBar(shouldEnablePointer);
       }
     },
-    [refreshing]
+    [refreshing, stickyFadeEnd]
   );
 
-  useEffect(() => {
-    Animated.timing(stickyAnim, {
-      toValue: showStickyBar ? 1 : 0,
-      duration: 220,
-      easing: showStickyBar
-        ? Easing.out(Easing.cubic)
-        : Easing.in(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [showStickyBar, stickyAnim]);
+  const handleListScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: true,
+        listener: handleScroll,
+      }),
+    [scrollY, handleScroll]
+  );
 
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
   // (no dietary) can never race against and overwrite FETCH-B (with dietary).
   const hasFetchedRef = useRef(false);
+  const fetchedWithoutCoordsRef = useRef(false);
+  const hasUpgradedToCoordsRef = useRef(false);
 
   useEffect(() => {
     if (branchesStatus !== 'idle') return;
     // Wait for location permission to settle before fetching.
-    // UNDETERMINED: dialog not yet answered; GRANTED+no coords: still resolving.
-    // If DENIED, proceed immediately without coordinates.
+    // UNDETERMINED: dialog not yet answered.
+    // For GRANTED with missing coords, proceed without coordinates to avoid
+    // getting stuck when Android location providers fail.
     if (permissionStatus === Location.PermissionStatus.UNDETERMINED) return;
-    if (
-      permissionStatus === Location.PermissionStatus.GRANTED &&
-      userCoords === null
-    )
-      return;
     // If the user completed dietary setup, wait until prefs are loaded.
     // This prevents dispatching a fetch without DietaryIds that could complete
     // *after* the dietary-enriched fetch and overwrite the result.
@@ -163,6 +179,8 @@ export const HomeScreen = (): JSX.Element => {
     if (hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
+    fetchedWithoutCoordsRef.current = userCoords === null;
+    hasUpgradedToCoordsRef.current = userCoords !== null;
     const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
     void dispatch(
       fetchActiveBranches({
@@ -170,6 +188,43 @@ export const HomeScreen = (): JSX.Element => {
         lat: userCoords?.latitude,
         lng: userCoords?.longitude,
         distance: userCoords ? 5 : undefined,
+        dietaryIds,
+      })
+    );
+  }, [
+    branchesStatus,
+    permissionStatus,
+    userCoords,
+    user?.dietarySetup,
+    dietaryStatus,
+    userDietaryPreferences,
+    dispatch,
+  ]);
+
+  // If the first fetch had no location (e.g. permission just granted and coords
+  // arrived a moment later), run one upgrade fetch with lat/lng.
+  useEffect(() => {
+    if (!hasFetchedRef.current) return;
+    if (hasUpgradedToCoordsRef.current) return;
+    if (!fetchedWithoutCoordsRef.current) return;
+    if (permissionStatus !== Location.PermissionStatus.GRANTED) return;
+    if (!userCoords) return;
+    if (branchesStatus === 'pending') return;
+    if (
+      user?.dietarySetup &&
+      dietaryStatus !== 'succeeded' &&
+      dietaryStatus !== 'failed'
+    )
+      return;
+
+    hasUpgradedToCoordsRef.current = true;
+    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
+    void dispatch(
+      fetchActiveBranches({
+        page: 1,
+        lat: userCoords.latitude,
+        lng: userCoords.longitude,
+        distance: 5,
         dietaryIds,
       })
     );
@@ -262,31 +317,31 @@ export const HomeScreen = (): JSX.Element => {
   );
 
   const onRefresh = useCallback(() => {
+    if (isRefreshingRef.current) {
+      return;
+    }
+
+    isRefreshingRef.current = true;
     setRefreshing(true);
-    // Don't reset isPulling here - let refreshing take over seamlessly
-    // isPulling will be reset when refreshing completes
-    dispatch(
-      fetchActiveBranches({
-        page: 1,
-        lat: userCoords?.latitude,
-        lng: userCoords?.longitude,
-        distance: 5,
-        dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
-      })
-    )
-      .then(() => {
-        setTimeout(() => {
-          setRefreshing(false);
-          // Reset isPulling after refreshing is done to ensure smooth transition
-          isPullingRef.current = false;
-          setIsPulling(false);
-        }, 500);
-      })
-      .catch(() => {
+    isPullingRef.current = false;
+    setIsPulling(false);
+
+    requestAnimationFrame(() => {
+      dispatch(
+        fetchActiveBranches({
+          page: 1,
+          lat: userCoords?.latitude,
+          lng: userCoords?.longitude,
+          distance: 5,
+          dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
+        })
+      ).finally(() => {
+        isRefreshingRef.current = false;
         setRefreshing(false);
         isPullingRef.current = false;
         setIsPulling(false);
       });
+    });
   }, [dispatch, userCoords, userDietaryPreferences]);
 
   // useMemo prevents a new JSX reference on every render, which would cause
@@ -483,14 +538,14 @@ export const HomeScreen = (): JSX.Element => {
           backgroundColor: COLORS.primaryGradientHero,
         }}
       />
-      {branchesStatus === 'pending' ? (
+      {isInitialLoading ? (
         <>
           {ListHeader}
           <View className="flex-1 items-center justify-center bg-white">
             <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         </>
-      ) : branchesStatus === 'failed' ? (
+      ) : isInitialError ? (
         <>
           {ListHeader}
           <View className="flex-1 items-center justify-center bg-white px-6">
@@ -520,7 +575,7 @@ export const HomeScreen = (): JSX.Element => {
         </>
       ) : (
         <View>
-          <FlatList
+          <Animated.FlatList
             data={branches.slice(0, 10)}
             keyExtractor={(item) => String(item.branchId)}
             numColumns={2}
@@ -586,10 +641,10 @@ export const HomeScreen = (): JSX.Element => {
                 </Text>
               </View>
             }
-            onScroll={handleScroll}
+            onScroll={handleListScroll}
             scrollEventThrottle={16}
           />
-          {(refreshing || isPulling) && (
+          {isPulling && !refreshing && (
             <>
               <View
                 style={{
@@ -636,10 +691,10 @@ export const HomeScreen = (): JSX.Element => {
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.08,
           shadowRadius: 4,
-          opacity: stickyAnim,
+          opacity: stickyProgress,
           transform: [
             {
-              translateY: stickyAnim.interpolate({
+              translateY: stickyProgress.interpolate({
                 inputRange: [0, 1],
                 outputRange: [-12, 0],
               }),
