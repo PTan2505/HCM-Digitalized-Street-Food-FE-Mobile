@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import RestaurantInfo, {
   type RestaurantInfoData,
 } from '@features/home/components/common/RestaurantInfo';
@@ -111,7 +111,7 @@ export const RestaurantSwipeScreen = ({
       <View className="flex-1 bg-gray-100">
         <StatusBar barStyle="light-content" />
 
-        <View className="absolute left-4 top-12 z-20">
+        <View className="absolute left-3 top-[60px] z-20">
           <TouchableOpacity
             className="h-10 w-10 items-center justify-center rounded-full bg-black/40"
             onPress={() => navigation.goBack()}

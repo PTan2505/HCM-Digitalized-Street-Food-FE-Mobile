@@ -179,10 +179,10 @@ const SearchBar = ({
               className="border-b border-gray-100 px-4 py-3"
               onPress={() => onSelectPrediction?.(p)}
             >
-              <Text className="text-sm font-medium text-gray-900">
+              <Text className="text-base font-medium text-gray-900">
                 {p.mainText}
               </Text>
-              <Text className="mt-0.5 text-xs text-gray-500">
+              <Text className="mt-0.5 text-sm text-gray-500">
                 {p.secondaryText}
               </Text>
             </TouchableOpacity>
@@ -205,7 +205,7 @@ const SearchBar = ({
             className="flex-row items-center gap-1.5 rounded-full bg-white px-4 py-2 shadow-lg"
           >
             <Ionicons name="refresh" size={14} color={COLORS.primary} />
-            <Text className="text-sm font-semibold text-primary">
+            <Text className="text-base font-semibold text-primary">
               {searchAreaButtonText}
             </Text>
           </TouchableOpacity>

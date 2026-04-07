@@ -1,7 +1,7 @@
-import markerPng from '@assets/icons/marker.png';
 import markerSelectedPng from '@assets/icons/marker-selected.png';
-import MarkerIcon from '@assets/icons/marker.svg';
 import MarkerSelectedIcon from '@assets/icons/marker-selected.svg';
+import markerPng from '@assets/icons/marker.png';
+import MarkerIcon from '@assets/icons/marker.svg';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -31,13 +31,13 @@ import React, {
   useState,
 } from 'react';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
-import { captureRef } from 'react-native-view-shot';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { captureRef } from 'react-native-view-shot';
 
 /** Shape of the location object from MapLibre's UserLocation onUpdate */
 interface MapLibreLocation {
@@ -423,7 +423,7 @@ const GhostPinCallout = ({
 }: GhostPinMarkerCalloutProps): JSX.Element => (
   <View className="items-center">
     <View className="rounded-xl border border-gray-300 bg-white px-3 py-2 shadow-md">
-      <Text className="text-xs font-bold text-gray-700" numberOfLines={1}>
+      <Text className="text-sm font-bold text-gray-700" numberOfLines={1}>
         {name}
       </Text>
       <Text className="mt-0.5 text-[10px] text-gray-500">

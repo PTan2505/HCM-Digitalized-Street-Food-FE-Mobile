@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -228,9 +228,9 @@ const ReviewCard = ({
               </View>
             )}
           </View>
-          <Text className="text-xs text-gray-400">{review.date}</Text>
+          <Text className="text-sm text-gray-400">{review.date}</Text>
           <Text
-            className={`text-xs font-semibold ${
+            className={`text-sm font-semibold ${
               review.upVotes - review.downVotes > 0
                 ? 'text-primary-light'
                 : review.upVotes - review.downVotes < 0
@@ -297,7 +297,7 @@ const ReviewCard = ({
                           size={18}
                           color="#6B7280"
                         />
-                        <Text className="text-sm font-medium text-gray-700">
+                        <Text className="text-base font-medium text-gray-700">
                           Chỉnh sửa
                         </Text>
                       </TouchableOpacity>
@@ -312,7 +312,7 @@ const ReviewCard = ({
                           size={18}
                           color="#EF4444"
                         />
-                        <Text className="text-sm font-medium text-red-500">
+                        <Text className="text-base font-medium text-red-500">
                           Xoá
                         </Text>
                       </TouchableOpacity>
@@ -338,7 +338,7 @@ const ReviewCard = ({
                 />
               </TouchableOpacity>
               <Text
-                className={`min-w-[16px] text-center text-xs font-semibold ${
+                className={`min-w-[16px] text-center text-sm font-semibold ${
                   review.upVotes - review.downVotes > 0
                     ? 'text-primary-light'
                     : review.upVotes - review.downVotes < 0
@@ -374,7 +374,7 @@ const ReviewCard = ({
       {review.dishName ? (
         <View className="mb-2 flex-row items-center gap-1">
           <Ionicons name="restaurant-outline" size={13} color="#9CA3AF" />
-          <Text className="text-xs text-gray-400">{review.dishName}</Text>
+          <Text className="text-sm text-gray-400">{review.dishName}</Text>
         </View>
       ) : null}
 
@@ -395,7 +395,7 @@ const ReviewCard = ({
       )}
 
       {/* Comment */}
-      <Text className="mb-3 text-sm leading-5 text-gray-700">
+      <Text className="mb-3 text-base leading-5 text-gray-700">
         {review.comment}
       </Text>
 
@@ -442,7 +442,7 @@ const ReviewCard = ({
 
               {/* Page indicator */}
               <View className="absolute bottom-10 z-10 w-full items-center">
-                <Text className="text-sm font-semibold text-white/80">
+                <Text className="text-base font-semibold text-white/80">
                   {lightboxIndex + 1} / {review.imageUris.length}
                 </Text>
               </View>
@@ -493,7 +493,7 @@ const ReviewCard = ({
               size={14}
               color={COLORS.primaryLight}
             />
-            <Text className="text-xs font-bold text-primary-light">
+            <Text className="text-sm font-bold text-primary-light">
               {review.vendorName ?? review.vendorReply.repliedBy}
             </Text>
             <Text className="text-[10px] text-gray-400">
@@ -502,7 +502,7 @@ const ReviewCard = ({
               )}
             </Text>
           </View>
-          <Text className="text-sm leading-4 text-gray-600">
+          <Text className="text-base leading-4 text-gray-600">
             {review.vendorReply.content}
           </Text>
         </View>

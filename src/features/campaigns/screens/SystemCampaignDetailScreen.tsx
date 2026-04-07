@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { useCampaignQuest } from '@features/campaigns/hooks/useCampaignQuests';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
@@ -78,7 +78,7 @@ export const SystemCampaignDetailScreen = ({
           >
             {/* Campaign badge */}
             <View className="mb-3 self-start rounded-full bg-primary px-3 py-1">
-              <Text className="text-xs font-bold text-white">
+              <Text className="text-sm font-bold text-white">
                 {t('campaign.platform_event')}
               </Text>
             </View>
@@ -89,7 +89,7 @@ export const SystemCampaignDetailScreen = ({
 
             <View className="mb-6 flex-row items-center">
               <Ionicons name="calendar-outline" size={16} color="white" />
-              <Text className="ml-2 text-sm text-white/80">
+              <Text className="ml-2 text-base text-white/80">
                 {startDate} - {endDate}
               </Text>
             </View>
@@ -131,7 +131,7 @@ export const SystemCampaignDetailScreen = ({
 
               {quest.description ? (
                 <Text
-                  className="mb-3 text-sm leading-5 text-gray-500"
+                  className="mb-3 text-base leading-5 text-gray-500"
                   numberOfLines={2}
                 >
                   {quest.description}
@@ -140,13 +140,13 @@ export const SystemCampaignDetailScreen = ({
 
               <View className="flex-row items-center">
                 <Ionicons name="list-outline" size={14} color="#9CA3AF" />
-                <Text className="ml-1 text-xs text-gray-400">
+                <Text className="ml-1 text-sm text-gray-400">
                   {quest.taskCount} {t('quest.tasks')}
                 </Text>
               </View>
             </TouchableOpacity>
           ) : (
-            <Text className="text-sm text-gray-400">
+            <Text className="text-base text-gray-400">
               {t('campaign.no_quest')}
             </Text>
           )}

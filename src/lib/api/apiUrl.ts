@@ -94,6 +94,7 @@ export const apiUrl = {
     byId: (id: number): string => `/api/Order/${id}`,
     myOrders: '/api/Order/my-orders',
     pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
+    cancel: (id: number): string => `/api/Order/${id}/cancel`,
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',

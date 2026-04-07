@@ -11,7 +11,6 @@ import type { NearbyRestaurant } from '@features/home/components/restaurantDetai
 import RestaurantsMayLikeTab from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
 import type { Review } from '@features/home/components/restaurantDetails/ReviewsTab';
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
-import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
@@ -32,7 +31,11 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import { fetchCartThunk, selectCart } from '@slices/directOrdering';
+import {
+  fetchCartThunk,
+  selectCart,
+  selectCartDisplayName,
+} from '@slices/directOrdering';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -49,6 +52,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+export type TabType = 'menu' | 'reviews' | 'nearby';
 
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -115,6 +119,7 @@ export const RestaurantDetailsScreen = ({
 
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
+  const cartDisplayName = useAppSelector(selectCartDisplayName);
   const queryClient = useQueryClient();
 
   // Refetch feedback when screen regains focus (e.g. after notification → ReviewList → goBack)
@@ -387,6 +392,8 @@ export const RestaurantDetailsScreen = ({
     imageUri: b.dishes[0]?.imageUrl,
   }));
 
+  const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
+
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
       <FixedHeaderControls onSharePress={handleSharePress} />
@@ -408,7 +415,7 @@ export const RestaurantDetailsScreen = ({
             className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-primary py-2.5"
           >
             <Ionicons name="map-outline" size={18} color={COLORS.primary} />
-            <Text className="text-sm font-semibold text-primary">
+            <Text className="text-base font-semibold text-primary">
               {t('actions.view_on_map')}
             </Text>
           </TouchableOpacity>
@@ -455,7 +462,7 @@ export const RestaurantDetailsScreen = ({
             className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-2.5"
           >
             <Ionicons name="navigate-outline" size={18} color="#fff" />
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('giving_direction', { defaultValue: 'Chỉ đường' })}
             </Text>
           </TouchableOpacity>
@@ -520,13 +527,15 @@ export const RestaurantDetailsScreen = ({
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('PersonalCart', {
-              branchName: displayName,
+              branchName: cartBranchDisplayName,
               isOpen,
             })
           }
           className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-primary px-5 py-4 shadow-lg"
         >
-          <Text className="text-base font-bold text-white">{displayName}</Text>
+          <Text className="text-base font-bold text-white">
+            {cartBranchDisplayName}
+          </Text>
           <View className="mt-1 flex-row items-center justify-between">
             <Text className="text-base font-bold text-secondary">
               {t('cart.items_count', { count: cart.items.length })}

@@ -1,29 +1,31 @@
-import { Ionicons } from '@expo/vector-icons';
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { usePaymentSocket } from '@features/direct-ordering/hooks/usePaymentSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
+  cancelOrderThunk,
   clearCart,
   confirmPaymentThunk,
   fetchCartThunk,
   selectCheckoutOrderCode,
 } from '@slices/directOrdering';
-import { useNavigation, StaticScreenProps } from '@react-navigation/native';
 import * as Sharing from 'expo-sharing';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Alert,
   AppState,
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import ViewShot from 'react-native-view-shot';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ViewShot from 'react-native-view-shot';
 
 type PaymentQRScreenProps = StaticScreenProps<{
   orderId: number;
@@ -43,6 +45,7 @@ export const PaymentQRScreen = ({
   const { paymentStatus } = usePaymentSocket(orderCode);
   const orderCodeRef = useRef(orderCode);
   const qrShotRef = useRef<ViewShot>(null);
+  const cancelledRef = useRef(false);
   const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
@@ -107,6 +110,35 @@ export const PaymentQRScreen = ({
     }
   }, [t]);
 
+  // Covers swipe-back: fire-and-forget cancel without blocking navigation
+  useEffect(() => {
+    return navigation.addListener('beforeRemove', () => {
+      if (cancelledRef.current) return;
+      cancelledRef.current = true;
+      dispatch(cancelOrderThunk(orderId))
+        .unwrap()
+        .then(() => dispatch(fetchCartThunk()))
+        .catch(() => {});
+    });
+  }, [navigation, dispatch, orderId]);
+
+  const handleBack = useCallback(() => {
+    if (cancelledRef.current) {
+      navigation.goBack();
+      return;
+    }
+    cancelledRef.current = true;
+    dispatch(cancelOrderThunk(orderId))
+      .unwrap()
+      .then(() => {
+        dispatch(fetchCartThunk());
+        navigation.goBack();
+      })
+      .catch(() => {
+        navigation.goBack();
+      });
+  }, [dispatch, navigation, orderId]);
+
   const handleViewOrder = useCallback(() => {
     navigation.navigate('OrderStatus', { orderId, branchName });
   }, [navigation, orderId, branchName]);
@@ -114,18 +146,11 @@ export const PaymentQRScreen = ({
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text className="ml-3 text-lg font-bold text-black">
-          {t('checkout.payment_qr_title')}
-        </Text>
-      </View>
+      <Header title={t('checkout.payment_qr_title')} onBackPress={handleBack} />
 
       <View className="flex-1 items-center justify-center px-6">
         {/* Instruction */}
-        <Text className="mb-6 text-center text-sm text-gray-500">
+        <Text className="mb-6 text-center text-base text-gray-500">
           {t('checkout.payment_qr_instruction')}
         </Text>
 
@@ -138,21 +163,21 @@ export const PaymentQRScreen = ({
 
         {/* Amount */}
         <View className="mt-6 items-center">
-          <Text className="text-sm text-gray-400">{t('cart.total')}</Text>
+          <Text className="text-base text-gray-400">{t('cart.total')}</Text>
           <Text className="mt-1 text-2xl font-bold text-[#00B14F]">
             {totalAmount.toLocaleString('vi-VN')}₫
           </Text>
         </View>
 
         {/* Branch name */}
-        <Text className="mt-2 text-sm text-gray-400">{branchName}</Text>
+        <Text className="mt-2 text-base text-gray-400">{branchName}</Text>
 
         {/* Order ID */}
         <View className="mt-3 flex-row items-center gap-1">
-          <Text className="text-xs text-gray-400">
+          <Text className="text-sm text-gray-400">
             {t('checkout.payment_qr_order_id')}:
           </Text>
-          <Text className="text-xs font-semibold text-gray-600">
+          <Text className="text-sm font-semibold text-gray-600">
             #{orderId}
           </Text>
         </View>
@@ -173,7 +198,7 @@ export const PaymentQRScreen = ({
                   size={20}
                   color={COLORS.primaryLight}
                 />
-                <Text className="text-sm font-semibold text-primary-light">
+                <Text className="text-base font-semibold text-primary-light">
                   {t('checkout.payment_qr_share')}
                 </Text>
               </>
@@ -185,7 +210,7 @@ export const PaymentQRScreen = ({
             className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5"
           >
             <Ionicons name="receipt-outline" size={20} color="#fff" />
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('checkout.payment_qr_view_order')}
             </Text>
           </TouchableOpacity>

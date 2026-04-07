@@ -224,4 +224,11 @@ export class OrderApi {
       url: apiUrl.order.pickupCode(id),
     });
   }
+
+  cancelOrder(id: number): Promise<ApiResponse<OrderResponse>> {
+    return this.apiClient.put<OrderResponse, Record<string, never>>({
+      url: apiUrl.order.cancel(id),
+      data: {},
+    });
+  }
 }

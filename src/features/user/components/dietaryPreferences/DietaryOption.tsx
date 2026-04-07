@@ -1,5 +1,5 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -33,7 +33,7 @@ const DietaryOption = (props: DietaryOptionProps): JSX.Element => {
           {props.dietaryPreference.name}
         </Text>
         {props.dietaryPreference.description && (
-          <Text className="text-sm text-gray-600">
+          <Text className="text-base text-gray-600">
             {props.dietaryPreference.description}
           </Text>
         )}

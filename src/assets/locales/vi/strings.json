@@ -290,6 +290,8 @@
     "payment_qr_share": "Chia sẻ mã QR",
     "payment_qr_share_error": "Không thể chia sẻ mã QR. Vui lòng thử lại.",
     "payment_qr_view_order": "Xem trạng thái đơn",
+    "cancel_order_title": "Huỷ đơn hàng",
+    "cancel_order_message": "Bạn có chắc muốn huỷ đơn hàng này không?",
     "voucher": "Voucher",
     "select_voucher": "Chọn voucher",
     "no_voucher": "Không dùng voucher",
@@ -390,7 +392,9 @@
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
     "ok": "OK",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "yes": "Có",
+    "no": "Không"
   },
   "campaign": {
     "title": "Chiến dịch",

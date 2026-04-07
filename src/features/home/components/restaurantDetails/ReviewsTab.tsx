@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
 import type { Dish } from '@features/home/types/branch';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -126,7 +126,7 @@ const ReviewsTab = ({
                 {t('actions.rating_out_of')}
               </Text>
             </View>
-            <Text className="text-black-400 ml-2 mt-1 text-xs">
+            <Text className="text-black-400 ml-2 mt-1 text-sm">
               {totalCount} {t('actions.reviews')}
             </Text>
           </View>
@@ -186,7 +186,7 @@ const ReviewsTab = ({
                   <ActivityIndicator size="small" color={COLORS.primaryLight} />
                 ) : (
                   <Text
-                    className={`text-sm font-semibold ${canReview ? 'text-white' : 'text-gray-400'}`}
+                    className={`text-base font-semibold ${canReview ? 'text-white' : 'text-gray-400'}`}
                   >
                     Viết đánh giá
                   </Text>
@@ -196,7 +196,7 @@ const ReviewsTab = ({
                 !isEligibilityLoading &&
                 reviewIneligibilityReason &&
                 reviewIneligibilityReason !== 'loading' && (
-                  <Text className="mt-1.5 text-center text-xs text-gray-500">
+                  <Text className="mt-1.5 text-center text-sm text-gray-500">
                     {INELIGIBILITY_MESSAGES[reviewIneligibilityReason]}
                   </Text>
                 )}

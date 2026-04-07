@@ -243,23 +243,23 @@ export const VoucherWalletScreen = (): JSX.Element => {
                           size={14}
                           color="#9CA3AF"
                         />
-                        <Text className="text-sm font-semibold text-gray-400">
+                        <Text className="text-base font-semibold text-gray-400">
                           {t('voucher_wallet.voucher_not_available')}
                         </Text>
                       </View>
                     )}
-                    <Text className="text-sm text-gray-500">
+                    <Text className="text-base text-gray-500">
                       {item.campaignId == null
                         ? t('voucher_wallet.scope_participating')
                         : t('voucher_wallet.scope_restaurant', { name: '' })}
                     </Text>
-                    <Text className="mt-0.5 text-sm text-gray-400">
+                    <Text className="mt-0.5 text-base text-gray-400">
                       {t('voucher_wallet.valid_until', {
                         date: getExpiresAt(item).toLocaleDateString('vi-VN'),
                       })}
                     </Text>
                     {item.minAmountRequired != null && (
-                      <Text className="mt-0.5 text-sm text-gray-400">
+                      <Text className="mt-0.5 text-base text-gray-400">
                         {t('voucher_wallet.min_order', {
                           amount:
                             item.minAmountRequired.toLocaleString('vi-VN'),
@@ -267,7 +267,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
                       </Text>
                     )}
                     {item.description ? (
-                      <Text className="mt-1 text-sm text-gray-400">
+                      <Text className="mt-1 text-base text-gray-400">
                         {item.description}
                       </Text>
                     ) : null}

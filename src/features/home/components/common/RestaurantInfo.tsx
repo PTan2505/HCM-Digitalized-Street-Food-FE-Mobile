@@ -70,16 +70,16 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
       </View>
 
       <View className="mb-2 flex-row items-center gap-2">
-        <Text className="text-sm font-semibold text-primary-dark">
+        <Text className="text-base font-semibold text-primary-dark">
           {restaurant.priceRange}
         </Text>
         <View className="flex-row items-center gap-0.5">
           <Ionicons name="star" size={16} color="#FACC15" />
-          <Text className="text-sm font-semibold text-[#FACC15]">
+          <Text className="text-base font-semibold text-[#FACC15]">
             {restaurant.rating.toFixed(1)}
           </Text>
         </View>
-        <Text className="text-sm text-gray-600">
+        <Text className="text-base text-gray-600">
           {restaurant.totalReviewCount} {t('actions.reviews')}
         </Text>
       </View>
@@ -90,7 +90,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             restaurant.dietaryPreferenceNames.map((name, index) => (
               <Text
                 key={index}
-                className="rounded-2xl bg-[#F1FAEA]  px-2 py-1 text-xs text-gray-600"
+                className="rounded-2xl bg-[#F1FAEA]  px-2 py-1 text-sm text-gray-600"
               >
                 {name}
               </Text>
@@ -99,14 +99,14 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
         <TierBadge tier={restaurant.tier} paused={restaurant.isTierPaused} />
       </View>
 
-      <Text className="mb-4 text-sm leading-5 text-gray-600">
+      <Text className="mb-4 text-base leading-5 text-gray-600">
         {restaurant.address}
       </Text>
 
       {/* Hours row */}
       <View className="flex-row items-center justify-between">
         <View className="flex-1 flex-row items-center gap-2">
-          <Text className="text-sm text-gray-600">{hoursLabel}</Text>
+          <Text className="text-base text-gray-600">{hoursLabel}</Text>
           {schedules && schedules.length > 0 && (
             <TouchableOpacity
               onPress={() => setScheduleExpanded((v) => !v)}
@@ -123,7 +123,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
         </View>
         {schedules && schedules.length > 0 && (
           <Text
-            className={`text-sm font-semibold ${
+            className={`text-base font-semibold ${
               restaurant.isOpen ? 'text-[#00B14F]' : 'text-red-500'
             }`}
           >
@@ -144,12 +144,12 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
                 className={`flex-row justify-between py-1 ${isToday ? 'opacity-100' : 'opacity-70'}`}
               >
                 <Text
-                  className={`text-sm ${isToday ? 'font-semibold text-black' : 'text-gray-500'}`}
+                  className={`text-base ${isToday ? 'font-semibold text-black' : 'text-gray-500'}`}
                 >
                   {WEEKDAY_VI[day]}
                 </Text>
                 <Text
-                  className={`text-sm ${isToday ? 'font-semibold text-black' : 'text-gray-500'}`}
+                  className={`text-base ${isToday ? 'font-semibold text-black' : 'text-gray-500'}`}
                 >
                   {entry
                     ? `${formatTime(entry.openTime)} - ${formatTime(entry.closeTime)}`

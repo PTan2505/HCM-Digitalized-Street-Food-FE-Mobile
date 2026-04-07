@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -67,7 +67,9 @@ export const QuestDetailScreen = ({
           onPress={() => navigation.goBack()}
           className="mt-4 rounded-full bg-primary px-6 py-2"
         >
-          <Text className="text-sm font-semibold text-white">{t('back')}</Text>
+          <Text className="text-base font-semibold text-white">
+            {t('back')}
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -130,12 +132,12 @@ export const QuestDetailScreen = ({
           </Text>
 
           <View className="mb-3 flex-row items-center">
-            <Text className="text-sm text-gray-400">
+            <Text className="text-base text-gray-400">
               {quest.taskCount} {t('quest.tasks')}
             </Text>
             {myProgress && (
               <View className="ml-3 rounded-full bg-primary/20 px-3 py-0.5">
-                <Text className="text-xs font-semibold text-primary-light">
+                <Text className="text-sm font-semibold text-primary-light">
                   {myProgress.status === 'COMPLETED'
                     ? t('quest.completed')
                     : t('quest.inProgress')}
@@ -145,7 +147,7 @@ export const QuestDetailScreen = ({
           </View>
 
           {quest.description && (
-            <Text className="mb-4 text-sm leading-5 text-gray-600">
+            <Text className="mb-4 text-base leading-5 text-gray-600">
               {quest.description}
             </Text>
           )}
@@ -153,7 +155,7 @@ export const QuestDetailScreen = ({
           {/* Progress summary for enrolled quests */}
           {myProgress && (
             <View className="mb-4 rounded-xl bg-primary/10 p-4">
-              <Text className="mb-2 text-sm font-semibold text-gray-800">
+              <Text className="mb-2 text-base font-semibold text-gray-800">
                 {t('quest.progress')}
               </Text>
               <View className="mb-1 h-3 overflow-hidden rounded-full bg-gray-200">
@@ -164,7 +166,7 @@ export const QuestDetailScreen = ({
                   }}
                 />
               </View>
-              <Text className="text-xs text-gray-500">
+              <Text className="text-sm text-gray-500">
                 {myProgress.completedTasks}/{myProgress.totalTasks}{' '}
                 {t('quest.tasksCompleted')}
               </Text>

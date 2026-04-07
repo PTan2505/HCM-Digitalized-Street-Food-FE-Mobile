@@ -50,7 +50,7 @@ export const FilterChipBar = ({
     }`;
 
   const textClass = (section: FilterSection): string =>
-    `ml-2 text-sm font-medium ${
+    `ml-2 text-base font-medium ${
       isActive(section) ? 'text-primary-dark' : 'text-gray-600'
     }`;
 

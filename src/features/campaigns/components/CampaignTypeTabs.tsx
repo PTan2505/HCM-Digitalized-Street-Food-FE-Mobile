@@ -21,7 +21,7 @@ export const CampaignTypeTabs = ({
         activeOpacity={0.7}
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-base font-semibold ${
             activeTab === 'system' ? 'text-primary-light' : 'text-gray-400'
           }`}
         >
@@ -35,7 +35,7 @@ export const CampaignTypeTabs = ({
         activeOpacity={0.7}
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-base font-semibold ${
             activeTab === 'restaurant' ? 'text-primary-light' : 'text-gray-400'
           }`}
         >

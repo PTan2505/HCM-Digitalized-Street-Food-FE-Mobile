@@ -290,6 +290,8 @@
     "payment_qr_share": "Share QR Code",
     "payment_qr_share_error": "Could not share QR code. Please try again.",
     "payment_qr_view_order": "View Order Status",
+    "cancel_order_title": "Cancel Order",
+    "cancel_order_message": "Are you sure you want to cancel this order?",
     "voucher": "Voucher",
     "select_voucher": "Select voucher",
     "no_voucher": "No voucher",
@@ -390,7 +392,9 @@
     "vietnamese": "Vietnamese",
     "english": "English",
     "ok": "OK",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No"
   },
   "campaign": {
     "title": "Campaigns",

@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { HomeQuickAction } from '@features/home/config/homeQuickActions';
 import type { JSX } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -26,7 +26,7 @@ export const QuickActionGrid = ({ actions }: Props): JSX.Element => {
               color={COLORS.secondary}
             />
             <Text
-              className="text-center text-xs font-bold text-gray-800"
+              className="text-center text-sm font-bold text-gray-800"
               numberOfLines={2}
             >
               {action.label}

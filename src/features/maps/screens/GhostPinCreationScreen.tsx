@@ -1,5 +1,5 @@
-import type { APIErrorResponse } from '@custom-types/apiResponse';
 import { COLORS } from '@constants/colors';
+import type { APIErrorResponse } from '@custom-types/apiResponse';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { FeedbackTag } from '@features/home/types/feedback';
@@ -376,7 +376,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         >
           {/* Name (required) */}
           <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
               Tên quán <Text className="text-red-500">*</Text>
             </Text>
             <TextInput
@@ -394,13 +394,13 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               returnKeyType="next"
             />
             {nameError && (
-              <Text className="mt-1 text-xs text-red-500">{nameError}</Text>
+              <Text className="mt-1 text-sm text-red-500">{nameError}</Text>
             )}
           </View>
 
           {/* Address search with autocomplete */}
           <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
               Địa chỉ <Text className="text-red-500">*</Text>
             </Text>
             <View
@@ -449,14 +449,14 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                     activeOpacity={0.7}
                   >
                     <Text
-                      className="text-sm font-medium text-gray-800"
+                      className="text-base font-medium text-gray-800"
                       numberOfLines={1}
                     >
                       {prediction.mainText}
                     </Text>
                     {prediction.secondaryText ? (
                       <Text
-                        className="mt-0.5 text-xs text-gray-400"
+                        className="mt-0.5 text-sm text-gray-400"
                         numberOfLines={1}
                       >
                         {prediction.secondaryText}
@@ -468,7 +468,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             )}
 
             {addressError && (
-              <Text className="mt-1 text-xs text-red-500">{addressError}</Text>
+              <Text className="mt-1 text-sm text-red-500">{addressError}</Text>
             )}
           </View>
 
@@ -482,11 +482,11 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                   color="#EA580C"
                   style={{ marginRight: 8 }}
                 />
-                <Text className="flex-1 text-sm font-semibold text-orange-700">
+                <Text className="flex-1 text-base font-semibold text-orange-700">
                   Có quán ăn gần đây
                 </Text>
               </View>
-              <Text className="mt-1 px-4 text-xs text-orange-600">
+              <Text className="mt-1 px-4 text-sm text-orange-600">
                 Đã có {nearbyBranches.length} quán trong bán kính 1km. Có thể
                 quán bạn muốn thêm đã tồn tại:
               </Text>
@@ -565,16 +565,16 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
           {/* Feedback Section with Images */}
           <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
               Đánh giá (Tùy chọn)
             </Text>
-            <Text className="mb-3 text-xs text-gray-500">
+            <Text className="mb-3 text-sm text-gray-500">
               Chia sẻ thêm về quán ăn và thêm ảnh minh họa
             </Text>
 
             {/* Star rating */}
             <View className="mb-6 mt-5 items-center">
-              <Text className="mb-3 text-sm font-medium text-gray-700">
+              <Text className="mb-3 text-base font-medium text-gray-700">
                 Đánh giá của bạn
               </Text>
               <View className="flex-row gap-2">
@@ -597,7 +597,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             {/* Tags */}
             {availableTags.length > 0 && (
               <View className="mb-5">
-                <Text className="mb-3 text-sm font-medium text-gray-700">
+                <Text className="mb-3 text-base font-medium text-gray-700">
                   Nhãn (Tuỳ chọn)
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
@@ -620,7 +620,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                         }`}
                       >
                         <Text
-                          className={`text-xs font-medium ${
+                          className={`text-sm font-medium ${
                             isSelected ? 'text-white' : 'text-gray-600'
                           }`}
                         >
@@ -645,7 +645,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               maxLength={500}
               returnKeyType="default"
             />
-            <Text className="mb-3 text-xs text-gray-500">
+            <Text className="mb-3 text-sm text-gray-500">
               {feedback.length}/500 ký tự
             </Text>
 
@@ -658,7 +658,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                   color="#6B7280"
                   style={{ marginRight: 6 }}
                 />
-                <Text className="text-sm font-semibold text-gray-700">
+                <Text className="text-base font-semibold text-gray-700">
                   Ảnh minh họa
                 </Text>
               </View>
@@ -688,13 +688,13 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                     activeOpacity={0.7}
                   >
                     <Ionicons name="camera-outline" size={28} color="#9CA3AF" />
-                    <Text className="mt-1 text-xs text-gray-400">
+                    <Text className="mt-1 text-sm text-gray-400">
                       {selectedImages.length}/{MAX_IMAGES}
                     </Text>
                   </TouchableOpacity>
                 )}
               </View>
-              <Text className="mt-2 text-xs text-gray-500">
+              <Text className="mt-2 text-sm text-gray-500">
                 Tải lên ảnh quán, món ăn, thực đơn hoặc bảng hiệu
               </Text>
             </View>
@@ -703,7 +703,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           {/* Error */}
           {submitError && (
             <View className="mb-5 rounded-xl bg-red-50 px-4 py-3">
-              <Text className="text-sm text-red-600">{submitError}</Text>
+              <Text className="text-base text-red-600">{submitError}</Text>
             </View>
           )}
 

@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -193,15 +193,15 @@ export const NotificationScreen = (): JSX.Element => {
           </View>
           <View className="flex-1">
             <Text
-              className={`text-sm ${!item.isRead ? 'font-bold' : 'font-medium'} text-gray-800`}
+              className={`text-base ${!item.isRead ? 'font-bold' : 'font-medium'} text-gray-800`}
               numberOfLines={1}
             >
               {item.title}
             </Text>
-            <Text className="mt-0.5 text-xs text-gray-500" numberOfLines={2}>
+            <Text className="mt-0.5 text-sm text-gray-500" numberOfLines={2}>
               {item.message}
             </Text>
-            <Text className="mt-1 text-xs text-gray-400">
+            <Text className="mt-1 text-sm text-gray-400">
               {formatTimeAgo(item.createdAt, t)}
             </Text>
           </View>
@@ -229,7 +229,7 @@ export const NotificationScreen = (): JSX.Element => {
           disabled={unreadCount === 0}
         >
           <Text
-            className={`text-sm font-medium ${unreadCount > 0 ? 'text-primary' : 'text-gray-300'}`}
+            className={`text-base font-medium ${unreadCount > 0 ? 'text-primary' : 'text-gray-300'}`}
           >
             {t('notification.mark_all_read')}
           </Text>

@@ -1,9 +1,9 @@
+import { COLORS } from '@constants/colors';
 import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
-import { COLORS } from '@constants/colors';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
@@ -85,13 +85,13 @@ export const MapBranchCard = ({
         {/* Rating + Distance */}
         <View className="mt-1 flex-row items-center gap-1.5">
           <MaterialIcons name="star" size={14} color="#FACC15" />
-          <Text className="text-xs font-semibold text-[#FACC15]">
+          <Text className="text-sm font-semibold text-[#FACC15]">
             {branch.avgRating.toFixed(1)}
           </Text>
           {distanceLabel && (
             <>
-              <Text className="text-xs text-gray-300">·</Text>
-              <Text className="text-xs text-gray-500">{distanceLabel}</Text>
+              <Text className="text-sm text-gray-300">·</Text>
+              <Text className="text-sm text-gray-500">{distanceLabel}</Text>
             </>
           )}
         </View>
@@ -100,7 +100,7 @@ export const MapBranchCard = ({
         {priceRange && (
           <View className="mt-1 flex-row items-center gap-1">
             <MaterialCommunityIcons name="cash" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">{priceRange}</Text>
+            <Text className="text-sm text-gray-500">{priceRange}</Text>
           </View>
         )}
 

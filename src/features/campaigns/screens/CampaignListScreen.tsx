@@ -78,7 +78,7 @@ export const CampaignListScreen = (): JSX.Element => {
             onPress={() => void onRefresh()}
             className="mt-4 rounded-full bg-primary px-6 py-2"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('campaign.retry')}
             </Text>
           </TouchableOpacity>

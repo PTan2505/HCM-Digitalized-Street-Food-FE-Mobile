@@ -42,20 +42,22 @@ export const ProfileListItem = ({
                 backgroundColor: item.badgeColor ?? '#FF6B6B',
               }}
             >
-              <Text className="text-xs font-semibold text-white">
+              <Text className="text-sm font-semibold text-white">
                 {item.badge}
               </Text>
             </View>
           )}
         </View>
         {item.subtitle && (
-          <Text className="mt-0.5 text-sm text-gray-500">{item.subtitle}</Text>
+          <Text className="mt-0.5 text-base text-gray-500">
+            {item.subtitle}
+          </Text>
         )}
       </View>
 
       <View className="flex-row items-center">
         {item.rightText && (
-          <Text className="mr-2 text-sm text-gray-600">{item.rightText}</Text>
+          <Text className="mr-2 text-base text-gray-600">{item.rightText}</Text>
         )}
         {item.rightIcon && (
           <Ionicons

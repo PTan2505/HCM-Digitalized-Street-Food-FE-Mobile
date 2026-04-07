@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -237,7 +237,7 @@ export const ReviewListScreen = ({
     () => (
       <View className="px-4 pb-2 pt-3">
         <Text className="text-xl font-bold text-gray-900">{displayName}</Text>
-        <Text className="mt-0.5 text-sm text-gray-400">
+        <Text className="mt-0.5 text-base text-gray-400">
           {t('actions.all_reviews')}
         </Text>
       </View>
@@ -295,7 +295,7 @@ export const ReviewListScreen = ({
             onPress={refetch}
             className="mt-4 rounded-xl bg-primary px-6 py-3"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('search.retry')}
             </Text>
           </TouchableOpacity>
@@ -321,7 +321,7 @@ export const ReviewListScreen = ({
           className="ml-2 flex-row items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2"
         >
           <Ionicons name="swap-vertical" size={16} color="#6B7280" />
-          <Text className="text-xs font-medium text-gray-600">
+          <Text className="text-sm font-medium text-gray-600">
             {t(`review_sort.${sortBy}`)}
           </Text>
         </TouchableOpacity>
@@ -378,7 +378,7 @@ export const ReviewListScreen = ({
             !isEligibilityLoading &&
             reviewIneligibilityReason &&
             reviewIneligibilityReason !== 'loading' && (
-              <Text className="mt-2 text-center text-xs text-gray-500">
+              <Text className="mt-2 text-center text-sm text-gray-500">
                 {INELIGIBILITY_MESSAGES[reviewIneligibilityReason] ??
                   reviewIneligibilityReason}
               </Text>

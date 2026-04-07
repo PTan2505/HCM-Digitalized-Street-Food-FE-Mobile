@@ -259,7 +259,7 @@ const FilterModal = ({
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
+                        className={`text-base ${
                           dietaryTags.includes(option.key)
                             ? 'text-white'
                             : 'text-gray-700'
@@ -293,7 +293,7 @@ const FilterModal = ({
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
+                        className={`text-base ${
                           tasteTags.includes(option.key)
                             ? 'text-white'
                             : 'text-gray-700'
@@ -351,7 +351,7 @@ const FilterModal = ({
                     {t('price_range')}
                   </Text>
                   <View className="flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-                    <Text className="text-sm font-semibold text-primary-dark">
+                    <Text className="text-base font-semibold text-primary-dark">
                       {minPrice === 0
                         ? '0₫'
                         : `${minPrice.toLocaleString('vi-VN')}đ`}{' '}
@@ -467,12 +467,12 @@ const FilterModal = ({
                   }}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-xs text-gray-400">0₫</Text>
-                  <Text className="text-xs text-gray-400">1M</Text>
-                  <Text className="text-xs text-gray-400">2M</Text>
-                  <Text className="text-xs text-gray-400">3M</Text>
-                  <Text className="text-xs text-gray-400">4M</Text>
-                  <Text className="text-xs text-gray-400">5M+</Text>
+                  <Text className="text-sm text-gray-400">0₫</Text>
+                  <Text className="text-sm text-gray-400">1M</Text>
+                  <Text className="text-sm text-gray-400">2M</Text>
+                  <Text className="text-sm text-gray-400">3M</Text>
+                  <Text className="text-sm text-gray-400">4M</Text>
+                  <Text className="text-sm text-gray-400">5M+</Text>
                 </View>
               </View>
             )}
@@ -485,7 +485,7 @@ const FilterModal = ({
                     {t('distance')}
                   </Text>
                   <View className="flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-                    <Text className="text-sm font-semibold text-primary-dark">
+                    <Text className="text-base font-semibold text-primary-dark">
                       {distance} km
                     </Text>
                   </View>
@@ -563,11 +563,11 @@ const FilterModal = ({
                   }}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-xs text-gray-400">1km</Text>
-                  <Text className="text-xs text-gray-400">5km</Text>
-                  <Text className="text-xs text-gray-400">10km</Text>
-                  <Text className="text-xs text-gray-400">15km</Text>
-                  <Text className="text-xs text-gray-400">20km</Text>
+                  <Text className="text-sm text-gray-400">1km</Text>
+                  <Text className="text-sm text-gray-400">5km</Text>
+                  <Text className="text-sm text-gray-400">10km</Text>
+                  <Text className="text-sm text-gray-400">15km</Text>
+                  <Text className="text-sm text-gray-400">20km</Text>
                 </View>
               </View>
             )}

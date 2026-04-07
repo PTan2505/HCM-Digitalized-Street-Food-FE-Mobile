@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
-import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Text, View } from 'react-native';
 
 import { QuestRewardBadge } from '@features/quests/components/QuestRewardBadge';
 import type {
@@ -61,7 +61,7 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
         <View className="flex-1 flex-row items-center">
           <Text className="mr-2 text-lg">{TASK_TYPE_ICONS[taskType]}</Text>
           <View className="flex-1">
-            <Text className="text-sm font-semibold text-gray-800">
+            <Text className="text-base font-semibold text-gray-800">
               {task.description ?? getTaskLabel()}
             </Text>
           </View>
@@ -81,13 +81,13 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
       </View>
 
       <View className="flex-row items-center justify-between">
-        <Text className="text-xs text-gray-400">
+        <Text className="text-sm text-gray-400">
           {taskType === 'ORDER_AMOUNT'
             ? `${task.currentValue.toLocaleString()}/${task.targetValue.toLocaleString()} VND`
             : `${task.currentValue}/${task.targetValue}`}
         </Text>
         {task.isCompleted && (
-          <Text className="text-xs font-semibold text-green-600">
+          <Text className="text-sm font-semibold text-green-600">
             {t('quest.completed')}
           </Text>
         )}
