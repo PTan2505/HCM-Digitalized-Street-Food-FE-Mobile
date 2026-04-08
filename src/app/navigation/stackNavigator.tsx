@@ -9,6 +9,7 @@ import { VoucherSelectScreen } from '@features/direct-ordering/screens/VoucherSe
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { FavoritesScreen } from '@features/home/screens/FavoritesScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
+import type { VoucherChip } from '@features/home/components/common/PlaceCard';
 import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
@@ -108,7 +109,11 @@ const RootStack = createNativeStackNavigator({
     },
     ListBranch: {
       screen: ListBranchScreen,
-      params: {} as { items?: ActiveBranch[]; title?: string },
+      params: {} as {
+        items?: ActiveBranch[];
+        title?: string;
+        vouchersByBranchId?: Record<number, VoucherChip[]>;
+      },
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,

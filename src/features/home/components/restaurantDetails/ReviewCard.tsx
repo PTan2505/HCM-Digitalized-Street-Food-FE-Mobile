@@ -4,7 +4,6 @@ import type { JSX } from 'react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -60,7 +59,6 @@ interface ReviewCardProps {
 const ReviewCard = ({
   review,
   onEdit,
-  onDelete,
   onVote,
 }: ReviewCardProps): JSX.Element => {
   const { t } = useTranslation();
@@ -130,18 +128,6 @@ const ReviewCard = ({
         setShowMenu(true);
       }
     );
-  };
-
-  const handleDelete = (): void => {
-    setShowMenu(false);
-    Alert.alert('Xoá đánh giá', 'Bạn có chắc muốn xoá đánh giá này?', [
-      { text: 'Huỷ', style: 'cancel' },
-      {
-        text: 'Xoá',
-        style: 'destructive',
-        onPress: (): void => onDelete?.(review.feedbackId),
-      },
-    ]);
   };
 
   const handleEdit = (): void => {
@@ -299,21 +285,6 @@ const ReviewCard = ({
                         />
                         <Text className="text-base font-medium text-gray-700">
                           Chỉnh sửa
-                        </Text>
-                      </TouchableOpacity>
-
-                      {/* Delete Option */}
-                      <TouchableOpacity
-                        onPress={handleDelete}
-                        className="flex-row items-center gap-3 px-4 py-3"
-                      >
-                        <Ionicons
-                          name="trash-outline"
-                          size={18}
-                          color="#EF4444"
-                        />
-                        <Text className="text-base font-medium text-red-500">
-                          Xoá
                         </Text>
                       </TouchableOpacity>
                     </View>

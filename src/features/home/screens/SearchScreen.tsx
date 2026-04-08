@@ -72,7 +72,7 @@ const SearchResultSkeleton = (): JSX.Element => (
 
 const SearchSkeletonList = (): JSX.Element => (
   <View className="pb-4">
-    {Array.from({ length: 4 }).map((_, idx) => (
+    {Array.from({ length: 10 }).map((_, idx) => (
       <SearchResultSkeleton key={`search-skeleton-${idx}`} />
     ))}
   </View>

@@ -14,6 +14,7 @@ export interface NearbyRestaurant {
   priceRange: string;
   badge?: string;
   imageUri?: string;
+  onPress?: () => void;
 }
 
 interface RestaurantsMayLikeTabProps {
@@ -28,9 +29,11 @@ const RestaurantsMayLikeTab = ({
   const renderNearbyRestaurant = (
     restaurant: NearbyRestaurant
   ): JSX.Element => (
-    <View
+    <TouchableOpacity
       key={restaurant.id}
       className="mb-4 flex-row rounded-lg border border-gray-200 bg-white p-3"
+      onPress={restaurant.onPress}
+      activeOpacity={0.7}
     >
       <Image
         source={{ uri: restaurant.imageUri ?? PLACEHOLDER_IMAGE }}
@@ -61,10 +64,7 @@ const RestaurantsMayLikeTab = ({
           </View>
         )}
       </View>
-      <TouchableOpacity className="h-8 w-8 items-center justify-center rounded-full bg-[#FF6B35]">
-        <Ionicons name="add" size={20} color="#fff" />
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

@@ -15,10 +15,10 @@ import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useBranchImages } from '@features/home/hooks/useBranchImages';
+import { useFavoriteBranches } from '@features/home/hooks/useFavoriteBranches';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
-import { useFavoriteBranches } from '@features/home/hooks/useFavoriteBranches';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { Feedback } from '@features/home/types/feedback';
@@ -32,6 +32,10 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
+import {
+  computeDisplayName,
+  selectMultiBranchVendorIds,
+} from '@slices/branches';
 import {
   fetchCartThunk,
   selectCart,
@@ -121,6 +125,7 @@ export const RestaurantDetailsScreen = ({
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
   const cartDisplayName = useAppSelector(selectCartDisplayName);
+  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const queryClient = useQueryClient();
 
   // Refetch feedback when screen regains focus (e.g. after notification → ReviewList → goBack)
@@ -386,14 +391,20 @@ export const RestaurantDetailsScreen = ({
     };
   });
 
-  const nearbyRestaurants: NearbyRestaurant[] = nearbyBranches.map((b) => ({
-    id: String(b.branchId),
-    name: b.name,
-    rating: b.avgRating,
-    distance: b.distanceKm != null ? `${b.distanceKm.toFixed(1)} km` : '',
-    priceRange: getPriceRange(b.dishes),
-    imageUri: b.dishes[0]?.imageUrl,
-  }));
+  const nearbyRestaurants: NearbyRestaurant[] = nearbyBranches.map((b) => {
+    const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
+    const displayName = computeDisplayName(b, isMultiBranch, t('branch'));
+    return {
+      id: String(b.branchId),
+      name: displayName,
+      rating: b.avgRating,
+      distance: b.distanceKm != null ? `${b.distanceKm.toFixed(1)} km` : '',
+      priceRange: getPriceRange(b.dishes),
+      imageUri: b.dishes[0]?.imageUrl,
+      onPress: () =>
+        navigation.navigate('RestaurantDetails', { branch: b, displayName }),
+    };
+  });
 
   const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
 
@@ -416,7 +427,7 @@ export const RestaurantDetailsScreen = ({
         <RestaurantInfo restaurant={restaurantInfo} />
 
         {/* View on map & Giving direction */}
-        <View className="flex-row gap-3 px-4 pb-3">
+        <View className="flex-row gap-3 px-4 pb-6">
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Map', { initialBranch: branch })

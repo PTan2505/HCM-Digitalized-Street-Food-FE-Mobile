@@ -32,6 +32,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -51,6 +52,12 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import CategoryCard from '../components/common/CategoryCard';
+import {
+  BannerCarouselSkeleton,
+  CategoryRowSkeleton,
+  PlaceCardRowSkeleton,
+  PlaceCardSkeleton,
+} from '../components/common/HomeSkeleton';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
 import { QuickActionGrid } from '../components/home/QuickActionGrid';
@@ -73,11 +80,19 @@ export const HomeScreen = (): JSX.Element => {
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords, permissionStatus } = useLocationPermission();
-  const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSystemCampaigns();
+  const {
+    systemCampaigns,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: campaignsLoading,
+  } = useSystemCampaigns();
   useRestaurantCampaigns(userCoords);
-  const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
-    useVendorCampaignBranches(userCoords, permissionStatus);
+  const {
+    branches: vendorCampaignBranches,
+    imageMap: vendorCampaignImageMap,
+    isLoading: vendorCampaignLoading,
+  } = useVendorCampaignBranches(userCoords, permissionStatus);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -94,8 +109,10 @@ export const HomeScreen = (): JSX.Element => {
 
   const stickyFadeStart = Math.max(0, stickyTriggerY - 8);
   const stickyFadeEnd = stickyFadeStart + STICKY_FADE_RANGE_PX;
-  const isInitialLoading =
-    branchesStatus === 'pending' && branches.length === 0 && !refreshing;
+  const showBranchSkeleton =
+    (branchesStatus === 'idle' || branchesStatus === 'pending') &&
+    branches.length === 0 &&
+    !refreshing;
   const isInitialError = branchesStatus === 'failed' && branches.length === 0;
   const stickyProgress = useMemo(
     () =>
@@ -248,6 +265,33 @@ export const HomeScreen = (): JSX.Element => {
     }
   }, [user, userStatus, navigation]);
 
+  // Re-fetch home branches when screen regains focus (e.g. coming back from
+  // MapScreen which may have overwritten the shared Redux branches state with
+  // branches for a different location).
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      // Only re-fetch if the initial load already happened
+      if (!hasFetchedRef.current) return;
+      const dietaryIds = userDietaryPreferences.map(
+        (p) => p.dietaryPreferenceId
+      );
+      void dispatch(
+        fetchActiveBranches({
+          page: 1,
+          lat: userCoords?.latitude,
+          lng: userCoords?.longitude,
+          distance: userCoords ? 5 : undefined,
+          dietaryIds,
+        })
+      );
+    }, [dispatch, userCoords, userDietaryPreferences])
+  );
+
   useEffect(() => {
     void dispatch(fetchUnreadCount());
   }, [dispatch]);
@@ -366,14 +410,18 @@ export const HomeScreen = (): JSX.Element => {
             }
           />
         </View>
-        <BannerCarousel
-          items={systemCampaigns}
-          onCampaignPress={handleCampaignPress}
-          onLoadMore={() => {
-            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-          }}
-          hasMore={hasNextPage}
-        />
+        {campaignsLoading ? (
+          <BannerCarouselSkeleton />
+        ) : (
+          <BannerCarousel
+            items={systemCampaigns}
+            onCampaignPress={handleCampaignPress}
+            onLoadMore={() => {
+              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            }}
+            hasMore={hasNextPage}
+          />
+        )}
 
         <View className="px-4 py-2">
           <Title>{t('home_quick_actions.section_title')}</Title>
@@ -386,9 +434,7 @@ export const HomeScreen = (): JSX.Element => {
 
         <View className="flex-row pt-2">
           {categoriesLoading ? (
-            <View className="flex-1 items-center py-4">
-              <ActivityIndicator color={COLORS.primary} />
-            </View>
+            <CategoryRowSkeleton />
           ) : (
             <FlatList
               data={categories}
@@ -419,7 +465,16 @@ export const HomeScreen = (): JSX.Element => {
           )}
         </View>
 
-        {vendorCampaignActiveBranches.length > 0 && (
+        {vendorCampaignLoading ? (
+          <>
+            <View className="flex-row items-center gap-2 px-4 py-2">
+              <Title>{t('discount_branches_title')}</Title>
+            </View>
+            <View className="px-4">
+              <PlaceCardRowSkeleton />
+            </View>
+          </>
+        ) : vendorCampaignActiveBranches.length > 0 ? (
           <>
             <TouchableOpacity
               className="flex-row items-center gap-2 px-4 py-2"
@@ -428,6 +483,7 @@ export const HomeScreen = (): JSX.Element => {
                 navigation.navigate('ListBranch', {
                   items: vendorCampaignActiveBranches,
                   title: t('discount_branches_title'),
+                  vouchersByBranchId: vendorCampaignVouchersByBranchId,
                 })
               }
             >
@@ -492,7 +548,7 @@ export const HomeScreen = (): JSX.Element => {
               })}
             </View>
           </>
-        )}
+        ) : null}
 
         <TouchableOpacity
           className="flex-row items-center gap-2 px-4 py-2"
@@ -512,6 +568,8 @@ export const HomeScreen = (): JSX.Element => {
     [
       categories,
       categoriesLoading,
+      campaignsLoading,
+      vendorCampaignLoading,
       systemCampaigns,
       vendorCampaignActiveBranches,
       vendorCampaignImageMap,
@@ -526,6 +584,15 @@ export const HomeScreen = (): JSX.Element => {
     ]
   );
 
+  type ListItem = ActiveBranch | { _skeleton: true; id: number };
+  const skeletonItems: ListItem[] = Array.from({ length: 6 }, (_, i) => ({
+    _skeleton: true as const,
+    id: i,
+  }));
+  const flatListData: ListItem[] = showBranchSkeleton
+    ? skeletonItems
+    : (branches.slice(0, 10) as ListItem[]);
+
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <View
@@ -538,145 +605,142 @@ export const HomeScreen = (): JSX.Element => {
           backgroundColor: COLORS.primaryGradientHero,
         }}
       />
-      {isInitialLoading ? (
-        <>
-          {ListHeader}
-          <View className="flex-1 items-center justify-center bg-white">
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          </View>
-        </>
-      ) : isInitialError ? (
-        <>
-          {ListHeader}
-          <View className="flex-1 items-center justify-center bg-white px-6">
-            <Text className="text-center text-base text-gray-500">
-              {t('search.error')}
-            </Text>
-            <TouchableOpacity
-              onPress={() =>
-                dispatch(
-                  fetchActiveBranches({
-                    page: 1,
-                    lat: userCoords?.latitude,
-                    lng: userCoords?.longitude,
-                    dietaryIds: userDietaryPreferences.map(
-                      (p) => p.dietaryPreferenceId
-                    ),
-                  })
-                )
+      <View>
+        <Animated.FlatList
+          data={flatListData}
+          keyExtractor={(item) =>
+            '_skeleton' in item ? `skeleton-${item.id}` : String(item.branchId)
+          }
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={{
+            paddingBottom: 100,
+            backgroundColor: 'white',
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              progressViewOffset={
+                Platform.OS === 'android' ? insets.top + 60 : 0
               }
-              className="mt-4 rounded-full bg-primary-dark px-6 py-2"
-            >
-              <Text className="text-base font-semibold text-white">
-                {t('search.retry')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <View>
-          <Animated.FlatList
-            data={branches.slice(0, 10)}
-            keyExtractor={(item) => String(item.branchId)}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={ListHeader}
-            contentContainerStyle={{
-              paddingBottom: 100,
-              backgroundColor: 'white',
-            }}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                progressViewOffset={
-                  Platform.OS === 'android' ? insets.top + 60 : 0
-                }
-                colors={[COLORS.primary]} // Android spinner color
-                tintColor={COLORS.primary} // iOS spinner color
-                progressBackgroundColor="#ffffff" // Android spinner background
-              />
-            }
-            columnWrapperStyle={{
-              justifyContent: 'space-between',
-              paddingHorizontal: 16,
-              marginBottom: 12,
-            }}
-            renderItem={({ item }) => {
-              const isMultiBranch = multiBranchVendorIds.includes(
-                item.vendorId
-              );
-              const displayName = computeDisplayName(
-                item,
-                isMultiBranch,
-                t('branch')
-              );
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
+              progressBackgroundColor="#ffffff"
+            />
+          }
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            marginBottom: 12,
+          }}
+          renderItem={({ item }) => {
+            if ('_skeleton' in item) {
               return (
                 <View className="w-[49%]">
-                  <PlaceCard
-                    branch={item}
-                    displayName={displayName}
-                    imageUri={branchImageMap[item.branchId]?.[0]}
-                    userCoords={userCoords}
-                    onPress={() =>
-                      navigation.navigate('RestaurantSwipe', {
-                        branch: item,
-                        displayName,
-                        onRatingUpdate: (avgRating, totalReviewCount) =>
-                          handleRatingUpdate(
-                            item.branchId,
-                            avgRating,
-                            totalReviewCount
-                          ),
-                      })
-                    }
-                  />
+                  <PlaceCardSkeleton />
                 </View>
               );
-            }}
-            ListEmptyComponent={
+            }
+            const isMultiBranch = multiBranchVendorIds.includes(item.vendorId);
+            const displayName = computeDisplayName(
+              item,
+              isMultiBranch,
+              t('branch')
+            );
+            return (
+              <View className="w-[49%]">
+                <PlaceCard
+                  branch={item}
+                  displayName={displayName}
+                  imageUri={branchImageMap[item.branchId]?.[0]}
+                  userCoords={userCoords}
+                  onPress={() =>
+                    navigation.navigate('RestaurantSwipe', {
+                      branch: item,
+                      displayName,
+                      onRatingUpdate: (avgRating, totalReviewCount) =>
+                        handleRatingUpdate(
+                          item.branchId,
+                          avgRating,
+                          totalReviewCount
+                        ),
+                    })
+                  }
+                />
+              </View>
+            );
+          }}
+          ListEmptyComponent={
+            isInitialError ? (
+              <View className="flex-1 items-center justify-center px-6 py-12">
+                <Text className="text-center text-base text-gray-500">
+                  {t('search.error')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    dispatch(
+                      fetchActiveBranches({
+                        page: 1,
+                        lat: userCoords?.latitude,
+                        lng: userCoords?.longitude,
+                        dietaryIds: userDietaryPreferences.map(
+                          (p) => p.dietaryPreferenceId
+                        ),
+                      })
+                    )
+                  }
+                  className="mt-4 rounded-full bg-primary-dark px-6 py-2"
+                >
+                  <Text className="text-base font-semibold text-white">
+                    {t('search.retry')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <View className="items-center px-6 py-12">
                 <Text className="text-center text-base text-gray-400">
                   {t('search.empty')}
                 </Text>
               </View>
-            }
-            onScroll={handleListScroll}
-            scrollEventThrottle={16}
-          />
-          {isPulling && !refreshing && (
-            <>
+            )
+          }
+          onScroll={handleListScroll}
+          scrollEventThrottle={16}
+        />
+        {isPulling && !refreshing && (
+          <>
+            <View
+              style={{
+                position: 'absolute',
+                top: insets.top + 10,
+                left: 0,
+                right: 0,
+                alignItems: 'center',
+                zIndex: 9999,
+                elevation: 9999,
+              }}
+              pointerEvents="none"
+            >
               <View
                 style={{
-                  position: 'absolute',
-                  top: insets.top + 10,
-                  left: 0,
-                  right: 0,
-                  alignItems: 'center',
-                  zIndex: 9999,
-                  elevation: 9999,
+                  backgroundColor: 'white',
+                  borderRadius: 20,
+                  padding: 8,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
                 }}
-                pointerEvents="none"
               >
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    borderRadius: 20,
-                    padding: 8,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                  }}
-                >
-                  <ActivityIndicator size="small" color={COLORS.primary} />
-                </View>
+                <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
-            </>
-          )}
-        </View>
-      )}
+            </View>
+          </>
+        )}
+      </View>
       {/* Sticky SearchBar — appears when the in-list bar scrolls out of view */}
       <Animated.View
         pointerEvents={showStickyBar ? 'auto' : 'none'}
