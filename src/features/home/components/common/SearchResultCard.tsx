@@ -83,7 +83,10 @@ const SearchResultCard = ({
 
       {/* Right — info + vouchers */}
       <View className="flex-1">
-        <TouchableOpacity onPress={onPress} className="justify-between px-3 py-2.5">
+        <TouchableOpacity
+          onPress={onPress}
+          className="justify-between px-3 py-2.5"
+        >
           {/* Name */}
           <Text
             className="text-[13px] font-bold leading-[18px] text-black"

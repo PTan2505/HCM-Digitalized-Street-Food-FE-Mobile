@@ -35,7 +35,11 @@ interface ListBranchItemProps {
   item: ActiveBranch;
   imageUri?: string;
   vouchers?: VoucherChip[];
-  onRatingUpdate: (branchId: number, avgRating: number, totalReviewCount: number) => void;
+  onRatingUpdate: (
+    branchId: number,
+    avgRating: number,
+    totalReviewCount: number
+  ) => void;
 }
 
 const ListBranchItem = ({
@@ -64,12 +68,15 @@ const ListBranchItem = ({
     (!!item.vendorName && item.vendorName !== item.name);
 
   // Prefer the Redux vendor name to correct null fallbacks set at build time
-  const resolvedItem =
-    vendorNameFromRedux
-      ? { ...item, vendorName: vendorNameFromRedux }
-      : item;
+  const resolvedItem = vendorNameFromRedux
+    ? { ...item, vendorName: vendorNameFromRedux }
+    : item;
 
-  const displayName = computeDisplayName(resolvedItem, isMultiBranch, t('branch'));
+  const displayName = computeDisplayName(
+    resolvedItem,
+    isMultiBranch,
+    t('branch')
+  );
 
   return (
     <SearchResultCard
