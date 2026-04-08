@@ -616,6 +616,10 @@
     "distance_meters": "{{count}}m",
     "distance_kilometers": "{{count}}km"
   },
+  "my_ghost_pins": {
+    "title": "Stalls I've Added",
+    "add_action": "Add"
+  },
   "home_quick_actions": {
     "section_title": "Explore Lowca",
     "ghost_pin": "Share New Stall",

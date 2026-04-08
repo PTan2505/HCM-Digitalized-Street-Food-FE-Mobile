@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { MyGhostPinBranch } from '@features/home/types/branch';
@@ -5,6 +6,7 @@ import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -31,7 +33,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
       {/* Name + status badge */}
       <View className="mb-2 flex-row items-start justify-between gap-2">
         <Text
-          className="flex-1 text-base font-bold text-gray-800"
+          className="flex-1 text-lg font-bold text-gray-800"
           numberOfLines={2}
         >
           {item.name}
@@ -105,6 +107,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
 
 export const MyGhostPinsScreen = (): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const [branches, setBranches] = useState<MyGhostPinBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -132,23 +135,15 @@ export const MyGhostPinsScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 bg-white px-4 py-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray-100"
-        >
-          <Ionicons name="chevron-back" size={22} color="#333" />
-        </TouchableOpacity>
-        <Text className="flex-1 text-lg font-bold text-gray-800">
-          Quán tôi đã thêm
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('GhostPinCreation')}
-          className="h-9 w-9 items-center justify-center rounded-full bg-primary"
-        >
-          <Ionicons name="add" size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title={t('my_ghost_pins.title')}
+        onBackPress={() => navigation.goBack()}
+        secondaryAction={{
+          label: t('my_ghost_pins.add_action'),
+          icon: <Ionicons name="add" size={18} color="#111827" />,
+          onPress: () => navigation.navigate('GhostPinCreation'),
+        }}
+      />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

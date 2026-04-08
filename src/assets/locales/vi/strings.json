@@ -616,6 +616,10 @@
     "distance_meters": "{{count}}m",
     "distance_kilometers": "{{count}}km"
   },
+  "my_ghost_pins": {
+    "title": "Quán tôi đã thêm",
+    "add_action": "Thêm"
+  },
   "home_quick_actions": {
     "section_title": "Khám phá Lowca",
     "ghost_pin": "Chia sẻ quán ăn mới",
