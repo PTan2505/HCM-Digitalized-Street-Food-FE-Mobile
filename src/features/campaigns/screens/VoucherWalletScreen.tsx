@@ -172,6 +172,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
                   onPress={() => handleVoucherPress(item)}
                 >
                   <TicketVoucherCard
+                    quantity={item.quantity}
                     disabled={disabled}
                     discountText={
                       item.voucherType.toUpperCase().includes('PERCENT')

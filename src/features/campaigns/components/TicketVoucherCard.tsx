@@ -22,6 +22,7 @@ interface TicketVoucherCardProps {
   tertiaryMetaText?: string;
   tertiaryMetaIcon?: IoniconName;
   footerText?: string;
+  quantity?: number;
   actionLabel?: string;
   onActionPress?: () => void;
   isActionLoading?: boolean;
@@ -40,6 +41,7 @@ export const TicketVoucherCard = ({
   tertiaryMetaIcon = 'receipt-outline',
   footerText,
   actionLabel,
+  quantity,
   onActionPress,
   isActionLoading = false,
   actionDisabled = false,
@@ -86,6 +88,11 @@ export const TicketVoucherCard = ({
           >
             {discountText}
           </Text>
+          {quantity !== undefined && (
+            <Text className="text-lg font-bold text-black">
+              Quantity: {quantity}
+            </Text>
+          )}
 
           <Text
             className={`mt-0.5 text-sm font-bold ${
