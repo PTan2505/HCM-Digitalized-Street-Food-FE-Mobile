@@ -376,6 +376,7 @@ export const RestaurantDetailsScreen = ({
       imageUris: f.images?.map((img) => img.url) ?? [],
       tags: f.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
       isOwn: f.id === ownFeedback?.id,
+      editable: !f.updatedAt,
       dishName: dishName,
       upVotes: f.upVotes,
       downVotes: f.downVotes,

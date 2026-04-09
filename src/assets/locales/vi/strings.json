@@ -389,10 +389,34 @@
   "giving_direction": "Chỉ đường",
   "review": {
     "write": "Viết đánh giá",
+    "edit": "Chỉnh sửa",
     "delete_title": "Xóa đánh giá",
     "delete_confirm": "Bạn có chắc muốn xóa đánh giá này?",
     "delete": "Xóa",
-    "delete_error": "Không thể xóa đánh giá"
+    "delete_error": "Không thể xóa đánh giá",
+    "form": {
+      "title_write": "Viết đánh giá",
+      "title_edit": "Chỉnh sửa đánh giá",
+      "edit_notice": "Lưu ý: Bạn chỉ được chỉnh sửa 1 lần cho 1 đánh giá",
+      "your_rating": "Đánh giá của bạn",
+      "dish_optional": "Món ăn (Tuỳ chọn)",
+      "tags_optional": "Nhãn (Tuỳ chọn)",
+      "comment": "Nhận xét",
+      "comment_placeholder": "Chia sẻ trải nghiệm của bạn...",
+      "images_optional": "Hình ảnh (Tuỳ chọn)",
+      "add_image": "Thêm ảnh",
+      "add_image_title": "Thêm ảnh",
+      "add_image_take_photo": "Chụp ảnh",
+      "add_image_from_library": "Chọn từ thư viện",
+      "camera_permission_required": "Cần quyền truy cập camera để chụp ảnh.",
+      "library_permission_required": "Cần quyền truy cập thư viện ảnh để chọn ảnh.",
+      "error_select_rating": "Vui lòng chọn số sao đánh giá",
+      "error_daily_limit": "Bạn đã đánh giá đủ số lần cho phép hôm nay.",
+      "error_submit_not_near": "Không thể gửi đánh giá. Bạn có thể không ở gần quán.",
+      "error_submit_default": "Gửi đánh giá thất bại. Vui lòng thử lại.",
+      "save_changes": "Lưu thay đổi",
+      "submit": "Gửi đánh giá"
+    }
   },
   "common": {
     "vietnamese": "Tiếng Việt",

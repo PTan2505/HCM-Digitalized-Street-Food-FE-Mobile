@@ -37,6 +37,7 @@ export interface Review {
   imageUris: string[];
   tags: ReviewTag[];
   isOwn: boolean;
+  editable: boolean;
   dishName?: string;
   upVotes: number;
   downVotes: number;
@@ -276,7 +277,8 @@ const ReviewCard = ({
                       {/* Edit Option */}
                       <TouchableOpacity
                         onPress={handleEdit}
-                        className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-3"
+                        disabled={!review.editable}
+                        className="flex-row items-center gap-3 border-gray-100 px-4 py-3 disabled:opacity-30"
                       >
                         <Ionicons
                           name="pencil-outline"
@@ -284,7 +286,7 @@ const ReviewCard = ({
                           color="#6B7280"
                         />
                         <Text className="text-base font-medium text-gray-700">
-                          Chỉnh sửa
+                          {t('review.edit')}
                         </Text>
                       </TouchableOpacity>
                     </View>
