@@ -69,6 +69,13 @@ export class QuestApi {
     return res.data;
   }
 
+  async getCampaignById(campaignId: number): Promise<{ name: string }> {
+    const res = await this.apiClient.get<{ name: string }>({
+      url: `/api/Campaign/${campaignId}`,
+    });
+    return res.data;
+  }
+
   async shareStall(branchId: number): Promise<void> {
     await this.apiClient.post<void, null>({
       url: `/api/Quest/share/${branchId}`,
