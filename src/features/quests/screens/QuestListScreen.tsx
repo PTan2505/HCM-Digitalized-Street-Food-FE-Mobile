@@ -1,5 +1,4 @@
 import { COLORS } from '@constants/colors';
-import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import Header from '@components/Header';
 import { QuestCard } from '@features/quests/components/QuestCard';
 import { useQuests } from '@features/quests/hooks/useQuests';
 import { useNavigation } from '@react-navigation/native';
@@ -114,15 +114,10 @@ export const QuestListScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 pb-2 pt-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-3"
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title={t('quest.title')}
+        onBackPress={() => navigation.goBack()}
+      />
 
       {/* Tabs */}
       <View className="border-b border-gray-200 px-4">
