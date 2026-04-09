@@ -14,9 +14,10 @@ import type { ActiveBranch } from '@features/home/types/branch';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { computeDisplayName } from '@slices/branches';
+import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -32,7 +33,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 type RestaurantSwipeScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
-  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+  onRatingUpdateId?: string;
 }>;
 
 const PLACEHOLDER_IMAGE =
@@ -46,21 +47,28 @@ export const RestaurantSwipeScreen = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { t } = useTranslation();
-  const { branch, displayName, onRatingUpdate } = route.params;
+  const { branch, displayName, onRatingUpdateId } = route.params;
   const [avgRating, setAvgRating] = useState(branch.avgRating);
   const [totalReviewCount, setTotalReviewCount] = useState(
     branch.totalReviewCount
   );
+
+  useEffect(() => {
+    return (): void => {
+      if (onRatingUpdateId) removeCallback(onRatingUpdateId);
+    };
+  }, [onRatingUpdateId]);
 
   const handleRatingUpdate = useCallback(
     (newAvgRating: number, newTotalReviewCount: number) => {
       // Update local state for immediate UI feedback
       setAvgRating(newAvgRating);
       setTotalReviewCount(newTotalReviewCount);
-      // Update Redux state so HomeScreen sees the change
-      onRatingUpdate?.(newAvgRating, newTotalReviewCount);
+      // Propagate back to the caller screen
+      if (onRatingUpdateId)
+        invokeCallback(onRatingUpdateId, newAvgRating, newTotalReviewCount);
     },
-    [onRatingUpdate]
+    [onRatingUpdateId]
   );
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
