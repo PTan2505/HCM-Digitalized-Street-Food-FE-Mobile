@@ -435,7 +435,7 @@
     "joined": "Đã tham gia",
     "off": "giảm",
     "expires": "Hết hạn",
-    "remaining": "còn lại",
+    "remaining": "Còn lại {{count}} ngày",
     "sold_out": "Đã hết",
     "empty": "Không có chiến dịch nào",
     "error": "Không thể tải chiến dịch. Vui lòng thử lại.",
@@ -557,7 +557,7 @@
     "notFound": "Không tìm thấy thử thách",
     "homeTitle": "Thử thách",
     "homeSubtitle": "Hoàn thành nhiệm vụ và nhận thưởng",
-    "rewards": "Phần thưởng",
+    "rewards": "Phần thưởng có thể nhận",
     "taskType": {
       "review": "Viết đánh giá",
       "orderAmount": "Chi tiêu",

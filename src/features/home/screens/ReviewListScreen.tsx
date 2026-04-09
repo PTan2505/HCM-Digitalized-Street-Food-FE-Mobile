@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ReviewCard from '@features/home/components/restaurantDetails/ReviewCard';
+import type { Review } from '@features/home/components/restaurantDetails/ReviewCard';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
@@ -184,53 +185,51 @@ export const ReviewListScreen = ({
     [voteFeedback]
   );
 
+  const reviewItems = useMemo<Review[]>(
+    () =>
+      reviews.map((item) => ({
+        id: String(item.id),
+        feedbackId: item.id,
+        userName: item.user?.name ?? t('user'),
+        avatar: item.user?.avatar,
+        date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
+        time: new Date(item.createdAt).toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        rating: item.rating,
+        comment: item.comment ?? '',
+        imageUris: item.images?.map((img) => img.url) ?? [],
+        tags: item.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
+        isOwn: item.id === ownFeedback?.id,
+        editable: item.id === ownFeedback?.id,
+        dishName: item.dish?.name,
+        upVotes: item.upVotes,
+        downVotes: item.downVotes,
+        userVote: item.userVote,
+        vendorReply: item.vendorReply
+          ? {
+              content: item.vendorReply.content,
+              repliedBy: item.vendorReply.repliedBy,
+              createdAt: item.vendorReply.createdAt,
+            }
+          : undefined,
+      })),
+    [reviews, ownFeedback?.id, t]
+  );
+
   const renderReviewItem = useCallback(
-    ({ item }: { item: Feedback }) => (
+    ({ item }: { item: Review }) => (
       <View className="px-4 pb-3">
         <ReviewCard
-          onEdit={item.id === ownFeedback?.id ? handleEditOwnReview : undefined}
-          onDelete={
-            item.id === ownFeedback?.id ? handleDeleteReview : undefined
-          }
+          onEdit={item.isOwn ? handleEditOwnReview : undefined}
+          onDelete={item.isOwn ? handleDeleteReview : undefined}
           onVote={handleVoteReview}
-          review={{
-            id: String(item.id),
-            feedbackId: item.id,
-            userName: item.user?.name ?? t('user'),
-            avatar: item.user?.avatar,
-            date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
-            time: new Date(item.createdAt).toLocaleTimeString('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-            rating: item.rating,
-            comment: item.comment ?? '',
-            imageUris: item.images?.map((img) => img.url) ?? [],
-            tags:
-              item.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
-            isOwn: item.id === ownFeedback?.id,
-            dishName: item.dish?.name,
-            upVotes: item.upVotes,
-            downVotes: item.downVotes,
-            userVote: item.userVote,
-            vendorReply: item.vendorReply
-              ? {
-                  content: item.vendorReply.content,
-                  repliedBy: item.vendorReply.repliedBy,
-                  createdAt: item.vendorReply.createdAt,
-                }
-              : undefined,
-          }}
+          review={item}
         />
       </View>
     ),
-    [
-      handleDeleteReview,
-      handleEditOwnReview,
-      handleVoteReview,
-      ownFeedback?.id,
-      t,
-    ]
+    [handleDeleteReview, handleEditOwnReview, handleVoteReview]
   );
 
   const renderHeader = useMemo(
@@ -334,8 +333,8 @@ export const ReviewListScreen = ({
         </View>
       ) : (
         <FlatList
-          data={reviews}
-          keyExtractor={(item): string => String(item.id)}
+          data={reviewItems}
+          keyExtractor={(item): string => item.id}
           renderItem={renderReviewItem}
           ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}

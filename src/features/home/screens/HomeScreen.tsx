@@ -1,6 +1,5 @@
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
@@ -10,7 +9,7 @@ import { useCategories } from '@features/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import {
@@ -32,7 +31,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -87,7 +85,6 @@ export const HomeScreen = (): JSX.Element => {
     isFetchingNextPage,
     isLoading: campaignsLoading,
   } = useSystemCampaigns();
-  useRestaurantCampaigns(userCoords);
   const {
     branches: vendorCampaignBranches,
     imageMap: vendorCampaignImageMap,
