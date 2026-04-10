@@ -44,8 +44,6 @@ export const useVoucherWallet = () => {
           return campaignVouchers;
         case 'system':
           return systemVouchers;
-        case 'restaurant':
-          return campaignVouchers;
         default:
           return activeVouchers;
       }
@@ -60,8 +58,6 @@ export const useVoucherWallet = () => {
           return campaignVouchers.length;
         case 'system':
           return systemVouchers.length;
-        case 'restaurant':
-          return campaignVouchers.length;
         default:
           return activeVouchers.length;
       }

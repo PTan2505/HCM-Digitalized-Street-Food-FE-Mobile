@@ -570,6 +570,12 @@
       "voucher": "Mã giảm giá",
       "voucherOff": "Giảm",
       "voucherRemain": "Còn lại {{count}}"
+    },
+    "rewardModal": {
+      "congrats": "Chúc mừng!",
+      "title": "Bạn đã nhận được phần thưởng",
+      "subtitle": "Hoàn thành nhiệm vụ thật tuyệt vời. Phần thưởng đã được thêm vào tài khoản của bạn.",
+      "collect": "Nhận thưởng"
     }
   },
   "withdraw": {

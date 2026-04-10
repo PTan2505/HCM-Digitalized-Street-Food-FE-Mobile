@@ -1,8 +1,11 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
+import { axiosApi } from '@lib/api/apiInstance';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
+import { addPoints } from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
+import { fetchMyQuests, setPendingReward } from '@slices/quests';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -30,6 +33,10 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       .build();
 
     connection.on('ReceiveNotification', (notification: NotificationDto) => {
+      console.log(
+        '[NotificationSocket] Received notification:',
+        JSON.stringify(notification)
+      );
       dispatch(receiveNotification(notification));
 
       if (
@@ -39,6 +46,54 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         dispatch(
           syncOrderToHistoryFromNotificationThunk(notification.referenceId)
         );
+      }
+
+      const isQuestTaskCompleted =
+        notification.type === 'QuestTaskCompleted' || notification.type === '3';
+      console.log(
+        `[NotificationSocket] isQuestTaskCompleted=${isQuestTaskCompleted}, referenceId=${notification.referenceId}`
+      );
+
+      if (isQuestTaskCompleted && notification.referenceId) {
+        const questTaskId = notification.referenceId;
+        console.log(
+          `[NotificationSocket] Fetching task definition for questTaskId=${questTaskId}`
+        );
+
+        // Fetch the task definition to get reward info, then show modal.
+        // Delay showing the modal by 1 s so any currently-open modal (e.g. the
+        // ReviewFormModal) has time to dismiss before we present the reward card.
+        axiosApi.questApi
+          .getQuestTaskById(questTaskId)
+          .then((task) => {
+            console.log(
+              '[NotificationSocket] Task fetched:',
+              JSON.stringify(task)
+            );
+
+            // POINTS — update user balance immediately (no need to wait)
+            if (task.rewardType === 'POINTS') {
+              dispatch(addPoints(task.rewardValue));
+            }
+
+            setTimeout(() => {
+              dispatch(
+                setPendingReward({
+                  rewardType: task.rewardType,
+                  rewardValue: task.rewardValue,
+                })
+              );
+              console.log(
+                `[NotificationSocket] setPendingReward dispatched: type=${task.rewardType} value=${task.rewardValue}`
+              );
+            }, 1000);
+          })
+          .catch((err: unknown) => {
+            console.warn('[NotificationSocket] getQuestTaskById failed:', err);
+          });
+
+        // Refresh quest list in background so screens stay up-to-date
+        dispatch(fetchMyQuests(undefined));
       }
     });
 
