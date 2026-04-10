@@ -1,11 +1,13 @@
 import LowcaLogo from '@assets/logos/lowcaLogo.png';
+import congratulationBell from '@assets/sounds/congratulationBell.mp3';
+import CongratulationSplash from '@assets/splash/congratulationSplash.json';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
-import congratulationBell from '@assets/sounds/congratulationBell.mp3';
+import LottieView from 'lottie-react-native';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Modal, Pressable, Text, View } from 'react-native';
+import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type {
   QuestBadgeDetail,
@@ -60,15 +62,6 @@ const REWARD_CONFIG: Record<
     ringColor: '#FB923C',
   },
 };
-
-const DOT_POSITIONS = [
-  { top: '15%', left: '10%', size: 8 },
-  { top: '10%', right: '15%', size: 6 },
-  { top: '35%', left: '5%', size: 5 },
-  { top: '30%', right: '8%', size: 7 },
-  { bottom: '30%', left: '12%', size: 6 },
-  { bottom: '25%', right: '10%', size: 5 },
-] as const;
 
 export const QuestRewardModal = ({
   visible,
@@ -254,25 +247,16 @@ export const QuestRewardModal = ({
             />
           </View>
 
-          {/* Confetti dots */}
-          {DOT_POSITIONS.map((pos, i) => {
-            const { size, ...posStyle } = pos;
-            return (
-              <View
-                key={i}
-                style={[
-                  {
-                    position: 'absolute',
-                    borderRadius: 9999,
-                    backgroundColor: '#9FD356',
-                    width: size,
-                    height: size,
-                  },
-                  posStyle,
-                ]}
-              />
-            );
-          })}
+          {/* Confetti animation */}
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            <LottieView
+              autoPlay
+              loop={true}
+              resizeMode="cover"
+              source={CongratulationSplash}
+              style={StyleSheet.absoluteFill}
+            />
+          </View>
 
           {/* Texts */}
           <View className="mt-4 items-center px-6">

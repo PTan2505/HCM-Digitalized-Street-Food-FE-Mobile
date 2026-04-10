@@ -1,7 +1,7 @@
-import { QuestRewardModal } from '@features/quests/components/QuestRewardModal';
 import { useNotificationNavigation } from '@features/notifications/hooks/useNotificationNavigation';
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
+import { QuestRewardModal } from '@features/quests/components/QuestRewardModal';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { selectUser } from '@slices/auth';
 import { clearPendingReward, selectPendingReward } from '@slices/quests';
@@ -30,7 +30,7 @@ export const NotificationHandler = (): JSX.Element => {
 
   return (
     <QuestRewardModal
-      visible={pendingReward !== null}
+      visible={true}
       rewardType={pendingReward?.rewardType ?? 'POINTS'}
       rewardValue={pendingReward?.rewardValue ?? 0}
       onDismiss={handleDismiss}
