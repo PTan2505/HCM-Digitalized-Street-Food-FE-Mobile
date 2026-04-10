@@ -30,7 +30,7 @@ export const NotificationHandler = (): JSX.Element => {
 
   return (
     <QuestRewardModal
-      visible={true}
+      visible={pendingReward !== null}
       rewardType={pendingReward?.rewardType ?? 'POINTS'}
       rewardValue={pendingReward?.rewardValue ?? 0}
       onDismiss={handleDismiss}
