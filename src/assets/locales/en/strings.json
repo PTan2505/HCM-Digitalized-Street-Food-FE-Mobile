@@ -514,7 +514,11 @@
     "max_discount": "Max {{amount}}đ off",
     "min_order": "Min. order {{amount}}đ",
     "scope_participating": "Valid at participating restaurants",
-    "scope_restaurant": "Valid only at {{name}}"
+    "scope_restaurant": "Valid only at {{name}}",
+    "applicable_branches_title": "Restaurants that can use this voucher",
+    "applicable_branches_search_placeholder": "Search applicable restaurants...",
+    "applicable_branches_empty": "No restaurants can apply this voucher.",
+    "applicable_branches_error": "Could not load restaurants. Please try again."
   },
   "marketplace": {
     "title": "Voucher Marketplace",

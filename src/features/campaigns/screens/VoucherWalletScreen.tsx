@@ -8,6 +8,7 @@ import {
   type VoucherTab,
 } from '@features/campaigns/hooks/useVoucherWallet';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { Voucher } from '@slices/campaigns';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
@@ -31,7 +32,6 @@ const TABS: TabConfig[] = [
   { key: 'all', labelKey: 'voucher_wallet.voucher_tab_all' },
   { key: 'campaign', labelKey: 'voucher_wallet.voucher_tab_campaign' },
   { key: 'system', labelKey: 'voucher_wallet.voucher_tab_system' },
-  { key: 'restaurant', labelKey: 'voucher_wallet.voucher_tab_vendor' },
 ];
 
 const getExpiresAt = (voucher: Voucher): Date =>
@@ -54,7 +54,8 @@ const isExpiringSoon = (voucher: Voucher): boolean => {
 
 export const VoucherWalletScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { isLoading, error, handleRefresh, getDisplayedVouchers, tabCount } =
     useVoucherWallet();
 
@@ -229,7 +230,11 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     onActionPress={
                       disabled
                         ? undefined
-                        : (): void => handleVoucherPress(item)
+                        : (): void => {
+                            navigation.navigate('VoucherApplicableBranches', {
+                              voucher: item,
+                            });
+                          }
                     }
                     actionDisabled={disabled}
                   />

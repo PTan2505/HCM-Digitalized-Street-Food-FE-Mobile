@@ -5,6 +5,7 @@ import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatus
 import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
 import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
+import type { Voucher } from '@slices/campaigns';
 import { VoucherSelectScreen } from '@features/direct-ordering/screens/VoucherSelectScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
 import { FavoritesScreen } from '@features/home/screens/FavoritesScreen';
@@ -35,6 +36,7 @@ import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScre
 import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/campaigns/screens/SystemCampaignDetailScreen';
 import { VoucherHistoryScreen } from '@features/campaigns/screens/VoucherHistoryScreen';
+import { VoucherApplicableBranchesScreen } from '@features/campaigns/screens/VoucherApplicableBranchesScreen';
 import { VoucherMarketplaceScreen } from '@features/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
@@ -214,6 +216,10 @@ const RootStack = createNativeStackNavigator({
     VoucherWallet: {
       screen: VoucherWalletScreen,
       linking: 'vouchers',
+    },
+    VoucherApplicableBranches: {
+      screen: VoucherApplicableBranchesScreen,
+      params: {} as { voucher: Voucher },
     },
     VoucherHistory: {
       screen: VoucherHistoryScreen,

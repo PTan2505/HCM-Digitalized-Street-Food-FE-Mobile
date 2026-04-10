@@ -514,7 +514,11 @@
     "max_discount": "Giảm tối đa {{amount}}đ",
     "min_order": "Đơn tối thiểu {{amount}}đ",
     "scope_participating": "Áp dụng tại các quán tham gia",
-    "scope_restaurant": "Chỉ áp dụng tại {{name}}"
+    "scope_restaurant": "Chỉ áp dụng tại {{name}}",
+    "applicable_branches_title": "Các quán có thể áp dụng được voucher này",
+    "applicable_branches_search_placeholder": "Tìm kiếm quán có thể áp dụng mã giảm...",
+    "applicable_branches_empty": "Không có quán nào có thể áp dụng voucher này.",
+    "applicable_branches_error": "Không thể tải danh sách quán. Vui lòng thử lại."
   },
   "marketplace": {
     "title": "Chợ voucher",
