@@ -101,13 +101,6 @@ export const NotificationScreen = (): JSX.Element => {
         void dispatch(markNotificationRead(item.notificationId));
       }
 
-      console.log(
-        '[NotificationScreen] type:',
-        item.type,
-        'referenceId:',
-        item.referenceId
-      );
-
       if (item.referenceId) {
         switch (item.type) {
           case 'OrderStatusUpdate':
@@ -118,6 +111,14 @@ export const NotificationScreen = (): JSX.Element => {
             });
             break;
           case 'QuestTaskCompleted':
+            // referenceId is questTaskId — resolve to questId first
+            void axiosApi.questApi
+              .getQuestTaskById(item.referenceId)
+              .then((task) => {
+                navigation.navigate('QuestDetail', { questId: task.questId });
+              })
+              .catch(() => {});
+            break;
           case 'QuestCompleted':
             navigation.navigate('QuestDetail', { questId: item.referenceId });
             break;

@@ -1,5 +1,7 @@
 import LowcaLogo from '@assets/logos/lowcaLogo.png';
 import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import congratulationBell from '@assets/sounds/congratulationBell.mp3';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -74,15 +76,28 @@ export const QuestRewardModal = ({
   rewardValue,
   onDismiss,
 }: QuestRewardModalProps): JSX.Element => {
-  console.log(
-    `[QuestRewardModal] visible=${visible} rewardType=${rewardType} rewardValue=${rewardValue}`
-  );
   const { t } = useTranslation();
   const normalized = normalizeRewardType(rewardType);
   const config = REWARD_CONFIG[normalized];
 
   const [badge, setBadge] = useState<QuestBadgeDetail | null>(null);
   const [voucher, setVoucher] = useState<QuestVoucherDetail | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    let sound: Audio.Sound | null = null;
+    Audio.Sound.createAsync(congratulationBell)
+      .then(({ sound: s }) => {
+        sound = s;
+        return s.playAsync();
+      })
+      .catch(() => {});
+
+    return (): void => {
+      sound?.unloadAsync().catch(() => {});
+    };
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) return;

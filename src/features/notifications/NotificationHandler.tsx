@@ -19,10 +19,6 @@ export const NotificationHandler = (): JSX.Element => {
   const user = useAppSelector(selectUser);
   const isAuthenticated = !!user;
   const pendingReward = useAppSelector(selectPendingReward);
-  console.log(
-    '[NotificationHandler] pendingReward:',
-    JSON.stringify(pendingReward)
-  );
 
   const { lastResponse } = useNotifications(isAuthenticated);
   useNotificationNavigation(lastResponse, isAuthenticated);

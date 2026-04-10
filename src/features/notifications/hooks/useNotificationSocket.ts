@@ -33,10 +33,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       .build();
 
     connection.on('ReceiveNotification', (notification: NotificationDto) => {
-      console.log(
-        '[NotificationSocket] Received notification:',
-        JSON.stringify(notification)
-      );
       dispatch(receiveNotification(notification));
 
       if (
@@ -50,15 +46,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
 
       const isQuestTaskCompleted =
         notification.type === 'QuestTaskCompleted' || notification.type === '3';
-      console.log(
-        `[NotificationSocket] isQuestTaskCompleted=${isQuestTaskCompleted}, referenceId=${notification.referenceId}`
-      );
 
       if (isQuestTaskCompleted && notification.referenceId) {
         const questTaskId = notification.referenceId;
-        console.log(
-          `[NotificationSocket] Fetching task definition for questTaskId=${questTaskId}`
-        );
 
         // Fetch the task definition to get reward info, then show modal.
         // Delay showing the modal by 1 s so any currently-open modal (e.g. the
@@ -66,11 +56,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         axiosApi.questApi
           .getQuestTaskById(questTaskId)
           .then((task) => {
-            console.log(
-              '[NotificationSocket] Task fetched:',
-              JSON.stringify(task)
-            );
-
             // POINTS — update user balance immediately (no need to wait)
             if (task.rewardType === 'POINTS') {
               dispatch(addPoints(task.rewardValue));
@@ -83,14 +68,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
                   rewardValue: task.rewardValue,
                 })
               );
-              console.log(
-                `[NotificationSocket] setPendingReward dispatched: type=${task.rewardType} value=${task.rewardValue}`
-              );
             }, 1000);
           })
-          .catch((err: unknown) => {
-            console.warn('[NotificationSocket] getQuestTaskById failed:', err);
-          });
+          .catch(() => {});
 
         // Refresh quest list in background so screens stay up-to-date
         dispatch(fetchMyQuests(undefined));
@@ -102,7 +82,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     // Retry with exponential backoff on initial connection failure.
     // withAutomaticReconnect() only handles drops after a successful connection.
     const scheduleRetry = (delay: number): void => {
-      console.log(`[NotificationSocket] Retrying in ${delay}ms...`);
       retryTimeout = setTimeout(() => {
         retryTimeout = null;
         connect(delay);
@@ -112,17 +91,10 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
       if (cancelled) return;
       if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-      console.log('[NotificationSocket] Connecting...');
-      connection
-        .start()
-        .then(() => {
-          console.log('[NotificationSocket] Connected');
-        })
-        .catch((err: unknown) => {
-          console.warn('[NotificationSocket] Connection failed:', err);
-          if (cancelled) return;
-          scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
-        });
+      connection.start().catch(() => {
+        if (cancelled) return;
+        scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+      });
     };
 
     const disconnect = (): void => {
@@ -135,7 +107,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         connection.state === signalR.HubConnectionState.Connecting
       )
         return;
-      console.log('[NotificationSocket] Disconnecting...');
       connection.stop().catch(() => {});
     };
 
