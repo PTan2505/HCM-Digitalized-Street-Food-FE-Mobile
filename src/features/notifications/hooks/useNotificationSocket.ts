@@ -1,8 +1,11 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
+import { axiosApi } from '@lib/api/apiInstance';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
+import { addPoints } from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
+import { fetchMyQuests, setPendingReward } from '@slices/quests';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -40,6 +43,38 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
           syncOrderToHistoryFromNotificationThunk(notification.referenceId)
         );
       }
+
+      const isQuestTaskCompleted =
+        notification.type === 'QuestTaskCompleted' || notification.type === '3';
+
+      if (isQuestTaskCompleted && notification.referenceId) {
+        const questTaskId = notification.referenceId;
+
+        // Fetch the task definition to get reward info, then show modal.
+        // Delay showing the modal by 1 s so any currently-open modal (e.g. the
+        // ReviewFormModal) has time to dismiss before we present the reward card.
+        axiosApi.questApi
+          .getQuestTaskById(questTaskId)
+          .then((task) => {
+            // POINTS — update user balance immediately (no need to wait)
+            if (task.rewardType === 'POINTS') {
+              dispatch(addPoints(task.rewardValue));
+            }
+
+            setTimeout(() => {
+              dispatch(
+                setPendingReward({
+                  rewardType: task.rewardType,
+                  rewardValue: task.rewardValue,
+                })
+              );
+            }, 1000);
+          })
+          .catch(() => {});
+
+        // Refresh quest list in background so screens stay up-to-date
+        dispatch(fetchMyQuests(undefined));
+      }
     });
 
     connectionRef.current = connection;
@@ -47,7 +82,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     // Retry with exponential backoff on initial connection failure.
     // withAutomaticReconnect() only handles drops after a successful connection.
     const scheduleRetry = (delay: number): void => {
-      console.log(`[NotificationSocket] Retrying in ${delay}ms...`);
       retryTimeout = setTimeout(() => {
         retryTimeout = null;
         connect(delay);
@@ -57,17 +91,10 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
       if (cancelled) return;
       if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-      console.log('[NotificationSocket] Connecting...');
-      connection
-        .start()
-        .then(() => {
-          console.log('[NotificationSocket] Connected');
-        })
-        .catch((err: unknown) => {
-          console.warn('[NotificationSocket] Connection failed:', err);
-          if (cancelled) return;
-          scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
-        });
+      connection.start().catch(() => {
+        if (cancelled) return;
+        scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+      });
     };
 
     const disconnect = (): void => {
@@ -80,7 +107,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         connection.state === signalR.HubConnectionState.Connecting
       )
         return;
-      console.log('[NotificationSocket] Disconnecting...');
       connection.stop().catch(() => {});
     };
 

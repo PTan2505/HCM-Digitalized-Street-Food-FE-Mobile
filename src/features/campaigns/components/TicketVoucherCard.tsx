@@ -21,6 +21,7 @@ interface TicketVoucherCardProps {
   secondaryMetaIcon?: IoniconName;
   tertiaryMetaText?: string;
   tertiaryMetaIcon?: IoniconName;
+  quantity?: number;
   footerText?: string;
   actionLabel?: string;
   onActionPress?: () => void;
@@ -38,6 +39,7 @@ export const TicketVoucherCard = ({
   secondaryMetaIcon = 'layers-outline',
   tertiaryMetaText,
   tertiaryMetaIcon = 'receipt-outline',
+  quantity,
   footerText,
   actionLabel,
   onActionPress,
@@ -79,13 +81,18 @@ export const TicketVoucherCard = ({
         </View>
 
         <View className="flex-1 px-3 pb-3 pt-2">
-          <Text
-            className={`mt-0.5 text-3xl font-extrabold leading-[34px] ${
-              disabled ? 'text-[#474747]' : 'text-black'
-            }`}
-          >
-            {discountText}
-          </Text>
+          <View className="flex-row items-center justify-between pr-3">
+            <Text
+              className={`mt-0.5 text-3xl font-extrabold leading-[34px] ${
+                disabled ? 'text-[#474747]' : 'text-black'
+              }`}
+            >
+              {discountText}
+            </Text>
+            {quantity !== undefined && (
+              <Text className="text-lg font-bold text-black">x{quantity}</Text>
+            )}
+          </View>
 
           <Text
             className={`mt-0.5 text-sm font-bold ${

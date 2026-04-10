@@ -309,6 +309,11 @@ export const authSlice = createSlice({
         state.value.moneyBalance = action.payload;
       }
     },
+    addPoints: (state, action: PayloadAction<number>) => {
+      if (state.value) {
+        state.value.point = (state.value.point ?? 0) + action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -363,7 +368,7 @@ export const authSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { clearError, updateMoneyBalance } = authSlice.actions;
+export const { clearError, updateMoneyBalance, addPoints } = authSlice.actions;
 
 export default authSlice.reducer;
 

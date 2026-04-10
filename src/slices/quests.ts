@@ -2,16 +2,24 @@ import type { RootState } from '@app/store';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type {
   PaginatedQuests,
+  QuestRewardType,
   UserQuestProgress,
 } from '@features/quests/types/quest';
+
+export interface PendingQuestReward {
+  rewardType: QuestRewardType | number;
+  rewardValue: number;
+}
 
 export interface QuestsState {
   publicQuests: PaginatedQuests | null;
   myQuests: UserQuestProgress[];
   currentQuestDetail: UserQuestProgress | null;
+  pendingReward: PendingQuestReward | null;
   loading: boolean;
   error: string | null;
 }
@@ -20,6 +28,7 @@ const initialState: QuestsState = {
   publicQuests: null,
   myQuests: [],
   currentQuestDetail: null,
+  pendingReward: null,
   loading: false,
   error: null,
 };
@@ -73,6 +82,12 @@ const questsSlice = createSlice({
     clearQuestError: (state) => {
       state.error = null;
     },
+    setPendingReward: (state, action: PayloadAction<PendingQuestReward>) => {
+      state.pendingReward = action.payload;
+    },
+    clearPendingReward: (state) => {
+      state.pendingReward = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -115,7 +130,8 @@ const questsSlice = createSlice({
   },
 });
 
-export const { clearQuestError } = questsSlice.actions;
+export const { clearQuestError, setPendingReward, clearPendingReward } =
+  questsSlice.actions;
 export default questsSlice.reducer;
 
 // Selectors
@@ -127,3 +143,6 @@ export const selectQuestsLoading = (state: RootState): boolean =>
   state.quests.loading;
 export const selectQuestsError = (state: RootState): string | null =>
   state.quests.error;
+export const selectPendingReward = (
+  state: RootState
+): PendingQuestReward | null => state.quests.pendingReward;

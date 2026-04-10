@@ -4,6 +4,7 @@ import type {
   PaginatedQuests,
   QuestBadgeDetail,
   QuestResponse,
+  QuestTaskResponse,
   QuestVoucherDetail,
   UserQuestProgress,
 } from '@features/quests/types/quest';
@@ -51,6 +52,13 @@ export class QuestApi {
   async stopQuest(questId: number): Promise<UserQuestProgress> {
     const res = await this.apiClient.post<UserQuestProgress, null>({
       url: `/api/Quest/${questId}/stop`,
+    });
+    return res.data;
+  }
+
+  async getQuestTaskById(questTaskId: number): Promise<QuestTaskResponse> {
+    const res = await this.apiClient.get<QuestTaskResponse>({
+      url: `/api/Quest/task/${questTaskId}`,
     });
     return res.data;
   }

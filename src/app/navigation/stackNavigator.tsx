@@ -82,7 +82,7 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branch: ActiveBranch;
         displayName: string;
-        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+        onRatingUpdateId?: string;
       },
     },
     RestaurantDetails: {
@@ -91,7 +91,7 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
-        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+        onRatingUpdateId?: string;
       },
     },
     ReviewList: {

@@ -18,6 +18,7 @@ const HeaderImage: (props: HeaderImageProps) => JSX.Element = ({
   return (
     <View className="relative h-[300px]">
       <Carousel
+        style={{ width, height: 300 }}
         data={images}
         onProgressChange={progress}
         renderItem={({ index }) => (

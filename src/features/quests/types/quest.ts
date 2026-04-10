@@ -12,6 +12,7 @@ export type UserQuestStatus =
 
 export interface QuestTaskResponse {
   questTaskId: number;
+  questId: number;
   type: QuestTaskType;
   targetValue: number;
   description: string | null;

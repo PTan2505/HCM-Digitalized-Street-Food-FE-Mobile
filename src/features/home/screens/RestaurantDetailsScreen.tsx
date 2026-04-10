@@ -42,6 +42,7 @@ import {
   selectCartDisplayName,
 } from '@slices/directOrdering';
 import { useQueryClient } from '@tanstack/react-query';
+import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -69,13 +70,27 @@ type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
   tab?: TabType;
-  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+  onRatingUpdateId?: string;
 }>;
 
 export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
-  const { branch, displayName, tab, onRatingUpdate } = route.params;
+  const { branch, displayName, tab, onRatingUpdateId } = route.params;
+
+  useEffect(() => {
+    return (): void => {
+      if (onRatingUpdateId) removeCallback(onRatingUpdateId);
+    };
+  }, [onRatingUpdateId]);
+
+  const onRatingUpdate = useCallback(
+    (avgRating: number, totalReviewCount: number): void => {
+      if (onRatingUpdateId)
+        invokeCallback(onRatingUpdateId, avgRating, totalReviewCount);
+    },
+    [onRatingUpdateId]
+  );
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
   const { t } = useTranslation();
@@ -208,10 +223,10 @@ export const RestaurantDetailsScreen = ({
             const newCount = totalCount - 1;
             const newAvg =
               (averageRating * totalCount - deletedFeedback.rating) / newCount;
-            onRatingUpdate?.(newAvg, newCount);
+            onRatingUpdate(newAvg, newCount);
           } else {
             // If this was the only review, reset to 0
-            onRatingUpdate?.(0, 0);
+            onRatingUpdate(0, 0);
           }
         })
         .catch(() => {
@@ -273,14 +288,14 @@ export const RestaurantDetailsScreen = ({
         const newAvg =
           (averageRating * totalCount - oldRating + feedback.rating) /
           totalCount;
-        onRatingUpdate?.(newAvg, totalCount);
+        onRatingUpdate(newAvg, totalCount);
       } else {
         addFeedback(feedback);
         refetchVelocity();
         const newCount = totalCount + 1;
         const newAvg =
           (averageRating * totalCount + feedback.rating) / newCount;
-        onRatingUpdate?.(newAvg, newCount);
+        onRatingUpdate(newAvg, newCount);
       }
       setOwnFeedback(feedback);
     },
