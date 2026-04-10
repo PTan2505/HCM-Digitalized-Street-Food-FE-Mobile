@@ -570,6 +570,12 @@
       "voucher": "Voucher",
       "voucherOff": "Off",
       "voucherRemain": "{{count}} left"
+    },
+    "rewardModal": {
+      "congrats": "Congratulations!",
+      "title": "You've earned a reward",
+      "subtitle": "Great job completing the task. Your reward has been added to your account.",
+      "collect": "Collect Reward"
     }
   },
   "withdraw": {

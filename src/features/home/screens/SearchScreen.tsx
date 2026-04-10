@@ -10,6 +10,7 @@ import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   selectBranchImageMap,
@@ -453,12 +454,14 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
                     navigation.navigate('RestaurantDetails', {
                       branch: item,
                       displayName,
-                      onRatingUpdate: (avgRating, totalReviewCount) =>
-                        handleRatingUpdate(
-                          item.branchId,
-                          avgRating,
-                          totalReviewCount
-                        ),
+                      onRatingUpdateId: registerCallback(
+                        (avgRating, totalReviewCount) =>
+                          handleRatingUpdate(
+                            item.branchId,
+                            avgRating,
+                            totalReviewCount
+                          )
+                      ),
                     })
                   }
                 />

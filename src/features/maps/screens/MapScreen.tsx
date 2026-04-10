@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   fetchActiveBranches,
@@ -422,8 +423,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       navigation.navigate('RestaurantDetails', {
         branch,
         displayName: getDisplayName(branch),
-        onRatingUpdate: (avgRating, totalReviewCount) =>
-          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount),
+        onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount)
+        ),
       });
     },
     [navigation, getDisplayName, handleRatingUpdate]
@@ -435,8 +437,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       navigation.navigate('RestaurantSwipe', {
         branch,
         displayName: getDisplayName(branch),
-        onRatingUpdate: (avgRating, totalReviewCount) =>
-          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount),
+        onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount)
+        ),
       });
     },
     [navigation, getDisplayName, handleRatingUpdate]

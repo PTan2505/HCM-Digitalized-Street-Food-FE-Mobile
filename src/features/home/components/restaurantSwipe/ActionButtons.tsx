@@ -3,6 +3,7 @@ import reviewIcon from '@assets/icons/review.svg';
 import SvgIcon from '@components/SvgIcon';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { useNavigation } from '@react-navigation/native';
+import { registerCallback } from '@utils/callbackRegistry';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -35,7 +36,9 @@ const ActionButtons = ({
             branch,
             displayName,
             tab: 'menu',
-            onRatingUpdate,
+            onRatingUpdateId: onRatingUpdate
+              ? registerCallback(onRatingUpdate)
+              : undefined,
           });
         }}
       >
@@ -54,7 +57,9 @@ const ActionButtons = ({
             branch,
             displayName,
             tab: 'reviews',
-            onRatingUpdate,
+            onRatingUpdateId: onRatingUpdate
+              ? registerCallback(onRatingUpdate)
+              : undefined,
           });
         }}
       >
@@ -72,7 +77,9 @@ const ActionButtons = ({
             branch,
             displayName,
             tab: 'menu',
-            onRatingUpdate,
+            onRatingUpdateId: onRatingUpdate
+              ? registerCallback(onRatingUpdate)
+              : undefined,
           });
         }}
         className="h-[42px] flex-1 items-center justify-center rounded-full bg-[#FF6B2C]"

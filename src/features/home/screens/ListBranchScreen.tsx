@@ -7,6 +7,7 @@ import { useLocationPermission } from '@features/maps/hooks/useLocationPermissio
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   fetchActiveBranches,
@@ -88,8 +89,9 @@ const ListBranchItem = ({
         navigation.navigate('RestaurantSwipe', {
           branch: item,
           displayName,
-          onRatingUpdate: (avgRating, totalReviewCount) =>
-            onRatingUpdate(item.branchId, avgRating, totalReviewCount),
+          onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+            onRatingUpdate(item.branchId, avgRating, totalReviewCount)
+          ),
         })
       }
     />

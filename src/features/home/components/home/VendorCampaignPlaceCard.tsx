@@ -12,6 +12,7 @@ import {
 } from '@slices/branches';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { registerCallback } from '@utils/callbackRegistry';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -66,7 +67,7 @@ export const VendorCampaignPlaceCard = ({
         navigation.navigate('RestaurantDetails', {
           branch,
           displayName,
-          onRatingUpdate,
+          onRatingUpdateId: registerCallback(onRatingUpdate),
         })
       }
     />

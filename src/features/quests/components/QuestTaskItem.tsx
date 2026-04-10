@@ -11,6 +11,7 @@ import type {
 
 interface QuestTaskItemProps {
   task: UserQuestTaskProgress;
+  onClaimReward?: (task: UserQuestTaskProgress) => void;
 }
 
 const TASK_TYPE_ICONS: Record<

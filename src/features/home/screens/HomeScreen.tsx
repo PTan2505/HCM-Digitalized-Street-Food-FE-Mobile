@@ -26,6 +26,7 @@ import {
   selectUserDietaryPreferences,
 } from '@slices/dietary';
 import { fetchUnreadCount } from '@slices/notifications';
+import { registerCallback } from '@utils/callbackRegistry';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
@@ -657,12 +658,14 @@ export const HomeScreen = (): JSX.Element => {
                     navigation.navigate('RestaurantSwipe', {
                       branch: item,
                       displayName,
-                      onRatingUpdate: (avgRating, totalReviewCount) =>
-                        handleRatingUpdate(
-                          item.branchId,
-                          avgRating,
-                          totalReviewCount
-                        ),
+                      onRatingUpdateId: registerCallback(
+                        (avgRating, totalReviewCount) =>
+                          handleRatingUpdate(
+                            item.branchId,
+                            avgRating,
+                            totalReviewCount
+                          )
+                      ),
                     })
                   }
                 />
