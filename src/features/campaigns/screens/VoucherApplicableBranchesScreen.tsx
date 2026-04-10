@@ -1,30 +1,16 @@
-import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { ApplicableBranchGridItem } from '@features/campaigns/components/ApplicableBranchGridItem';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useSystemCampaignBranches } from '@features/campaigns/hooks/useSystemCampaignBranches';
-import type { VendorCampaignBranch } from '@features/campaigns/types/generated';
-import { PlaceCard } from '@features/home/components/common/PlaceCard';
+import { PlaceCardSkeleton } from '@features/home/components/common/HomeSkeleton';
 import SearchBar from '@features/home/components/common/SearchBar';
-import type { ActiveBranch } from '@features/home/types/branch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
-import { useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  computeDisplayName,
-  selectIsMultiBranchVendor,
-} from '@slices/branches';
 import type { Voucher } from '@slices/campaigns';
 import type { JSX } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -33,93 +19,6 @@ import {
 type VoucherApplicableBranchesScreenProps = StaticScreenProps<{
   voucher: Voucher;
 }>;
-
-// ---------------------------------------------------------------------------
-// Helper — adapt VendorCampaignBranch to ActiveBranch shape for PlaceCard
-// ---------------------------------------------------------------------------
-const toActiveBranch = (b: VendorCampaignBranch): ActiveBranch => ({
-  branchId: b.branchId,
-  vendorId: b.vendorId,
-  vendorName: b.vendorName ?? b.name,
-  managerId: b.managerId ?? 0,
-  name: b.name,
-  phoneNumber: b.phoneNumber,
-  email: b.email,
-  addressDetail: b.addressDetail,
-  ward: b.ward,
-  city: b.city,
-  lat: b.lat,
-  long: b.long,
-  createdAt: b.createdAt,
-  totalReviewCount: b.totalReviewCount,
-  totalRatingSum: 0,
-  dietaryPreferenceNames: [],
-  updatedAt: b.updatedAt ?? null,
-  isVerified: b.isVerified,
-  avgRating: b.avgRating,
-  isActive: b.isActive,
-  isSubscribed: b.isSubscribed,
-  tierId: b.tierId,
-  tierName: b.tierName,
-  finalScore: b.finalScore,
-  distanceKm: b.distanceKm ?? null,
-  dishes: [],
-});
-
-// ---------------------------------------------------------------------------
-// Per-item component — owns Redux hooks so they aren't called inside renderItem
-// ---------------------------------------------------------------------------
-interface BranchItemProps {
-  branch: VendorCampaignBranch;
-  imageUri?: string;
-}
-
-const BranchItem = ({ branch, imageUri }: BranchItemProps): JSX.Element => {
-  const { t } = useTranslation();
-  const navigation =
-    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-
-  const vendorNameFromRedux = useAppSelector(
-    (state) =>
-      state.branches.branches.find((b) => b.vendorId === branch.vendorId)
-        ?.vendorName
-  );
-  const isMultiBranchFromRedux = useAppSelector((state) =>
-    selectIsMultiBranchVendor(state, branch.vendorId)
-  );
-
-  const isMultiBranch =
-    isMultiBranchFromRedux ||
-    (!!branch.vendorName && branch.vendorName !== branch.name);
-
-  const activeBranch = useMemo(() => toActiveBranch(branch), [branch]);
-
-  const resolvedBranch = vendorNameFromRedux
-    ? { ...activeBranch, vendorName: vendorNameFromRedux }
-    : activeBranch;
-
-  const displayName = computeDisplayName(
-    resolvedBranch,
-    isMultiBranch,
-    t('branch')
-  );
-
-  return (
-    <View className="mb-3">
-      <PlaceCard
-        branch={activeBranch}
-        displayName={displayName}
-        imageUri={imageUri}
-        onPress={() =>
-          navigation.navigate('RestaurantSwipe', {
-            branch: activeBranch,
-            displayName,
-          })
-        }
-      />
-    </View>
-  );
-};
 
 // ---------------------------------------------------------------------------
 // Voucher → TicketVoucherCard helper — derives display props from Voucher
@@ -143,6 +42,11 @@ export const VoucherApplicableBranchesScreen = ({
   const { coords } = useLocationPermission();
   const { branches, imageMap, isLoading, isError, refetch } =
     useSystemCampaignBranches(voucher.campaignId, coords);
+
+  const skeletonItems = Array.from({ length: 6 }, (_, i) => ({
+    _skeleton: true as const,
+    id: i,
+  }));
 
   const filteredBranches = useMemo(() => {
     if (!searchQuery.trim()) return branches;
@@ -223,12 +127,26 @@ export const VoucherApplicableBranchesScreen = ({
       </View>
 
       {isLoading ? (
-        <>
-          <View className="bg-gray-50">{ListHeader}</View>
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          </View>
-        </>
+        <FlatList
+          data={skeletonItems}
+          keyExtractor={(item) => `skeleton-${item.id}`}
+          numColumns={2}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingBottom: 100,
+          }}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+            marginBottom: 12,
+          }}
+          renderItem={() => (
+            <View className="w-[49%]">
+              <PlaceCardSkeleton />
+            </View>
+          )}
+        />
       ) : isError ? (
         <>
           <View className="bg-gray-50">{ListHeader}</View>
@@ -251,14 +169,24 @@ export const VoucherApplicableBranchesScreen = ({
         <FlatList
           data={filteredBranches}
           keyExtractor={(item) => String(item.branchId)}
+          numColumns={2}
           ListHeaderComponent={ListHeader}
           contentContainerStyle={{
             paddingHorizontal: 16,
             paddingBottom: 100,
           }}
           showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+            marginBottom: 12,
+          }}
           renderItem={({ item }) => (
-            <BranchItem branch={item} imageUri={imageMap[item.branchId]} />
+            <View className="w-[49%]">
+              <ApplicableBranchGridItem
+                branch={item}
+                imageUri={imageMap[item.branchId]}
+              />
+            </View>
           )}
           ListEmptyComponent={
             <View className="items-center px-6 py-12">
