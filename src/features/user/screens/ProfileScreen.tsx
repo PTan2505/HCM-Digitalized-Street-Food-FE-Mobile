@@ -1,4 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@constants/colors';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
 import { ProfileActionCards } from '@features/user/components/profile/ProfileActionCards';
 import { ProfileFeatureButtons } from '@features/user/components/profile/ProfileFeatureButtons';
@@ -130,19 +131,23 @@ export const ProfileScreen = (): JSX.Element => {
 
           <View className="items-center">
             <View className="relative">
-              <Image
-                source={{ uri: getHighResAvatar(user?.avatarUrl) }}
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
-                }}
-                className="border-[3px] border-white shadow-sm"
-                resizeMode="cover"
-              />
-              <View className="absolute bottom-0 right-0 h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-primary shadow-sm">
-                <Ionicons name="checkmark-circle" size={16} color="white" />
-              </View>
+              {getHighResAvatar(user?.avatarUrl) ? (
+                <Image
+                  source={{ uri: getHighResAvatar(user?.avatarUrl) }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 40,
+                  }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <FontAwesome
+                  name="user-circle-o"
+                  size={80}
+                  color={COLORS.primary}
+                />
+              )}
             </View>
 
             <Text className="mt-3 text-lg font-bold text-gray-900">
