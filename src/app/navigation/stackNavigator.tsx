@@ -4,8 +4,13 @@ import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHisto
 import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
 import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
+import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
+import type { Voucher } from '@slices/campaigns';
+import { VoucherSelectScreen } from '@features/direct-ordering/screens/VoucherSelectScreen';
 import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
+import { FavoritesScreen } from '@features/home/screens/FavoritesScreen';
 import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
+import type { VoucherChip } from '@features/home/components/common/PlaceCard';
 import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
@@ -31,11 +36,12 @@ import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScre
 import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/campaigns/screens/SystemCampaignDetailScreen';
 import { VoucherHistoryScreen } from '@features/campaigns/screens/VoucherHistoryScreen';
+import { VoucherApplicableBranchesScreen } from '@features/campaigns/screens/VoucherApplicableBranchesScreen';
 import { VoucherMarketplaceScreen } from '@features/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
-import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
+import type { TabType } from '@features/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
 import { QuestDetailScreen } from '@features/quests/screens/QuestDetailScreen';
 import { QuestListScreen } from '@features/quests/screens/QuestListScreen';
@@ -76,7 +82,7 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branch: ActiveBranch;
         displayName: string;
-        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+        onRatingUpdateId?: string;
       },
     },
     RestaurantDetails: {
@@ -85,7 +91,7 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
-        onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+        onRatingUpdateId?: string;
       },
     },
     ReviewList: {
@@ -105,10 +111,18 @@ const RootStack = createNativeStackNavigator({
     },
     ListBranch: {
       screen: ListBranchScreen,
-      params: {} as { items?: ActiveBranch[]; title?: string },
+      params: {} as {
+        items?: ActiveBranch[];
+        title?: string;
+        vouchersByBranchId?: Record<number, VoucherChip[]>;
+      },
     },
     CurrentPickDetails: {
       screen: CurrentPickDetailsScreen,
+    },
+    Favorites: {
+      screen: FavoritesScreen,
+      linking: 'favorites',
     },
     SetupUserInfo: {
       screen: EditUserInfoScreen,
@@ -147,6 +161,15 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branchName: string;
         note?: string;
+      },
+    },
+    VoucherSelect: {
+      screen: VoucherSelectScreen,
+      params: {} as {
+        vouchers: UserVoucherApiDto[];
+        totalAmount: number;
+        selectedVoucherId?: number | null;
+        onSelect: (voucher: UserVoucherApiDto | null) => void;
       },
     },
     PaymentQR: {
@@ -193,6 +216,10 @@ const RootStack = createNativeStackNavigator({
     VoucherWallet: {
       screen: VoucherWalletScreen,
       linking: 'vouchers',
+    },
+    VoucherApplicableBranches: {
+      screen: VoucherApplicableBranchesScreen,
+      params: {} as { voucher: Voucher },
     },
     VoucherHistory: {
       screen: VoucherHistoryScreen,

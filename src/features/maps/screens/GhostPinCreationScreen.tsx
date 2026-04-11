@@ -1,3 +1,5 @@
+import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
 import type { APIErrorResponse } from '@custom-types/apiResponse';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -19,6 +21,7 @@ import {
 } from '@utils/imagePicker';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -37,6 +40,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const GhostPinCreationScreen = (): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const [name, setName] = useState('');
   const [addressQuery, setAddressQuery] = useState('');
@@ -191,8 +195,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
     const remainingSlots = MAX_IMAGES - selectedImages.length;
     if (remainingSlots <= 0) {
       Alert.alert(
-        'Giới hạn ảnh',
-        `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh`
+        t('ghost_pin_creation.alert.image_limit_title'),
+        t('ghost_pin_creation.alert.image_limit_message', { count: MAX_IMAGES })
       );
       return;
     }
@@ -204,8 +208,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
     if (result.error === 'permission_denied') {
       Alert.alert(
-        'Quyền truy cập',
-        'Vui lòng cho phép ứng dụng truy cập thư viện ảnh trong Cài đặt.'
+        t('ghost_pin_creation.alert.permission_title'),
+        t('ghost_pin_creation.alert.photo_permission_message')
       );
     } else if (result.images.length > 0) {
       setSelectedImages((prev) => [...prev, ...result.images]);
@@ -215,8 +219,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const handleTakePhoto = async (): Promise<void> => {
     if (selectedImages.length >= MAX_IMAGES) {
       Alert.alert(
-        'Giới hạn ảnh',
-        `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh`
+        t('ghost_pin_creation.alert.image_limit_title'),
+        t('ghost_pin_creation.alert.image_limit_message', { count: MAX_IMAGES })
       );
       return;
     }
@@ -225,8 +229,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
     if (result.error === 'permission_denied') {
       Alert.alert(
-        'Quyền truy cập',
-        'Vui lòng cho phép ứng dụng truy cập máy ảnh trong Cài đặt.'
+        t('ghost_pin_creation.alert.permission_title'),
+        t('ghost_pin_creation.alert.camera_permission_message')
       );
     } else if (result.images.length > 0) {
       setSelectedImages((prev) => [...prev, ...result.images]);
@@ -238,33 +242,37 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   };
 
   const showImagePickerOptions = (): void => {
-    Alert.alert('Thêm ảnh', 'Chọn nguồn ảnh', [
-      {
-        text: 'Chụp ảnh',
-        onPress: handleTakePhoto,
-      },
-      {
-        text: 'Chọn từ thư viện',
-        onPress: handlePickFromLibrary,
-      },
-      {
-        text: 'Hủy',
-        style: 'cancel',
-      },
-    ]);
+    Alert.alert(
+      t('ghost_pin_creation.alert.add_image_title'),
+      t('ghost_pin_creation.alert.choose_image_source'),
+      [
+        {
+          text: t('ghost_pin_creation.alert.take_photo'),
+          onPress: handleTakePhoto,
+        },
+        {
+          text: t('ghost_pin_creation.alert.choose_from_library'),
+          onPress: handlePickFromLibrary,
+        },
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+      ]
+    );
   };
 
   // ── Validation ──
   const validate = (): boolean => {
     let valid = true;
     if (name.trim().length < 2) {
-      setNameError('Tên quán phải có ít nhất 2 ký tự');
+      setNameError(t('ghost_pin_creation.validation.name_min_length'));
       valid = false;
     } else {
       setNameError(null);
     }
     if (!addressDetail.trim() || lat == null || long == null) {
-      setAddressError('Vui lòng chọn địa chỉ từ gợi ý hoặc bản đồ');
+      setAddressError(t('ghost_pin_creation.validation.address_required'));
       valid = false;
     } else {
       setAddressError(null);
@@ -334,15 +342,17 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         }
       }
 
-      Alert.alert('Thành công', 'Ghim quán ăn đã được tạo thành công!', [
-        { text: 'OK', onPress: (): void => navigation.goBack() },
-      ]);
+      Alert.alert(
+        t('ghost_pin_creation.alert.success_title'),
+        t('ghost_pin_creation.alert.success_message'),
+        [{ text: t('common.ok'), onPress: (): void => navigation.goBack() }]
+      );
     } catch (error: unknown) {
       const apiError = error as APIErrorResponse;
       if (apiError?.status === 409) {
-        setSubmitError('Đã có quán gần đây được ghi nhận');
+        setSubmitError(t('ghost_pin_creation.submit_error.duplicate_nearby'));
       } else {
-        setSubmitError('Không thể tạo ghim. Vui lòng thử lại.');
+        setSubmitError(t('ghost_pin_creation.submit_error.default'));
       }
     } finally {
       setIsSubmitting(false);
@@ -356,17 +366,10 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray-100"
-          >
-            <Ionicons name="chevron-back" size={22} color="#333" />
-          </TouchableOpacity>
-          <Text className="flex-1 text-lg font-bold text-gray-800">
-            Thêm quán ăn mới
-          </Text>
-        </View>
+        <Header
+          title={t('ghost_pin_creation.title')}
+          onBackPress={() => navigation.goBack()}
+        />
 
         <ScrollView
           className="flex-1"
@@ -375,14 +378,15 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         >
           {/* Name (required) */}
           <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
-              Tên quán <Text className="text-red-500">*</Text>
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
+              {t('ghost_pin_creation.form.name_label')}{' '}
+              <Text className="text-red-500">*</Text>
             </Text>
             <TextInput
               className={`rounded-xl border px-4 py-3 text-gray-800 ${
                 nameError ? 'border-red-400' : 'border-gray-200'
               }`}
-              placeholder="Nhập tên quán ăn"
+              placeholder={t('ghost_pin_creation.form.name_placeholder')}
               placeholderTextColor="#9CA3AF"
               value={name}
               onChangeText={(text) => {
@@ -393,14 +397,15 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               returnKeyType="next"
             />
             {nameError && (
-              <Text className="mt-1 text-xs text-red-500">{nameError}</Text>
+              <Text className="mt-1 text-sm text-red-500">{nameError}</Text>
             )}
           </View>
 
           {/* Address search with autocomplete */}
           <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
-              Địa chỉ <Text className="text-red-500">*</Text>
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
+              {t('ghost_pin_creation.form.address_label')}{' '}
+              <Text className="text-red-500">*</Text>
             </Text>
             <View
               className={`flex-row items-center rounded-xl border px-3 py-3 ${
@@ -410,19 +415,19 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               <Ionicons
                 name="location-outline"
                 size={18}
-                color={lat != null ? '#a1d973' : '#9CA3AF'}
+                color={lat != null ? COLORS.primary : '#9CA3AF'}
                 style={{ marginRight: 8 }}
               />
               <TextInput
                 className="flex-1 text-gray-800"
-                placeholder="Tìm kiếm địa chỉ..."
+                placeholder={t('ghost_pin_creation.form.address_placeholder')}
                 placeholderTextColor="#9CA3AF"
                 value={addressQuery}
                 onChangeText={handleAddressSearch}
                 returnKeyType="search"
               />
               {isSearching || isGeocodingAddress ? (
-                <ActivityIndicator size="small" color="#a1d973" />
+                <ActivityIndicator size="small" color={COLORS.primary} />
               ) : (
                 <TouchableOpacity
                   onPress={() => setShowLocationPicker(true)}
@@ -448,14 +453,14 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                     activeOpacity={0.7}
                   >
                     <Text
-                      className="text-sm font-medium text-gray-800"
+                      className="text-base font-medium text-gray-800"
                       numberOfLines={1}
                     >
                       {prediction.mainText}
                     </Text>
                     {prediction.secondaryText ? (
                       <Text
-                        className="mt-0.5 text-xs text-gray-400"
+                        className="mt-0.5 text-sm text-gray-400"
                         numberOfLines={1}
                       >
                         {prediction.secondaryText}
@@ -467,7 +472,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             )}
 
             {addressError && (
-              <Text className="mt-1 text-xs text-red-500">{addressError}</Text>
+              <Text className="mt-1 text-sm text-red-500">{addressError}</Text>
             )}
           </View>
 
@@ -481,13 +486,14 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                   color="#EA580C"
                   style={{ marginRight: 8 }}
                 />
-                <Text className="flex-1 text-sm font-semibold text-orange-700">
-                  Có quán ăn gần đây
+                <Text className="flex-1 text-base font-semibold text-orange-700">
+                  {t('ghost_pin_creation.nearby.title')}
                 </Text>
               </View>
-              <Text className="mt-1 px-4 text-xs text-orange-600">
-                Đã có {nearbyBranches.length} quán trong bán kính 1km. Có thể
-                quán bạn muốn thêm đã tồn tại:
+              <Text className="mt-1 px-4 text-sm text-orange-600">
+                {t('ghost_pin_creation.nearby.description', {
+                  count: nearbyBranches.length,
+                })}
               </Text>
               <FlatList
                 data={nearbyBranches
@@ -550,8 +556,12 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                         {item.distanceKm != null && (
                           <Text className="mt-0.5 text-[10px] text-orange-500">
                             {item.distanceKm < 1
-                              ? `${Math.round(item.distanceKm * 1000)}m`
-                              : `${item.distanceKm.toFixed(1)}km`}
+                              ? t('ghost_pin_creation.distance_meters', {
+                                  count: Math.round(item.distanceKm * 1000),
+                                })
+                              : t('ghost_pin_creation.distance_kilometers', {
+                                  count: Number(item.distanceKm.toFixed(1)),
+                                })}
                           </Text>
                         )}
                       </View>
@@ -564,17 +574,17 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
           {/* Feedback Section with Images */}
           <View className="mb-5">
-            <Text className="mb-1.5 text-sm font-semibold text-gray-700">
-              Đánh giá (Tùy chọn)
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
+              {t('ghost_pin_creation.feedback.title')}
             </Text>
-            <Text className="mb-3 text-xs text-gray-500">
-              Chia sẻ thêm về quán ăn và thêm ảnh minh họa
+            <Text className="mb-3 text-sm text-gray-500">
+              {t('ghost_pin_creation.feedback.subtitle')}
             </Text>
 
             {/* Star rating */}
             <View className="mb-6 mt-5 items-center">
-              <Text className="mb-3 text-sm font-medium text-gray-700">
-                Đánh giá của bạn
+              <Text className="mb-3 text-base font-medium text-gray-700">
+                {t('ghost_pin_creation.feedback.your_rating')}
               </Text>
               <View className="flex-row gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -596,8 +606,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             {/* Tags */}
             {availableTags.length > 0 && (
               <View className="mb-5">
-                <Text className="mb-3 text-sm font-medium text-gray-700">
-                  Nhãn (Tuỳ chọn)
+                <Text className="mb-3 text-base font-medium text-gray-700">
+                  {t('ghost_pin_creation.feedback.tags_label')}
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
                   {availableTags.map((tag) => {
@@ -619,7 +629,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                         }`}
                       >
                         <Text
-                          className={`text-xs font-medium ${
+                          className={`text-sm font-medium ${
                             isSelected ? 'text-white' : 'text-gray-600'
                           }`}
                         >
@@ -635,7 +645,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             {/* Feedback Text Input */}
             <TextInput
               className="mb-3 min-h-[100px] rounded-xl border border-gray-200 px-4 py-3 text-gray-800"
-              placeholder="Mô tả về quán (món ăn đặc biệt, giờ mở cửa, giá cả, đặc điểm nổi bật...)"
+              placeholder={t('ghost_pin_creation.feedback.placeholder')}
               placeholderTextColor="#9CA3AF"
               value={feedback}
               onChangeText={setFeedback}
@@ -644,8 +654,10 @@ export const GhostPinCreationScreen = (): JSX.Element => {
               maxLength={500}
               returnKeyType="default"
             />
-            <Text className="mb-3 text-xs text-gray-500">
-              {feedback.length}/500 ký tự
+            <Text className="mb-3 text-sm text-gray-500">
+              {t('ghost_pin_creation.feedback.character_count', {
+                count: feedback.length,
+              })}
             </Text>
 
             {/* Image Upload for Feedback */}
@@ -657,8 +669,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                   color="#6B7280"
                   style={{ marginRight: 6 }}
                 />
-                <Text className="text-sm font-semibold text-gray-700">
-                  Ảnh minh họa
+                <Text className="text-base font-semibold text-gray-700">
+                  {t('ghost_pin_creation.feedback.image_section_title')}
                 </Text>
               </View>
               <View className="flex-row flex-wrap gap-3">
@@ -687,14 +699,17 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                     activeOpacity={0.7}
                   >
                     <Ionicons name="camera-outline" size={28} color="#9CA3AF" />
-                    <Text className="mt-1 text-xs text-gray-400">
-                      {selectedImages.length}/{MAX_IMAGES}
+                    <Text className="mt-1 text-sm text-gray-400">
+                      {t('ghost_pin_creation.feedback.image_counter', {
+                        selected: selectedImages.length,
+                        max: MAX_IMAGES,
+                      })}
                     </Text>
                   </TouchableOpacity>
                 )}
               </View>
-              <Text className="mt-2 text-xs text-gray-500">
-                Tải lên ảnh quán, món ăn, thực đơn hoặc bảng hiệu
+              <Text className="mt-2 text-sm text-gray-500">
+                {t('ghost_pin_creation.feedback.image_hint')}
               </Text>
             </View>
           </View>
@@ -702,14 +717,14 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           {/* Error */}
           {submitError && (
             <View className="mb-5 rounded-xl bg-red-50 px-4 py-3">
-              <Text className="text-sm text-red-600">{submitError}</Text>
+              <Text className="text-base text-red-600">{submitError}</Text>
             </View>
           )}
 
           {/* Submit */}
           <TouchableOpacity
             className={`items-center rounded-xl py-4 ${
-              isSubmitting ? 'bg-gray-300' : 'bg-[#a1d973]'
+              isSubmitting ? 'bg-gray-300' : 'bg-primary'
             }`}
             onPress={handleSubmit}
             disabled={isSubmitting}
@@ -717,7 +732,9 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             {isSubmitting ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text className="text-base font-bold text-white">Xác nhận</Text>
+              <Text className="text-base font-bold text-white">
+                {t('ghost_pin_creation.form.submit')}
+              </Text>
             )}
           </TouchableOpacity>
         </ScrollView>

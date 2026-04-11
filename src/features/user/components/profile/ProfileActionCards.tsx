@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileActionCard } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
@@ -23,11 +24,11 @@ export const ProfileActionCards = ({
         >
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <Text className="mb-1 text-sm font-semibold text-gray-900">
+              <Text className="mb-1 text-base font-semibold text-gray-900">
                 {card.title}
               </Text>
               {card.subtitle && (
-                <Text className="text-xs text-gray-600" numberOfLines={1}>
+                <Text className="text-sm text-gray-600" numberOfLines={1}>
                   {card.subtitle}
                 </Text>
               )}
@@ -36,7 +37,7 @@ export const ProfileActionCards = ({
               <Ionicons
                 name={card.icon as keyof typeof Ionicons.glyphMap}
                 size={24}
-                color="#9FD356"
+                color={COLORS.primary}
               />
             )}
           </View>

@@ -25,7 +25,7 @@ export const CustomButton = ({
       onPress={onPress}
       disabled={isDisabled}
       accessibilityRole="button"
-      className={`w-full items-center justify-center rounded-2xl bg-[#06AA4C] px-4 py-5 active:opacity-50 ${
+      className={`w-full items-center justify-center rounded-2xl bg-primary-dark px-4 py-5 active:opacity-50 ${
         isDisabled ? 'opacity-60' : ''
       } ${className}`.trim()}
     >

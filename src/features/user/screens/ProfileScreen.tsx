@@ -152,7 +152,7 @@ export const ProfileScreen = (): JSX.Element => {
               className="mt-1 flex-row items-center rounded-full bg-gray-100 px-3 py-1"
               onPress={() => navigation.navigate('SetupUserInfo')}
             >
-              <Text className="mr-1 text-sm text-gray-600">
+              <Text className="mr-1 text-base text-gray-600">
                 {t('profile.view_profile', 'Xem hồ sơ')}
               </Text>
               <Ionicons name="chevron-forward" size={14} color="#666" />

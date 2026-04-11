@@ -4,6 +4,7 @@ import type {
   CheckoutCartRequest,
   ConfirmPaymentRequest,
   OrderResponse,
+  OrderStatus,
   PaginatedOrders,
 } from '@features/direct-ordering/api/cartApi';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
@@ -25,6 +26,8 @@ export interface DirectOrderingState {
   orderError: string | null;
   orderHistory: PaginatedOrders | null;
   orderHistoryLoading: boolean;
+  orderHistoryStatusFilter: OrderStatus | null;
+  orderHistoryByStatus: Record<string, PaginatedOrders>;
 }
 
 const initialState: DirectOrderingState = {
@@ -40,7 +43,12 @@ const initialState: DirectOrderingState = {
   orderError: null,
   orderHistory: null,
   orderHistoryLoading: false,
+  orderHistoryStatusFilter: null,
+  orderHistoryByStatus: {},
 };
+
+const getOrderHistoryStatusKey = (status?: OrderStatus | null): string =>
+  status == null ? 'all' : String(status);
 
 export const fetchCartThunk = createAppAsyncThunk(
   'directOrdering/fetchCart',
@@ -189,13 +197,16 @@ export const fetchOrderThunk = createAppAsyncThunk(
 export const fetchOrderHistoryThunk = createAppAsyncThunk(
   'directOrdering/fetchOrderHistory',
   async (
-    params: { pageNumber?: number; pageSize?: number } | undefined,
+    params:
+      | { pageNumber?: number; pageSize?: number; status?: OrderStatus | null }
+      | undefined,
     { rejectWithValue }
   ) => {
     try {
       const res = await axiosApi.orderApi.getMyOrders(
         params?.pageNumber,
-        params?.pageSize
+        params?.pageSize,
+        params?.status ?? undefined
       );
       return res.data;
     } catch (error) {
@@ -203,6 +214,42 @@ export const fetchOrderHistoryThunk = createAppAsyncThunk(
     }
   }
 );
+
+export const cancelOrderThunk = createAppAsyncThunk(
+  'directOrdering/cancelOrder',
+  async (orderId: number, { rejectWithValue }) => {
+    try {
+      const res = await axiosApi.orderApi.cancelOrder(orderId);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const syncOrderToHistoryFromNotificationThunk = createAppAsyncThunk(
+  'directOrdering/syncOrderToHistoryFromNotification',
+  async (orderId: number, { rejectWithValue }) => {
+    try {
+      const res = await axiosApi.orderApi.getOrderById(orderId);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+const upsertOrderInList = (
+  source: OrderResponse[],
+  order: OrderResponse
+): OrderResponse[] => {
+  const byId = new Map(source.map((item) => [item.orderId, item]));
+  byId.set(order.orderId, order);
+
+  return Array.from(byId.values()).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+};
 
 const directOrderingSlice = createSlice({
   name: 'directOrdering',
@@ -325,12 +372,76 @@ const directOrderingSlice = createSlice({
         state.orderHistoryLoading = true;
       })
       .addCase(fetchOrderHistoryThunk.fulfilled, (state, action) => {
+        const requestedPage = action.meta.arg?.pageNumber ?? 1;
+        const requestedStatus = action.meta.arg?.status ?? null;
+        const statusKey = getOrderHistoryStatusKey(requestedStatus);
+        const cachedEntry = state.orderHistoryByStatus[statusKey];
+
         state.orderHistoryLoading = false;
-        state.orderHistory = action.payload;
+
+        let mergedResult: PaginatedOrders;
+
+        if (requestedPage > 1 && cachedEntry) {
+          const existingById = new Map(
+            cachedEntry.items.map((item) => [item.orderId, item])
+          );
+
+          action.payload.items.forEach((item) => {
+            existingById.set(item.orderId, item);
+          });
+
+          mergedResult = {
+            ...action.payload,
+            items: Array.from(existingById.values()),
+          };
+        } else {
+          mergedResult = action.payload;
+        }
+
+        state.orderHistory = mergedResult;
+        state.orderHistoryByStatus[statusKey] = mergedResult;
+
+        state.orderHistoryStatusFilter = requestedStatus;
       })
       .addCase(fetchOrderHistoryThunk.rejected, (state) => {
         state.orderHistoryLoading = false;
-      });
+      })
+      .addCase(
+        syncOrderToHistoryFromNotificationThunk.fulfilled,
+        (state, action) => {
+          const order = action.payload;
+          const currentStatusKey = getOrderHistoryStatusKey(
+            state.orderHistoryStatusFilter
+          );
+          const targetStatusKey = getOrderHistoryStatusKey(order.status);
+
+          Object.entries(state.orderHistoryByStatus).forEach(
+            ([statusKey, paginated]) => {
+              const filteredItems = paginated.items.filter(
+                (item) => item.orderId !== order.orderId
+              );
+
+              const shouldInclude =
+                statusKey === 'all' || statusKey === targetStatusKey;
+
+              state.orderHistoryByStatus[statusKey] = {
+                ...paginated,
+                items: shouldInclude
+                  ? upsertOrderInList(filteredItems, order)
+                  : filteredItems,
+              };
+            }
+          );
+
+          state.activeOrder =
+            state.activeOrder?.orderId === order.orderId
+              ? order
+              : state.activeOrder;
+
+          state.orderHistory =
+            state.orderHistoryByStatus[currentStatusKey] ?? null;
+        }
+      );
   },
 });
 
@@ -362,3 +473,11 @@ export const selectOrderHistory = (state: RootState): PaginatedOrders | null =>
   state.directOrdering.orderHistory;
 export const selectOrderHistoryLoading = (state: RootState): boolean =>
   state.directOrdering.orderHistoryLoading;
+
+export const selectOrderHistoryByStatus = (
+  state: RootState,
+  status?: OrderStatus | null
+): PaginatedOrders | null => {
+  const statusKey = getOrderHistoryStatusKey(status);
+  return state.directOrdering.orderHistoryByStatus[statusKey] ?? null;
+};

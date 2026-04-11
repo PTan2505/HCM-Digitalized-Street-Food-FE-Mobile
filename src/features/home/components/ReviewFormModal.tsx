@@ -15,6 +15,7 @@ import {
 } from '@utils/imagePicker';
 import type { JSX } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -55,6 +56,7 @@ export const ReviewFormModal = ({
   onSuccess,
 }: ReviewFormModalProps): JSX.Element => {
   const isEditMode = existingFeedback != null;
+  const { t } = useTranslation();
 
   const [rating, setRating] = useState(existingFeedback?.rating ?? 0);
   const [comment, setComment] = useState(existingFeedback?.comment ?? '');
@@ -110,7 +112,7 @@ export const ReviewFormModal = ({
           .then((velocityData) => {
             if (velocityData.remainingTotalToday === 0) {
               setCanSubmitReview(false);
-              setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
+              setSubmitError(t('review.form.error_daily_limit'));
             }
           })
           .catch(() => {
@@ -120,7 +122,7 @@ export const ReviewFormModal = ({
           .finally(() => setIsCheckingLimit(false));
       }
     }
-  }, [visible, existingFeedback, isEditMode]);
+  }, [visible, existingFeedback, isEditMode, t]);
 
   const reset = (): void => {
     setRating(0);
@@ -149,13 +151,13 @@ export const ReviewFormModal = ({
     const remaining = MAX_IMAGES - keptImages.length - newImages.length;
     if (remaining <= 0) return;
 
-    Alert.alert('Thêm ảnh', undefined, [
+    Alert.alert(t('review.form.add_image_title'), undefined, [
       {
-        text: 'Chụp ảnh',
+        text: t('review.form.add_image_take_photo'),
         onPress: (): void => {
           void takePhotoWithCamera().then((result) => {
             if (result.error === 'permission_denied') {
-              setSubmitError('Cần quyền truy cập camera để chụp ảnh.');
+              setSubmitError(t('review.form.camera_permission_required'));
             } else if (result.images.length > 0) {
               addImages(result.images);
             }
@@ -163,12 +165,12 @@ export const ReviewFormModal = ({
         },
       },
       {
-        text: 'Chọn từ thư viện',
+        text: t('review.form.add_image_from_library'),
         onPress: (): void => {
           void pickImagesFromLibrary({ maxImages: remaining }).then(
             (result) => {
               if (result.error === 'permission_denied') {
-                setSubmitError('Cần quyền truy cập thư viện ảnh để chọn ảnh.');
+                setSubmitError(t('review.form.library_permission_required'));
               } else if (result.images.length > 0) {
                 addImages(result.images);
               }
@@ -176,7 +178,7 @@ export const ReviewFormModal = ({
           );
         },
       },
-      { text: 'Hủy', style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
     ]);
   };
 
@@ -211,13 +213,13 @@ export const ReviewFormModal = ({
 
   const handleSubmit = async (): Promise<void> => {
     if (rating === 0) {
-      setSubmitError('Vui lòng chọn số sao đánh giá');
+      setSubmitError(t('review.form.error_select_rating'));
       return;
     }
 
     // Check daily limit (only in write mode)
     if (!isEditMode && !canSubmitReview) {
-      setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
+      setSubmitError(t('review.form.error_daily_limit'));
       return;
     }
 
@@ -264,14 +266,13 @@ export const ReviewFormModal = ({
       const apiErr = err as { status?: number; message?: string };
       if (apiErr?.status === 400) {
         setSubmitError(
-          apiErr.message ??
-            'Không thể gửi đánh giá. Bạn có thể không ở gần quán.'
+          apiErr.message ?? t('review.form.error_submit_not_near')
         );
       } else if (apiErr?.status === 429) {
-        setSubmitError('Bạn đã đánh giá đủ số lần cho phép hôm nay.');
+        setSubmitError(t('review.form.error_daily_limit'));
         setCanSubmitReview(false); // Prevent retry
       } else {
-        setSubmitError('Gửi đánh giá thất bại. Vui lòng thử lại.');
+        setSubmitError(t('review.form.error_submit_default'));
       }
     } finally {
       setIsSubmitting(false);
@@ -295,7 +296,9 @@ export const ReviewFormModal = ({
             <Ionicons name="close" size={24} color="#374151" />
           </TouchableOpacity>
           <Text className="text-base font-semibold text-gray-900">
-            {isEditMode ? 'Chỉnh sửa đánh giá' : 'Viết đánh giá'}
+            {isEditMode
+              ? t('review.form.title_edit')
+              : t('review.form.title_write')}
           </Text>
           <View style={{ width: 24 }} />
         </View>
@@ -307,10 +310,18 @@ export const ReviewFormModal = ({
           showsVerticalScrollIndicator={false}
           automaticallyAdjustKeyboardInsets
         >
+          {isEditMode && (
+            <View className="mb-4 mt-5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+              <Text className="text-sm text-amber-700">
+                {t('review.form.edit_notice')}
+              </Text>
+            </View>
+          )}
+
           {/* Star rating */}
-          <View className="mb-6 mt-5 items-center">
-            <Text className="mb-3 text-sm font-medium text-gray-700">
-              Đánh giá của bạn
+          <View className={`mb-6 items-center ${isEditMode ? '' : 'mt-5'}`}>
+            <Text className="mb-3 text-base font-medium text-gray-700">
+              {t('review.form.your_rating')}
             </Text>
             <View className="flex-row gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -332,8 +343,8 @@ export const ReviewFormModal = ({
           {/* Dish selector */}
           {dishes.length > 0 && (
             <View className="mb-5">
-              <Text className="mb-3 text-sm font-medium text-gray-700">
-                Món ăn (Tuỳ chọn)
+              <Text className="mb-3 text-base font-medium text-gray-700">
+                {t('review.form.dish_optional')}
               </Text>
               <ScrollView
                 horizontal
@@ -372,8 +383,8 @@ export const ReviewFormModal = ({
                           />
                           {dish.isSoldOut && (
                             <View className="absolute inset-0 items-center justify-center bg-black/50">
-                              <Text className="text-xs font-semibold text-white">
-                                HẾT HÀNG
+                              <Text className="text-sm font-semibold text-white">
+                                {t('actions.sold_out')}
                               </Text>
                             </View>
                           )}
@@ -399,8 +410,8 @@ export const ReviewFormModal = ({
                             color={dish.isSoldOut ? '#9CA3AF' : '#D1D5DB'}
                           />
                           {dish.isSoldOut && (
-                            <Text className="mt-1 text-xs font-semibold text-gray-500">
-                              HẾT HÀNG
+                            <Text className="mt-1 text-sm font-semibold text-gray-500">
+                              {t('actions.sold_out')}
                             </Text>
                           )}
                           {isSelected && !dish.isSoldOut && (
@@ -418,7 +429,7 @@ export const ReviewFormModal = ({
                       {/* Dish Details */}
                       <View className="p-3">
                         <Text
-                          className={`mb-1 text-sm font-semibold ${
+                          className={`mb-1 text-base font-semibold ${
                             dish.isSoldOut
                               ? 'text-gray-400'
                               : isSelected
@@ -431,7 +442,7 @@ export const ReviewFormModal = ({
                         </Text>
 
                         <Text
-                          className={`mb-2 text-xs font-medium ${
+                          className={`mb-2 text-sm font-medium ${
                             dish.isSoldOut ? 'text-gray-400' : 'text-primary'
                           }`}
                         >
@@ -440,7 +451,7 @@ export const ReviewFormModal = ({
 
                         {dish.description && (
                           <Text
-                            className={`mb-2 text-xs ${
+                            className={`mb-2 text-sm ${
                               dish.isSoldOut ? 'text-gray-400' : 'text-gray-600'
                             }`}
                             numberOfLines={2}
@@ -512,8 +523,8 @@ export const ReviewFormModal = ({
           {/* Tags */}
           {availableTags.length > 0 && (
             <View className="mb-5">
-              <Text className="mb-3 text-sm font-medium text-gray-700">
-                Nhãn (Tuỳ chọn)
+              <Text className="mb-3 text-base font-medium text-gray-700">
+                {t('review.form.tags_optional')}
               </Text>
               <View className="flex-row flex-wrap gap-2">
                 {availableTags.map((tag) => {
@@ -535,7 +546,7 @@ export const ReviewFormModal = ({
                       }`}
                     >
                       <Text
-                        className={`text-xs font-medium ${
+                        className={`text-sm font-medium ${
                           isSelected ? 'text-white' : 'text-gray-600'
                         }`}
                       >
@@ -553,15 +564,15 @@ export const ReviewFormModal = ({
             className="mb-5"
             onLayout={(e) => setCommentY(e.nativeEvent.layout.y)}
           >
-            <Text className="mb-2 text-sm font-medium text-gray-700">
-              Nhận xét
+            <Text className="mb-2 text-base font-medium text-gray-700">
+              {t('review.form.comment')}
             </Text>
             <TextInput
               value={comment}
               onChangeText={(text) => {
                 if (text.length <= MAX_COMMENT_LENGTH) setComment(text);
               }}
-              placeholder="Chia sẻ trải nghiệm của bạn..."
+              placeholder={t('review.form.comment_placeholder')}
               placeholderTextColor="#9CA3AF"
               multiline
               numberOfLines={4}
@@ -574,10 +585,10 @@ export const ReviewFormModal = ({
                   });
                 }, 100);
               }}
-              className="rounded-xl border border-gray-200 p-3 text-sm text-gray-900"
+              className="rounded-xl border border-gray-200 p-3 text-base text-gray-900"
               style={{ minHeight: 100 }}
             />
-            <Text className="mt-1 text-right text-xs text-gray-400">
+            <Text className="mt-1 text-right text-sm text-gray-400">
               {comment.length}/{MAX_COMMENT_LENGTH}
             </Text>
           </View>
@@ -585,10 +596,10 @@ export const ReviewFormModal = ({
           {/* Images */}
           <View className="mb-5">
             <View className="mb-2 flex-row items-center justify-between">
-              <Text className="text-sm font-medium text-gray-700">
-                Hình ảnh (Tuỳ chọn)
+              <Text className="text-base font-medium text-gray-700">
+                {t('review.form.images_optional')}
               </Text>
-              <Text className="text-xs text-gray-400">
+              <Text className="text-sm text-gray-400">
                 {totalImageCount}/{MAX_IMAGES}
               </Text>
             </View>
@@ -642,7 +653,7 @@ export const ReviewFormModal = ({
                 >
                   <Ionicons name="camera-outline" size={24} color="#9CA3AF" />
                   <Text className="mt-1 text-[10px] text-gray-400">
-                    Thêm ảnh
+                    {t('review.form.add_image')}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -652,7 +663,7 @@ export const ReviewFormModal = ({
           {/* Error message */}
           {submitError && (
             <View className="mb-4 rounded-lg bg-red-50 px-3 py-2">
-              <Text className="text-sm text-red-600">{submitError}</Text>
+              <Text className="text-base text-red-600">{submitError}</Text>
             </View>
           )}
         </ScrollView>
@@ -680,13 +691,15 @@ export const ReviewFormModal = ({
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <Text
-                className={`text-sm font-semibold ${
+                className={`text-base font-semibold ${
                   rating === 0 || (!isEditMode && !canSubmitReview)
                     ? 'text-gray-400'
                     : 'text-white'
                 }`}
               >
-                {isEditMode ? 'Lưu thay đổi' : 'Gửi đánh giá'}
+                {isEditMode
+                  ? t('review.form.save_changes')
+                  : t('review.form.submit')}
               </Text>
             )}
           </TouchableOpacity>

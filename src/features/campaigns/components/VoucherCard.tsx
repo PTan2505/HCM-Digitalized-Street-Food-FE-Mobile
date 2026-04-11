@@ -47,7 +47,7 @@ export const VoucherCard = ({
         {/* Discount badge */}
         <View
           className={`w-20 items-center justify-center ${
-            isExpired ? 'bg-gray-200' : 'bg-[#a1d973]'
+            isExpired ? 'bg-gray-200' : 'bg-primary'
           }`}
         >
           <Text
@@ -56,7 +56,7 @@ export const VoucherCard = ({
             {discountLabel}
           </Text>
           <Text
-            className={`text-xs ${isExpired ? 'text-gray-400' : 'text-white/80'}`}
+            className={`text-sm ${isExpired ? 'text-gray-400' : 'text-white/80'}`}
           >
             {t('campaign.off')}
           </Text>
@@ -66,21 +66,21 @@ export const VoucherCard = ({
         <View className="flex-1 p-3">
           <View className="flex-row items-center">
             <Text
-              className={`flex-1 text-sm font-bold ${isExpired ? 'text-gray-400' : 'text-gray-900'}`}
+              className={`flex-1 text-base font-bold ${isExpired ? 'text-gray-400' : 'text-gray-900'}`}
               numberOfLines={1}
             >
               {voucher.voucherName}
             </Text>
             {isExpired && (
               <View className="ml-2 rounded bg-gray-300 px-1.5 py-0.5">
-                <Text className="text-xs text-gray-500">
+                <Text className="text-sm text-gray-500">
                   {t('campaign.expired')}
                 </Text>
               </View>
             )}
             {isExpiringSoon && !isExpired && (
               <View className="ml-2 rounded bg-amber-100 px-1.5 py-0.5">
-                <Text className="text-xs text-amber-600">
+                <Text className="text-sm text-amber-600">
                   {t('campaign.expiring_soon')}
                 </Text>
               </View>
@@ -89,7 +89,7 @@ export const VoucherCard = ({
 
           <View className="mt-1 flex-row items-center">
             <Ionicons name="time-outline" size={12} color="#9CA3AF" />
-            <Text className="ml-1 text-xs text-gray-400">
+            <Text className="ml-1 text-sm text-gray-400">
               {t('campaign.expires')}: {expiryDate}
             </Text>
           </View>
@@ -99,16 +99,16 @@ export const VoucherCard = ({
       {/* Expanded details */}
       {isExpanded && (
         <View className="border-t border-dashed border-gray-200 px-4 py-3">
-          <Text className="mb-1 text-xs text-gray-500">{scopeLabel}</Text>
+          <Text className="mb-1 text-sm text-gray-500">{scopeLabel}</Text>
           {voucher.minAmountRequired != null && (
-            <Text className="text-xs text-gray-400">
+            <Text className="text-sm text-gray-400">
               {t('campaign.min_order', {
                 amount: voucher.minAmountRequired.toLocaleString(),
               })}
             </Text>
           )}
           {voucher.description && (
-            <Text className="mt-1 text-xs text-gray-400">
+            <Text className="mt-1 text-sm text-gray-400">
               {voucher.description}
             </Text>
           )}

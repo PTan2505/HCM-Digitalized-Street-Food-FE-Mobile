@@ -22,7 +22,7 @@ const CategoryCard = ({
     >
       <View
         className={`mb-2 h-20 w-20 items-center justify-center rounded-full bg-white ${
-          selected ? 'border-[2px] border-[#06AA4C] p-[3px]' : ''
+          selected ? 'border-[2px] border-primary-dark p-[3px]' : ''
         }`}
       >
         <Image
@@ -31,7 +31,7 @@ const CategoryCard = ({
           resizeMode="cover"
         />
       </View>
-      <Text className="text-center text-sm font-medium text-gray-900">
+      <Text className="text-center text-base font-medium text-gray-900">
         {title.toUpperCase()}
       </Text>
     </TouchableOpacity>

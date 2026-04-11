@@ -4,6 +4,7 @@ import type {
   PaginatedQuests,
   QuestBadgeDetail,
   QuestResponse,
+  QuestTaskResponse,
   QuestVoucherDetail,
   UserQuestProgress,
 } from '@features/quests/types/quest';
@@ -55,6 +56,13 @@ export class QuestApi {
     return res.data;
   }
 
+  async getQuestTaskById(questTaskId: number): Promise<QuestTaskResponse> {
+    const res = await this.apiClient.get<QuestTaskResponse>({
+      url: `/api/Quest/task/${questTaskId}`,
+    });
+    return res.data;
+  }
+
   async getBadgeById(badgeId: number): Promise<QuestBadgeDetail> {
     const res = await this.apiClient.get<QuestBadgeDetail>({
       url: `/api/Badge/${badgeId}`,
@@ -65,6 +73,13 @@ export class QuestApi {
   async getVoucherById(voucherId: number): Promise<QuestVoucherDetail> {
     const res = await this.apiClient.get<QuestVoucherDetail>({
       url: `/api/vouchers/${voucherId}`,
+    });
+    return res.data;
+  }
+
+  async getCampaignById(campaignId: number): Promise<{ name: string }> {
+    const res = await this.apiClient.get<{ name: string }>({
+      url: `/api/Campaign/${campaignId}`,
     });
     return res.data;
   }

@@ -1,3 +1,6 @@
+import Header from '@components/Header';
+import TabBar from '@components/TabBar';
+import { COLORS } from '@constants/colors';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import {
@@ -5,26 +8,19 @@ import {
   type VoucherTab,
 } from '@features/campaigns/hooks/useVoucherWallet';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { Voucher } from '@slices/campaigns';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
-  LayoutChangeEvent,
   RefreshControl,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, {
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface TabConfig {
@@ -32,21 +28,10 @@ interface TabConfig {
   labelKey: string;
 }
 
-interface TabLayout {
-  x: number;
-  width: number;
-}
-
-interface AnimatedTabLabelProps {
-  isActive: boolean;
-  label: string;
-}
-
 const TABS: TabConfig[] = [
-  { key: 'all', labelKey: 'campaign.voucher_tab_all' },
-  { key: 'campaign', labelKey: 'campaign.voucher_tab_campaign' },
-  { key: 'system', labelKey: 'campaign.voucher_tab_system' },
-  { key: 'restaurant', labelKey: 'campaign.voucher_tab_vendor' },
+  { key: 'all', labelKey: 'voucher_wallet.voucher_tab_all' },
+  { key: 'campaign', labelKey: 'voucher_wallet.voucher_tab_campaign' },
+  { key: 'system', labelKey: 'voucher_wallet.voucher_tab_system' },
 ];
 
 const getExpiresAt = (voucher: Voucher): Date =>
@@ -67,34 +52,10 @@ const isExpiringSoon = (voucher: Voucher): boolean => {
   return hoursLeft > 0 && hoursLeft <= 24;
 };
 
-const AnimatedTabLabel = ({
-  isActive,
-  label,
-}: AnimatedTabLabelProps): JSX.Element => {
-  const activeProgress = useSharedValue(isActive ? 1 : 0);
-
-  useEffect(() => {
-    activeProgress.value = withTiming(isActive ? 1 : 0, { duration: 220 });
-  }, [activeProgress, isActive]);
-
-  const textStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(
-      activeProgress.value,
-      [0, 1],
-      ['#6B7280', '#89D151']
-    ),
-  }));
-
-  return (
-    <Animated.Text className="text-sm font-semibold" style={textStyle}>
-      {label}
-    </Animated.Text>
-  );
-};
-
 export const VoucherWalletScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { isLoading, error, handleRefresh, getDisplayedVouchers, tabCount } =
     useVoucherWallet();
 
@@ -102,57 +63,16 @@ export const VoucherWalletScreen = (): JSX.Element => {
   const [expandedVoucherId, setExpandedVoucherId] = useState<number | null>(
     null
   );
-  const [tabLayouts, setTabLayouts] = useState<
-    Partial<Record<VoucherTab, TabLayout>>
-  >({});
 
-  const indicatorX = useSharedValue(0);
-  const indicatorWidth = useSharedValue(0);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
-    width: indicatorWidth.value,
-  }));
-
-  const animateIndicator = useCallback(
-    (tab: VoucherTab) => {
-      const layout = tabLayouts[tab];
-      if (!layout) {
-        return;
-      }
-
-      indicatorX.value = withTiming(layout.x, { duration: 220 });
-      indicatorWidth.value = withTiming(layout.width, { duration: 220 });
-    },
-    [indicatorWidth, indicatorX, tabLayouts]
+  const tabs = useMemo(
+    () => TABS.map((tab) => ({ key: tab.key, label: t(tab.labelKey) })),
+    [t]
   );
 
-  useEffect(() => {
-    animateIndicator(activeTab);
-  }, [activeTab, animateIndicator]);
-
-  const handleTabChange = useCallback(
-    (key: VoucherTab) => {
-      setActiveTab(key);
-      setExpandedVoucherId(null);
-      animateIndicator(key);
-    },
-    [animateIndicator]
-  );
-
-  const handleTabLayout = useCallback(
-    (tab: VoucherTab, event: LayoutChangeEvent) => {
-      const { x, width } = event.nativeEvent.layout;
-      setTabLayouts((prev) => {
-        const previousLayout = prev[tab];
-        if (previousLayout?.x === x && previousLayout?.width === width) {
-          return prev;
-        }
-        return { ...prev, [tab]: { x, width } };
-      });
-    },
-    []
-  );
+  const handleTabChange = useCallback((key: VoucherTab) => {
+    setActiveTab(key);
+    setExpandedVoucherId(null);
+  }, []);
 
   const handleVoucherPress = useCallback((voucher: Voucher) => {
     setExpandedVoucherId((prev) =>
@@ -164,91 +84,37 @@ export const VoucherWalletScreen = (): JSX.Element => {
 
   const emptyKey =
     activeTab === 'system'
-      ? 'campaign.voucher_empty_system'
+      ? 'voucher_wallet.voucher_empty_system'
       : activeTab === 'restaurant'
-        ? 'campaign.voucher_empty_vendor'
-        : 'campaign.voucher_empty';
+        ? 'voucher_wallet.voucher_empty_vendor'
+        : 'voucher_wallet.voucher_empty';
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 pb-8 pt-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900">
-          {t('campaign.voucher_wallet')}
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('VoucherHistory')}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <MaterialIcons name="history" size={24} color="#111827" />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title={t('voucher_wallet.voucher_wallet')}
+        onBackPress={() => navigation.goBack()}
+        secondaryAction={{
+          label: t('voucher_wallet.history'),
+          icon: <MaterialIcons name="history" size={24} color="#111827" />,
+          onPress: () => navigation.navigate('VoucherHistory'),
+        }}
+      />
 
       {/* Tabs */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
-        className="border-b border-gray-200"
-        style={{ flexGrow: 0 }}
-      >
-        <View className="relative flex-row gap-2">
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.key;
-            const count = tabCount(tab.key);
-            return (
-              <TouchableOpacity
-                key={tab.key}
-                onPress={() => handleTabChange(tab.key)}
-                onLayout={(event) => handleTabLayout(tab.key, event)}
-                className={`flex-row items-center gap-1 px-4 py-1`}
-              >
-                <AnimatedTabLabel isActive={isActive} label={t(tab.labelKey)} />
-                {count > 0 && (
-                  <View
-                    className={`rounded-full px-1.5 py-0.5 ${
-                      isActive ? 'bg-gray-300' : 'bg-gray-200'
-                    }`}
-                  >
-                    <Text
-                      className={`text-xs font-bold ${
-                        isActive ? 'text-white' : 'text-gray-500'
-                      }`}
-                    >
-                      {count}
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              {
-                position: 'absolute',
-                bottom: -12,
-                left: 0,
-                height: 2,
-                backgroundColor: '#a1d973',
-              },
-              indicatorStyle,
-            ]}
-          />
-        </View>
-      </ScrollView>
+      <TabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        tabCount={tabCount}
+        variant="equal"
+      />
 
       {/* Content */}
       {isLoading && displayedVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error && displayedVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
@@ -258,10 +124,10 @@ export const VoucherWalletScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={handleRefresh}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2.5"
+            className="mt-4 rounded-full bg-primary px-6 py-2.5"
           >
             <Text className="text-base font-semibold text-white">
-              {t('campaign.retry')}
+              {t('voucher_wallet.retry')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -273,10 +139,10 @@ export const VoucherWalletScreen = (): JSX.Element => {
           </Text>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2.5"
+            className="mt-4 rounded-full bg-primary px-6 py-2.5"
           >
             <Text className="text-base font-semibold text-white">
-              {t('campaign.discover_campaigns')}
+              {t('voucher_wallet.discover_campaigns')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -290,8 +156,8 @@ export const VoucherWalletScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isLoading}
               onRefresh={handleRefresh}
-              tintColor="#a1d973"
-              colors={['#a1d973']}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
             />
           }
           renderItem={({ item }) => {
@@ -307,6 +173,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
                   onPress={() => handleVoucherPress(item)}
                 >
                   <TicketVoucherCard
+                    quantity={item.quantity}
                     disabled={disabled}
                     discountText={
                       item.voucherType.toUpperCase().includes('PERCENT')
@@ -316,7 +183,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     title={item.voucherName}
                     subtitle={
                       item.maxDiscountValue != null
-                        ? t('campaign.max_discount', {
+                        ? t('voucher_wallet.max_discount', {
                             amount:
                               item.maxDiscountValue.toLocaleString('vi-VN'),
                           })
@@ -325,18 +192,18 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     expiresText={getExpiresAt(item).toLocaleDateString('vi-VN')}
                     secondaryMetaText={
                       used
-                        ? t('campaign.voucher_not_available')
+                        ? t('voucher_wallet.voucher_not_available')
                         : expired
-                          ? t('campaign.expired')
+                          ? t('voucher_wallet.expired')
                           : notYetActive
-                            ? t('campaign.starts_on', {
+                            ? t('voucher_wallet.starts_on', {
                                 date: new Date(
                                   item.startDate ?? ''
                                 ).toLocaleDateString('vi-VN'),
                               })
                             : isExpiringSoon(item)
-                              ? t('campaign.expiring_soon')
-                              : t('campaign.voucher_active')
+                              ? t('voucher_wallet.expiring_soon')
+                              : t('voucher_wallet.voucher_active')
                     }
                     secondaryMetaIcon={
                       used
@@ -351,19 +218,23 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     }
                     tertiaryMetaText={
                       item.minAmountRequired != null
-                        ? t('campaign.min_order', {
+                        ? t('voucher_wallet.min_order', {
                             amount:
                               item.minAmountRequired.toLocaleString('vi-VN'),
                           })
                         : undefined
                     }
                     actionLabel={
-                      disabled ? undefined : t('campaign.voucher_apply')
+                      disabled ? undefined : t('voucher_wallet.voucher_apply')
                     }
                     onActionPress={
                       disabled
                         ? undefined
-                        : (): void => handleVoucherPress(item)
+                        : (): void => {
+                            navigation.navigate('VoucherApplicableBranches', {
+                              voucher: item,
+                            });
+                          }
                     }
                     actionDisabled={disabled}
                   />
@@ -378,31 +249,31 @@ export const VoucherWalletScreen = (): JSX.Element => {
                           size={14}
                           color="#9CA3AF"
                         />
-                        <Text className="text-sm font-semibold text-gray-400">
-                          {t('campaign.voucher_not_available')}
+                        <Text className="text-base font-semibold text-gray-400">
+                          {t('voucher_wallet.voucher_not_available')}
                         </Text>
                       </View>
                     )}
-                    <Text className="text-sm text-gray-500">
+                    <Text className="text-base text-gray-500">
                       {item.campaignId == null
-                        ? t('campaign.scope_participating')
-                        : t('campaign.scope_restaurant', { name: '' })}
+                        ? t('voucher_wallet.scope_participating')
+                        : t('voucher_wallet.scope_restaurant', { name: '' })}
                     </Text>
-                    <Text className="mt-0.5 text-sm text-gray-400">
-                      {t('campaign.valid_until', {
+                    <Text className="mt-0.5 text-base text-gray-400">
+                      {t('voucher_wallet.valid_until', {
                         date: getExpiresAt(item).toLocaleDateString('vi-VN'),
                       })}
                     </Text>
                     {item.minAmountRequired != null && (
-                      <Text className="mt-0.5 text-sm text-gray-400">
-                        {t('campaign.min_order', {
+                      <Text className="mt-0.5 text-base text-gray-400">
+                        {t('voucher_wallet.min_order', {
                           amount:
                             item.minAmountRequired.toLocaleString('vi-VN'),
                         })}
                       </Text>
                     )}
                     {item.description ? (
-                      <Text className="mt-1 text-sm text-gray-400">
+                      <Text className="mt-1 text-base text-gray-400">
                         {item.description}
                       </Text>
                     ) : null}

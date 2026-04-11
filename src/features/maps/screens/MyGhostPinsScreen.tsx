@@ -1,9 +1,12 @@
+import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { MyGhostPinBranch } from '@features/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -30,7 +33,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
       {/* Name + status badge */}
       <View className="mb-2 flex-row items-start justify-between gap-2">
         <Text
-          className="flex-1 text-base font-bold text-gray-800"
+          className="flex-1 text-lg font-bold text-gray-800"
           numberOfLines={2}
         >
           {item.name}
@@ -40,7 +43,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
           style={{ backgroundColor: status.bg }}
         >
           <Text
-            className="text-xs font-semibold"
+            className="text-sm font-semibold"
             style={{ color: status.color }}
           >
             {status.label}
@@ -56,7 +59,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
           color="#9CA3AF"
           style={{ marginTop: 2 }}
         />
-        <Text className="flex-1 text-sm text-gray-500" numberOfLines={2}>
+        <Text className="flex-1 text-base text-gray-500" numberOfLines={2}>
           {item.addressDetail}
           {item.ward ? `, ${item.ward}` : ''}
           {item.city ? `, ${item.city}` : ''}
@@ -67,20 +70,20 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
       <View className="flex-row gap-4">
         <View className="flex-row items-center gap-1">
           <Ionicons name="star" size={13} color="#F59E0B" />
-          <Text className="text-xs text-gray-600">
+          <Text className="text-sm text-gray-600">
             {item.avgRating > 0 ? item.avgRating.toFixed(1) : '–'}
           </Text>
         </View>
         <View className="flex-row items-center gap-1">
           <Ionicons name="chatbubble-outline" size={13} color="#9CA3AF" />
-          <Text className="text-xs text-gray-600">
+          <Text className="text-sm text-gray-600">
             {item.totalReviewCount} đánh giá
           </Text>
         </View>
         {item.isVerified && (
           <View className="flex-row items-center gap-1">
             <Ionicons name="checkmark-circle" size={13} color="#16A34A" />
-            <Text className="text-xs text-green-700">Đã xác minh</Text>
+            <Text className="text-sm text-green-700">Đã xác minh</Text>
           </View>
         )}
       </View>
@@ -88,14 +91,14 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
       {/* Reject reason */}
       {item.licenseStatus === 'Reject' && item.licenseRejectReason && (
         <View className="mt-3 rounded-xl bg-red-50 px-3 py-2">
-          <Text className="text-xs text-red-600">
+          <Text className="text-sm text-red-600">
             Lý do từ chối: {item.licenseRejectReason}
           </Text>
         </View>
       )}
 
       {/* Created date */}
-      <Text className="mt-3 text-xs text-gray-400">
+      <Text className="mt-3 text-sm text-gray-400">
         Đã tạo: {new Date(item.createdAt).toLocaleDateString('vi-VN')}
       </Text>
     </View>
@@ -104,6 +107,7 @@ const GhostPinCard = ({ item }: { item: MyGhostPinBranch }): JSX.Element => {
 
 export const MyGhostPinsScreen = (): JSX.Element => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const [branches, setBranches] = useState<MyGhostPinBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -131,37 +135,29 @@ export const MyGhostPinsScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 bg-white px-4 py-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-3 h-9 w-9 items-center justify-center rounded-full bg-gray-100"
-        >
-          <Ionicons name="chevron-back" size={22} color="#333" />
-        </TouchableOpacity>
-        <Text className="flex-1 text-lg font-bold text-gray-800">
-          Quán tôi đã thêm
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('GhostPinCreation')}
-          className="h-9 w-9 items-center justify-center rounded-full bg-[#a1d973]"
-        >
-          <Ionicons name="add" size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title={t('my_ghost_pins.title')}
+        onBackPress={() => navigation.goBack()}
+        secondaryAction={{
+          label: t('my_ghost_pins.add_action'),
+          icon: <Ionicons name="add" size={18} color="#111827" />,
+          onPress: () => navigation.navigate('GhostPinCreation'),
+        }}
+      />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
           <Ionicons name="cloud-offline-outline" size={48} color="#D1D5DB" />
-          <Text className="mt-3 text-center text-sm text-gray-500">
+          <Text className="mt-3 text-center text-base text-gray-500">
             {error}
           </Text>
           <TouchableOpacity
             onPress={() => void load()}
-            className="mt-4 rounded-xl bg-[#a1d973] px-6 py-3"
+            className="mt-4 rounded-xl bg-primary px-6 py-3"
           >
             <Text className="font-semibold text-white">Thử lại</Text>
           </TouchableOpacity>
@@ -179,7 +175,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={() => void load(true)}
-              tintColor="#a1d973"
+              tintColor={COLORS.primary}
             />
           }
           ListEmptyComponent={
@@ -188,12 +184,12 @@ export const MyGhostPinsScreen = (): JSX.Element => {
               <Text className="mt-4 text-base font-semibold text-gray-400">
                 Chưa có quán nào
               </Text>
-              <Text className="mt-1 text-center text-sm text-gray-400">
+              <Text className="mt-1 text-center text-base text-gray-400">
                 Thêm quán ăn mới để giúp cộng đồng khám phá
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('GhostPinCreation')}
-                className="mt-5 rounded-xl bg-[#a1d973] px-6 py-3"
+                className="mt-5 rounded-xl bg-primary px-6 py-3"
               >
                 <Text className="font-semibold text-white">Thêm quán mới</Text>
               </TouchableOpacity>

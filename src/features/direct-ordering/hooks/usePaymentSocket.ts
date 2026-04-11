@@ -12,6 +12,8 @@ interface PaymentStatusPayload {
 }
 
 const HUB_URL = `${process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '')}/hubs/notifications`;
+const MAX_RETRY_DELAY_MS = 30_000;
+const INITIAL_RETRY_DELAY_MS = 2_000;
 
 export const usePaymentSocket = (
   orderCode: number | null
@@ -20,20 +22,6 @@ export const usePaymentSocket = (
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const orderCodeRef = useRef<number | null>(orderCode);
 
-  const startConnection = (connection: signalR.HubConnection): void => {
-    if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-    connection.start().catch(() => {
-      // Silent — OrderStatus polling is the fallback
-    });
-  };
-
-  const stopConnection = (connection: signalR.HubConnection): void => {
-    if (connection.state === signalR.HubConnectionState.Disconnected) return;
-    connection.stop().catch(() => {
-      // Silent — connection may already be in transition
-    });
-  };
-
   useEffect(() => {
     orderCodeRef.current = orderCode;
   }, [orderCode]);
@@ -41,50 +29,89 @@ export const usePaymentSocket = (
   useEffect(() => {
     if (!orderCode) return;
 
-    const buildAndStart = (): signalR.HubConnection => {
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(HUB_URL, {
-          accessTokenFactory: () => tokenManagement.getAccessToken(),
-        })
-        .withAutomaticReconnect()
-        .configureLogging(signalR.LogLevel.Warning)
-        .build();
+    let cancelled = false;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-      connection.on('PaymentStatusUpdate', (payload: PaymentStatusPayload) => {
-        if (payload.orderCode !== orderCodeRef.current) return;
-        const status = payload.status.toUpperCase();
-        if (
-          status === 'PAID' ||
-          status === 'CANCELLED' ||
-          status === 'EXPIRED'
-        ) {
-          setPaymentStatus(status as PaymentSocketStatus);
-        }
-      });
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => tokenManagement.getAccessToken(),
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build();
 
-      startConnection(connection);
+    connection.on('PaymentStatusUpdate', (payload: PaymentStatusPayload) => {
+      if (payload.orderCode !== orderCodeRef.current) return;
+      const status = payload.status.toUpperCase();
+      if (status === 'PAID' || status === 'CANCELLED' || status === 'EXPIRED') {
+        setPaymentStatus(status as PaymentSocketStatus);
+      }
+    });
 
-      return connection;
+    connectionRef.current = connection;
+
+    // Retry with exponential backoff on initial connection failure.
+    // withAutomaticReconnect() only handles drops after a successful connection.
+    const scheduleRetry = (delay: number): void => {
+      console.log(`[PaymentSocket] Retrying in ${delay}ms...`);
+      retryTimeout = setTimeout(() => {
+        retryTimeout = null;
+        connect(delay);
+      }, delay);
     };
 
-    connectionRef.current = buildAndStart();
+    const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
+      if (cancelled) return;
+      if (connection.state !== signalR.HubConnectionState.Disconnected) return;
+      console.log(`[PaymentSocket] Connecting... (orderCode=${orderCode})`);
+      connection
+        .start()
+        .then(() => {
+          console.log(`[PaymentSocket] Connected (orderCode=${orderCode})`);
+        })
+        .catch((err: unknown) => {
+          console.warn(
+            `[PaymentSocket] Connection failed (orderCode=${orderCode}):`,
+            err
+          );
+          if (cancelled) return;
+          scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+        });
+    };
+
+    const disconnect = (): void => {
+      if (retryTimeout !== null) {
+        clearTimeout(retryTimeout);
+        retryTimeout = null;
+      }
+      if (
+        connection.state === signalR.HubConnectionState.Disconnected ||
+        connection.state === signalR.HubConnectionState.Connecting
+      )
+        return;
+      console.log(`[PaymentSocket] Disconnecting... (orderCode=${orderCode})`);
+      connection.stop().catch(() => {});
+    };
+
+    connect();
 
     // When app returns from background (e.g. banking app), reconnect if disconnected
     const subscription = AppState.addEventListener('change', (nextState) => {
-      const conn = connectionRef.current;
-      if (!conn) return;
+      if (cancelled) return;
       if (nextState === 'active') {
-        startConnection(conn);
+        connect();
         return;
       }
-
-      stopConnection(conn);
+      // 'inactive' is a transient iOS state — do not disconnect.
+      if (nextState === 'background') {
+        disconnect();
+      }
     });
 
     return (): void => {
+      cancelled = true;
       subscription.remove();
-      const conn = connectionRef.current;
-      if (conn) stopConnection(conn);
+      disconnect();
       connectionRef.current = null;
     };
   }, [orderCode]);

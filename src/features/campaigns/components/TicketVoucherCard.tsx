@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { cssInterop } from 'nativewind';
@@ -20,6 +21,7 @@ interface TicketVoucherCardProps {
   secondaryMetaIcon?: IoniconName;
   tertiaryMetaText?: string;
   tertiaryMetaIcon?: IoniconName;
+  quantity?: number;
   footerText?: string;
   actionLabel?: string;
   onActionPress?: () => void;
@@ -37,6 +39,7 @@ export const TicketVoucherCard = ({
   secondaryMetaIcon = 'layers-outline',
   tertiaryMetaText,
   tertiaryMetaIcon = 'receipt-outline',
+  quantity,
   footerText,
   actionLabel,
   onActionPress,
@@ -48,7 +51,11 @@ export const TicketVoucherCard = ({
   return (
     <View className="mb-3 overflow-hidden rounded-3xl opacity-100 shadow-sm">
       <LinearGradient
-        colors={disabled ? ['#dedede', '#dedede'] : ['#89D151', '#cef5b0']}
+        colors={
+          disabled
+            ? ['#dedede', '#dedede']
+            : [COLORS.primaryGradientFrom, COLORS.primaryGradientTo]
+        }
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0.9 }}
@@ -74,16 +81,21 @@ export const TicketVoucherCard = ({
         </View>
 
         <View className="flex-1 px-3 pb-3 pt-2">
-          <Text
-            className={`mt-0.5 text-3xl font-extrabold leading-[34px] ${
-              disabled ? 'text-[#474747]' : 'text-black'
-            }`}
-          >
-            {discountText}
-          </Text>
+          <View className="flex-row items-center justify-between pr-3">
+            <Text
+              className={`mt-0.5 text-3xl font-extrabold leading-[34px] ${
+                disabled ? 'text-[#474747]' : 'text-black'
+              }`}
+            >
+              {discountText}
+            </Text>
+            {quantity !== undefined && (
+              <Text className="text-lg font-bold text-black">x{quantity}</Text>
+            )}
+          </View>
 
           <Text
-            className={`mt-0.5 text-xs font-bold ${
+            className={`mt-0.5 text-sm font-bold ${
               disabled ? 'text-[#474747]' : 'text-black'
             }`}
             numberOfLines={1}
@@ -156,7 +168,7 @@ export const TicketVoucherCard = ({
                 onPress={onActionPress}
                 disabled={actionDisabled}
                 className={`h-10 min-w-[88px] items-center justify-center rounded-full px-3 py-1.5 ${
-                  actionDisabled ? 'bg-white/60' : 'bg-[#EE6612]'
+                  actionDisabled ? 'bg-white/60' : 'bg-secondary'
                 }`}
               >
                 {isActionLoading ? (

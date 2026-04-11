@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -15,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ReviewCard from '@features/home/components/restaurantDetails/ReviewCard';
+import type { Review } from '@features/home/components/restaurantDetails/ReviewCard';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
@@ -183,60 +185,58 @@ export const ReviewListScreen = ({
     [voteFeedback]
   );
 
+  const reviewItems = useMemo<Review[]>(
+    () =>
+      reviews.map((item) => ({
+        id: String(item.id),
+        feedbackId: item.id,
+        userName: item.user?.name ?? t('user'),
+        avatar: item.user?.avatar,
+        date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
+        time: new Date(item.createdAt).toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        rating: item.rating,
+        comment: item.comment ?? '',
+        imageUris: item.images?.map((img) => img.url) ?? [],
+        tags: item.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
+        isOwn: item.id === ownFeedback?.id,
+        editable: item.id === ownFeedback?.id,
+        dishName: item.dish?.name,
+        upVotes: item.upVotes,
+        downVotes: item.downVotes,
+        userVote: item.userVote,
+        vendorReply: item.vendorReply
+          ? {
+              content: item.vendorReply.content,
+              repliedBy: item.vendorReply.repliedBy,
+              createdAt: item.vendorReply.createdAt,
+            }
+          : undefined,
+      })),
+    [reviews, ownFeedback?.id, t]
+  );
+
   const renderReviewItem = useCallback(
-    ({ item }: { item: Feedback }) => (
+    ({ item }: { item: Review }) => (
       <View className="px-4 pb-3">
         <ReviewCard
-          onEdit={item.id === ownFeedback?.id ? handleEditOwnReview : undefined}
-          onDelete={
-            item.id === ownFeedback?.id ? handleDeleteReview : undefined
-          }
+          onEdit={item.isOwn ? handleEditOwnReview : undefined}
+          onDelete={item.isOwn ? handleDeleteReview : undefined}
           onVote={handleVoteReview}
-          review={{
-            id: String(item.id),
-            feedbackId: item.id,
-            userName: item.user?.name ?? t('user'),
-            avatar: item.user?.avatar,
-            date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
-            time: new Date(item.createdAt).toLocaleTimeString('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-            rating: item.rating,
-            comment: item.comment ?? '',
-            imageUris: item.images?.map((img) => img.url) ?? [],
-            tags:
-              item.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
-            isOwn: item.id === ownFeedback?.id,
-            dishName: item.dish?.name,
-            upVotes: item.upVotes,
-            downVotes: item.downVotes,
-            userVote: item.userVote,
-            vendorReply: item.vendorReply
-              ? {
-                  content: item.vendorReply.content,
-                  repliedBy: item.vendorReply.repliedBy,
-                  createdAt: item.vendorReply.createdAt,
-                }
-              : undefined,
-          }}
+          review={item}
         />
       </View>
     ),
-    [
-      handleDeleteReview,
-      handleEditOwnReview,
-      handleVoteReview,
-      ownFeedback?.id,
-      t,
-    ]
+    [handleDeleteReview, handleEditOwnReview, handleVoteReview]
   );
 
   const renderHeader = useMemo(
     () => (
       <View className="px-4 pb-2 pt-3">
         <Text className="text-xl font-bold text-gray-900">{displayName}</Text>
-        <Text className="mt-0.5 text-sm text-gray-400">
+        <Text className="mt-0.5 text-base text-gray-400">
           {t('actions.all_reviews')}
         </Text>
       </View>
@@ -248,7 +248,7 @@ export const ReviewListScreen = ({
     if (!isFetchingNextPage) return null;
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#7AB82D" />
+        <ActivityIndicator size="small" color={COLORS.primaryLight} />
       </View>
     );
   }, [isFetchingNextPage]);
@@ -294,7 +294,7 @@ export const ReviewListScreen = ({
             onPress={refetch}
             className="mt-4 rounded-xl bg-primary px-6 py-3"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('search.retry')}
             </Text>
           </TouchableOpacity>
@@ -320,7 +320,7 @@ export const ReviewListScreen = ({
           className="ml-2 flex-row items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2"
         >
           <Ionicons name="swap-vertical" size={16} color="#6B7280" />
-          <Text className="text-xs font-medium text-gray-600">
+          <Text className="text-sm font-medium text-gray-600">
             {t(`review_sort.${sortBy}`)}
           </Text>
         </TouchableOpacity>
@@ -329,12 +329,12 @@ export const ReviewListScreen = ({
       {/* Review List */}
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#7AB82D" />
+          <ActivityIndicator size="large" color={COLORS.primaryLight} />
         </View>
       ) : (
         <FlatList
-          data={reviews}
-          keyExtractor={(item): string => String(item.id)}
+          data={reviewItems}
+          keyExtractor={(item): string => item.id}
           renderItem={renderReviewItem}
           ListHeaderComponent={renderHeader}
           ListFooterComponent={renderFooter}
@@ -362,7 +362,7 @@ export const ReviewListScreen = ({
             }`}
           >
             {isEligibilityLoading ? (
-              <ActivityIndicator size="small" color="#7AB82D" />
+              <ActivityIndicator size="small" color={COLORS.primaryLight} />
             ) : (
               <Text
                 className={`text-base font-semibold ${
@@ -377,7 +377,7 @@ export const ReviewListScreen = ({
             !isEligibilityLoading &&
             reviewIneligibilityReason &&
             reviewIneligibilityReason !== 'loading' && (
-              <Text className="mt-2 text-center text-xs text-gray-500">
+              <Text className="mt-2 text-center text-sm text-gray-500">
                 {INELIGIBILITY_MESSAGES[reviewIneligibilityReason] ??
                   reviewIneligibilityReason}
               </Text>
@@ -428,7 +428,11 @@ export const ReviewListScreen = ({
                   {t(`review_sort.${option}`)}
                 </Text>
                 {sortBy === option && (
-                  <Ionicons name="checkmark" size={22} color="#7AB82D" />
+                  <Ionicons
+                    name="checkmark"
+                    size={22}
+                    color={COLORS.primaryLight}
+                  />
                 )}
               </TouchableOpacity>
             ))}

@@ -79,22 +79,22 @@ export const VendorList = forwardRef<FlatList, VendorListProps>(
 
             <View className="mb-2 flex-row items-center">
               <MaterialIcons name="star" size={18} color="#FFB800" />
-              <Text className="ml-1 text-sm font-semibold text-[#333]">
+              <Text className="ml-1 text-base font-semibold text-[#333]">
                 {item.avgRating.toFixed(1)}
               </Text>
               <Text className="mx-2 text-[#999]">•</Text>
-              <Text className="text-sm text-[#999]">{item.ward}</Text>
+              <Text className="text-base text-[#999]">{item.ward}</Text>
             </View>
 
             <View className="flex-row flex-wrap gap-2">
               <View className="rounded-full bg-[#E8F5E9] px-3 py-1">
-                <Text className="text-xs font-medium text-[#00B14F]">
+                <Text className="text-sm font-medium text-[#00B14F]">
                   Món Việt
                 </Text>
               </View>
               {!item.isVerified && (
                 <View className="rounded-full bg-[#FEF3C7] px-3 py-1">
-                  <Text className="text-xs font-medium text-[#92400E]">
+                  <Text className="text-sm font-medium text-[#92400E]">
                     Chưa xác minh
                   </Text>
                 </View>

@@ -1,10 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
+import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
+import type { VoucherChip } from '@features/home/components/common/PlaceCard';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   fetchActiveBranches,
@@ -13,26 +16,87 @@ import {
   selectBranchesCurrentPage,
   selectBranchesHasNext,
   selectBranchesLoadingMore,
-  selectMultiBranchVendorIds,
+  selectIsMultiBranchVendor,
   updateBranchRating,
 } from '@slices/branches';
 import { selectUserDietaryPreferences } from '@slices/dietary';
 import type { JSX } from 'react';
 import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ListBranchScreenProps = StaticScreenProps<{
   items?: ActiveBranch[];
   title?: string;
+  vouchersByBranchId?: Record<number, VoucherChip[]>;
 }>;
+
+interface ListBranchItemProps {
+  item: ActiveBranch;
+  imageUri?: string;
+  vouchers?: VoucherChip[];
+  onRatingUpdate: (
+    branchId: number,
+    avgRating: number,
+    totalReviewCount: number
+  ) => void;
+}
+
+const ListBranchItem = ({
+  item,
+  imageUri,
+  vouchers,
+  onRatingUpdate,
+}: ListBranchItemProps): JSX.Element => {
+  const { t } = useTranslation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
+
+  // Look up the real vendor name from Redux branches (same as VendorCampaignPlaceCard)
+  const vendorNameFromRedux = useAppSelector(
+    (state) =>
+      state.branches.branches.find((b) => b.vendorId === item.vendorId)
+        ?.vendorName
+  );
+  const isMultiBranchFromRedux = useAppSelector((state) =>
+    selectIsMultiBranchVendor(state, item.vendorId)
+  );
+
+  // Heuristic fallback: if vendorName differs from name, it's a multi-branch vendor
+  const isMultiBranch =
+    isMultiBranchFromRedux ||
+    (!!item.vendorName && item.vendorName !== item.name);
+
+  // Prefer the Redux vendor name to correct null fallbacks set at build time
+  const resolvedItem = vendorNameFromRedux
+    ? { ...item, vendorName: vendorNameFromRedux }
+    : item;
+
+  const displayName = computeDisplayName(
+    resolvedItem,
+    isMultiBranch,
+    t('branch')
+  );
+
+  return (
+    <SearchResultCard
+      branch={item}
+      displayName={displayName}
+      imageUri={imageUri}
+      vouchers={vouchers}
+      onPress={() =>
+        navigation.navigate('RestaurantSwipe', {
+          branch: item,
+          displayName,
+          onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+            onRatingUpdate(item.branchId, avgRating, totalReviewCount)
+          ),
+        })
+      }
+    />
+  );
+};
 
 export const ListBranchScreen = ({
   route,
@@ -44,13 +108,13 @@ export const ListBranchScreen = ({
 
   const routeItems = route.params?.items;
   const routeTitle = route.params?.title;
+  const vouchersByBranchId = route.params?.vouchersByBranchId;
 
   const reduxBranches = useAppSelector(selectBranches);
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const branchesHasNext = useAppSelector(selectBranchesHasNext);
   const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
   const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
-  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const { coords: userCoords } = useLocationPermission();
 
@@ -96,18 +160,10 @@ export const ListBranchScreen = ({
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-3 p-1"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1a1a1a" />
-        </TouchableOpacity>
-        <Text className="title-md flex-1">
-          {routeTitle ?? t('places_might_like')}
-        </Text>
-      </View>
+      <Header
+        title={routeTitle ?? t('places_might_like')}
+        onBackPress={() => navigation.goBack()}
+      />
 
       <FlatList
         data={branches}
@@ -118,33 +174,14 @@ export const ListBranchScreen = ({
           paddingTop: 12,
           paddingBottom: 100,
         }}
-        renderItem={({ item }) => {
-          const isMultiBranch = multiBranchVendorIds.includes(item.vendorId);
-          const displayName = computeDisplayName(
-            item,
-            isMultiBranch,
-            t('branch')
-          );
-          return (
-            <SearchResultCard
-              branch={item}
-              displayName={displayName}
-              imageUri={branchImageMap[item.branchId]?.[0]}
-              onPress={() =>
-                navigation.navigate('RestaurantSwipe', {
-                  branch: item,
-                  displayName,
-                  onRatingUpdate: (avgRating, totalReviewCount) =>
-                    handleRatingUpdate(
-                      item.branchId,
-                      avgRating,
-                      totalReviewCount
-                    ),
-                })
-              }
-            />
-          );
-        }}
+        renderItem={({ item }) => (
+          <ListBranchItem
+            item={item}
+            imageUri={branchImageMap[item.branchId]?.[0]}
+            vouchers={vouchersByBranchId?.[item.branchId]}
+            onRatingUpdate={handleRatingUpdate}
+          />
+        )}
         ListEmptyComponent={
           <View className="items-center px-6 py-12">
             <Text className="text-center text-base text-gray-400">
@@ -155,7 +192,7 @@ export const ListBranchScreen = ({
         ListFooterComponent={
           isPaginated && branchesLoadingMore ? (
             <View className="items-center py-4">
-              <ActivityIndicator color="#a1d973" />
+              <ActivityIndicator color={COLORS.primary} />
             </View>
           ) : null
         }

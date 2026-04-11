@@ -1,3 +1,5 @@
+import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +50,7 @@ export const QuestDetailScreen = ({
         edges={['top', 'left', 'right']}
         className="flex-1 items-center justify-center bg-white"
       >
-        <ActivityIndicator size="large" color="#a1d973" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </SafeAreaView>
     );
   }
@@ -64,9 +66,11 @@ export const QuestDetailScreen = ({
         </Text>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="mt-4 rounded-full bg-[#a1d973] px-6 py-2"
+          className="mt-4 rounded-full bg-primary px-6 py-2"
         >
-          <Text className="text-sm font-semibold text-white">{t('back')}</Text>
+          <Text className="text-base font-semibold text-white">
+            {t('back')}
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -90,104 +94,118 @@ export const QuestDetailScreen = ({
       }));
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      className="flex-1 bg-gray-50"
+    >
+      <Header
+        title={t('quest.detail')}
+        onBackPress={(): void => navigation.goBack()}
+      />
+
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header with back button */}
         {quest.imageUrl ? (
-          <View>
+          <View className="mx-4 mt-2 overflow-hidden rounded-3xl">
             <Image
               source={{ uri: quest.imageUrl }}
-              className="h-52 w-full"
+              className="h-56 w-full"
               resizeMode="cover"
             />
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="absolute left-4 top-3 h-9 w-9 items-center justify-center rounded-full bg-black/30"
-            >
-              <Ionicons name="arrow-back" size={20} color="white" />
-            </TouchableOpacity>
+
+            <View className="absolute bottom-0 left-0 right-0 bg-black/45 px-4 py-3">
+              <Text className="text-xl font-extrabold text-white">
+                {quest.title}
+              </Text>
+
+              <View className="mt-2 flex-row items-center">
+                <View className="rounded-full bg-white/20 px-2.5 py-1">
+                  <Text className="text-sm font-semibold text-white">
+                    {quest.taskCount} {t('quest.tasks')}
+                  </Text>
+                </View>
+
+                {myProgress && (
+                  <View className="ml-2 rounded-full bg-primary px-2.5 py-1">
+                    <Text className="text-sm font-semibold text-white">
+                      {myProgress.status === 'COMPLETED'
+                        ? t('quest.completed')
+                        : t('quest.inProgress')}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
           </View>
         ) : (
-          <View className="flex-row items-center px-4 pb-2 pt-3">
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="mr-3"
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#111827" />
-            </TouchableOpacity>
-            <Text className="flex-1 text-xl font-bold text-gray-900">
-              {t('quest.detail')}
+          <View className="mx-4 mt-2 rounded-2xl border border-gray-100 bg-white p-4">
+            <Text className="text-xl font-bold text-gray-900">
+              {quest.title}
+            </Text>
+            <Text className="mt-1 text-sm text-gray-500">
+              {quest.taskCount} {t('quest.tasks')}
             </Text>
           </View>
         )}
 
-        <View className="p-4">
-          {/* Title & meta */}
-          <Text className="mb-1 text-xl font-bold text-gray-900">
-            {quest.title}
-          </Text>
-
-          <View className="mb-3 flex-row items-center">
-            <Text className="text-sm text-gray-400">
-              {quest.taskCount} {t('quest.tasks')}
-            </Text>
-            {myProgress && (
-              <View className="ml-3 rounded-full bg-[#a1d973]/20 px-3 py-0.5">
-                <Text className="text-xs font-semibold text-[#7AB82D]">
-                  {myProgress.status === 'COMPLETED'
-                    ? t('quest.completed')
-                    : t('quest.inProgress')}
-                </Text>
-              </View>
-            )}
-          </View>
-
+        <View className="px-4 pb-4 pt-4">
           {quest.description && (
-            <Text className="mb-4 text-sm leading-5 text-gray-600">
-              {quest.description}
-            </Text>
+            <View className="mb-4 rounded-2xl border border-gray-100 bg-white p-4">
+              <Text className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary-dark">
+                {t('campaign.system_detail')}
+              </Text>
+              <Text className="text-base leading-6 text-gray-700">
+                {quest.description}
+              </Text>
+            </View>
           )}
 
           {/* Progress summary for enrolled quests */}
           {myProgress && (
-            <View className="mb-4 rounded-xl bg-[#a1d973]/10 p-4">
-              <Text className="mb-2 text-sm font-semibold text-gray-800">
-                {t('quest.progress')}
-              </Text>
-              <View className="mb-1 h-3 overflow-hidden rounded-full bg-gray-200">
+            <View className="mb-4 rounded-2xl border border-primary/20 bg-primary/10 p-4">
+              <View className="mb-2 flex-row items-center">
+                <Ionicons
+                  name="trending-up-outline"
+                  size={18}
+                  color="#4FBE71"
+                />
+                <Text className="ml-2 text-base font-semibold text-gray-800">
+                  {t('quest.progress')}
+                </Text>
+              </View>
+              <View className="mb-2 h-3 overflow-hidden rounded-full bg-white">
                 <View
-                  className="h-full rounded-full bg-[#a1d973]"
+                  className="h-full rounded-full bg-primary"
                   style={{
                     width: `${myProgress.totalTasks > 0 ? (myProgress.completedTasks / myProgress.totalTasks) * 100 : 0}%`,
                   }}
                 />
               </View>
-              <Text className="text-xs text-gray-500">
+              <Text className="text-sm font-medium text-gray-600">
                 {myProgress.completedTasks}/{myProgress.totalTasks}{' '}
                 {t('quest.tasksCompleted')}
               </Text>
             </View>
           )}
 
-          {/* Tasks */}
-          <Text className="mb-3 text-base font-bold text-gray-900">
-            {t('quest.taskList')}
-          </Text>
+          <View className="rounded-2xl border border-gray-100 bg-white p-4">
+            <Text className="mb-3 text-base font-bold text-gray-900">
+              {t('quest.taskList')}
+            </Text>
 
-          {taskList.map((task) => (
-            <QuestTaskItem key={task.questTaskId} task={task} />
-          ))}
+            {taskList.map((task) => (
+              <QuestTaskItem key={task.questTaskId} task={task} />
+            ))}
+          </View>
         </View>
       </ScrollView>
 
       {/* Enroll button (only show if not enrolled) */}
       {!myProgress && (
-        <View className="border-t border-gray-100 px-4 pb-8 pt-3">
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
           <TouchableOpacity
             onPress={onEnroll}
             disabled={enrolling}
-            className="items-center rounded-full bg-[#a1d973] py-3.5"
+            className="items-center rounded-full bg-primary py-3.5"
             activeOpacity={0.8}
           >
             {enrolling ? (

@@ -38,8 +38,8 @@ export const CampaignCard = ({
         activeOpacity={0.7}
       >
         <View className="mb-2 flex-row items-center justify-between">
-          <View className="rounded-full bg-[#a1d973]/20 px-2 py-0.5">
-            <Text className="text-xs font-semibold text-[#7AB82D]">
+          <View className="rounded-full bg-primary/20 px-2 py-0.5">
+            <Text className="text-sm font-semibold text-primary-light">
               {t('campaign.platform_event')}
             </Text>
           </View>
@@ -48,14 +48,14 @@ export const CampaignCard = ({
         <Text className="mb-1 text-base font-bold text-gray-900">
           {sys.name}
         </Text>
-        <Text className="mb-2 text-sm text-gray-500" numberOfLines={2}>
+        <Text className="mb-2 text-base text-gray-500" numberOfLines={2}>
           {sys.description}
         </Text>
 
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Ionicons name="calendar-outline" size={14} color="#9CA3AF" />
-            <Text className="ml-1 text-xs text-gray-400">
+            <Text className="ml-1 text-sm text-gray-400">
               {startDate} - {endDate}
             </Text>
           </View>
@@ -83,13 +83,13 @@ export const CampaignCard = ({
     >
       <View className="mb-2 flex-row items-center justify-between">
         <View className="rounded-full bg-orange-100 px-2 py-0.5">
-          <Text className="text-xs font-semibold text-orange-600">
+          <Text className="text-sm font-semibold text-orange-600">
             {t('campaign.merchant_promo')}
           </Text>
         </View>
         {rest.discountType && rest.discountValue && (
           <View className="rounded-full bg-green-100 px-2 py-0.5">
-            <Text className="text-xs font-bold text-green-700">
+            <Text className="text-sm font-bold text-green-700">
               {discountLabel} {t('campaign.off')}
             </Text>
           </View>
@@ -99,20 +99,20 @@ export const CampaignCard = ({
       <Text className="mb-0.5 text-base font-bold text-gray-900">
         {rest.name}
       </Text>
-      <Text className="mb-2 text-sm text-gray-500">{rest.vendorName}</Text>
+      <Text className="mb-2 text-base text-gray-500">{rest.vendorName}</Text>
 
       <View className="flex-row items-center justify-between">
         {rest.expiresAt && (
           <View className="flex-row items-center">
             <Ionicons name="time-outline" size={14} color="#9CA3AF" />
-            <Text className="ml-1 text-xs text-gray-400">
+            <Text className="ml-1 text-sm text-gray-400">
               {t('campaign.expires')}: {expiryDate}
             </Text>
           </View>
         )}
         {rest.remainingClaims != null && (
           <Text
-            className={`text-xs font-semibold ${isSoldOut ? 'text-red-500' : 'text-gray-400'}`}
+            className={`text-sm font-semibold ${isSoldOut ? 'text-red-500' : 'text-gray-400'}`}
           >
             {isSoldOut
               ? t('campaign.sold_out')

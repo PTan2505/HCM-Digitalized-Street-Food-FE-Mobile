@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useNearbyCampaigns } from '@features/campaigns/hooks/useNearbyCampaigns';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
@@ -14,17 +15,17 @@ export const NearbyCampaignsSection = (): JSX.Element | null => {
   if (permissionStatus !== Location.PermissionStatus.GRANTED) {
     return (
       <View className="mb-4 rounded-xl bg-blue-50 p-4">
-        <Text className="mb-2 text-sm font-semibold text-blue-700">
+        <Text className="mb-2 text-base font-semibold text-blue-700">
           {t('campaign.nearby_title')}
         </Text>
-        <Text className="mb-3 text-xs text-blue-600">
+        <Text className="mb-3 text-sm text-blue-600">
           {t('campaign.enable_location')}
         </Text>
         <TouchableOpacity
           onPress={retryPermission}
           className="self-start rounded-full bg-blue-500 px-4 py-1.5"
         >
-          <Text className="text-xs font-semibold text-white">
+          <Text className="text-sm font-semibold text-white">
             {t('campaign.enable_location_btn')}
           </Text>
         </TouchableOpacity>
@@ -35,14 +36,16 @@ export const NearbyCampaignsSection = (): JSX.Element | null => {
   if (nearbyCampaigns.length === 0) {
     return (
       <View className="mb-4 rounded-xl bg-gray-50 p-4">
-        <Text className="text-sm text-gray-400">{t('campaign.no_nearby')}</Text>
+        <Text className="text-base text-gray-400">
+          {t('campaign.no_nearby')}
+        </Text>
       </View>
     );
   }
 
   return (
     <View className="mb-4">
-      <Text className="mb-2 text-sm font-semibold text-gray-700">
+      <Text className="mb-2 text-base font-semibold text-gray-700">
         {t('campaign.nearby_title')}
       </Text>
       {nearbyCampaigns.map((c) => (
@@ -50,12 +53,12 @@ export const NearbyCampaignsSection = (): JSX.Element | null => {
           key={c.campaignId}
           className="mb-2 flex-row items-center rounded-lg bg-gray-50 p-3"
         >
-          <Ionicons name="location-outline" size={16} color="#a1d973" />
+          <Ionicons name="location-outline" size={16} color={COLORS.primary} />
           <View className="ml-3 flex-1">
-            <Text className="text-sm font-semibold text-gray-800">
+            <Text className="text-base font-semibold text-gray-800">
               {c.title}
             </Text>
-            <Text className="text-xs text-gray-400">
+            <Text className="text-sm text-gray-400">
               {c.vendorName} · {c.distanceKm.toFixed(1)} km
             </Text>
           </View>

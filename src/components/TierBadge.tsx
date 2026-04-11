@@ -35,7 +35,7 @@ export const TierBadge = ({
   if (paused) {
     return (
       <View className="rounded-2xl bg-[#F3F4F6] px-2 py-1">
-        <Text className="text-xs font-semibold text-[#6B7280]">
+        <Text className="text-sm font-semibold text-[#6B7280]">
           ⏸ Tier paused
         </Text>
       </View>
@@ -50,7 +50,7 @@ export const TierBadge = ({
       style={{ backgroundColor: TIER_BG[tier] }}
     >
       <Text
-        className="text-xs font-semibold"
+        className="text-sm font-semibold"
         style={{ color: TIER_TEXT[tier] }}
       >
         {TIER_LABEL[tier]}

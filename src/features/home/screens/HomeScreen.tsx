@@ -1,5 +1,5 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { useRestaurantCampaigns } from '@features/campaigns/hooks/useRestaurantCampaigns';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
@@ -7,10 +7,9 @@ import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/home/types/branch';
-import * as Location from 'expo-location';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
 import {
@@ -27,15 +26,16 @@ import {
   selectUserDietaryPreferences,
 } from '@slices/dietary';
 import { fetchUnreadCount } from '@slices/notifications';
+import { registerCallback } from '@utils/callbackRegistry';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Location from 'expo-location';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Animated,
-  Easing,
   FlatList,
   type LayoutChangeEvent,
   type NativeScrollEvent,
@@ -51,11 +51,19 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import CategoryCard from '../components/common/CategoryCard';
+import {
+  BannerCarouselSkeleton,
+  CategoryRowSkeleton,
+  PlaceCardRowSkeleton,
+  PlaceCardSkeleton,
+} from '../components/common/HomeSkeleton';
 import Title from '../components/common/Title';
 import HomeHeader from '../components/home/HomeHeader';
 import { QuickActionGrid } from '../components/home/QuickActionGrid';
 import { VendorCampaignPlaceCard } from '../components/home/VendorCampaignPlaceCard';
 import { getHomeQuickActions } from '../config/homeQuickActions';
+
+const STICKY_FADE_RANGE_PX = 40;
 
 export const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
@@ -71,26 +79,51 @@ export const HomeScreen = (): JSX.Element => {
   const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
   const dietaryStatus = useAppSelector(selectDietaryState);
   const { coords: userCoords, permissionStatus } = useLocationPermission();
-  const { systemCampaigns, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSystemCampaigns();
-  useRestaurantCampaigns(userCoords);
-  const { branches: vendorCampaignBranches, imageMap: vendorCampaignImageMap } =
-    useVendorCampaignBranches(userCoords, permissionStatus);
+  const {
+    systemCampaigns,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: campaignsLoading,
+  } = useSystemCampaigns();
+  const {
+    branches: vendorCampaignBranches,
+    imageMap: vendorCampaignImageMap,
+    isLoading: vendorCampaignLoading,
+  } = useVendorCampaignBranches(userCoords, permissionStatus);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [stickyTriggerY, setStickyTriggerY] = useState(100);
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   // Track pulling state in ref to prevent unnecessary re-renders
   const isPullingRef = useRef(false);
-  // Y offset of the SearchBar within the scroll content (set via onLayout)
-  const searchBarOffsetRef = useRef(100);
+  const isRefreshingRef = useRef(false);
   const showStickyBarRef = useRef(false);
-  const stickyAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const lastScrollLogAtRef = useRef(0);
+
+  const stickyFadeStart = Math.max(0, stickyTriggerY - 8);
+  const stickyFadeEnd = stickyFadeStart + STICKY_FADE_RANGE_PX;
+  const showBranchSkeleton =
+    (branchesStatus === 'idle' || branchesStatus === 'pending') &&
+    branches.length === 0 &&
+    !refreshing;
+  const isInitialError = branchesStatus === 'failed' && branches.length === 0;
+  const stickyProgress = useMemo(
+    () =>
+      scrollY.interpolate({
+        inputRange: [stickyFadeStart, stickyFadeEnd],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+      }),
+    [scrollY, stickyFadeStart, stickyFadeEnd]
+  );
 
   const handleSearchBarLayout = useCallback((e: LayoutChangeEvent) => {
-    searchBarOffsetRef.current = e.nativeEvent.layout.y;
+    setStickyTriggerY(e.nativeEvent.layout.y);
   }, []);
 
   // Detect pull-to-refresh gesture for immediate spinner feedback.
@@ -99,6 +132,10 @@ export const HomeScreen = (): JSX.Element => {
       const { contentOffset } = e.nativeEvent;
       const y = contentOffset.y;
       const shouldBePulling = y < -50 && !refreshing;
+
+      if (y < 0 && Date.now() - lastScrollLogAtRef.current > 300) {
+        lastScrollLogAtRef.current = Date.now();
+      }
 
       if (shouldBePulling && !isPullingRef.current) {
         isPullingRef.current = true;
@@ -113,43 +150,38 @@ export const HomeScreen = (): JSX.Element => {
         setIsPulling(false);
       }
 
-      // Sticky SearchBar: show when the in-list SearchBar scrolls out of view
-      const shouldShow = y > searchBarOffsetRef.current;
-      if (shouldShow !== showStickyBarRef.current) {
-        showStickyBarRef.current = shouldShow;
-        setShowStickyBar(shouldShow);
+      const shouldEnablePointer = y >= stickyFadeEnd - 2;
+      if (shouldEnablePointer !== showStickyBarRef.current) {
+        showStickyBarRef.current = shouldEnablePointer;
+        setShowStickyBar(shouldEnablePointer);
       }
     },
-    [refreshing]
+    [refreshing, stickyFadeEnd]
   );
 
-  useEffect(() => {
-    Animated.timing(stickyAnim, {
-      toValue: showStickyBar ? 1 : 0,
-      duration: 220,
-      easing: showStickyBar
-        ? Easing.out(Easing.cubic)
-        : Easing.in(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [showStickyBar, stickyAnim]);
+  const handleListScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: true,
+        listener: handleScroll,
+      }),
+    [scrollY, handleScroll]
+  );
 
   // Single ref: flips true once the initial page-1 fetch has been dispatched.
   // We never fire a fetch until dietary status is settled so that FETCH-A
   // (no dietary) can never race against and overwrite FETCH-B (with dietary).
   const hasFetchedRef = useRef(false);
+  const fetchedWithoutCoordsRef = useRef(false);
+  const hasUpgradedToCoordsRef = useRef(false);
 
   useEffect(() => {
     if (branchesStatus !== 'idle') return;
     // Wait for location permission to settle before fetching.
-    // UNDETERMINED: dialog not yet answered; GRANTED+no coords: still resolving.
-    // If DENIED, proceed immediately without coordinates.
+    // UNDETERMINED: dialog not yet answered.
+    // For GRANTED with missing coords, proceed without coordinates to avoid
+    // getting stuck when Android location providers fail.
     if (permissionStatus === Location.PermissionStatus.UNDETERMINED) return;
-    if (
-      permissionStatus === Location.PermissionStatus.GRANTED &&
-      userCoords === null
-    )
-      return;
     // If the user completed dietary setup, wait until prefs are loaded.
     // This prevents dispatching a fetch without DietaryIds that could complete
     // *after* the dietary-enriched fetch and overwrite the result.
@@ -162,6 +194,8 @@ export const HomeScreen = (): JSX.Element => {
     if (hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
+    fetchedWithoutCoordsRef.current = userCoords === null;
+    hasUpgradedToCoordsRef.current = userCoords !== null;
     const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
     void dispatch(
       fetchActiveBranches({
@@ -169,6 +203,43 @@ export const HomeScreen = (): JSX.Element => {
         lat: userCoords?.latitude,
         lng: userCoords?.longitude,
         distance: userCoords ? 5 : undefined,
+        dietaryIds,
+      })
+    );
+  }, [
+    branchesStatus,
+    permissionStatus,
+    userCoords,
+    user?.dietarySetup,
+    dietaryStatus,
+    userDietaryPreferences,
+    dispatch,
+  ]);
+
+  // If the first fetch had no location (e.g. permission just granted and coords
+  // arrived a moment later), run one upgrade fetch with lat/lng.
+  useEffect(() => {
+    if (!hasFetchedRef.current) return;
+    if (hasUpgradedToCoordsRef.current) return;
+    if (!fetchedWithoutCoordsRef.current) return;
+    if (permissionStatus !== Location.PermissionStatus.GRANTED) return;
+    if (!userCoords) return;
+    if (branchesStatus === 'pending') return;
+    if (
+      user?.dietarySetup &&
+      dietaryStatus !== 'succeeded' &&
+      dietaryStatus !== 'failed'
+    )
+      return;
+
+    hasUpgradedToCoordsRef.current = true;
+    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
+    void dispatch(
+      fetchActiveBranches({
+        page: 1,
+        lat: userCoords.latitude,
+        lng: userCoords.longitude,
+        distance: 5,
         dietaryIds,
       })
     );
@@ -191,6 +262,33 @@ export const HomeScreen = (): JSX.Element => {
       }
     }
   }, [user, userStatus, navigation]);
+
+  // Re-fetch home branches when screen regains focus (e.g. coming back from
+  // MapScreen which may have overwritten the shared Redux branches state with
+  // branches for a different location).
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      // Only re-fetch if the initial load already happened
+      if (!hasFetchedRef.current) return;
+      const dietaryIds = userDietaryPreferences.map(
+        (p) => p.dietaryPreferenceId
+      );
+      void dispatch(
+        fetchActiveBranches({
+          page: 1,
+          lat: userCoords?.latitude,
+          lng: userCoords?.longitude,
+          distance: userCoords ? 5 : undefined,
+          dietaryIds,
+        })
+      );
+    }, [dispatch, userCoords, userDietaryPreferences])
+  );
 
   useEffect(() => {
     void dispatch(fetchUnreadCount());
@@ -261,31 +359,31 @@ export const HomeScreen = (): JSX.Element => {
   );
 
   const onRefresh = useCallback(() => {
+    if (isRefreshingRef.current) {
+      return;
+    }
+
+    isRefreshingRef.current = true;
     setRefreshing(true);
-    // Don't reset isPulling here - let refreshing take over seamlessly
-    // isPulling will be reset when refreshing completes
-    dispatch(
-      fetchActiveBranches({
-        page: 1,
-        lat: userCoords?.latitude,
-        lng: userCoords?.longitude,
-        distance: 5,
-        dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
-      })
-    )
-      .then(() => {
-        setTimeout(() => {
-          setRefreshing(false);
-          // Reset isPulling after refreshing is done to ensure smooth transition
-          isPullingRef.current = false;
-          setIsPulling(false);
-        }, 500);
-      })
-      .catch(() => {
+    isPullingRef.current = false;
+    setIsPulling(false);
+
+    requestAnimationFrame(() => {
+      dispatch(
+        fetchActiveBranches({
+          page: 1,
+          lat: userCoords?.latitude,
+          lng: userCoords?.longitude,
+          distance: 5,
+          dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
+        })
+      ).finally(() => {
+        isRefreshingRef.current = false;
         setRefreshing(false);
         isPullingRef.current = false;
         setIsPulling(false);
       });
+    });
   }, [dispatch, userCoords, userDietaryPreferences]);
 
   // useMemo prevents a new JSX reference on every render, which would cause
@@ -293,7 +391,7 @@ export const HomeScreen = (): JSX.Element => {
   const ListHeader = useMemo(
     () => (
       <LinearGradient
-        colors={['#B8E986', '#FFFFFF']}
+        colors={[COLORS.primaryGradientHero, '#FFFFFF']}
         locations={[0, 0.4]}
         style={{
           paddingTop:
@@ -310,14 +408,18 @@ export const HomeScreen = (): JSX.Element => {
             }
           />
         </View>
-        <BannerCarousel
-          items={systemCampaigns}
-          onCampaignPress={handleCampaignPress}
-          onLoadMore={() => {
-            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-          }}
-          hasMore={hasNextPage}
-        />
+        {campaignsLoading ? (
+          <BannerCarouselSkeleton />
+        ) : (
+          <BannerCarousel
+            items={systemCampaigns}
+            onCampaignPress={handleCampaignPress}
+            onLoadMore={() => {
+              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            }}
+            hasMore={hasNextPage}
+          />
+        )}
 
         <View className="px-4 py-2">
           <Title>{t('home_quick_actions.section_title')}</Title>
@@ -330,9 +432,7 @@ export const HomeScreen = (): JSX.Element => {
 
         <View className="flex-row pt-2">
           {categoriesLoading ? (
-            <View className="flex-1 items-center py-4">
-              <ActivityIndicator color="#a1d973" />
-            </View>
+            <CategoryRowSkeleton />
           ) : (
             <FlatList
               data={categories}
@@ -363,7 +463,16 @@ export const HomeScreen = (): JSX.Element => {
           )}
         </View>
 
-        {vendorCampaignActiveBranches.length > 0 && (
+        {vendorCampaignLoading ? (
+          <>
+            <View className="flex-row items-center gap-2 px-4 py-2">
+              <Title>{t('discount_branches_title')}</Title>
+            </View>
+            <View className="px-4">
+              <PlaceCardRowSkeleton />
+            </View>
+          </>
+        ) : vendorCampaignActiveBranches.length > 0 ? (
           <>
             <TouchableOpacity
               className="flex-row items-center gap-2 px-4 py-2"
@@ -372,6 +481,7 @@ export const HomeScreen = (): JSX.Element => {
                 navigation.navigate('ListBranch', {
                   items: vendorCampaignActiveBranches,
                   title: t('discount_branches_title'),
+                  vouchersByBranchId: vendorCampaignVouchersByBranchId,
                 })
               }
             >
@@ -379,7 +489,7 @@ export const HomeScreen = (): JSX.Element => {
               <Ionicons
                 name="chevron-forward-circle"
                 size={20}
-                color="#89D151"
+                color={COLORS.primaryGradientFrom}
               />
             </TouchableOpacity>
             <View className="px-4">
@@ -436,7 +546,7 @@ export const HomeScreen = (): JSX.Element => {
               })}
             </View>
           </>
-        )}
+        ) : null}
 
         <TouchableOpacity
           className="flex-row items-center gap-2 px-4 py-2"
@@ -444,7 +554,11 @@ export const HomeScreen = (): JSX.Element => {
           onPress={() => navigation.navigate('ListBranch', {})}
         >
           <Title>{t('places_might_like')}</Title>
-          <Ionicons name="chevron-forward-circle" size={20} color="#89D151" />
+          <Ionicons
+            name="chevron-forward-circle"
+            size={20}
+            color={COLORS.primaryGradientFrom}
+          />
         </TouchableOpacity>
       </LinearGradient>
     ),
@@ -452,6 +566,8 @@ export const HomeScreen = (): JSX.Element => {
     [
       categories,
       categoriesLoading,
+      campaignsLoading,
+      vendorCampaignLoading,
       systemCampaigns,
       vendorCampaignActiveBranches,
       vendorCampaignImageMap,
@@ -466,6 +582,15 @@ export const HomeScreen = (): JSX.Element => {
     ]
   );
 
+  type ListItem = ActiveBranch | { _skeleton: true; id: number };
+  const skeletonItems: ListItem[] = Array.from({ length: 6 }, (_, i) => ({
+    _skeleton: true as const,
+    id: i,
+  }));
+  const flatListData: ListItem[] = showBranchSkeleton
+    ? skeletonItems
+    : (branches.slice(0, 10) as ListItem[]);
+
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <View
@@ -475,148 +600,147 @@ export const HomeScreen = (): JSX.Element => {
           left: 0,
           right: 0,
           height: insets.top + 200, // Cover the notch + some extra
-          backgroundColor: '#B8E986',
+          backgroundColor: COLORS.primaryGradientHero,
         }}
       />
-      {branchesStatus === 'pending' ? (
-        <>
-          {ListHeader}
-          <View className="flex-1 items-center justify-center bg-white">
-            <ActivityIndicator size="large" color="#a1d973" />
-          </View>
-        </>
-      ) : branchesStatus === 'failed' ? (
-        <>
-          {ListHeader}
-          <View className="flex-1 items-center justify-center bg-white px-6">
-            <Text className="text-center text-base text-gray-500">
-              {t('search.error')}
-            </Text>
-            <TouchableOpacity
-              onPress={() =>
-                dispatch(
-                  fetchActiveBranches({
-                    page: 1,
-                    lat: userCoords?.latitude,
-                    lng: userCoords?.longitude,
-                    dietaryIds: userDietaryPreferences.map(
-                      (p) => p.dietaryPreferenceId
-                    ),
-                  })
-                )
+      <View>
+        <Animated.FlatList
+          data={flatListData}
+          keyExtractor={(item) =>
+            '_skeleton' in item ? `skeleton-${item.id}` : String(item.branchId)
+          }
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={{
+            paddingBottom: 100,
+            backgroundColor: 'white',
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              progressViewOffset={
+                Platform.OS === 'android' ? insets.top + 60 : 0
               }
-              className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
-            >
-              <Text className="text-sm font-semibold text-white">
-                {t('search.retry')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <View>
-          <FlatList
-            data={branches.slice(0, 10)}
-            keyExtractor={(item) => String(item.branchId)}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={ListHeader}
-            contentContainerStyle={{
-              paddingBottom: 100,
-              backgroundColor: 'white',
-            }}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                progressViewOffset={
-                  Platform.OS === 'android' ? insets.top + 60 : 0
-                }
-                colors={['#a1d973']} // Android spinner color
-                tintColor="#a1d973" // iOS spinner color
-                progressBackgroundColor="#ffffff" // Android spinner background
-              />
-            }
-            columnWrapperStyle={{
-              justifyContent: 'space-between',
-              paddingHorizontal: 16,
-              marginBottom: 12,
-            }}
-            renderItem={({ item }) => {
-              const isMultiBranch = multiBranchVendorIds.includes(
-                item.vendorId
-              );
-              const displayName = computeDisplayName(
-                item,
-                isMultiBranch,
-                t('branch')
-              );
+              colors={[COLORS.primary]}
+              tintColor={COLORS.primary}
+              progressBackgroundColor="#ffffff"
+            />
+          }
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            marginBottom: 12,
+          }}
+          renderItem={({ item }) => {
+            if ('_skeleton' in item) {
               return (
                 <View className="w-[49%]">
-                  <PlaceCard
-                    branch={item}
-                    displayName={displayName}
-                    imageUri={branchImageMap[item.branchId]?.[0]}
-                    userCoords={userCoords}
-                    onPress={() =>
-                      navigation.navigate('RestaurantSwipe', {
-                        branch: item,
-                        displayName,
-                        onRatingUpdate: (avgRating, totalReviewCount) =>
+                  <PlaceCardSkeleton />
+                </View>
+              );
+            }
+            const isMultiBranch = multiBranchVendorIds.includes(item.vendorId);
+            const displayName = computeDisplayName(
+              item,
+              isMultiBranch,
+              t('branch')
+            );
+            return (
+              <View className="w-[49%]">
+                <PlaceCard
+                  branch={item}
+                  displayName={displayName}
+                  imageUri={branchImageMap[item.branchId]?.[0]}
+                  userCoords={userCoords}
+                  onPress={() =>
+                    navigation.navigate('RestaurantSwipe', {
+                      branch: item,
+                      displayName,
+                      onRatingUpdateId: registerCallback(
+                        (avgRating, totalReviewCount) =>
                           handleRatingUpdate(
                             item.branchId,
                             avgRating,
                             totalReviewCount
-                          ),
+                          )
+                      ),
+                    })
+                  }
+                />
+              </View>
+            );
+          }}
+          ListEmptyComponent={
+            isInitialError ? (
+              <View className="flex-1 items-center justify-center px-6 py-12">
+                <Text className="text-center text-base text-gray-500">
+                  {t('search.error')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    dispatch(
+                      fetchActiveBranches({
+                        page: 1,
+                        lat: userCoords?.latitude,
+                        lng: userCoords?.longitude,
+                        dietaryIds: userDietaryPreferences.map(
+                          (p) => p.dietaryPreferenceId
+                        ),
                       })
-                    }
-                  />
-                </View>
-              );
-            }}
-            ListEmptyComponent={
+                    )
+                  }
+                  className="mt-4 rounded-full bg-primary-dark px-6 py-2"
+                >
+                  <Text className="text-base font-semibold text-white">
+                    {t('search.retry')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <View className="items-center px-6 py-12">
                 <Text className="text-center text-base text-gray-400">
                   {t('search.empty')}
                 </Text>
               </View>
-            }
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-          />
-          {(refreshing || isPulling) && (
-            <>
+            )
+          }
+          onScroll={handleListScroll}
+          scrollEventThrottle={16}
+        />
+        {isPulling && !refreshing && (
+          <>
+            <View
+              style={{
+                position: 'absolute',
+                top: insets.top + 10,
+                left: 0,
+                right: 0,
+                alignItems: 'center',
+                zIndex: 9999,
+                elevation: 9999,
+              }}
+              pointerEvents="none"
+            >
               <View
                 style={{
-                  position: 'absolute',
-                  top: insets.top + 10,
-                  left: 0,
-                  right: 0,
-                  alignItems: 'center',
-                  zIndex: 9999,
-                  elevation: 9999,
+                  backgroundColor: 'white',
+                  borderRadius: 20,
+                  padding: 8,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
                 }}
-                pointerEvents="none"
               >
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    borderRadius: 20,
-                    padding: 8,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                  }}
-                >
-                  <ActivityIndicator size="small" color="#a1d973" />
-                </View>
+                <ActivityIndicator size="small" color={COLORS.primary} />
               </View>
-            </>
-          )}
-        </View>
-      )}
+            </View>
+          </>
+        )}
+      </View>
       {/* Sticky SearchBar — appears when the in-list bar scrolls out of view */}
       <Animated.View
         pointerEvents={showStickyBar ? 'auto' : 'none'}
@@ -631,10 +755,10 @@ export const HomeScreen = (): JSX.Element => {
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.08,
           shadowRadius: 4,
-          opacity: stickyAnim,
+          opacity: stickyProgress,
           transform: [
             {
-              translateY: stickyAnim.interpolate({
+              translateY: stickyProgress.interpolate({
                 inputRange: [0, 1],
                 outputRange: [-12, 0],
               }),
@@ -643,7 +767,7 @@ export const HomeScreen = (): JSX.Element => {
         }}
       >
         <LinearGradient
-          colors={['#B8E986', '#FFFFFF']}
+          colors={[COLORS.primaryGradientHero, '#FFFFFF']}
           style={{ paddingTop: insets.top, paddingBottom: 4 }}
         >
           <SearchBar

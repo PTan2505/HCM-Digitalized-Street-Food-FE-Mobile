@@ -1,3 +1,5 @@
+import TabBar from '@components/TabBar';
+import { COLORS } from '@constants/colors';
 import type { VendorTier } from '@custom-types/vendor';
 import { Ionicons } from '@expo/vector-icons';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
@@ -9,12 +11,11 @@ import type { NearbyRestaurant } from '@features/home/components/restaurantDetai
 import RestaurantsMayLikeTab from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
 import type { Review } from '@features/home/components/restaurantDetails/ReviewsTab';
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
-import type { TabType } from '@features/home/components/restaurantDetails/TabsBar';
-import TabsBar from '@features/home/components/restaurantDetails/TabsBar';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useBranchImages } from '@features/home/hooks/useBranchImages';
+import { useFavoriteBranches } from '@features/home/hooks/useFavoriteBranches';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
@@ -31,11 +32,20 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import { fetchCartThunk, selectCart } from '@slices/directOrdering';
+import {
+  computeDisplayName,
+  selectMultiBranchVendorIds,
+} from '@slices/branches';
+import {
+  fetchCartThunk,
+  selectCart,
+  selectCartDisplayName,
+} from '@slices/directOrdering';
 import { useQueryClient } from '@tanstack/react-query';
+import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActionSheetIOS,
@@ -48,6 +58,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+export type TabType = 'menu' | 'reviews' | 'nearby';
 
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -59,20 +70,77 @@ type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
   tab?: TabType;
-  onRatingUpdate?: (avgRating: number, totalReviewCount: number) => void;
+  onRatingUpdateId?: string;
 }>;
 
 export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
-  const { branch, displayName, tab, onRatingUpdate } = route.params;
+  const { branch, displayName, tab, onRatingUpdateId } = route.params;
+
+  useEffect(() => {
+    return (): void => {
+      if (onRatingUpdateId) removeCallback(onRatingUpdateId);
+    };
+  }, [onRatingUpdateId]);
+
+  const onRatingUpdate = useCallback(
+    (avgRating: number, totalReviewCount: number): void => {
+      if (onRatingUpdateId)
+        invokeCallback(onRatingUpdateId, avgRating, totalReviewCount);
+    },
+    [onRatingUpdateId]
+  );
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const detailTabs = useMemo(
+    () => [
+      {
+        key: 'menu' as const,
+        label: t('tabs.menu'),
+        icon: ({
+          color,
+        }: {
+          isActive: boolean;
+          color: string;
+        }): JSX.Element => (
+          <Ionicons name="restaurant-outline" size={20} color={color} />
+        ),
+      },
+      {
+        key: 'reviews' as const,
+        label: t('tabs.reviews'),
+        icon: ({
+          color,
+        }: {
+          isActive: boolean;
+          color: string;
+        }): JSX.Element => (
+          <Ionicons name="chatbubble-outline" size={20} color={color} />
+        ),
+      },
+      {
+        key: 'nearby' as const,
+        label: t('tabs.nearby'),
+        icon: ({
+          color,
+        }: {
+          isActive: boolean;
+          color: string;
+        }): JSX.Element => (
+          <Ionicons name="ticket-outline" size={20} color={color} />
+        ),
+      },
+    ],
+    [t]
+  );
 
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
+  const cartDisplayName = useAppSelector(selectCartDisplayName);
+  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const queryClient = useQueryClient();
 
   // Refetch feedback when screen regains focus (e.g. after notification → ReviewList → goBack)
@@ -94,6 +162,8 @@ export const RestaurantDetailsScreen = ({
   const [editingFeedback, setEditingFeedback] = useState<Feedback | undefined>(
     undefined
   );
+
+  const { isFavorite, toggleFavorite } = useFavoriteBranches();
 
   const { isOpen, schedules } = useWorkSchedule(branch.branchId);
   const { dishes } = useBranchDishes(branch.branchId);
@@ -153,10 +223,10 @@ export const RestaurantDetailsScreen = ({
             const newCount = totalCount - 1;
             const newAvg =
               (averageRating * totalCount - deletedFeedback.rating) / newCount;
-            onRatingUpdate?.(newAvg, newCount);
+            onRatingUpdate(newAvg, newCount);
           } else {
             // If this was the only review, reset to 0
-            onRatingUpdate?.(0, 0);
+            onRatingUpdate(0, 0);
           }
         })
         .catch(() => {
@@ -218,14 +288,14 @@ export const RestaurantDetailsScreen = ({
         const newAvg =
           (averageRating * totalCount - oldRating + feedback.rating) /
           totalCount;
-        onRatingUpdate?.(newAvg, totalCount);
+        onRatingUpdate(newAvg, totalCount);
       } else {
         addFeedback(feedback);
         refetchVelocity();
         const newCount = totalCount + 1;
         const newAvg =
           (averageRating * totalCount + feedback.rating) / newCount;
-        onRatingUpdate?.(newAvg, newCount);
+        onRatingUpdate(newAvg, newCount);
       }
       setOwnFeedback(feedback);
     },
@@ -321,6 +391,7 @@ export const RestaurantDetailsScreen = ({
       imageUris: f.images?.map((img) => img.url) ?? [],
       tags: f.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
       isOwn: f.id === ownFeedback?.id,
+      editable: !f.updatedAt,
       dishName: dishName,
       upVotes: f.upVotes,
       downVotes: f.downVotes,
@@ -336,18 +407,32 @@ export const RestaurantDetailsScreen = ({
     };
   });
 
-  const nearbyRestaurants: NearbyRestaurant[] = nearbyBranches.map((b) => ({
-    id: String(b.branchId),
-    name: b.name,
-    rating: b.avgRating,
-    distance: b.distanceKm != null ? `${b.distanceKm.toFixed(1)} km` : '',
-    priceRange: getPriceRange(b.dishes),
-    imageUri: b.dishes[0]?.imageUrl,
-  }));
+  const nearbyRestaurants: NearbyRestaurant[] = nearbyBranches.map((b) => {
+    const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
+    const displayName = computeDisplayName(b, isMultiBranch, t('branch'));
+    return {
+      id: String(b.branchId),
+      name: displayName,
+      rating: b.avgRating,
+      distance: b.distanceKm != null ? `${b.distanceKm.toFixed(1)} km` : '',
+      priceRange: getPriceRange(b.dishes),
+      imageUri: b.dishes[0]?.imageUrl,
+      onPress: () =>
+        navigation.navigate('RestaurantDetails', { branch: b, displayName }),
+    };
+  });
+
+  const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1">
-      <FixedHeaderControls onSharePress={handleSharePress} />
+      <FixedHeaderControls
+        onSharePress={handleSharePress}
+        isFavorite={isFavorite(branch.branchId)}
+        onFavoritePress={() =>
+          toggleFavorite(branch, displayName, branchImageUrls[0])
+        }
+      />
 
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -358,15 +443,15 @@ export const RestaurantDetailsScreen = ({
         <RestaurantInfo restaurant={restaurantInfo} />
 
         {/* View on map & Giving direction */}
-        <View className="flex-row gap-3 px-4 pb-3">
+        <View className="flex-row gap-3 px-4 pb-6">
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Map', { initialBranch: branch })
             }
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-[#a1d973] py-2.5"
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-primary py-2.5"
           >
-            <Ionicons name="map-outline" size={18} color="#a1d973" />
-            <Text className="text-sm font-semibold text-[#a1d973]">
+            <Ionicons name="map-outline" size={18} color={COLORS.primary} />
+            <Text className="text-base font-semibold text-primary">
               {t('actions.view_on_map')}
             </Text>
           </TouchableOpacity>
@@ -410,16 +495,24 @@ export const RestaurantDetailsScreen = ({
                 });
               }
             }}
-            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-[#a1d973] py-2.5"
+            className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-2.5"
           >
             <Ionicons name="navigate-outline" size={18} color="#fff" />
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('giving_direction', { defaultValue: 'Chỉ đường' })}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <TabsBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabBar
+          tabs={detailTabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          variant="equal"
+          activeColor="#FF6B35"
+          inactiveColor="#999999"
+          indicatorColor="#FF6B35"
+        />
 
         {activeTab === 'menu' && (
           <MenuTab
@@ -470,18 +563,20 @@ export const RestaurantDetailsScreen = ({
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('PersonalCart', {
-              branchName: displayName,
+              branchName: cartBranchDisplayName,
               isOpen,
             })
           }
-          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-[#a1d973] px-5 py-4 shadow-lg"
+          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-primary px-5 py-4 shadow-lg"
         >
-          <Text className="text-base font-bold text-white">{displayName}</Text>
+          <Text className="text-base font-bold text-white">
+            {cartBranchDisplayName}
+          </Text>
           <View className="mt-1 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-[#EE6612]">
+            <Text className="text-base font-bold text-secondary">
               {t('cart.items_count', { count: cart.items.length })}
             </Text>
-            <Text className="text-base font-bold text-[#EE6612]">
+            <Text className="text-base font-bold text-secondary">
               {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
             </Text>
           </View>

@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { axiosApi } from '@lib/api/apiInstance';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
@@ -45,7 +46,7 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
       name: 'Default',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#9FD356',
+      lightColor: COLORS.primary,
     });
   }
 

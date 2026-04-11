@@ -11,9 +11,17 @@ export default {
       },
       colors: {
         primary: {
-          light: '#B8E986',
+          light: '#7AB82D',
           DEFAULT: '#9FD356',
-          dark: '#7AB82D',
+          dark: '#06AA4C',
+          gradient: {
+            from: '#89D151',
+            to: '#cef5b0',
+            hero: '#B8E986',
+          },
+        },
+        secondary: {
+          DEFAULT: '#EE6612',
         },
       },
     },

@@ -143,5 +143,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     './plugins/withAndroidDebugKeystore.cjs',
     '@maplibre/maplibre-react-native',
     'expo-notifications',
+    'expo-av',
   ],
 });

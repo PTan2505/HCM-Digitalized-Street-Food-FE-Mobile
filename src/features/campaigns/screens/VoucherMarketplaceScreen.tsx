@@ -1,3 +1,5 @@
+import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { VoucherDto } from '@features/campaigns/api/voucherApi';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
@@ -142,23 +144,14 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center bg-transparent px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <View
-          className="absolute left-0 right-0 items-center"
-          pointerEvents="none"
-        >
-          <Text className="text-xl font-bold text-gray-900">
-            {t('marketplace.title')}
-          </Text>
-        </View>
-      </View>
+      <Header
+        title={t('marketplace.title')}
+        onBackPress={() => navigation.goBack()}
+      />
       <View className="self-end">
         <View className="w-fit flex-row items-center rounded-full bg-amber-50 px-4 py-3">
           <Ionicons name="star" size={20} color="#F59E0B" />
-          <Text className="ml-2 text-sm font-semibold text-amber-700">
+          <Text className="ml-2 text-base font-semibold text-amber-700">
             {t('marketplace.your_points', {
               points: userPoints.toLocaleString('vi-VN'),
             })}
@@ -171,19 +164,19 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
       {/* Content */}
       {isLoading && availableVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : error && availableVouchers.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
-          <Text className="mt-3 text-center text-sm text-gray-400">
+          <Text className="mt-3 text-center text-base text-gray-400">
             {error}
           </Text>
           <TouchableOpacity
             onPress={() => void handleRefresh()}
-            className="mt-4 rounded-full bg-[#a1d973] px-6 py-2"
+            className="mt-4 rounded-full bg-primary px-6 py-2"
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text className="text-base font-semibold text-white">
               {t('campaign.retry')}
             </Text>
           </TouchableOpacity>
@@ -205,8 +198,8 @@ export const VoucherMarketplaceScreen = (): JSX.Element => {
             <RefreshControl
               refreshing={isLoading}
               onRefresh={() => void handleRefresh()}
-              tintColor="#a1d973"
-              colors={['#a1d973']}
+              tintColor={COLORS.primary}
+              colors={[COLORS.primary]}
             />
           }
           renderItem={({ item }) => (

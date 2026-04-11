@@ -37,7 +37,7 @@ export interface UpdateCartItemRequest {
 export interface CheckoutCartRequest {
   table?: string | null;
   paymentMethod?: string | null;
-  discountAmount?: number | null;
+  voucherId?: number | null;
   isTakeAway: boolean;
 }
 
@@ -210,17 +210,25 @@ export class OrderApi {
 
   getMyOrders(
     pageNumber = 1,
-    pageSize = 10
+    pageSize = 10,
+    status?: OrderStatus
   ): Promise<ApiResponse<PaginatedOrders>> {
     return this.apiClient.get<PaginatedOrders>({
       url: apiUrl.order.myOrders,
-      params: { pageNumber, pageSize },
+      params: { pageNumber, pageSize, status },
     });
   }
 
   getPickupCode(id: number): Promise<ApiResponse<PickupCodeResponse>> {
     return this.apiClient.get<PickupCodeResponse>({
       url: apiUrl.order.pickupCode(id),
+    });
+  }
+
+  cancelOrder(id: number): Promise<ApiResponse<OrderResponse>> {
+    return this.apiClient.put<OrderResponse, Record<string, never>>({
+      url: apiUrl.order.cancel(id),
+      data: {},
     });
   }
 }

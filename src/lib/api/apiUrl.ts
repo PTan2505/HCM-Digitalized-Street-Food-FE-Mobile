@@ -94,6 +94,7 @@ export const apiUrl = {
     byId: (id: number): string => `/api/Order/${id}`,
     myOrders: '/api/Order/my-orders',
     pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
+    cancel: (id: number): string => `/api/Order/${id}/cancel`,
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',
@@ -112,5 +113,7 @@ export const apiUrl = {
     marketplace: '/api/vouchers/marketplace',
     byId: (id: number): string => `/api/vouchers/${id}`,
     claim: (id: number): string => `/api/vouchers/${id}/claim`,
+    applicableByBranch: (branchId: number): string =>
+      `/api/vouchers/mine/branch/${branchId}`,
   },
 };

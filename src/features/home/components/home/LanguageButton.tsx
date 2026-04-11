@@ -38,7 +38,7 @@ const LanguageButton = (): JSX.Element => {
         className="flex-row items-center gap-1 rounded-full bg-white px-3 py-2 shadow-sm"
       >
         <Ionicons name="globe-outline" size={18} color="#000000" />
-        <Text className="text-xs font-medium text-gray-900">
+        <Text className="text-sm font-medium text-gray-900">
           {languageLabel}
         </Text>
         <Ionicons name="chevron-down" size={14} color="#000000" />
@@ -87,7 +87,7 @@ const LanguageButton = (): JSX.Element => {
                   }}
                 >
                   <Text
-                    className={`text-sm ${
+                    className={`text-base ${
                       isDark ? 'text-white' : 'text-gray-900'
                     }`}
                   >
@@ -106,7 +106,7 @@ const LanguageButton = (): JSX.Element => {
                   }`}
                 >
                   <Text
-                    className={`text-sm ${
+                    className={`text-base ${
                       isDark ? 'text-white' : 'text-gray-900'
                     }`}
                   >

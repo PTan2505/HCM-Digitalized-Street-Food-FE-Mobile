@@ -28,8 +28,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 import {
   Gesture,
   GestureDetector,
@@ -47,6 +45,8 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export const WithdrawScreen = (): JSX.Element => {
   const { t } = useTranslation();
@@ -206,7 +206,7 @@ export const WithdrawScreen = (): JSX.Element => {
         <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">
           {/* Balance info */}
           <View className="mb-6 rounded-2xl bg-primary/10 p-4">
-            <Text className="text-sm text-gray-500">
+            <Text className="text-base text-gray-500">
               {t('withdraw.available_balance')}
             </Text>
             <Text className="mt-1 text-2xl font-bold text-primary-dark">
@@ -242,7 +242,7 @@ export const WithdrawScreen = (): JSX.Element => {
                   <Ionicons name="chevron-down" size={18} color="#999999" />
                 </Pressable>
                 {methods.formState.errors.toBin && (
-                  <Text className="mt-1 text-sm text-[#FE4763]">
+                  <Text className="mt-1 text-base text-[#FE4763]">
                     {methods.formState.errors.toBin.message}
                   </Text>
                 )}
@@ -293,7 +293,7 @@ export const WithdrawScreen = (): JSX.Element => {
                         />
                       </View>
                       {fieldState.error && (
-                        <Text className="mt-1 text-sm text-[#FE4763]">
+                        <Text className="mt-1 text-base text-[#FE4763]">
                           {fieldState.error.message}
                         </Text>
                       )}

@@ -34,9 +34,9 @@ export const getHomeQuickActions = (
     onPress: (): void => navigation.navigate('VoucherMarketplace'),
   },
   {
-    id: 'personal-cart',
-    ionIcon: 'cart',
-    label: t('home_quick_actions.personal_cart'),
-    onPress: (): void => navigation.navigate('PersonalCart'),
+    id: 'favorites',
+    ionIcon: 'heart',
+    label: t('home_quick_actions.favorites'),
+    onPress: (): void => navigation.navigate('Favorites'),
   },
 ];

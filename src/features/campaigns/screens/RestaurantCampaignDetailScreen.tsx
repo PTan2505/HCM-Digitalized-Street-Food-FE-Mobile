@@ -101,7 +101,7 @@ export const RestaurantCampaignDetailScreen = ({
       >
         {/* Vendor badge */}
         <View className="mb-3 self-start rounded-full bg-orange-100 px-3 py-1">
-          <Text className="text-xs font-semibold text-orange-600">
+          <Text className="text-sm font-semibold text-orange-600">
             {t('campaign.merchant_promo')}
           </Text>
         </View>
@@ -110,7 +110,7 @@ export const RestaurantCampaignDetailScreen = ({
           {campaign.name}
         </Text>
 
-        <Text className="mb-4 text-sm text-gray-500">
+        <Text className="mb-4 text-base text-gray-500">
           {campaign.vendorName}
         </Text>
 
@@ -134,7 +134,7 @@ export const RestaurantCampaignDetailScreen = ({
               </Text>
             </View>
             {campaign.minOrderValueVnd != null && (
-              <Text className="mt-1 text-sm text-green-600">
+              <Text className="mt-1 text-base text-green-600">
                 {t('campaign.min_order')}:{' '}
                 {campaign.minOrderValueVnd.toLocaleString()}đ
               </Text>
@@ -145,7 +145,7 @@ export const RestaurantCampaignDetailScreen = ({
         {/* Expiry */}
         <View className="mb-2 flex-row items-center">
           <Ionicons name="time-outline" size={16} color="#6B7280" />
-          <Text className="ml-2 text-sm text-gray-500">
+          <Text className="ml-2 text-base text-gray-500">
             {t('campaign.expires')}: {expiryDate}
           </Text>
         </View>
@@ -154,7 +154,7 @@ export const RestaurantCampaignDetailScreen = ({
         {campaign.remainingClaims != null && (
           <View className="mb-4 flex-row items-center">
             <Ionicons name="ticket-outline" size={16} color="#6B7280" />
-            <Text className="ml-2 text-sm text-gray-500">
+            <Text className="ml-2 text-base text-gray-500">
               {isSoldOut
                 ? t('campaign.sold_out')
                 : `${campaign.remainingClaims} ${t('campaign.remaining')}`}
@@ -164,7 +164,7 @@ export const RestaurantCampaignDetailScreen = ({
 
         {/* Scope */}
         <View className="mb-4 rounded-xl bg-gray-50 p-3">
-          <Text className="text-xs text-gray-500">
+          <Text className="text-sm text-gray-500">
             {t('campaign.scope_restaurant', {
               name: campaign.vendorName,
             })}
@@ -176,7 +176,7 @@ export const RestaurantCampaignDetailScreen = ({
           onPress={handleClaim}
           disabled={isSoldOut || claimed}
           className={`mt-2 items-center rounded-xl py-4 ${
-            isSoldOut || claimed ? 'bg-gray-200' : 'bg-[#a1d973]'
+            isSoldOut || claimed ? 'bg-gray-200' : 'bg-primary'
           }`}
           activeOpacity={0.8}
         >

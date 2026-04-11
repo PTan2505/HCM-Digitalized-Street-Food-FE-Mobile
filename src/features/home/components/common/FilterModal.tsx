@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import { useCategories } from '@features/home/hooks/useCategories';
@@ -253,12 +254,12 @@ const FilterModal = ({
                       }
                       className={`rounded-full border px-4 py-2 ${
                         dietaryTags.includes(option.key)
-                          ? 'border-[#06AA4C] bg-[#06AA4C]'
+                          ? 'border-primary-dark bg-primary-dark'
                           : 'border-gray-300 bg-white'
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
+                        className={`text-base ${
                           dietaryTags.includes(option.key)
                             ? 'text-white'
                             : 'text-gray-700'
@@ -287,12 +288,12 @@ const FilterModal = ({
                       }
                       className={`rounded-full border px-4 py-2 ${
                         tasteTags.includes(option.key)
-                          ? 'border-[#06AA4C] bg-[#06AA4C]'
+                          ? 'border-primary-dark bg-primary-dark'
                           : 'border-gray-300 bg-white'
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
+                        className={`text-base ${
                           tasteTags.includes(option.key)
                             ? 'text-white'
                             : 'text-gray-700'
@@ -350,7 +351,7 @@ const FilterModal = ({
                     {t('price_range')}
                   </Text>
                   <View className="flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-                    <Text className="text-sm font-semibold text-[#06AA4C]">
+                    <Text className="text-base font-semibold text-primary-dark">
                       {minPrice === 0
                         ? '0₫'
                         : `${minPrice.toLocaleString('vi-VN')}đ`}{' '}
@@ -386,7 +387,7 @@ const FilterModal = ({
                             position: 'absolute',
                             left: oneMarkerLeftPosition - 19,
                             bottom: 0,
-                            backgroundColor: '#06AA4C',
+                            backgroundColor: COLORS.primaryDark,
                             borderRadius: 6,
                             paddingHorizontal: 6,
                             paddingVertical: 2,
@@ -409,7 +410,7 @@ const FilterModal = ({
                             position: 'absolute',
                             left: twoMarkerLeftPosition - 19,
                             bottom: 0,
-                            backgroundColor: '#06AA4C',
+                            backgroundColor: COLORS.primaryDark,
                             borderRadius: 6,
                             paddingHorizontal: 6,
                             paddingVertical: 2,
@@ -440,7 +441,7 @@ const FilterModal = ({
                     borderRadius: 2,
                   }}
                   selectedStyle={{
-                    backgroundColor: '#06AA4C',
+                    backgroundColor: COLORS.primaryDark,
                   }}
                   unselectedStyle={{
                     backgroundColor: '#E5E7EB',
@@ -451,8 +452,8 @@ const FilterModal = ({
                     borderRadius: 12,
                     backgroundColor: '#ffffff',
                     borderWidth: 2.5,
-                    borderColor: '#06AA4C',
-                    shadowColor: '#06AA4C',
+                    borderColor: COLORS.primaryDark,
+                    shadowColor: COLORS.primaryDark,
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.3,
                     shadowRadius: 4,
@@ -466,12 +467,12 @@ const FilterModal = ({
                   }}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-xs text-gray-400">0₫</Text>
-                  <Text className="text-xs text-gray-400">1M</Text>
-                  <Text className="text-xs text-gray-400">2M</Text>
-                  <Text className="text-xs text-gray-400">3M</Text>
-                  <Text className="text-xs text-gray-400">4M</Text>
-                  <Text className="text-xs text-gray-400">5M+</Text>
+                  <Text className="text-sm text-gray-400">0₫</Text>
+                  <Text className="text-sm text-gray-400">1M</Text>
+                  <Text className="text-sm text-gray-400">2M</Text>
+                  <Text className="text-sm text-gray-400">3M</Text>
+                  <Text className="text-sm text-gray-400">4M</Text>
+                  <Text className="text-sm text-gray-400">5M+</Text>
                 </View>
               </View>
             )}
@@ -484,7 +485,7 @@ const FilterModal = ({
                     {t('distance')}
                   </Text>
                   <View className="flex-row items-center rounded-full bg-[#E8F8F0] px-3 py-1">
-                    <Text className="text-sm font-semibold text-[#06AA4C]">
+                    <Text className="text-base font-semibold text-primary-dark">
                       {distance} km
                     </Text>
                   </View>
@@ -507,7 +508,7 @@ const FilterModal = ({
                             position: 'absolute',
                             left: oneMarkerLeftPosition - 19,
                             bottom: 0,
-                            backgroundColor: '#06AA4C',
+                            backgroundColor: COLORS.primaryDark,
                             borderRadius: 6,
                             paddingHorizontal: 6,
                             paddingVertical: 2,
@@ -536,7 +537,7 @@ const FilterModal = ({
                     borderRadius: 2,
                   }}
                   selectedStyle={{
-                    backgroundColor: '#06AA4C',
+                    backgroundColor: COLORS.primaryDark,
                   }}
                   unselectedStyle={{
                     backgroundColor: '#E5E7EB',
@@ -547,8 +548,8 @@ const FilterModal = ({
                     borderRadius: 12,
                     backgroundColor: '#ffffff',
                     borderWidth: 2.5,
-                    borderColor: '#06AA4C',
-                    shadowColor: '#06AA4C',
+                    borderColor: COLORS.primaryDark,
+                    shadowColor: COLORS.primaryDark,
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.3,
                     shadowRadius: 4,
@@ -562,11 +563,11 @@ const FilterModal = ({
                   }}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-xs text-gray-400">1km</Text>
-                  <Text className="text-xs text-gray-400">5km</Text>
-                  <Text className="text-xs text-gray-400">10km</Text>
-                  <Text className="text-xs text-gray-400">15km</Text>
-                  <Text className="text-xs text-gray-400">20km</Text>
+                  <Text className="text-sm text-gray-400">1km</Text>
+                  <Text className="text-sm text-gray-400">5km</Text>
+                  <Text className="text-sm text-gray-400">10km</Text>
+                  <Text className="text-sm text-gray-400">15km</Text>
+                  <Text className="text-sm text-gray-400">20km</Text>
                 </View>
               </View>
             )}
@@ -583,7 +584,7 @@ const FilterModal = ({
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleApply}
-              className="flex-1 rounded-full bg-[#06AA4C] py-4"
+              className="flex-1 rounded-full bg-primary-dark py-4"
             >
               <Text className="text-center text-base font-semibold text-white">
                 {t('apply')}

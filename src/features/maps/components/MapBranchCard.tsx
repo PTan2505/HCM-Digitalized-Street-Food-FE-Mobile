@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -76,7 +77,7 @@ export const MapBranchCard = ({
             <MaterialCommunityIcons
               name="bookmark-outline"
               size={20}
-              color="#EE6612"
+              color={COLORS.secondary}
             />
           </TouchableOpacity>
         </View>
@@ -84,13 +85,13 @@ export const MapBranchCard = ({
         {/* Rating + Distance */}
         <View className="mt-1 flex-row items-center gap-1.5">
           <MaterialIcons name="star" size={14} color="#FACC15" />
-          <Text className="text-xs font-semibold text-[#FACC15]">
+          <Text className="text-sm font-semibold text-[#FACC15]">
             {branch.avgRating.toFixed(1)}
           </Text>
           {distanceLabel && (
             <>
-              <Text className="text-xs text-gray-300">·</Text>
-              <Text className="text-xs text-gray-500">{distanceLabel}</Text>
+              <Text className="text-sm text-gray-300">·</Text>
+              <Text className="text-sm text-gray-500">{distanceLabel}</Text>
             </>
           )}
         </View>
@@ -99,7 +100,7 @@ export const MapBranchCard = ({
         {priceRange && (
           <View className="mt-1 flex-row items-center gap-1">
             <MaterialCommunityIcons name="cash" size={13} color="#6B7280" />
-            <Text className="text-xs text-gray-500">{priceRange}</Text>
+            <Text className="text-sm text-gray-500">{priceRange}</Text>
           </View>
         )}
 
@@ -111,7 +112,7 @@ export const MapBranchCard = ({
                 key={name}
                 className="rounded-full bg-[#E8F5E9] px-2 py-0.5"
               >
-                <Text className="text-[10px] font-medium text-[#06AA4C]">
+                <Text className="text-[10px] font-medium text-primary-dark">
                   {name}
                 </Text>
               </View>

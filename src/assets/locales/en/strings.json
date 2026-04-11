@@ -171,6 +171,7 @@
     "phone_number": "Phone Number",
     "dietary_preferences": "Dietary Preferences",
     "update_dietary_preferences": "Update Dietary Preferences",
+    "favorites": "Favourites",
     "my_ghost_pins": "My shared restaurants",
     "main_menu": "Main Menu",
     "activity": "Activity",
@@ -193,6 +194,11 @@
     "voucher_wallet": "Voucher Wallet",
     "voucher_marketplace": "Voucher Marketplace",
     "personal-features": "Personal Features"
+  },
+  "favorites": {
+    "title": "Favourites",
+    "empty_title": "No favourites yet",
+    "empty_hint": "Tap the heart icon on a restaurant page to save it here"
   },
   "bottom_tabs": {
     "discover": "Discover",
@@ -285,12 +291,36 @@
     "error": "Could not place order. Please try again.",
     "payment_failed": "Payment was not completed or was cancelled. Please try again.",
     "payment_qr_title": "QR Payment",
-    "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order"
+    "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order",
+    "payment_qr_order_id": "Order ID",
+    "payment_qr_share": "Share QR Code",
+    "payment_qr_share_error": "Could not share QR code. Please try again.",
+    "payment_qr_view_order": "View Order Status",
+    "cancel_order_title": "Cancel Order",
+    "cancel_order_message": "Are you sure you want to cancel this order?",
+    "voucher": "Voucher",
+    "select_voucher": "Select voucher",
+    "no_voucher": "No voucher",
+    "voucher_applied": "Voucher applied",
+    "voucher_discount": "Discount",
+    "voucher_final_amount": "Total",
+    "voucher_min_required": "Min. order {{amount}}",
+    "voucher_no_min": "No minimum order",
+    "voucher_max_discount": "Max {{amount}}",
+    "voucher_expires": "Exp: {{date}}",
+    "voucher_need_more": "Need {{amount}} more to apply",
+    "voucher_apply": "Apply",
+    "voucher_selected": "Selected",
+    "voucher_auto_applied": "Best voucher auto-applied",
+    "voucher_search_placeholder": "Enter promo or gift code here",
+    "voucher_saves": "Save {{amount}}",
+    "skip_voucher": "Skip voucher and continue"
   },
   "order": {
     "status_title": "Order Status",
     "history_title": "Order History",
     "my_orders": "My Orders",
+    "item_count": "{{count}} items",
     "no_orders": "You have no orders yet",
     "cancel": "Cancel Order",
     "cancel_confirm": "Are you sure you want to cancel this order?",
@@ -359,15 +389,42 @@
   "giving_direction": "Get Directions",
   "review": {
     "write": "Write a review",
+    "edit": "Edit",
     "delete_title": "Delete Review",
     "delete_confirm": "Are you sure you want to delete this review?",
     "delete": "Delete",
-    "delete_error": "Could not delete review"
+    "delete_error": "Could not delete review",
+    "form": {
+      "title_write": "Write a review",
+      "title_edit": "Edit review",
+      "edit_notice": "Note: You can only edit one time for each review",
+      "your_rating": "Your rating",
+      "dish_optional": "Dish (Optional)",
+      "tags_optional": "Tags (Optional)",
+      "comment": "Comment",
+      "comment_placeholder": "Share your experience...",
+      "images_optional": "Images (Optional)",
+      "add_image": "Add image",
+      "add_image_title": "Add image",
+      "add_image_take_photo": "Take photo",
+      "add_image_from_library": "Choose from library",
+      "camera_permission_required": "Camera permission is required to take a photo.",
+      "library_permission_required": "Photo library permission is required to pick images.",
+      "error_select_rating": "Please select a star rating",
+      "error_daily_limit": "You have reached your daily review limit.",
+      "error_submit_not_near": "Cannot submit review. You may be too far from this place.",
+      "error_submit_default": "Failed to submit review. Please try again.",
+      "save_changes": "Save changes",
+      "submit": "Submit review"
+    }
   },
   "common": {
     "vietnamese": "Vietnamese",
     "english": "English",
-    "cancel": "Cancel"
+    "ok": "OK",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No"
   },
   "campaign": {
     "title": "Campaigns",
@@ -435,6 +492,34 @@
     "voucher_apply_disabled": "Unavailable",
     "max_discount": "Max {{amount}}đ off"
   },
+  "voucher_wallet": {
+    "voucher_wallet": "My Vouchers",
+    "retry": "Retry",
+    "voucher_active": "Active",
+    "voucher_empty": "No vouchers yet. Discover campaigns to earn or claim vouchers!",
+    "voucher_empty_system": "No platform vouchers yet.",
+    "voucher_empty_vendor": "No restaurant vouchers yet.",
+    "discover_campaigns": "Discover Campaigns",
+    "expired": "Expired",
+    "expiring_soon": "Expiring Soon",
+    "voucher_tab_all": "All",
+    "voucher_tab_campaign": "Campaign",
+    "voucher_tab_system": "Lowca",
+    "voucher_tab_vendor": "Restaurant",
+    "history": "History",
+    "valid_until": "Valid until {{date}}",
+    "starts_on": "Starts {{date}}",
+    "voucher_not_available": "Already used",
+    "voucher_apply": "Apply",
+    "max_discount": "Max {{amount}}đ off",
+    "min_order": "Min. order {{amount}}đ",
+    "scope_participating": "Valid at participating restaurants",
+    "scope_restaurant": "Valid only at {{name}}",
+    "applicable_branches_title": "Restaurants that can use this voucher",
+    "applicable_branches_search_placeholder": "Search applicable restaurants...",
+    "applicable_branches_empty": "No restaurants can apply this voucher.",
+    "applicable_branches_error": "Could not load restaurants. Please try again."
+  },
   "marketplace": {
     "title": "Voucher Marketplace",
     "your_points": "Your points: {{points}}",
@@ -476,7 +561,7 @@
     "notFound": "Challenge not found",
     "homeTitle": "Challenges",
     "homeSubtitle": "Complete tasks and earn rewards",
-    "rewards": "Rewards",
+    "rewards": "Rewards can be claimed",
     "taskType": {
       "review": "Write a review",
       "orderAmount": "Spend amount",
@@ -489,6 +574,12 @@
       "voucher": "Voucher",
       "voucherOff": "Off",
       "voucherRemain": "{{count}} left"
+    },
+    "rewardModal": {
+      "congrats": "Congratulations!",
+      "title": "You've earned a reward",
+      "subtitle": "Great job completing the task. Your reward has been added to your account.",
+      "collect": "Collect Reward"
     }
   },
   "withdraw": {
@@ -511,16 +602,65 @@
     "search_bank": "Search bank...",
     "no_bank_found": "No bank found"
   },
-  "common": {
-    "ok": "OK",
-    "cancel": "Cancel"
+  "ghost_pin_creation": {
+    "title": "Add New Stall",
+    "form": {
+      "name_label": "Stall Name",
+      "name_placeholder": "Enter stall name",
+      "address_label": "Address",
+      "address_placeholder": "Search address...",
+      "submit": "Confirm"
+    },
+    "nearby": {
+      "title": "Nearby stalls found",
+      "description": "There are already {{count}} stalls within a 1km radius. The stall you want to add may already exist:"
+    },
+    "feedback": {
+      "title": "Review (Optional)",
+      "subtitle": "Share more about this stall and add reference images",
+      "your_rating": "Your rating",
+      "tags_label": "Tags (Optional)",
+      "placeholder": "Describe this stall (signature dishes, opening hours, prices, standout features...)",
+      "character_count": "{{count}}/500 characters",
+      "image_section_title": "Reference images",
+      "image_counter": "{{selected}}/{{max}}",
+      "image_hint": "Upload photos of the stall, dishes, menu, or signboard"
+    },
+    "validation": {
+      "name_min_length": "Stall name must be at least 2 characters",
+      "address_required": "Please select an address from suggestions or map"
+    },
+    "submit_error": {
+      "duplicate_nearby": "A nearby stall has already been reported",
+      "default": "Could not create pin. Please try again."
+    },
+    "alert": {
+      "image_limit_title": "Image limit",
+      "image_limit_message": "You can upload up to {{count}} images",
+      "permission_title": "Permission required",
+      "photo_permission_message": "Please allow photo library access in Settings.",
+      "camera_permission_message": "Please allow camera access in Settings.",
+      "add_image_title": "Add image",
+      "choose_image_source": "Choose image source",
+      "take_photo": "Take photo",
+      "choose_from_library": "Choose from library",
+      "success_title": "Success",
+      "success_message": "New stall pin has been created successfully!"
+    },
+    "distance_meters": "{{count}}m",
+    "distance_kilometers": "{{count}}km"
+  },
+  "my_ghost_pins": {
+    "title": "Stalls I've Added",
+    "add_action": "Add"
   },
   "home_quick_actions": {
     "section_title": "Explore Lowca",
     "ghost_pin": "Share New Stall",
     "quest": "Quests",
     "voucher_market": "Voucher Market",
-    "personal_cart": "Cart"
+    "personal_cart": "Cart",
+    "favorites": "Favourites"
   },
   "voucher": {
     "discount": "Discount",

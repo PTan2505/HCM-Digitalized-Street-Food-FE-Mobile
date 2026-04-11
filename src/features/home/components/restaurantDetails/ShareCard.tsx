@@ -1,4 +1,5 @@
 import AppLogo from '@assets/logos/lowcaLogo.svg';
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { JSX } from 'react';
@@ -132,7 +133,7 @@ const ShareCard = ({
             Lowca
           </Text>
         </View>
-        <Text style={{ color: '#9FD356', fontSize: 11 }}>
+        <Text style={{ color: COLORS.primary, fontSize: 11 }}>
           lowca://restaurant/{branch.branchId}
         </Text>
       </View>

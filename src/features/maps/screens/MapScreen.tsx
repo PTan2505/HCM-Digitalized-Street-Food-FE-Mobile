@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import FilterModal from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
@@ -16,6 +17,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   fetchActiveBranches,
@@ -421,8 +423,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       navigation.navigate('RestaurantDetails', {
         branch,
         displayName: getDisplayName(branch),
-        onRatingUpdate: (avgRating, totalReviewCount) =>
-          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount),
+        onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount)
+        ),
       });
     },
     [navigation, getDisplayName, handleRatingUpdate]
@@ -434,8 +437,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       navigation.navigate('RestaurantSwipe', {
         branch,
         displayName: getDisplayName(branch),
-        onRatingUpdate: (avgRating, totalReviewCount) =>
-          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount),
+        onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount)
+        ),
       });
     },
     [navigation, getDisplayName, handleRatingUpdate]
@@ -461,7 +465,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   ) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#a1d973" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text className="mt-4 text-base text-[#666]">
           Đang yêu cầu quyền truy cập vị trí...
         </Text>
@@ -480,7 +484,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           gần bạn.
         </Text>
         <TouchableOpacity
-          className="rounded-lg bg-[#a1d973] px-6 py-3"
+          className="rounded-lg bg-primary px-6 py-3"
           onPress={retryPermission}
         >
           <Text className="text-base font-semibold text-white">
@@ -606,7 +610,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           <GestureDetector gesture={panGesture}>
             <Animated.View className="items-center pb-2 pt-3">
               <View className="h-1 w-10 rounded-full bg-gray-300" />
-              <Text className="mt-1.5 text-xs font-medium text-gray-400">
+              <Text className="mt-1.5 text-sm font-medium text-gray-400">
                 {branches.length > 0
                   ? `${branches.length} quán ăn gần đây`
                   : ''}
@@ -617,7 +621,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           {/* List content */}
           {branchesStatus === 'pending' ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#a1d973" />
+              <ActivityIndicator size="large" color={COLORS.primary} />
             </View>
           ) : branchesStatus === 'failed' ? (
             <View className="flex-1 items-center justify-center px-6">
@@ -634,9 +638,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
                     );
                   }
                 }}
-                className="mt-4 rounded-full bg-[#06AA4C] px-6 py-2"
+                className="mt-4 rounded-full bg-primary-dark px-6 py-2"
               >
-                <Text className="text-sm font-semibold text-white">
+                <Text className="text-base font-semibold text-white">
                   {t('search.retry')}
                 </Text>
               </TouchableOpacity>

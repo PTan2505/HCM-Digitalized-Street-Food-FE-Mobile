@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -58,7 +59,7 @@ const getNotificationIcon = (
       return { name: 'star-outline', color: '#10B981' };
     case 'QuestTaskCompleted':
     case 'QuestCompleted':
-      return { name: 'trophy-outline', color: '#a1d973' };
+      return { name: 'trophy-outline', color: COLORS.primary };
     default:
       return { name: 'notifications-outline', color: '#6B7280' };
   }
@@ -100,13 +101,6 @@ export const NotificationScreen = (): JSX.Element => {
         void dispatch(markNotificationRead(item.notificationId));
       }
 
-      console.log(
-        '[NotificationScreen] type:',
-        item.type,
-        'referenceId:',
-        item.referenceId
-      );
-
       if (item.referenceId) {
         switch (item.type) {
           case 'OrderStatusUpdate':
@@ -117,6 +111,14 @@ export const NotificationScreen = (): JSX.Element => {
             });
             break;
           case 'QuestTaskCompleted':
+            // referenceId is questTaskId — resolve to questId first
+            void axiosApi.questApi
+              .getQuestTaskById(item.referenceId)
+              .then((task) => {
+                navigation.navigate('QuestDetail', { questId: task.questId });
+              })
+              .catch(() => {});
+            break;
           case 'QuestCompleted':
             navigation.navigate('QuestDetail', { questId: item.referenceId });
             break;
@@ -192,20 +194,20 @@ export const NotificationScreen = (): JSX.Element => {
           </View>
           <View className="flex-1">
             <Text
-              className={`text-sm ${!item.isRead ? 'font-bold' : 'font-medium'} text-gray-800`}
+              className={`text-base ${!item.isRead ? 'font-bold' : 'font-medium'} text-gray-800`}
               numberOfLines={1}
             >
               {item.title}
             </Text>
-            <Text className="mt-0.5 text-xs text-gray-500" numberOfLines={2}>
+            <Text className="mt-0.5 text-sm text-gray-500" numberOfLines={2}>
               {item.message}
             </Text>
-            <Text className="mt-1 text-xs text-gray-400">
+            <Text className="mt-1 text-sm text-gray-400">
               {formatTimeAgo(item.createdAt, t)}
             </Text>
           </View>
           {!item.isRead && (
-            <View className="ml-2 mt-2 h-2.5 w-2.5 rounded-full bg-[#a1d973]" />
+            <View className="ml-2 mt-2 h-2.5 w-2.5 rounded-full bg-primary" />
           )}
         </TouchableOpacity>
       );
@@ -228,7 +230,7 @@ export const NotificationScreen = (): JSX.Element => {
           disabled={unreadCount === 0}
         >
           <Text
-            className={`text-sm font-medium ${unreadCount > 0 ? 'text-[#a1d973]' : 'text-gray-300'}`}
+            className={`text-base font-medium ${unreadCount > 0 ? 'text-primary' : 'text-gray-300'}`}
           >
             {t('notification.mark_all_read')}
           </Text>
@@ -238,7 +240,7 @@ export const NotificationScreen = (): JSX.Element => {
       {/* Content */}
       {status === 'pending' ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#a1d973" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
         <FlatList
@@ -264,7 +266,7 @@ export const NotificationScreen = (): JSX.Element => {
           ListFooterComponent={
             loadingMore ? (
               <View className="items-center py-4">
-                <ActivityIndicator color="#a1d973" />
+                <ActivityIndicator color={COLORS.primary} />
               </View>
             ) : null
           }

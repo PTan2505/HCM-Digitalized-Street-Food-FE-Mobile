@@ -1,65 +1,134 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
+import { axiosApi } from '@lib/api/apiInstance';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
+import { addPoints } from '@slices/auth';
+import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
+import { fetchMyQuests, setPendingReward } from '@slices/quests';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
 const HUB_URL = `${process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '')}/hubs/notifications`;
+const MAX_RETRY_DELAY_MS = 30_000;
+const INITIAL_RETRY_DELAY_MS = 2_000;
 
 export const useNotificationSocket = (isAuthenticated: boolean): void => {
   const dispatch = useAppDispatch();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
-  const startConnection = (connection: signalR.HubConnection): void => {
-    if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-    connection.start().catch(() => {});
-  };
-
-  const stopConnection = (connection: signalR.HubConnection): void => {
-    if (connection.state === signalR.HubConnectionState.Disconnected) return;
-    connection.stop().catch(() => {});
-  };
-
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const buildAndStart = (): signalR.HubConnection => {
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(HUB_URL, {
-          accessTokenFactory: () => tokenManagement.getAccessToken(),
-        })
-        .withAutomaticReconnect()
-        .configureLogging(signalR.LogLevel.Warning)
-        .build();
+    let cancelled = false;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-      connection.on('ReceiveNotification', (notification: NotificationDto) => {
-        dispatch(receiveNotification(notification));
-      });
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => tokenManagement.getAccessToken(),
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build();
 
-      startConnection(connection);
+    connection.on('ReceiveNotification', (notification: NotificationDto) => {
+      dispatch(receiveNotification(notification));
 
-      return connection;
-    };
-
-    connectionRef.current = buildAndStart();
-
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      const conn = connectionRef.current;
-      if (!conn) return;
-      if (nextState === 'active') {
-        startConnection(conn);
-        return;
+      if (
+        notification.type === 'OrderStatusUpdate' &&
+        notification.referenceId
+      ) {
+        dispatch(
+          syncOrderToHistoryFromNotificationThunk(notification.referenceId)
+        );
       }
 
-      stopConnection(conn);
+      const isQuestTaskCompleted =
+        notification.type === 'QuestTaskCompleted' || notification.type === '3';
+
+      if (isQuestTaskCompleted && notification.referenceId) {
+        const questTaskId = notification.referenceId;
+
+        // Fetch the task definition to get reward info, then show modal.
+        // Delay showing the modal by 1 s so any currently-open modal (e.g. the
+        // ReviewFormModal) has time to dismiss before we present the reward card.
+        axiosApi.questApi
+          .getQuestTaskById(questTaskId)
+          .then((task) => {
+            // POINTS — update user balance immediately (no need to wait)
+            if (task.rewardType === 'POINTS') {
+              dispatch(addPoints(task.rewardValue));
+            }
+
+            setTimeout(() => {
+              dispatch(
+                setPendingReward({
+                  rewardType: task.rewardType,
+                  rewardValue: task.rewardValue,
+                })
+              );
+            }, 1000);
+          })
+          .catch(() => {});
+
+        // Refresh quest list in background so screens stay up-to-date
+        dispatch(fetchMyQuests(undefined));
+      }
+    });
+
+    connectionRef.current = connection;
+
+    // Retry with exponential backoff on initial connection failure.
+    // withAutomaticReconnect() only handles drops after a successful connection.
+    const scheduleRetry = (delay: number): void => {
+      retryTimeout = setTimeout(() => {
+        retryTimeout = null;
+        connect(delay);
+      }, delay);
+    };
+
+    const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
+      if (cancelled) return;
+      if (connection.state !== signalR.HubConnectionState.Disconnected) return;
+      connection.start().catch(() => {
+        if (cancelled) return;
+        scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+      });
+    };
+
+    const disconnect = (): void => {
+      if (retryTimeout !== null) {
+        clearTimeout(retryTimeout);
+        retryTimeout = null;
+      }
+      if (
+        connection.state === signalR.HubConnectionState.Disconnected ||
+        connection.state === signalR.HubConnectionState.Connecting
+      )
+        return;
+      connection.stop().catch(() => {});
+    };
+
+    connect();
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (cancelled) return;
+      if (nextState === 'active') {
+        connect();
+        return;
+      }
+      // 'inactive' is a transient iOS state (phone call, Control Center, etc.)
+      // — do not disconnect, it will settle back to 'active' shortly.
+      if (nextState === 'background') {
+        disconnect();
+      }
     });
 
     return (): void => {
+      cancelled = true;
       subscription.remove();
-      const conn = connectionRef.current;
-      if (conn) stopConnection(conn);
+      disconnect();
       connectionRef.current = null;
     };
   }, [isAuthenticated, dispatch]);

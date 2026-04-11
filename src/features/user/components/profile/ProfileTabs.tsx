@@ -31,7 +31,7 @@ export const ProfileTabs = ({
             }`}
           >
             <Text
-              className={`text-center text-sm font-semibold ${
+              className={`text-center text-base font-semibold ${
                 isActive ? 'text-white' : 'text-gray-600'
               }`}
             >

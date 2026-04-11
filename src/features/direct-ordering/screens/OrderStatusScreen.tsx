@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import {
   ORDER_STATUS,
@@ -64,7 +65,7 @@ export const OrderStatusScreen = ({
         edges={['top']}
         className="flex-1 items-center justify-center bg-white"
       >
-        <ActivityIndicator size="large" color="#a1d973" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </SafeAreaView>
     );
   }
@@ -102,18 +103,18 @@ export const OrderStatusScreen = ({
             {displayName ?? order.branchName}
           </Text>
           {order.table ? (
-            <Text className="mt-1 text-sm text-gray-500">
+            <Text className="mt-1 text-base text-gray-500">
               {t('order.table_label')} {order.table}
             </Text>
           ) : (
-            <Text className="mt-1 text-sm text-gray-500">
+            <Text className="mt-1 text-base text-gray-500">
               {t('order.take_away')}
             </Text>
           )}
-          <Text className="mt-1 text-sm text-gray-500">
+          <Text className="mt-1 text-base text-gray-500">
             {t('order.date_label')} {formattedDate}
           </Text>
-          <Text className="mt-1 text-sm text-gray-500">
+          <Text className="mt-1 text-base text-gray-500">
             {t('order.receipt_number')} #{order.orderId}
           </Text>
         </View>
@@ -125,13 +126,13 @@ export const OrderStatusScreen = ({
               activeStep={currentStep}
               isComplete={order.status === ORDER_STATUS.Complete}
               labelFontSize={12}
-              completedProgressBarColor="#a1d973"
+              completedProgressBarColor={COLORS.primary}
               progressBarColor="#EBEBE4"
-              activeStepIconBorderColor="#a1d973"
-              completedStepIconColor="#a1d973"
+              activeStepIconBorderColor={COLORS.primary}
+              completedStepIconColor={COLORS.primary}
               disabledStepIconColor="#EBEBE4"
-              activeLabelColor="#a1d973"
-              completedLabelColor="#a1d973"
+              activeLabelColor={COLORS.primary}
+              completedLabelColor={COLORS.primary}
               completedCheckColor="#fff"
               topOffset={16}
               marginBottom={0}
@@ -156,8 +157,8 @@ export const OrderStatusScreen = ({
 
         {/* Pickup Code */}
         {pickupCode && (
-          <View className="mx-4 my-4 items-center rounded-2xl border border-[#a1d973] bg-[#f6ffed] px-4 py-5">
-            <Text className="text-sm font-semibold text-gray-500">
+          <View className="mx-4 my-4 items-center rounded-2xl border border-primary bg-[#f6ffed] px-4 py-5">
+            <Text className="text-base font-semibold text-gray-500">
               {t('order.pickup_code_label')}
             </Text>
             <Text className="mt-1 text-4xl font-bold tracking-widest text-black">
@@ -170,16 +171,16 @@ export const OrderStatusScreen = ({
         <View className="gap-4 border-b border-gray-100 px-4 py-4">
           {order.items.map((item, index) => (
             <View key={item.dishId} className="flex-row items-center">
-              <Text className="text-sm font-medium text-black">
+              <Text className="text-base font-medium text-black">
                 {index + 1}.
               </Text>
-              <Text className="ml-4 flex-1 text-sm font-medium text-black">
+              <Text className="ml-4 flex-1 text-base font-medium text-black">
                 {item.dishName}
               </Text>
-              <Text className="ml-4 flex-1 text-sm font-medium text-black">
+              <Text className="ml-4 flex-1 text-base font-medium text-black">
                 x{item.quantity}
               </Text>
-              <Text className="text-sm font-semibold text-black">
+              <Text className="text-base font-semibold text-black">
                 {(item.price * item.quantity).toLocaleString('vi-VN')}₫
               </Text>
             </View>
@@ -189,12 +190,12 @@ export const OrderStatusScreen = ({
         {/* Payment Method */}
         {order.paymentMethod ? (
           <View className="border-b border-gray-100 px-4 py-4">
-            <Text className="mb-3 text-sm font-semibold text-gray-700">
+            <Text className="mb-3 text-base font-semibold text-gray-700">
               {t('order.payment_method_label')}
             </Text>
             <View className="flex-row items-center gap-2">
               <Ionicons name="card-outline" size={20} color="#333" />
-              <Text className="text-sm text-gray-700">
+              <Text className="text-base text-gray-700">
                 {t(`order.payment_method.${order.paymentMethod}`)}
               </Text>
             </View>
@@ -204,18 +205,20 @@ export const OrderStatusScreen = ({
         {/* Summary */}
         <View className="px-4 py-4">
           <View className="flex-row items-center justify-between py-1">
-            <Text className="text-sm text-gray-500">{t('order.subtotal')}</Text>
-            <Text className="text-sm text-black">
+            <Text className="text-base text-gray-500">
+              {t('order.subtotal')}
+            </Text>
+            <Text className="text-base text-black">
               {order.totalAmount.toLocaleString('vi-VN')}₫
             </Text>
           </View>
           {/* Voucher discount — will be expanded later */}
           {order.discountAmount != null && order.discountAmount > 0 ? (
             <View className="flex-row items-center justify-between py-1">
-              <Text className="text-sm text-gray-500">
+              <Text className="text-base text-gray-500">
                 {t('order.discount')}
               </Text>
-              <Text className="text-sm text-[#00B14F]">
+              <Text className="text-base text-[#00B14F]">
                 -{order.discountAmount.toLocaleString('vi-VN')}₫
               </Text>
             </View>

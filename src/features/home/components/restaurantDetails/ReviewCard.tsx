@@ -1,9 +1,9 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   Animated,
   Dimensions,
   FlatList,
@@ -37,6 +37,7 @@ export interface Review {
   imageUris: string[];
   tags: ReviewTag[];
   isOwn: boolean;
+  editable: boolean;
   dishName?: string;
   upVotes: number;
   downVotes: number;
@@ -59,7 +60,6 @@ interface ReviewCardProps {
 const ReviewCard = ({
   review,
   onEdit,
-  onDelete,
   onVote,
 }: ReviewCardProps): JSX.Element => {
   const { t } = useTranslation();
@@ -131,18 +131,6 @@ const ReviewCard = ({
     );
   };
 
-  const handleDelete = (): void => {
-    setShowMenu(false);
-    Alert.alert('Xoá đánh giá', 'Bạn có chắc muốn xoá đánh giá này?', [
-      { text: 'Huỷ', style: 'cancel' },
-      {
-        text: 'Xoá',
-        style: 'destructive',
-        onPress: (): void => onDelete?.(review.feedbackId),
-      },
-    ]);
-  };
-
   const handleEdit = (): void => {
     setShowMenu(false);
     onEdit?.();
@@ -194,7 +182,7 @@ const ReviewCard = ({
         shadowRadius: 10,
         elevation: 3,
         borderWidth: review.isOwn ? 1.5 : 0,
-        borderColor: review.isOwn ? '#9FD356' : 'transparent',
+        borderColor: review.isOwn ? COLORS.primary : 'transparent',
       }}
     >
       {/* Header */}
@@ -227,11 +215,11 @@ const ReviewCard = ({
               </View>
             )}
           </View>
-          <Text className="text-xs text-gray-400">{review.date}</Text>
+          <Text className="text-sm text-gray-400">{review.date}</Text>
           <Text
-            className={`text-xs font-semibold ${
+            className={`text-sm font-semibold ${
               review.upVotes - review.downVotes > 0
-                ? 'text-[#7AB82D]'
+                ? 'text-primary-light'
                 : review.upVotes - review.downVotes < 0
                   ? 'text-red-400'
                   : 'text-gray-400'
@@ -289,30 +277,16 @@ const ReviewCard = ({
                       {/* Edit Option */}
                       <TouchableOpacity
                         onPress={handleEdit}
-                        className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-3"
+                        disabled={!review.editable}
+                        className="flex-row items-center gap-3 border-gray-100 px-4 py-3 disabled:opacity-30"
                       >
                         <Ionicons
                           name="pencil-outline"
                           size={18}
                           color="#6B7280"
                         />
-                        <Text className="text-sm font-medium text-gray-700">
-                          Chỉnh sửa
-                        </Text>
-                      </TouchableOpacity>
-
-                      {/* Delete Option */}
-                      <TouchableOpacity
-                        onPress={handleDelete}
-                        className="flex-row items-center gap-3 px-4 py-3"
-                      >
-                        <Ionicons
-                          name="trash-outline"
-                          size={18}
-                          color="#EF4444"
-                        />
-                        <Text className="text-sm font-medium text-red-500">
-                          Xoá
+                        <Text className="text-base font-medium text-gray-700">
+                          {t('review.edit')}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -331,13 +305,15 @@ const ReviewCard = ({
                     review.userVote === 'up' ? 'thumbs-up' : 'thumbs-up-outline'
                   }
                   size={18}
-                  color={review.userVote === 'up' ? '#7AB82D' : '#9CA3AF'}
+                  color={
+                    review.userVote === 'up' ? COLORS.primaryLight : '#9CA3AF'
+                  }
                 />
               </TouchableOpacity>
               <Text
-                className={`min-w-[16px] text-center text-xs font-semibold ${
+                className={`min-w-[16px] text-center text-sm font-semibold ${
                   review.upVotes - review.downVotes > 0
-                    ? 'text-[#7AB82D]'
+                    ? 'text-primary-light'
                     : review.upVotes - review.downVotes < 0
                       ? 'text-red-400'
                       : 'text-gray-400'
@@ -371,7 +347,7 @@ const ReviewCard = ({
       {review.dishName ? (
         <View className="mb-2 flex-row items-center gap-1">
           <Ionicons name="restaurant-outline" size={13} color="#9CA3AF" />
-          <Text className="text-xs text-gray-400">{review.dishName}</Text>
+          <Text className="text-sm text-gray-400">{review.dishName}</Text>
         </View>
       ) : null}
 
@@ -392,7 +368,7 @@ const ReviewCard = ({
       )}
 
       {/* Comment */}
-      <Text className="mb-3 text-sm leading-5 text-gray-700">
+      <Text className="mb-3 text-base leading-5 text-gray-700">
         {review.comment}
       </Text>
 
@@ -439,7 +415,7 @@ const ReviewCard = ({
 
               {/* Page indicator */}
               <View className="absolute bottom-10 z-10 w-full items-center">
-                <Text className="text-sm font-semibold text-white/80">
+                <Text className="text-base font-semibold text-white/80">
                   {lightboxIndex + 1} / {review.imageUris.length}
                 </Text>
               </View>
@@ -485,8 +461,12 @@ const ReviewCard = ({
       {review.vendorReply ? (
         <View className="rounded-xl bg-gray-50 p-3">
           <View className="mb-1.5 flex-row items-center gap-1.5">
-            <Ionicons name="storefront-outline" size={14} color="#7AB82D" />
-            <Text className="text-xs font-bold text-[#7AB82D]">
+            <Ionicons
+              name="storefront-outline"
+              size={14}
+              color={COLORS.primaryLight}
+            />
+            <Text className="text-sm font-bold text-primary-light">
               {review.vendorName ?? review.vendorReply.repliedBy}
             </Text>
             <Text className="text-[10px] text-gray-400">
@@ -495,7 +475,7 @@ const ReviewCard = ({
               )}
             </Text>
           </View>
-          <Text className="text-sm leading-4 text-gray-600">
+          <Text className="text-base leading-4 text-gray-600">
             {review.vendorReply.content}
           </Text>
         </View>

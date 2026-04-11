@@ -60,6 +60,15 @@ export const getProfileSections = (
       title: t('profile.personal-features'),
       items: [
         {
+          id: 'favorites',
+          icon: 'heart-outline',
+          title: t('profile.favorites'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => {
+            navigation.navigate('Favorites');
+          },
+        },
+        {
           id: 'balance',
           icon: 'wallet-outline',
           title: t('profile.my_balance'),
@@ -83,6 +92,7 @@ export const getProfileSections = (
           id: 'order-history',
           icon: 'bag-handle-outline',
           title: t('order.my_orders'),
+          rightIcon: 'chevron-forward',
           onPress: (): void => navigation.navigate('OrderHistory'),
         },
 
@@ -90,6 +100,7 @@ export const getProfileSections = (
           id: 'ghost-pins',
           icon: 'location-outline',
           title: t('profile.my_ghost_pins'),
+          rightIcon: 'chevron-forward',
           onPress: (): void => navigation.navigate('MyGhostPins'),
         },
       ],
@@ -124,16 +135,16 @@ export const getProfileSections = (
             navigation.navigate('VoucherMarketplace');
           },
         },
-        {
-          id: 'rewards',
-          icon: 'gift-outline',
-          title: t('profile.rewards'),
-          badge: t('profile.new'),
-          badgeColor: '#FF6B6B',
-          onPress: (): void => {
-            // Navigate to rewards
-          },
-        },
+        // {
+        //   id: 'rewards',
+        //   icon: 'gift-outline',
+        //   title: t('profile.rewards'),
+        //   badge: t('profile.new'),
+        //   badgeColor: '#FF6B6B',
+        //   onPress: (): void => {
+        //     // Navigate to rewards
+        //   },
+        // },
         {
           id: 'challenges',
           icon: 'trophy-outline',

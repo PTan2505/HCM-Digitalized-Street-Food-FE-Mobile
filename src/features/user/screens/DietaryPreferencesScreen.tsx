@@ -1,4 +1,5 @@
 import { CustomButton } from '@components/CustomButton';
+import { COLORS } from '@constants/colors';
 import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
 import useDietaryPreference from '@features/user/hooks/dietaryPreference/useDietaryPreference';
 import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
@@ -63,7 +64,7 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
 
         {dietaryStatus === 'pending' ? (
           <View className="flex-1 items-center justify-center py-20">
-            <ActivityIndicator size="large" color="#a1d973" />
+            <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         ) : (
           <DietaryList
@@ -92,7 +93,7 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
               <MaterialCommunityIcons name="check" size={14} color="white" />
             )}
           </View>
-          <Text className="flex-1 text-sm leading-5 text-gray-600">
+          <Text className="flex-1 text-base leading-5 text-gray-600">
             {t('dietary.ai_disclaimer')}
           </Text>
         </Pressable> */}

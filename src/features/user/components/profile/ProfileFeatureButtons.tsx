@@ -1,3 +1,4 @@
+import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { ProfileSectionItem } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
@@ -30,11 +31,11 @@ export const ProfileFeatureButtons = ({
               <Ionicons
                 name={item.icon as keyof typeof Ionicons.glyphMap}
                 size={24}
-                color={item.color ?? '#9FD356'}
+                color={item.color ?? COLORS.primary}
               />
             </View>
           )}
-          <Text className="text-center text-sm font-semibold text-gray-900">
+          <Text className="text-center text-base font-semibold text-gray-900">
             {item.title}
           </Text>
         </Pressable>
