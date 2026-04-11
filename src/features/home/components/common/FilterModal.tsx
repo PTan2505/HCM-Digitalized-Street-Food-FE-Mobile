@@ -493,7 +493,7 @@ const FilterModal = ({
                 <MultiSlider
                   values={[distance]}
                   min={1}
-                  max={20}
+                  max={50}
                   step={1}
                   allowOverlap
                   snapped
