@@ -1,6 +1,6 @@
+import { QuantityControl } from '@components/QuantityControl';
 import type { TabBarItem } from '@components/TabBar';
 import TabBar from '@components/TabBar';
-import { QuantityControl } from '@components/QuantityControl';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
@@ -328,7 +328,6 @@ export const PersonalCartScreen = ({
                   </View>
 
                   <QuantityControl
-                    variant="cart"
                     quantity={item.quantity}
                     onDecrement={() =>
                       handleUpdateQuantity(item.dishId, item.quantity, -1)
@@ -336,7 +335,6 @@ export const PersonalCartScreen = ({
                     onIncrement={() =>
                       handleUpdateQuantity(item.dishId, item.quantity, 1)
                     }
-                    disabled={cartLoading}
                   />
                 </View>
               ))}
@@ -418,7 +416,6 @@ export const PersonalCartScreen = ({
                             {cat}
                           </Text>
                           {group.map((dish) => {
-                            const qty = getCartQuantity(dish.dishId);
                             return (
                               <View key={dish.dishId} className="mb-4 flex-row">
                                 <Image
@@ -459,7 +456,7 @@ export const PersonalCartScreen = ({
                                       <Text className="text-sm text-red-400">
                                         {t('actions.sold_out')}
                                       </Text>
-                                    ) : !isOpen ? null : qty === 0 ? (
+                                    ) : !isOpen ? null : (
                                       <TouchableOpacity
                                         onPress={() => handleMenuAdd(dish)}
                                         className="rounded-full bg-primary px-4 py-1.5"
@@ -468,14 +465,6 @@ export const PersonalCartScreen = ({
                                           {t('cart.add')}
                                         </Text>
                                       </TouchableOpacity>
-                                    ) : (
-                                      <QuantityControl
-                                        quantity={qty}
-                                        onDecrement={() =>
-                                          handleMenuDecrement(dish)
-                                        }
-                                        onIncrement={() => handleMenuAdd(dish)}
-                                      />
                                     )}
                                   </View>
                                 </View>
@@ -543,7 +532,9 @@ export const PersonalCartScreen = ({
                                 ) : (
                                   <QuantityControl
                                     quantity={qty}
-                                    onDecrement={() => handleMenuDecrement(dish)}
+                                    onDecrement={() =>
+                                      handleMenuDecrement(dish)
+                                    }
                                     onIncrement={() => handleMenuAdd(dish)}
                                   />
                                 )}
