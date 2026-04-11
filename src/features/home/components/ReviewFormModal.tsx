@@ -374,13 +374,6 @@ export const ReviewFormModal = ({
                             ? 'border-primary bg-primary-light/20'
                             : 'border-gray-200 bg-white'
                         }`}
-                        style={{
-                          shadowColor: '#000',
-                          shadowOffset: { width: 0, height: 1 },
-                          shadowOpacity: 0.05,
-                          shadowRadius: 3,
-                          elevation: 2,
-                        }}
                         disabled={dish.isSoldOut}
                       >
                         {/* Dish Image */}
