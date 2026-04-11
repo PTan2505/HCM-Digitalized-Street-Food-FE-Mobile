@@ -1,5 +1,5 @@
 import TabBar from '@components/TabBar';
-import { COLORS } from '@constants/colors';
+import { QuantityControl } from '@components/QuantityControl';
 import { Ionicons } from '@expo/vector-icons';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import type { Dish } from '@features/home/types/branch';
@@ -216,31 +216,11 @@ const MenuTab = ({
                 </Text>
               </TouchableOpacity>
             ) : (
-              <View className="flex-row items-center rounded-full bg-gray-100">
-                <TouchableOpacity
-                  onPress={() => handleDecrement(dish)}
-                  className="h-10 w-10 items-center justify-center rounded-full"
-                >
-                  <Ionicons
-                    name="remove-circle"
-                    size={32}
-                    color={COLORS.primary}
-                  />
-                </TouchableOpacity>
-                <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                  {qty}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => handleAdd(dish)}
-                  className="h-10 w-10 items-center justify-center rounded-full"
-                >
-                  <Ionicons
-                    name="add-circle"
-                    size={32}
-                    color={COLORS.primary}
-                  />
-                </TouchableOpacity>
-              </View>
+              <QuantityControl
+                quantity={qty}
+                onDecrement={() => handleDecrement(dish)}
+                onIncrement={() => handleAdd(dish)}
+              />
             )}
           </View>
         </View>

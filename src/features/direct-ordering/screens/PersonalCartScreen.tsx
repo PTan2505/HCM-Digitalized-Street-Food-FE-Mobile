@@ -1,5 +1,6 @@
 import type { TabBarItem } from '@components/TabBar';
 import TabBar from '@components/TabBar';
+import { QuantityControl } from '@components/QuantityControl';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch, Dish } from '@features/home/types/branch';
@@ -326,33 +327,17 @@ export const PersonalCartScreen = ({
                     </Text>
                   </View>
 
-                  <View className="flex-row items-center rounded-full bg-gray-100">
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleUpdateQuantity(item.dishId, item.quantity, -1)
-                      }
-                      disabled={cartLoading}
-                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
-                    >
-                      <Text className="text-lg font-bold text-white">−</Text>
-                    </TouchableOpacity>
-                    <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                      {item.quantity}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleUpdateQuantity(item.dishId, item.quantity, 1)
-                      }
-                      disabled={cartLoading}
-                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
-                    >
-                      <Text className="text-lg font-bold text-white">+</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <Text className="ml-3 min-w-[50px] text-right text-base font-semibold text-black">
-                    {`${Math.round(item.lineTotal / 1000)}k`}
-                  </Text>
+                  <QuantityControl
+                    variant="cart"
+                    quantity={item.quantity}
+                    onDecrement={() =>
+                      handleUpdateQuantity(item.dishId, item.quantity, -1)
+                    }
+                    onIncrement={() =>
+                      handleUpdateQuantity(item.dishId, item.quantity, 1)
+                    }
+                    disabled={cartLoading}
+                  />
                 </View>
               ))}
 
@@ -484,33 +469,13 @@ export const PersonalCartScreen = ({
                                         </Text>
                                       </TouchableOpacity>
                                     ) : (
-                                      <View className="flex-row items-center rounded-full bg-gray-100">
-                                        <TouchableOpacity
-                                          onPress={() =>
-                                            handleMenuDecrement(dish)
-                                          }
-                                          className="h-10 w-10 items-center justify-center rounded-full"
-                                        >
-                                          <Ionicons
-                                            name="remove-circle"
-                                            size={32}
-                                            color={COLORS.primary}
-                                          />
-                                        </TouchableOpacity>
-                                        <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                                          {qty}
-                                        </Text>
-                                        <TouchableOpacity
-                                          onPress={() => handleMenuAdd(dish)}
-                                          className="h-10 w-10 items-center justify-center rounded-full"
-                                        >
-                                          <Ionicons
-                                            name="add-circle"
-                                            size={32}
-                                            color={COLORS.primary}
-                                          />
-                                        </TouchableOpacity>
-                                      </View>
+                                      <QuantityControl
+                                        quantity={qty}
+                                        onDecrement={() =>
+                                          handleMenuDecrement(dish)
+                                        }
+                                        onIncrement={() => handleMenuAdd(dish)}
+                                      />
                                     )}
                                   </View>
                                 </View>
@@ -576,31 +541,11 @@ export const PersonalCartScreen = ({
                                     </Text>
                                   </TouchableOpacity>
                                 ) : (
-                                  <View className="flex-row items-center rounded-full bg-gray-100">
-                                    <TouchableOpacity
-                                      onPress={() => handleMenuDecrement(dish)}
-                                      className="h-10 w-10 items-center justify-center rounded-full"
-                                    >
-                                      <Ionicons
-                                        name="remove-circle"
-                                        size={32}
-                                        color={COLORS.primary}
-                                      />
-                                    </TouchableOpacity>
-                                    <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                                      {qty}
-                                    </Text>
-                                    <TouchableOpacity
-                                      onPress={() => handleMenuAdd(dish)}
-                                      className="h-10 w-10 items-center justify-center rounded-full"
-                                    >
-                                      <Ionicons
-                                        name="add-circle"
-                                        size={32}
-                                        color={COLORS.primary}
-                                      />
-                                    </TouchableOpacity>
-                                  </View>
+                                  <QuantityControl
+                                    quantity={qty}
+                                    onDecrement={() => handleMenuDecrement(dish)}
+                                    onIncrement={() => handleMenuAdd(dish)}
+                                  />
                                 )}
                               </View>
                             </View>
