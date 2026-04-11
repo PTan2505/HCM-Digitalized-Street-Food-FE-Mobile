@@ -15,6 +15,7 @@ export interface SearchBranchResult {
   distanceKm: number | null;
   isVerified: boolean;
   isActive: boolean;
+  isSubscribed: boolean;
   dishes: {
     dishId: number;
     name: string;
