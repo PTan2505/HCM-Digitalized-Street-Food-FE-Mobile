@@ -107,7 +107,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   }, [openFilter]);
 
   const { coords } = useLocationPermission();
-  const { stalls, isLoading, error, search, clearError } = useStallSearch();
+  const { stalls, imageMap: searchImageMap, isLoading, error, search, clearError } = useStallSearch();
 
   const multiBranchVendorIds = useMemo(() => {
     const vendorCounts = new Map<number, number>();
@@ -450,7 +450,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
               return (
                 <SearchResultCard
                   branch={item}
-                  imageUri={branchImageMap[item.branchId]?.[0]}
+                  imageUri={searchImageMap[item.branchId] ?? branchImageMap[item.branchId]?.[0]}
                   displayName={displayName}
                   onPress={() =>
                     navigation.navigate('RestaurantDetails', {

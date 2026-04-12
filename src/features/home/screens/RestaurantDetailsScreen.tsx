@@ -63,8 +63,6 @@ export type TabType = 'menu' | 'reviews' | 'nearby';
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const PLACEHOLDER_IMAGE =
-  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
 
 type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
@@ -353,10 +351,7 @@ export const RestaurantDetailsScreen = ({
     [feedbacks, updateFeedback]
   );
 
-  const restaurantBanners =
-    branchImageUrls.length > 0
-      ? branchImageUrls.map((url) => ({ uri: url }))
-      : [{ uri: PLACEHOLDER_IMAGE }];
+  const restaurantBanners = branchImageUrls.map((url) => ({ uri: url }));
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useRef } from 'react';
 import { Dimensions, Image, View } from 'react-native';
@@ -24,6 +25,17 @@ const ImageCarouselWithProgress = ({
 }: ImageCarouselWithProgressProps): JSX.Element => {
   const progress = useSharedValue<number>(0);
   const ref = useRef<ICarouselInstance>(null);
+
+  if (images.length === 0) {
+    return (
+      <View
+        className="items-center justify-center bg-lime-100"
+        style={{ width: PAGE_WIDTH, height: PAGE_WIDTH * 1.1 }}
+      >
+        <Ionicons name="restaurant" size={64} color="#4D7C0F" />
+      </View>
+    );
+  }
 
   return (
     <View className="relative">
