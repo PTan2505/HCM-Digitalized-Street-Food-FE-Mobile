@@ -253,7 +253,8 @@
     "withdraw_empty_amount": "Please enter amount!",
     "withdraw_min_amount": "Amount must be at least 1,000 đ!",
     "withdraw_empty_description": "Please enter description!",
-    "withdraw_max_description": "Description must not exceed 255 characters!"
+    "withdraw_max_description": "Description must not exceed 255 characters!",
+    "withdraw_exceed_balance": "Withdrawal amount must not exceed your account balance!"
   },
   "cart": {
     "title": "Cart",
@@ -601,7 +602,8 @@
     "error_title": "Error",
     "error_message": "Failed to submit withdrawal request. Please try again.",
     "search_bank": "Search bank...",
-    "no_bank_found": "No bank found"
+    "no_bank_found": "No bank found",
+    "account_privacy_notice": "Account information only applies to this withdrawal session and will not be saved"
   },
   "ghost_pin_creation": {
     "title": "Add New Stall",

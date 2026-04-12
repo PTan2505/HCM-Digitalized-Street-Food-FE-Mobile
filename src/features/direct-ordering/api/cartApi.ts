@@ -49,6 +49,9 @@ export interface PaymentLinkResult {
   paymentLinkId?: string | null;
   qrCode?: string | null;
   requiresConfirmation: boolean;
+  bin?: string | null;
+  accountNumber?: string | null;
+  accountName?: string | null;
 }
 
 export interface CheckoutCartResponse {

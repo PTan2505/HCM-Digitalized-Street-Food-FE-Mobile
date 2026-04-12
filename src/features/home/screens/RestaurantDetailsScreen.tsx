@@ -63,7 +63,6 @@ export type TabType = 'menu' | 'reviews' | 'nearby';
 import { useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
 type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
@@ -557,11 +556,11 @@ export const RestaurantDetailsScreen = ({
       {cart && cart.items.length > 0 && (
         <View className="absolute bottom-0 left-0 right-0 bg-white px-4 pb-8 pt-3 shadow-lg">
           <View className="flex-row items-center">
-            <Text className="mb-2 text-lg font-bold text-gray-700">
+            <Text className="mb-2 text-xl font-bold text-gray-700">
               {t('cart.title')} •{' '}
             </Text>
 
-            <Text className="mb-2 text-base font-semibold text-gray-700">
+            <Text className="mb-2 text-lg font-semibold text-gray-700">
               {cartBranchDisplayName}
             </Text>
           </View>

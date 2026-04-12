@@ -179,6 +179,9 @@ const RootStack = createNativeStackNavigator({
         qrCode: string;
         totalAmount: number;
         branchName: string;
+        bin?: string | null;
+        accountNumber?: string | null;
+        accountName?: string | null;
       },
     },
     OrderStatus: {

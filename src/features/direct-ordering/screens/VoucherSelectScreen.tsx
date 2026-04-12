@@ -212,7 +212,10 @@ export const VoucherSelectScreen = ({
             </Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={handleSkip} className="items-center py-2">
+          <TouchableOpacity
+            onPress={handleSkip}
+            className="items-center rounded-2xl bg-primary py-3.5"
+          >
             <Text className="text-base font-semibold text-gray-500">
               {t('checkout.skip_voucher')}
             </Text>

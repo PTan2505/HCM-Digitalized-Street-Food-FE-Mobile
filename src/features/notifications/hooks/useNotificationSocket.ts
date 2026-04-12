@@ -1,8 +1,9 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
+import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
-import { addPoints } from '@slices/auth';
+import { addPoints, refreshUserBalanceThunk } from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
 import { fetchMyQuests, setPendingReward } from '@slices/quests';
@@ -41,7 +42,14 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       ) {
         dispatch(
           syncOrderToHistoryFromNotificationThunk(notification.referenceId)
-        );
+        )
+          .unwrap()
+          .then((order) => {
+            if (order.status === ORDER_STATUS.Cancelled) {
+              dispatch(refreshUserBalanceThunk());
+            }
+          })
+          .catch(() => {});
       }
 
       const isQuestTaskCompleted =

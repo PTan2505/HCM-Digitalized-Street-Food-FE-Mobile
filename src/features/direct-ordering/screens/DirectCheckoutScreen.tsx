@@ -160,6 +160,9 @@ export const DirectCheckoutScreen = ({
         qrCode: result.payment.qrCode ?? '',
         totalAmount: result.order.finalAmount,
         branchName,
+        bin: result.payment.bin,
+        accountNumber: result.payment.accountNumber,
+        accountName: result.payment.accountName,
       });
     } catch {
       // Error is handled by the slice / useEffect above

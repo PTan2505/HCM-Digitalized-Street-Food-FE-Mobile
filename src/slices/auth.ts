@@ -297,6 +297,18 @@ export const markDietarySetup = createAppAsyncThunk(
   }
 );
 
+export const refreshUserBalanceThunk = createAppAsyncThunk(
+  'user/refreshBalance',
+  async (_, { rejectWithValue }) => {
+    try {
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
+      return userProfile.moneyBalance ?? 0;
+    } catch (error) {
+      return rejectWithValue(serializeError(error));
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: 'user',
   initialState,
@@ -341,6 +353,11 @@ export const authSlice = createSlice({
       .addCase(markDietarySetup.fulfilled, (state) => {
         if (state.value) {
           state.value.dietarySetup = true;
+        }
+      })
+      .addCase(refreshUserBalanceThunk.fulfilled, (state, action) => {
+        if (state.value) {
+          state.value.moneyBalance = action.payload;
         }
       })
       .addCase(userLogout.fulfilled, () => {

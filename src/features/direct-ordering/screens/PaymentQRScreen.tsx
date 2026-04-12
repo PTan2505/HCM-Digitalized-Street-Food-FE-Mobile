@@ -3,7 +3,11 @@ import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { usePaymentSocket } from '@features/direct-ordering/hooks/usePaymentSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import {
+  CommonActions,
+  StaticScreenProps,
+  useNavigation,
+} from '@react-navigation/native';
 import {
   cancelOrderThunk,
   clearCart,
@@ -19,6 +23,7 @@ import {
   ActivityIndicator,
   Alert,
   AppState,
+  Image,
   Text,
   TouchableOpacity,
   View,
@@ -32,25 +37,60 @@ type PaymentQRScreenProps = StaticScreenProps<{
   qrCode: string;
   totalAmount: number;
   branchName: string;
+  bin?: string | null;
+  accountNumber?: string | null;
+  accountName?: string | null;
 }>;
 
 export const PaymentQRScreen = ({
   route,
 }: PaymentQRScreenProps): JSX.Element => {
-  const { orderId, qrCode, totalAmount, branchName } = route.params;
+  const {
+    orderId,
+    qrCode,
+    totalAmount,
+    branchName,
+    bin,
+    accountNumber,
+    accountName,
+  } = route.params;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const orderCode = useAppSelector(selectCheckoutOrderCode);
   const { paymentStatus } = usePaymentSocket(orderCode);
   const orderCodeRef = useRef(orderCode);
-  const qrShotRef = useRef<ViewShot>(null);
+  const screenShotRef = useRef<ViewShot>(null);
   const cancelledRef = useRef(false);
   const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     orderCodeRef.current = orderCode;
   }, [orderCode]);
+
+  // After a successful payment, replace everything from PersonalCart onward
+  // with OrderStatusScreen so the user cannot swipe back into the cart/QR flow.
+  // Must set cancelledRef first to stop the beforeRemove listener from firing
+  // a cancel on the already-paid order.
+  const navigateToOrderStatusAfterPayment = useCallback(() => {
+    cancelledRef.current = true;
+    navigation.dispatch((state) => {
+      const personalCartIndex = state.routes.findIndex(
+        (r) => r.name === 'PersonalCart'
+      );
+      const sliceAt =
+        personalCartIndex >= 0 ? personalCartIndex : state.routes.length - 1;
+      const routes = [
+        ...state.routes.slice(0, sliceAt),
+        { name: 'OrderStatus', params: { orderId, branchName } },
+      ];
+      return CommonActions.reset({
+        ...state,
+        routes,
+        index: routes.length - 1,
+      });
+    });
+  }, [navigation, orderId, branchName]);
 
   // Fallback: if SignalR missed the event while app was backgrounded,
   // manually confirm payment status when user returns to the app.
@@ -62,7 +102,7 @@ export const PaymentQRScreen = ({
         .then((result) => {
           if (result.paymentStatus === 'PAID') {
             dispatch(clearCart());
-            navigation.navigate('OrderStatus', { orderId, branchName });
+            navigateToOrderStatusAfterPayment();
           } else if (
             result.paymentStatus === 'CANCELLED' ||
             result.paymentStatus === 'EXPIRED'
@@ -77,23 +117,23 @@ export const PaymentQRScreen = ({
     return (): void => {
       subscription.remove();
     };
-  }, [dispatch, navigation, orderId, branchName, t]);
+  }, [dispatch, navigateToOrderStatusAfterPayment, t]);
 
   useEffect(() => {
     if (paymentStatus === 'PAID') {
       dispatch(clearCart());
-      navigation.navigate('OrderStatus', { orderId, branchName });
+      navigateToOrderStatusAfterPayment();
     } else if (paymentStatus === 'CANCELLED' || paymentStatus === 'EXPIRED') {
       dispatch(fetchCartThunk());
       Alert.alert(t('auth.error'), t('checkout.payment_failed'));
     }
-  }, [paymentStatus, dispatch, navigation, orderId, branchName, t]);
+  }, [paymentStatus, dispatch, navigateToOrderStatusAfterPayment, t]);
 
   const handleShare = useCallback(async () => {
-    if (!qrShotRef.current?.capture) return;
+    if (!screenShotRef.current?.capture) return;
     setSharing(true);
     try {
-      const uri = await qrShotRef.current.capture();
+      const uri = await screenShotRef.current.capture();
       const canShare = await Sharing.isAvailableAsync();
       if (!canShare) {
         Alert.alert(t('auth.error'), t('checkout.payment_qr_share_error'));
@@ -153,36 +193,55 @@ export const PaymentQRScreen = ({
         <Text className="mb-6 text-center text-base text-gray-500">
           {t('checkout.payment_qr_instruction')}
         </Text>
+        {/* Everything above the buttons is captured as a screenshot */}
+        <ViewShot
+          ref={screenShotRef}
+          options={{ format: 'png', quality: 1 }}
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            paddingBottom: 16,
+          }}
+        >
+          {/* QR Code */}
+          <View>
+            {bin && accountNumber ? (
+              <Image
+                source={{
+                  uri: `https://img.vietqr.io/image/${bin}-${accountNumber}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${orderId}`.slice(0, 25))}${accountName ? `&accountName=${encodeURIComponent(accountName)}` : ''}`,
+                }}
+                style={{ width: 300, height: 300 }}
+                resizeMode="contain"
+              />
+            ) : (
+              <QRCode value={qrCode} size={300} />
+            )}
+          </View>
 
-        {/* QR Code — wrapped in ViewShot for capture */}
-        <View className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <ViewShot ref={qrShotRef} options={{ format: 'png', quality: 1 }}>
-            <QRCode value={qrCode} size={220} />
-          </ViewShot>
-        </View>
+          {/* Amount */}
+          <View className="mt-6 items-center">
+            <Text className="text-base text-gray-400">{t('cart.total')}</Text>
+            <Text className="mt-1 text-2xl font-bold text-[#00B14F]">
+              {totalAmount.toLocaleString('vi-VN')}₫
+            </Text>
+          </View>
 
-        {/* Amount */}
-        <View className="mt-6 items-center">
-          <Text className="text-base text-gray-400">{t('cart.total')}</Text>
-          <Text className="mt-1 text-2xl font-bold text-[#00B14F]">
-            {totalAmount.toLocaleString('vi-VN')}₫
-          </Text>
-        </View>
+          {/* Branch name */}
+          <Text className="mt-2 text-base text-gray-400">{branchName}</Text>
 
-        {/* Branch name */}
-        <Text className="mt-2 text-base text-gray-400">{branchName}</Text>
+          {/* Order ID */}
+          <View className="mt-3 flex-row items-center gap-1">
+            <Text className="text-sm text-gray-400">
+              {t('checkout.payment_qr_order_id')}:
+            </Text>
+            <Text className="text-sm font-semibold text-gray-600">
+              #{orderId}
+            </Text>
+          </View>
+        </ViewShot>
 
-        {/* Order ID */}
-        <View className="mt-3 flex-row items-center gap-1">
-          <Text className="text-sm text-gray-400">
-            {t('checkout.payment_qr_order_id')}:
-          </Text>
-          <Text className="text-sm font-semibold text-gray-600">
-            #{orderId}
-          </Text>
-        </View>
-
-        {/* Action Buttons */}
+        {/* Action Buttons — excluded from screenshot */}
         <View className="mt-8 w-full gap-3">
           <TouchableOpacity
             onPress={handleShare}

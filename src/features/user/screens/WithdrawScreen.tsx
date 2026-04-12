@@ -152,7 +152,10 @@ export const WithdrawScreen = (): JSX.Element => {
     [bankOptions, bankSearch]
   );
 
-  const schema = useMemo(() => getWithdrawSchema(t), [t]);
+  const schema = useMemo(
+    () => getWithdrawSchema(t, user?.moneyBalance ?? 0),
+    [t, user?.moneyBalance]
+  );
   const methods = useForm<WithdrawFormValues>({
     defaultValues: {
       toBin: '',
@@ -226,7 +229,19 @@ export const WithdrawScreen = (): JSX.Element => {
                   onPress={openBankPicker}
                   className="flex-row items-center border-b-2 border-b-[#E5E5E5] pb-2"
                 >
-                  <Ionicons name="business-outline" size={20} color="#999999" />
+                  {selectedBank ? (
+                    <Image
+                      source={{ uri: selectedBank.bankLogoUrl }}
+                      style={{ width: 20, height: 20 }}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Ionicons
+                      name="business-outline"
+                      size={20}
+                      color="#999999"
+                    />
+                  )}
                   <Text
                     className={`ml-3 flex-1 py-3 text-base ${
                       selectedBank ? 'text-[#333333]' : 'text-[#BDBDBD]'
@@ -308,6 +323,18 @@ export const WithdrawScreen = (): JSX.Element => {
                 placeholder={t('withdraw.description_placeholder')}
                 required
               />
+            </View>
+
+            <View className="mt-2 flex-row items-start gap-2 rounded-xl bg-amber-50 px-3 py-3">
+              <Ionicons
+                name="information-circle-outline"
+                size={18}
+                color="#B45309"
+                style={{ marginTop: 1 }}
+              />
+              <Text className="flex-1 text-sm leading-5 text-amber-700">
+                {t('withdraw.account_privacy_notice')}
+              </Text>
             </View>
 
             <View className="py-8">

@@ -253,7 +253,8 @@
     "withdraw_empty_amount": "Vui lòng nhập số tiền!",
     "withdraw_min_amount": "Số tiền tối thiểu là 1.000 đ!",
     "withdraw_empty_description": "Vui lòng nhập mô tả!",
-    "withdraw_max_description": "Mô tả không được vượt quá 255 ký tự!"
+    "withdraw_max_description": "Mô tả không được vượt quá 255 ký tự!",
+    "withdraw_exceed_balance": "Số tiền rút không được vượt quá số dư tài khoản!"
   },
   "cart": {
     "title": "Giỏ hàng",
@@ -601,7 +602,8 @@
     "error_title": "Lỗi",
     "error_message": "Không thể gửi yêu cầu rút tiền. Vui lòng thử lại.",
     "search_bank": "Tìm ngân hàng...",
-    "no_bank_found": "Không tìm thấy ngân hàng"
+    "no_bank_found": "Không tìm thấy ngân hàng",
+    "account_privacy_notice": "Thông tin tài khoản chỉ áp dụng cho phiên rút tiền này, hệ thống sẽ không lưu"
   },
   "ghost_pin_creation": {
     "title": "Thêm quán ăn mới",
