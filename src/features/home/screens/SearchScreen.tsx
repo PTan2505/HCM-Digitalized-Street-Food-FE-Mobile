@@ -10,7 +10,6 @@ import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   selectBranchImageMap,
@@ -19,6 +18,7 @@ import {
 } from '@slices/branches';
 import { selectDietaryPreferences } from '@slices/dietary';
 import { selectTastes } from '@slices/tastes';
+import { registerCallback } from '@utils/callbackRegistry';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +39,7 @@ type SearchScreenProps = StaticScreenProps<{
 
 const DEFAULT_MIN_PRICE = 0;
 const DEFAULT_MAX_PRICE = 5000000;
-const DEFAULT_DISTANCE = 5;
+const DEFAULT_DISTANCE = 50;
 
 const FilterChip = ({
   label,
@@ -135,7 +135,9 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           ? {
               Lat: coords.latitude,
               Long: coords.longitude,
-              ...(hasDistanceFilter ? { Distance: filters?.distance } : {}),
+              Distance: hasDistanceFilter
+                ? filters?.distance
+                : DEFAULT_DISTANCE,
             }
           : {}),
         DietaryIds: filters?.dietaryTags

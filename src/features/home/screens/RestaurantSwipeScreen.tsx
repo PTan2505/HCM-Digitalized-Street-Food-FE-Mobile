@@ -134,7 +134,7 @@ export const RestaurantSwipeScreen = ({
           onScroll={handleScroll}
           scrollEventThrottle={400}
         >
-          <View style={{ height: 450 }}>
+          <View>
             <ImageCarouselWithProgress images={restaurantImages} />
           </View>
 
@@ -146,9 +146,7 @@ export const RestaurantSwipeScreen = ({
               onRatingUpdate={handleRatingUpdate}
             />
           </View>
-
-          <SwipeUpPrompt />
-
+          {similarBranches.length > 0 && <SwipeUpPrompt />}
           <View className="px-0 pb-8">
             {similarBranches.map((similarBranch) => {
               const similarActiveBranch: ActiveBranch = {

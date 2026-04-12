@@ -1,5 +1,5 @@
-import TabBar from '@components/TabBar';
 import { QuantityControl } from '@components/QuantityControl';
+import TabBar from '@components/TabBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import type { Dish } from '@features/home/types/branch';
@@ -36,6 +36,7 @@ const MenuTab = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
+  const hasCart = (cart?.items.length ?? 0) > 0;
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   // Optimistic quantity overrides — updated instantly on press, cleared when cart syncs
@@ -229,7 +230,7 @@ const MenuTab = ({
   };
 
   return (
-    <View className="mb-28 flex-1">
+    <View className={`flex-1 ${hasCart ? 'mb-32' : ''}`}>
       {/* Not subscribed notice */}
       {!isSubscribed && (
         <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-red-50 px-4 py-3">

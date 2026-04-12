@@ -560,27 +560,33 @@ export const RestaurantDetailsScreen = ({
       />
 
       {cart && cart.items.length > 0 && (
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('PersonalCart', {
-              branchName: cartBranchDisplayName,
-              isOpen,
-            })
-          }
-          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-primary px-5 py-4 shadow-lg"
-        >
-          <Text className="text-base font-bold text-white">
-            {cartBranchDisplayName}
-          </Text>
-          <View className="mt-1 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-secondary">
-              {t('cart.items_count', { count: cart.items.length })}
+        <View className="absolute bottom-0 left-0 right-0 bg-white px-4 pb-8 pt-3 shadow-lg">
+          <View className="flex-row items-center">
+            <Text className="mb-2 text-lg font-bold text-gray-700">
+              {t('cart.title')} •{' '}
             </Text>
-            <Text className="text-base font-bold text-secondary">
-              {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
+
+            <Text className="mb-2 text-base font-semibold text-gray-700">
+              {cartBranchDisplayName}
             </Text>
           </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('PersonalCart', {
+                branchName: cartBranchDisplayName,
+                isOpen,
+              })
+            }
+            className="flex-row items-center justify-between rounded-2xl bg-primary px-5 py-4"
+          >
+            <Text className="text-base font-bold text-white">
+              {t('cart.items_count', { count: cart.items.length })}
+            </Text>
+            <Text className="text-base font-bold text-white">
+              {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
     </SafeAreaView>
   );

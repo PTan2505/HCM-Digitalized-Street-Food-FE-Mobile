@@ -1,8 +1,4 @@
-import {
-  AntDesign,
-  Ionicons,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { VendorTier } from '@features/home/types/stall';
 import type { UserCoords } from '@features/maps/hooks/useLocationPermission';
@@ -71,7 +67,7 @@ export const PlaceCard = ({
       : null;
 
   return (
-    <View className="h-fit overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
+    <View className="flex-1 overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
       <TouchableOpacity onPress={onPress}>
         <View className="p-[6.31px]">
           <View className="relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px]">
@@ -83,7 +79,7 @@ export const PlaceCard = ({
               />
             ) : (
               <View className="h-full w-full items-center justify-center bg-lime-100">
-                <AntDesign name="shop" size={34} color="#4D7C0F" />
+                <Ionicons name="restaurant" size={34} color="#4D7C0F" />
               </View>
             )}
             {/* <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-secondary">

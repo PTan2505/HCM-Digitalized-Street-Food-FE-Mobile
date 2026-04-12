@@ -1,9 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 interface CategoryCardProps {
   title: string;
-  image: string;
+  image?: string;
   onPress?: () => void;
   selected?: boolean;
 }
@@ -25,14 +26,20 @@ const CategoryCard = ({
           selected ? 'border-[2px] border-primary-dark p-[3px]' : ''
         }`}
       >
-        <Image
-          source={{ uri: image }}
-          className="h-full w-full rounded-full"
-          resizeMode="cover"
-        />
+        {image ? (
+          <Image
+            source={{ uri: image }}
+            className="h-full w-full rounded-full"
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="h-full w-full items-center justify-center rounded-full bg-lime-100">
+            <Ionicons name="fast-food-outline" size={28} color="#4D7C0F" />
+          </View>
+        )}
       </View>
-      <Text className="text-center text-base font-medium text-gray-900">
-        {title.toUpperCase()}
+      <Text className="text-center text-[14px] font-semibold capitalize text-gray-900">
+        {title}
       </Text>
     </TouchableOpacity>
   );

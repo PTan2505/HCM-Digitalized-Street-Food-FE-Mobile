@@ -26,10 +26,6 @@ export const MapBranchCard = ({
   onPress,
   onNavigate,
 }: MapBranchCardProps): JSX.Element => {
-  const resolvedImageUri =
-    imageUri ??
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(branch.name)}&background=a1d973&color=fff&size=300`;
-
   const distanceLabel =
     branch.distanceKm != null
       ? branch.distanceKm < 1
@@ -47,11 +43,17 @@ export const MapBranchCard = ({
     >
       {/* Thumbnail */}
       <View className="h-[80px] w-[80px] overflow-hidden rounded-xl">
-        <Image
-          source={{ uri: resolvedImageUri }}
-          className="h-full w-full"
-          resizeMode="cover"
-        />
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            className="h-full w-full"
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="h-full w-full items-center justify-center bg-lime-100">
+            <Ionicons name="restaurant" size={28} color="#4D7C0F" />
+          </View>
+        )}
       </View>
 
       {/* Info */}

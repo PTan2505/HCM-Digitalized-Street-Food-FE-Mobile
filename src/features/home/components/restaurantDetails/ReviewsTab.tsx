@@ -207,7 +207,7 @@ const ReviewsTab = ({
 
       {/* Reviews Carousel */}
       <View
-        className={`mt-2 ${hasCart ? 'mb-28' : ''}`}
+        className={`mt-2 ${hasCart ? 'mb-32' : ''}`}
         style={{ overflow: 'visible' }}
       >
         <Carousel

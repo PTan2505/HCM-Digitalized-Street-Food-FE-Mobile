@@ -58,7 +58,7 @@ const FilterModal = ({
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(5000000);
-  const [distance, setDistance] = useState<number>(5);
+  const [distance, setDistance] = useState<number>(50);
   const [hasParking, setHasParking] = useState<boolean>(false);
   const [openNow, setOpenNow] = useState<boolean>(false);
   const [amenities, setAmenities] = useState<string[]>([]);
@@ -102,7 +102,7 @@ const FilterModal = ({
       setCategoryIds([]);
       setMinPrice(0);
       setMaxPrice(5000000);
-      setDistance(5);
+      setDistance(50);
       setHasParking(false);
       setOpenNow(false);
       setAmenities([]);
@@ -163,7 +163,7 @@ const FilterModal = ({
     setCategoryIds([]);
     setMinPrice(0);
     setMaxPrice(5000000);
-    setDistance(5);
+    setDistance(50);
     setHasParking(false);
     setOpenNow(false);
     setAmenities([]);
@@ -323,10 +323,7 @@ const FilterModal = ({
                   renderItem={({ item }) => (
                     <CategoryCard
                       title={item.name}
-                      image={
-                        item.imageUrl ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`
-                      }
+                      image={item.imageUrl ?? undefined}
                       onPress={() =>
                         toggleSelection(
                           item.categoryId.toString(),
@@ -564,10 +561,8 @@ const FilterModal = ({
                 />
                 <View className="flex-row justify-between px-1">
                   <Text className="text-sm text-gray-400">1km</Text>
-                  <Text className="text-sm text-gray-400">5km</Text>
-                  <Text className="text-sm text-gray-400">10km</Text>
-                  <Text className="text-sm text-gray-400">15km</Text>
-                  <Text className="text-sm text-gray-400">20km</Text>
+                  <Text className="text-sm text-gray-400">25km</Text>
+                  <Text className="text-sm text-gray-400">50km</Text>
                 </View>
               </View>
             )}
