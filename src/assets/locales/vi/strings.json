@@ -20,7 +20,7 @@
     "error_title": "Lỗi",
     "error_message": "Cập nhật sở thích ăn uống thất bại"
   },
-  "search_placeholder": "Tìm nhà hàng, quán cà phê...",
+  "search_placeholder": "Tìm quán, món ăn...",
   "what_want_eat": "Bạn muốn ăn gì?",
   "places_might_like": "Những quán bạn có thể thích",
   "discount_branches_title": "Đang có khuyến mãi",
@@ -59,7 +59,7 @@
     "retry": "Thử lại",
     "history_title": "Tìm kiếm gần đây",
     "clear_history": "Xóa tất cả",
-    "address_history_title": "Địa chỉ gần đây"
+    "address_history_title": "Địa chỉ tìm kiếm gần đây"
   },
   "sort_by": "Sắp xếp theo",
   "categories": {

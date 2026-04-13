@@ -426,9 +426,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           >
             <Ionicons name="map-outline" size={20} color="#666" />
           </TouchableOpacity>
-          <TouchableOpacity className="items-center justify-center">
-            <Ionicons name="bookmark-outline" size={20} color="#666" />
-          </TouchableOpacity>
         </View>
 
         {/* Filter category chips */}
