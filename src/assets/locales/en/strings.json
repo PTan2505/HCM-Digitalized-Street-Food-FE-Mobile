@@ -567,11 +567,14 @@
     "homeTitle": "Challenges",
     "homeSubtitle": "Complete tasks and earn rewards",
     "rewards": "Rewards can be claimed",
+    "auto": "Auto",
+    "autoActivated": "Auto-activated",
     "taskType": {
       "review": "Write a review",
       "orderAmount": "Spend amount",
       "share": "Share a stall",
-      "createGhostPin": "Pin a new location"
+      "createGhostPin": "Pin a new location",
+      "tierUp": "Reach tier"
     },
     "reward": {
       "badge": "Badge",

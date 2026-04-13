@@ -7,11 +7,20 @@ import LottieView from 'lottie-react-native';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import type {
   QuestBadgeDetail,
   QuestRewardType,
+  QuestTaskRewardItem,
   QuestVoucherDetail,
 } from '@features/quests/types/quest';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -29,8 +38,7 @@ function normalizeRewardType(value: QuestRewardType | number): QuestRewardType {
 
 interface QuestRewardModalProps {
   visible: boolean;
-  rewardType: QuestRewardType | number;
-  rewardValue: number;
+  rewards: QuestTaskRewardItem[];
   onDismiss: () => void;
 }
 
@@ -63,22 +71,125 @@ const REWARD_CONFIG: Record<
   },
 };
 
-export const QuestRewardModal = ({
-  visible,
-  rewardType,
-  rewardValue,
-  onDismiss,
-}: QuestRewardModalProps): JSX.Element => {
+interface RewardRowProps {
+  reward: QuestTaskRewardItem;
+}
+
+const RewardRow = ({ reward }: RewardRowProps): JSX.Element => {
   const { t } = useTranslation();
-  const normalized = normalizeRewardType(rewardType);
+  const normalized = normalizeRewardType(reward.rewardType);
   const config = REWARD_CONFIG[normalized];
 
   const [badge, setBadge] = useState<QuestBadgeDetail | null>(null);
   const [voucher, setVoucher] = useState<QuestVoucherDetail | null>(null);
 
   useEffect(() => {
-    if (!visible) return;
+    setBadge(null);
+    setVoucher(null);
+    if (normalized === 'BADGE') {
+      axiosApi.questApi
+        .getBadgeById(reward.rewardValue)
+        .then(setBadge)
+        .catch(() => {});
+    } else if (normalized === 'VOUCHER') {
+      axiosApi.questApi
+        .getVoucherById(reward.rewardValue)
+        .then(setVoucher)
+        .catch(() => {});
+    }
+  }, [normalized, reward.rewardValue]);
 
+  if (normalized === 'POINTS') {
+    return (
+      <View
+        className="mb-2 flex-row items-center rounded-2xl px-4 py-2.5"
+        style={{ backgroundColor: config.bgColor }}
+      >
+        <Ionicons name={config.icon} size={20} color={config.iconColor} />
+        <Text
+          className="ml-2 text-base font-extrabold"
+          style={{ color: config.iconColor }}
+        >
+          +{reward.rewardValue * reward.quantity} {t('quest.reward.points')}
+        </Text>
+      </View>
+    );
+  }
+
+  if (normalized === 'BADGE') {
+    return (
+      <View
+        className="mb-2 flex-row items-center rounded-2xl px-4 py-2.5"
+        style={{ backgroundColor: config.bgColor }}
+      >
+        {badge?.iconUrl ? (
+          <Image
+            source={{ uri: badge.iconUrl }}
+            className="h-8 w-8 rounded-full"
+            resizeMode="contain"
+          />
+        ) : (
+          <Ionicons name={config.icon} size={20} color={config.iconColor} />
+        )}
+        <Text
+          className="ml-2 flex-1 text-base font-extrabold"
+          style={{ color: config.iconColor }}
+        >
+          {badge?.badgeName ?? t('quest.reward.badge')}
+        </Text>
+      </View>
+    );
+  }
+
+  // VOUCHER
+  const isPercent = voucher?.type.toUpperCase().includes('PERCENT') ?? false;
+  const discount = voucher
+    ? isPercent
+      ? `${t('quest.reward.voucherOff')} ${voucher.discountValue}%`
+      : `${t('quest.reward.voucherOff')} ${voucher.discountValue.toLocaleString()}đ`
+    : t('quest.reward.voucher');
+
+  return (
+    <View
+      className="mb-2 flex-row items-center rounded-2xl px-4 py-2.5"
+      style={{ backgroundColor: config.bgColor }}
+    >
+      <Ionicons name={config.icon} size={20} color={config.iconColor} />
+      <View className="ml-2 flex-1">
+        <Text
+          className="text-base font-extrabold"
+          style={{ color: config.iconColor }}
+        >
+          {voucher?.name ?? t('quest.reward.voucher')}
+          {reward.quantity > 1 ? ` ×${reward.quantity}` : ''}
+        </Text>
+        {voucher && (
+          <Text
+            className="text-xs font-semibold"
+            style={{ color: config.iconColor }}
+          >
+            {discount}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+};
+
+export const QuestRewardModal = ({
+  visible,
+  rewards,
+  onDismiss,
+}: QuestRewardModalProps): JSX.Element => {
+  const { t } = useTranslation();
+
+  // Pick primary reward type for the icon cluster (first reward)
+  const primaryType =
+    rewards.length > 0 ? normalizeRewardType(rewards[0].rewardType) : 'POINTS';
+  const primaryConfig = REWARD_CONFIG[primaryType];
+
+  useEffect(() => {
+    if (!visible) return;
     let sound: Audio.Sound | null = null;
     Audio.Sound.createAsync(congratulationBell)
       .then(({ sound: s }) => {
@@ -86,125 +197,10 @@ export const QuestRewardModal = ({
         return s.playAsync();
       })
       .catch(() => {});
-
     return (): void => {
       sound?.unloadAsync().catch(() => {});
     };
   }, [visible]);
-
-  useEffect(() => {
-    if (!visible) return;
-    setBadge(null);
-    setVoucher(null);
-
-    if (normalized === 'BADGE') {
-      axiosApi.questApi
-        .getBadgeById(rewardValue)
-        .then(setBadge)
-        .catch(() => {});
-    } else if (normalized === 'VOUCHER') {
-      axiosApi.questApi
-        .getVoucherById(rewardValue)
-        .then(setVoucher)
-        .catch(() => {});
-    }
-  }, [visible, normalized, rewardValue]);
-
-  const renderRewardDetail = (): JSX.Element => {
-    if (normalized === 'POINTS') {
-      return (
-        <View
-          className="mt-4 rounded-2xl px-5 py-2"
-          style={{ backgroundColor: config.bgColor }}
-        >
-          <Text
-            className="text-center text-lg font-extrabold"
-            style={{ color: config.iconColor }}
-          >
-            +{rewardValue} {t('quest.reward.points')}
-          </Text>
-        </View>
-      );
-    }
-
-    if (normalized === 'BADGE' && badge) {
-      return (
-        <View className="mt-4 items-center gap-y-1">
-          {badge.iconUrl ? (
-            <Image
-              source={{ uri: badge.iconUrl }}
-              className="h-16 w-16 rounded-full"
-              resizeMode="contain"
-            />
-          ) : null}
-          <View
-            className="rounded-2xl px-5 py-2"
-            style={{ backgroundColor: config.bgColor }}
-          >
-            <Text
-              className="text-center text-lg font-extrabold"
-              style={{ color: config.iconColor }}
-            >
-              {badge.badgeName}
-            </Text>
-          </View>
-          {badge.description ? (
-            <Text className="mt-1 text-center text-sm text-gray-500">
-              {badge.description}
-            </Text>
-          ) : null}
-        </View>
-      );
-    }
-
-    if (normalized === 'VOUCHER' && voucher) {
-      const isPercent = voucher.type.toUpperCase().includes('PERCENT');
-      const discount = isPercent
-        ? `${t('quest.reward.voucherOff')} ${voucher.discountValue}%`
-        : `${t('quest.reward.voucherOff')} ${voucher.discountValue.toLocaleString()}đ`;
-
-      return (
-        <View
-          className="mt-4 items-center rounded-2xl px-5 py-3"
-          style={{ backgroundColor: config.bgColor }}
-        >
-          <Text
-            className="text-center text-lg font-extrabold"
-            style={{ color: config.iconColor }}
-          >
-            {voucher.name}
-          </Text>
-          <Text
-            className="mt-0.5 text-center text-base font-semibold"
-            style={{ color: config.iconColor }}
-          >
-            {discount}
-          </Text>
-          <Text
-            className="mt-0.5 text-center text-xs opacity-70"
-            style={{ color: config.iconColor }}
-          >
-            {t('quest.reward.voucherRemain', { count: voucher.remain })}
-          </Text>
-        </View>
-      );
-    }
-
-    // Fallback while loading badge/voucher
-    return (
-      <View
-        className="mt-4 rounded-2xl px-5 py-2"
-        style={{ backgroundColor: config.bgColor }}
-      >
-        <Text
-          className="text-center text-lg font-extrabold"
-          style={{ color: config.iconColor }}
-        >
-          {t(`quest.reward.${normalized.toLowerCase() as 'badge' | 'voucher'}`)}
-        </Text>
-      </View>
-    );
-  };
 
   return (
     <Modal
@@ -214,13 +210,11 @@ export const QuestRewardModal = ({
       statusBarTranslucent
       onRequestClose={onDismiss}
     >
-      {/* Backdrop */}
       <Pressable
         style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }}
         onPress={onDismiss}
       />
 
-      {/* Card centered, layered above backdrop */}
       <View
         className="absolute inset-0 items-center justify-center"
         pointerEvents="box-none"
@@ -229,7 +223,6 @@ export const QuestRewardModal = ({
           style={{ width: 320 }}
           className="items-center overflow-hidden rounded-3xl bg-white pb-8"
         >
-          {/* Close button */}
           <Pressable
             onPress={onDismiss}
             className="absolute right-3 top-3 z-10 rounded-full bg-gray-100 p-1.5 active:opacity-60"
@@ -238,7 +231,6 @@ export const QuestRewardModal = ({
             <Ionicons name="close" size={18} color="#6B7280" />
           </Pressable>
 
-          {/* Logo chip */}
           <View className="mt-4 h-20 w-20 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-primary shadow-md">
             <Image
               source={LowcaLogo}
@@ -247,7 +239,6 @@ export const QuestRewardModal = ({
             />
           </View>
 
-          {/* Confetti animation */}
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <LottieView
               autoPlay
@@ -258,7 +249,6 @@ export const QuestRewardModal = ({
             />
           </View>
 
-          {/* Texts */}
           <View className="mt-4 items-center px-6">
             <Text className="text-sm font-semibold text-gray-400">
               {t('quest.rewardModal.congrats')}
@@ -271,20 +261,32 @@ export const QuestRewardModal = ({
             </Text>
           </View>
 
-          {/* Reward icon cluster */}
           <View
             className="mt-6 h-28 w-28 items-center justify-center rounded-full"
-            style={{ backgroundColor: config.ringColor + '33' }}
+            style={{ backgroundColor: primaryConfig.ringColor + '33' }}
           >
             <View
               className="h-20 w-20 items-center justify-center rounded-full"
-              style={{ backgroundColor: config.bgColor }}
+              style={{ backgroundColor: primaryConfig.bgColor }}
             >
-              <Ionicons name={config.icon} size={44} color={config.iconColor} />
+              <Ionicons
+                name={primaryConfig.icon}
+                size={44}
+                color={primaryConfig.iconColor}
+              />
             </View>
           </View>
 
-          {renderRewardDetail()}
+          {/* All rewards list */}
+          <ScrollView
+            className="mt-4 w-full px-5"
+            style={{ maxHeight: 180 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {rewards.map((r) => (
+              <RewardRow key={r.questTaskRewardId} reward={r} />
+            ))}
+          </ScrollView>
         </View>
       </View>
     </Modal>

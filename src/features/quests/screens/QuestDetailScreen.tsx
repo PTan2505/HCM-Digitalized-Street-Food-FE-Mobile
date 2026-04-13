@@ -85,8 +85,7 @@ export const QuestDetailScreen = ({
         type: task.type,
         targetValue: task.targetValue,
         description: task.description,
-        rewardType: task.rewardType,
-        rewardValue: task.rewardValue,
+        rewards: task.rewards,
         currentValue: 0,
         isCompleted: false,
         completedAt: null,
@@ -199,8 +198,8 @@ export const QuestDetailScreen = ({
         </View>
       </ScrollView>
 
-      {/* Enroll button (only show if not enrolled) */}
-      {!myProgress && (
+      {/* Enroll button — hidden for auto-activated quests (requiresEnrollment = false) */}
+      {!myProgress && quest.requiresEnrollment && (
         <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
           <TouchableOpacity
             onPress={onEnroll}
@@ -216,6 +215,18 @@ export const QuestDetailScreen = ({
               </Text>
             )}
           </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Auto-activated label for tier-up quests */}
+      {!myProgress && !quest.requiresEnrollment && (
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
+          <View className="flex-row items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 py-3.5">
+            <Ionicons name="flash-outline" size={18} color="#7AB82D" />
+            <Text className="text-base font-semibold text-primary-dark">
+              {t('quest.autoActivated')}
+            </Text>
+          </View>
         </View>
       )}
     </SafeAreaView>

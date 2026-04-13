@@ -86,27 +86,31 @@ export const QuestCard = ({
       )
     : 0;
 
+  // Aggregate all rewards across all tasks into a summary map
   const rewardMap = new Map<
     string,
-    { type: QuestRewardType; rewardValue: number; count: number }
+    { type: QuestRewardType; rewardValue: number; totalQty: number }
   >();
 
   quest.tasks.forEach((task) => {
-    const type = normalizeRewardType(
-      task.rewardType as QuestRewardType | number
-    );
-    const key = `${type}-${task.rewardValue}`;
-    const existing = rewardMap.get(key);
-
-    if (existing) {
-      rewardMap.set(key, { ...existing, count: existing.count + 1 });
-      return;
-    }
-
-    rewardMap.set(key, {
-      type,
-      rewardValue: task.rewardValue,
-      count: 1,
+    task.rewards.forEach((r) => {
+      const type = normalizeRewardType(
+        r.rewardType as QuestRewardType | number
+      );
+      const key = `${type}-${r.rewardValue}`;
+      const existing = rewardMap.get(key);
+      if (existing) {
+        rewardMap.set(key, {
+          ...existing,
+          totalQty: existing.totalQty + r.quantity,
+        });
+      } else {
+        rewardMap.set(key, {
+          type,
+          rewardValue: r.rewardValue,
+          totalQty: r.quantity,
+        });
+      }
     });
   });
 
@@ -115,7 +119,7 @@ export const QuestCard = ({
   const formatRewardText = (
     type: QuestRewardType,
     rewardValue: number,
-    count: number
+    totalQty: number
   ): string => {
     let label = '';
 
@@ -127,7 +131,7 @@ export const QuestCard = ({
       label = t('quest.reward.voucher');
     }
 
-    return count > 1 ? `${label} x${count}` : label;
+    return totalQty > 1 ? `${label} x${totalQty}` : label;
   };
 
   return (
@@ -152,11 +156,21 @@ export const QuestCard = ({
           </View>
         )}
 
-        <View className="absolute right-3 top-3 flex-row items-center rounded-full bg-black/60 px-3 py-1">
-          <Ionicons name="list-outline" size={14} color="#FFFFFF" />
-          <Text className="ml-1 text-xs font-semibold text-white">
-            {quest.taskCount} {t('quest.tasks')}
-          </Text>
+        <View className="absolute right-3 top-3 flex-row items-center gap-2">
+          {!quest.requiresEnrollment && (
+            <View className="flex-row items-center rounded-full bg-primary/90 px-2.5 py-1">
+              <Ionicons name="flash-outline" size={12} color="#FFFFFF" />
+              <Text className="ml-1 text-xs font-bold text-white">
+                {t('quest.auto')}
+              </Text>
+            </View>
+          )}
+          <View className="flex-row items-center rounded-full bg-black/60 px-3 py-1">
+            <Ionicons name="list-outline" size={14} color="#FFFFFF" />
+            <Text className="ml-1 text-xs font-semibold text-white">
+              {quest.taskCount} {t('quest.tasks')}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -224,7 +238,7 @@ export const QuestCard = ({
                       {formatRewardText(
                         reward.type,
                         reward.rewardValue,
-                        reward.count
+                        reward.totalQty
                       )}
                     </Text>
                   </View>

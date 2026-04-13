@@ -98,9 +98,13 @@ export const SystemCampaignDetailScreen = ({
     if (!quest?.tasks?.length) return [];
 
     return quest.tasks.map((task) => {
-      const rewardType = normalizeRewardType(
-        task.rewardType as CampaignRewardType | number
-      );
+      const primaryReward = task.rewards[0];
+      const rewardType = primaryReward
+        ? normalizeRewardType(
+            primaryReward.rewardType as CampaignRewardType | number
+          )
+        : ('POINTS' as CampaignRewardType);
+      const rewardValue = primaryReward?.rewardValue ?? 0;
       const taskType = normalizeTaskType(task.type as string | number);
 
       let taskLabel = task.description ?? '';
@@ -119,11 +123,11 @@ export const SystemCampaignDetailScreen = ({
 
       let rewardLabel = '';
       if (rewardType === 'POINTS') {
-        rewardLabel = `+${task.rewardValue} ${t('quest.reward.points')}`;
+        rewardLabel = `+${rewardValue} ${t('quest.reward.points')}`;
       } else if (rewardType === 'BADGE') {
-        rewardLabel = `${t('quest.reward.badge')} #${task.rewardValue}`;
+        rewardLabel = `${t('quest.reward.badge')} #${rewardValue}`;
       } else {
-        rewardLabel = `${t('quest.reward.voucher')} #${task.rewardValue}`;
+        rewardLabel = `${t('quest.reward.voucher')} #${rewardValue}`;
       }
 
       return {
@@ -131,6 +135,7 @@ export const SystemCampaignDetailScreen = ({
         taskLabel,
         rewardType,
         rewardLabel,
+        rewardValue,
       };
     });
   }, [quest, t]);
@@ -157,15 +162,10 @@ export const SystemCampaignDetailScreen = ({
     const loadRewardDetails = async (): Promise<void> => {
       const entries = await Promise.all(
         rewardItems.map(async (item) => {
-          const sourceTask = quest?.tasks.find(
-            (t) => t.questTaskId === item.id
-          );
-          if (!sourceTask) return [item.id, {}] as const;
-
           if (item.rewardType === 'BADGE') {
             try {
               const badge = await axiosApi.questApi.getBadgeById(
-                sourceTask.rewardValue
+                item.rewardValue
               );
               return [
                 item.id,
@@ -181,7 +181,7 @@ export const SystemCampaignDetailScreen = ({
           if (item.rewardType === 'VOUCHER') {
             try {
               const voucher = await axiosApi.questApi.getVoucherById(
-                sourceTask.rewardValue
+                item.rewardValue
               );
               const isPercent = voucher.type.toUpperCase().includes('PERCENT');
               const discount = isPercent
@@ -216,7 +216,7 @@ export const SystemCampaignDetailScreen = ({
     return (): void => {
       isCancelled = true;
     };
-  }, [rewardItems, quest?.tasks, t]);
+  }, [rewardItems, t]);
 
   if (!campaign) {
     return (

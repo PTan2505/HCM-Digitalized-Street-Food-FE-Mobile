@@ -42,14 +42,20 @@ const TASK_TYPE_ICONS: Record<
     iconColor: '#EA580C',
     backgroundColor: '#FFEDD5',
   },
+  TIER_UP: {
+    name: 'trending-up-outline',
+    iconColor: '#B45309',
+    backgroundColor: '#FEF3C7',
+  },
 };
 
-// Backend may return task type as an integer (REVIEW=1, ORDER_AMOUNT=2, SHARE=3, CREATE_GHOST_PIN=4)
+// Backend may return task type as an integer
 const NUMERIC_TASK_MAP: Record<number, QuestTaskType> = {
   1: 'REVIEW',
   2: 'ORDER_AMOUNT',
   3: 'SHARE',
   4: 'CREATE_GHOST_PIN',
+  5: 'TIER_UP',
 };
 
 function normalizeTaskType(value: QuestTaskType | number): QuestTaskType {
@@ -76,6 +82,8 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
         return t('quest.taskType.share');
       case 'CREATE_GHOST_PIN':
         return t('quest.taskType.createGhostPin');
+      case 'TIER_UP':
+        return t('quest.taskType.tierUp');
       default:
         return task.type;
     }
@@ -101,11 +109,7 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
             </Text>
           </View>
         </View>
-        <QuestRewardBadge
-          rewardType={task.rewardType}
-          rewardValue={task.rewardValue}
-          claimed={task.rewardClaimed}
-        />
+        <QuestRewardBadge rewards={task.rewards} claimed={task.rewardClaimed} />
       </View>
 
       <View className="mb-1 h-2.5 overflow-hidden rounded-full bg-gray-200">

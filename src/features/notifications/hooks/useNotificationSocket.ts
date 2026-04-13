@@ -65,18 +65,20 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
           .getQuestTaskById(questTaskId)
           .then((task) => {
             // POINTS — update user balance immediately (no need to wait)
-            if (task.rewardType === 'POINTS') {
-              dispatch(addPoints(task.rewardValue));
+            const pointsReward = task.rewards.find(
+              (r) => r.rewardType === 'POINTS'
+            );
+            if (pointsReward) {
+              dispatch(
+                addPoints(pointsReward.rewardValue * pointsReward.quantity)
+              );
             }
 
-            setTimeout(() => {
-              dispatch(
-                setPendingReward({
-                  rewardType: task.rewardType,
-                  rewardValue: task.rewardValue,
-                })
-              );
-            }, 1000);
+            if (task.rewards.length > 0) {
+              setTimeout(() => {
+                dispatch(setPendingReward({ rewards: task.rewards }));
+              }, 1000);
+            }
           })
           .catch(() => {});
 

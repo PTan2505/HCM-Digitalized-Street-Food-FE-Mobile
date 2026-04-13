@@ -567,11 +567,14 @@
     "homeTitle": "Thử thách",
     "homeSubtitle": "Hoàn thành nhiệm vụ và nhận thưởng",
     "rewards": "Phần thưởng có thể nhận",
+    "auto": "Tự động",
+    "autoActivated": "Tự động kích hoạt",
     "taskType": {
       "review": "Viết đánh giá",
       "orderAmount": "Chi tiêu",
       "share": "Chia sẻ quán",
-      "createGhostPin": "Gắn địa điểm mới"
+      "createGhostPin": "Gắn địa điểm mới",
+      "tierUp": "Đạt cấp độ"
     },
     "reward": {
       "badge": "Huy hiệu",

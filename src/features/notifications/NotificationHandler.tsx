@@ -3,9 +3,15 @@ import { useNotifications } from '@features/notifications/hooks/useNotifications
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
 import { QuestRewardModal } from '@features/quests/components/QuestRewardModal';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { axiosApi } from '@lib/api/apiInstance';
 import { selectUser } from '@slices/auth';
-import { clearPendingReward, selectPendingReward } from '@slices/quests';
+import {
+  clearPendingReward,
+  selectPendingReward,
+  setPendingReward,
+} from '@slices/quests';
 import type { JSX } from 'react';
+import { useEffect } from 'react';
 
 /**
  * Invisible component that initializes push notifications and handles
@@ -24,6 +30,27 @@ export const NotificationHandler = (): JSX.Element => {
   useNotificationNavigation(lastResponse, isAuthenticated);
   useNotificationSocket(isAuthenticated);
 
+  // Handle tier-up quest complete notification: fetch task rewards and show modal
+  useEffect(() => {
+    if (!lastResponse) return;
+    const data = lastResponse.notification.request.content.data as Record<
+      string,
+      unknown
+    >;
+    if (data.type !== 'tier_up_quest_complete') return;
+    const questTaskId = data.questTaskId as number | undefined;
+    if (!questTaskId) return;
+
+    axiosApi.questApi
+      .getQuestTaskById(questTaskId)
+      .then((task) => {
+        if (task.rewards.length > 0) {
+          dispatch(setPendingReward({ rewards: task.rewards }));
+        }
+      })
+      .catch(() => {});
+  }, [lastResponse, dispatch]);
+
   const handleDismiss = (): void => {
     dispatch(clearPendingReward());
   };
@@ -31,8 +58,7 @@ export const NotificationHandler = (): JSX.Element => {
   return (
     <QuestRewardModal
       visible={pendingReward !== null}
-      rewardType={pendingReward?.rewardType ?? 'POINTS'}
-      rewardValue={pendingReward?.rewardValue ?? 0}
+      rewards={pendingReward?.rewards ?? []}
       onDismiss={handleDismiss}
     />
   );

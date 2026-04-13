@@ -7,7 +7,8 @@ export type NotificationType =
   | 'vendor_reply'
   | 'order_status'
   | 'quest_task_completed'
-  | 'quest_completed';
+  | 'quest_completed'
+  | 'tier_up_quest_complete';
 
 /** The `data` field inside a push notification payload. */
 export interface NotificationData {
@@ -24,6 +25,9 @@ export interface NotificationData {
 
   // quest_task_completed / quest_completed
   questId?: number;
+
+  // tier_up_quest_complete — questTaskId used to fetch rewards for the modal
+  questTaskId?: number;
 }
 
 /** A single notification item returned by GET /api/notifications. */

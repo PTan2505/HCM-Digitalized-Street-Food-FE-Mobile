@@ -6,13 +6,12 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type {
   PaginatedQuests,
-  QuestRewardType,
+  QuestTaskRewardItem,
   UserQuestProgress,
 } from '@features/quests/types/quest';
 
 export interface PendingQuestReward {
-  rewardType: QuestRewardType | number;
-  rewardValue: number;
+  rewards: QuestTaskRewardItem[];
 }
 
 export interface QuestsState {
