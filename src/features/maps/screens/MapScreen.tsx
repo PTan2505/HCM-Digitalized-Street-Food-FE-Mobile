@@ -1,7 +1,9 @@
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
+import { Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
+import { useSearchHistory } from '@features/home/hooks/useSearchHistory';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import { DetailCard } from '@features/maps/components/DetailCard';
@@ -119,11 +121,19 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     amenities: [],
   });
 
+  // Address history (separate storage key from SearchScreen's keyword history)
+  const { history: addressHistory, addToHistory: addToAddressHistory } =
+    useSearchHistory('@map_address_history');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
   // Search state
   const [searchText, setSearchText] = useState('');
   const [predictions, setPredictions] = useState<AutocompletePrediction[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showAddressHistory =
+    isSearchFocused && !searchText.trim() && addressHistory.length > 0;
 
   // "Search this area" state
   const [showSearchArea, setShowSearchArea] = useState(false);
@@ -285,6 +295,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   // ── Dismiss search on blur ──
   const dismissSearch = useCallback(() => {
     setShowPredictions(false);
+    setIsSearchFocused(false);
     Keyboard.dismiss();
   }, []);
 
@@ -293,7 +304,10 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     async (prediction: AutocompletePrediction) => {
       setShowPredictions(false);
       setSearchText(prediction.mainText);
+      setIsSearchFocused(false);
       Keyboard.dismiss();
+
+      addToAddressHistory(prediction.mainText);
 
       const detail = await getPlaceDetail(prediction.placeId);
       if (!detail) return;
@@ -308,7 +322,35 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
 
       fetchBranchesForLocation(detail.lat, detail.lng);
     },
-    [fetchBranchesForLocation]
+    [fetchBranchesForLocation, addToAddressHistory]
+  );
+
+  // ── Select a history address → search by address text ──
+  const handleSelectAddressHistory = useCallback(
+    (address: string) => {
+      setSearchText(address);
+      setIsSearchFocused(false);
+      Keyboard.dismiss();
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(async () => {
+        const results = await searchAddress(
+          address,
+          mapCenter ? { lat: mapCenter.lat, lng: mapCenter.lng } : undefined
+        );
+        if (results.length > 0) {
+          const detail = await getPlaceDetail(results[0].placeId);
+          if (!detail) return;
+          cameraRef.current?.setCamera({
+            centerCoordinate: [detail.lng, detail.lat],
+            zoomLevel: 14,
+            animationDuration: 800,
+            animationMode: 'easeTo',
+          });
+          fetchBranchesForLocation(detail.lat, detail.lng);
+        }
+      }, 0);
+    },
+    [mapCenter, fetchBranchesForLocation]
   );
 
   // ── Helper: get displayName for a branch ──
@@ -534,6 +576,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
             showPredictions={showPredictions}
             onSelectPrediction={handleSelectPrediction}
             onFocus={() => {
+              setIsSearchFocused(true);
               if (predictions.length > 0) setShowPredictions(true);
             }}
             onBlur={dismissSearch}
@@ -551,6 +594,26 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
             topInset={insets.top}
             noMargin
           />
+          {/* Recent address history dropdown */}
+          {showAddressHistory && (
+            <View className="mt-1 rounded-xl border border-gray-200 bg-white shadow-lg">
+              <Text className="px-4 pb-1 pt-3 text-sm font-semibold text-gray-500">
+                {t('search.address_history_title')}
+              </Text>
+              {addressHistory.map((address) => (
+                <TouchableOpacity
+                  key={address}
+                  className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-3"
+                  onPress={() => handleSelectAddressHistory(address)}
+                >
+                  <Ionicons name="time-outline" size={16} color="#9CA3AF" />
+                  <Text className="flex-1 text-base text-gray-800">
+                    {address}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
 
         <Maps

@@ -56,7 +56,10 @@
     "empty": "Không tìm thấy kết quả nào",
     "empty_hint": "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm",
     "error": "Không thể tải kết quả. Vui lòng thử lại.",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "history_title": "Tìm kiếm gần đây",
+    "clear_history": "Xóa tất cả",
+    "address_history_title": "Địa chỉ gần đây"
   },
   "sort_by": "Sắp xếp theo",
   "categories": {

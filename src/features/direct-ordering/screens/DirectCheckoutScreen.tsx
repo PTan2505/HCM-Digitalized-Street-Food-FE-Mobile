@@ -150,7 +150,7 @@ export const DirectCheckoutScreen = ({
         checkoutThunk({
           paymentMethod: selectedMethod,
           isTakeAway,
-          table: note ?? undefined,
+          note: note ?? null,
           voucherId: selectedVoucher?.voucherId ?? null,
         })
       ).unwrap();

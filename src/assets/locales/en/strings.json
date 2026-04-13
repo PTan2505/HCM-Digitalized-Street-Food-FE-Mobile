@@ -56,7 +56,10 @@
     "empty": "No results found",
     "empty_hint": "Try changing your filters or search keyword",
     "error": "Could not load results. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "history_title": "Recent searches",
+    "clear_history": "Clear all",
+    "address_history_title": "Recent addresses"
   },
   "sort_by": "Sort By",
   "categories": {

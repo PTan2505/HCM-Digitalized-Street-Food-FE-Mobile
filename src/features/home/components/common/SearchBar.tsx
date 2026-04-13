@@ -6,7 +6,7 @@ import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import type { AutocompletePrediction } from '@features/maps/services/geocoding';
 import type { JSX } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -15,10 +15,9 @@ interface SearchBarProps {
   placeholder?: string;
   value?: string; // Controlled value
   onChangeText?: (text: string) => void;
-  onSearch?: (text: string) => void; // Debounced callback
+  onSearch?: (text: string) => void; // Submit callback (keyboard search/enter)
   autoFocus?: boolean;
   editable?: boolean;
-  debounceMs?: number;
 
   // Navigation
   showBackButton?: boolean;
@@ -57,7 +56,6 @@ const SearchBar = ({
   onSearch,
   autoFocus = false,
   editable = true,
-  debounceMs = 400,
   showBackButton = false,
   onBackPress,
   onPress,
@@ -80,27 +78,12 @@ const SearchBar = ({
 }: SearchBarProps): JSX.Element => {
   const { t } = useTranslation();
   const [internalValue, setInternalValue] = useState('');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSearchRef = useRef(onSearch);
   onSearchRef.current = onSearch;
 
   // Use controlled value if provided, otherwise use internal state
   const inputValue = controlledValue ?? internalValue;
   const setInputValue = onChangeText ?? setInternalValue;
-
-  // Debounced search
-  useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (!onSearchRef.current) return;
-
-    timerRef.current = setTimeout(() => {
-      onSearchRef.current?.(inputValue);
-    }, debounceMs);
-
-    return (): void => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [inputValue, debounceMs]);
 
   const handleClearInput = (): void => {
     setInputValue('');
@@ -138,6 +121,7 @@ const SearchBar = ({
             onFocus={onFocus}
             onBlur={onBlur}
             returnKeyType="search"
+            onSubmitEditing={() => onSearchRef.current?.(inputValue)}
           />
 
           {/* Clear button (inline) */}
