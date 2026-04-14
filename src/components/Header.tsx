@@ -26,7 +26,7 @@ const Header = ({
       className="justify-end bg-white pb-2"
       style={{ paddingTop: insets.top }}
     >
-      <View className="flex-row items-center justify-between px-4">
+      <View className="h-10 flex-row items-center justify-between px-4">
         {onBackPress && (
           <TouchableOpacity
             onPress={onBackPress}
