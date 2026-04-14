@@ -1,6 +1,6 @@
 import { COLORS } from '@constants/colors';
 import type { JSX } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -34,6 +34,14 @@ export const QuestListScreen = (): JSX.Element => {
   const activeQuests = myQuestItems.filter((q) => q.status === 'IN_PROGRESS');
   const completedQuests = myQuestItems.filter((q) => q.status === 'COMPLETED');
 
+  useEffect(() => {
+    if (activeTab === 'discover') {
+      loadPublicQuests(1, 10, true);
+    } else {
+      loadMyQuests(undefined, false);
+    }
+  }, [activeTab, loadPublicQuests, loadMyQuests]);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     if (activeTab === 'discover') {
@@ -51,7 +59,7 @@ export const QuestListScreen = (): JSX.Element => {
   ];
 
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-200">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-100">
       <Header
         title={t('quest.title')}
         onBackPress={() => navigation.goBack()}
