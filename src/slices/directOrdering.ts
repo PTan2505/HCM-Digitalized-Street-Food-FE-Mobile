@@ -18,6 +18,11 @@ export interface DirectOrderingState {
   cartDisplayName: string | null;
   cartLoading: boolean;
   cartError: string | null;
+  /** All carts for the current user (one per branch) */
+  carts: CartResponse[];
+  /** Display names keyed by branchId — resolved via vendor/multi-branch logic */
+  cartsDisplayNames: Record<number, string>;
+  cartsLoading: boolean;
   activeOrder: OrderResponse | null;
   checkoutPaymentUrl: string | null;
   checkoutOrderCode: number | null;
@@ -35,6 +40,9 @@ const initialState: DirectOrderingState = {
   cartDisplayName: null,
   cartLoading: false,
   cartError: null,
+  carts: [],
+  cartsDisplayNames: {},
+  cartsLoading: false,
   activeOrder: null,
   checkoutPaymentUrl: null,
   checkoutOrderCode: null,
@@ -52,36 +60,69 @@ const getOrderHistoryStatusKey = (status?: OrderStatus | null): string =>
 
 export const fetchCartThunk = createAppAsyncThunk(
   'directOrdering/fetchCart',
-  async (_, { rejectWithValue }) => {
+  async (branchId: number, { rejectWithValue }) => {
     try {
-      const res = await axiosApi.cartApi.getMyCart();
+      const res = await axiosApi.cartApi.getMyCartByBranch(branchId);
       const cart = res.data;
 
       // Resolve display name: fetch branch → vendor to build
       // "vendorName - chi nhánh branchName" (or just vendorName for single-branch)
       let displayName: string | null = null;
-      if (cart.branchId) {
-        try {
-          const branch = await axiosApi.branchApi.getBranchById(cart.branchId);
-          const vendor = await axiosApi.vendorApi.getVendorById(
-            branch.vendorId
-          );
-          // Check if vendor has multiple branches
-          const vendorBranches = await axiosApi.branchApi.getBranchesByVendor(
-            branch.vendorId
-          );
-          if (vendorBranches.totalCount > 1) {
-            displayName = `${vendor.name} - ${t('branch')} ${branch.name}`;
-          } else {
-            displayName = vendor.name;
-          }
-        } catch {
-          // Fallback to branchName from cart if additional fetches fail
-          displayName = cart.branchName ?? null;
+      try {
+        const branch = await axiosApi.branchApi.getBranchById(branchId);
+        const vendor = await axiosApi.vendorApi.getVendorById(branch.vendorId);
+        const vendorBranches = await axiosApi.branchApi.getBranchesByVendor(
+          branch.vendorId
+        );
+        if (vendorBranches.totalCount > 1) {
+          displayName = `${vendor.name} - ${t('branch')} ${branch.name}`;
+        } else {
+          displayName = vendor.name;
         }
+      } catch {
+        displayName = cart.branchName ?? null;
       }
 
       return { cart, displayName };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const fetchMyCartsThunk = createAppAsyncThunk(
+  'directOrdering/fetchMyCarts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosApi.cartApi.getMyCarts();
+      const carts = res.data;
+
+      // Resolve display names for all carts in parallel
+      const displayNames: Record<number, string> = {};
+      await Promise.all(
+        carts
+          .filter((c) => c.branchId != null)
+          .map(async (c) => {
+            try {
+              const branch = await axiosApi.branchApi.getBranchById(
+                c.branchId!
+              );
+              const vendor = await axiosApi.vendorApi.getVendorById(
+                branch.vendorId
+              );
+              const vendorBranches =
+                await axiosApi.branchApi.getBranchesByVendor(branch.vendorId);
+              displayNames[c.branchId!] =
+                vendorBranches.totalCount > 1
+                  ? `${vendor.name} - ${t('branch')} ${branch.name}`
+                  : vendor.name;
+            } catch {
+              displayNames[c.branchId!] = c.branchName ?? '';
+            }
+          })
+      );
+
+      return { carts, displayNames };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -120,11 +161,15 @@ export const addCartItemThunk = createAppAsyncThunk(
 export const updateCartItemThunk = createAppAsyncThunk(
   'directOrdering/updateCartItem',
   async (
-    { dishId, quantity }: { dishId: number; quantity: number },
+    {
+      dishId,
+      quantity,
+      branchId,
+    }: { dishId: number; quantity: number; branchId: number },
     { rejectWithValue }
   ) => {
     try {
-      const res = await axiosApi.cartApi.updateItemQuantity(dishId, {
+      const res = await axiosApi.cartApi.updateItemQuantity(dishId, branchId, {
         quantity,
       });
       return res.data;
@@ -136,9 +181,12 @@ export const updateCartItemThunk = createAppAsyncThunk(
 
 export const removeCartItemThunk = createAppAsyncThunk(
   'directOrdering/removeCartItem',
-  async (dishId: number, { rejectWithValue }) => {
+  async (
+    { dishId, branchId }: { dishId: number; branchId: number },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await axiosApi.cartApi.removeItem(dishId);
+      const res = await axiosApi.cartApi.removeItem(dishId, branchId);
       return res.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -148,9 +196,9 @@ export const removeCartItemThunk = createAppAsyncThunk(
 
 export const clearCartThunk = createAppAsyncThunk(
   'directOrdering/clearCart',
-  async (_, { rejectWithValue }) => {
+  async (branchId: number, { rejectWithValue }) => {
     try {
-      await axiosApi.cartApi.clearCart();
+      await axiosApi.cartApi.clearCart(branchId);
       return null;
     } catch (error) {
       return rejectWithValue(error);
@@ -288,6 +336,18 @@ const directOrderingSlice = createSlice({
         state.cartError =
           (action.payload as { message?: string })?.message ??
           'Failed to fetch cart';
+      })
+
+      .addCase(fetchMyCartsThunk.pending, (state) => {
+        state.cartsLoading = true;
+      })
+      .addCase(fetchMyCartsThunk.fulfilled, (state, action) => {
+        state.cartsLoading = false;
+        state.carts = action.payload.carts;
+        state.cartsDisplayNames = action.payload.displayNames;
+      })
+      .addCase(fetchMyCartsThunk.rejected, (state) => {
+        state.cartsLoading = false;
       })
 
       .addCase(addCartItemThunk.pending, (state) => {
@@ -481,3 +541,20 @@ export const selectOrderHistoryByStatus = (
   const statusKey = getOrderHistoryStatusKey(status);
   return state.directOrdering.orderHistoryByStatus[statusKey] ?? null;
 };
+
+export const selectCarts = (state: RootState): CartResponse[] =>
+  state.directOrdering.carts;
+export const selectCartsLoading = (state: RootState): boolean =>
+  state.directOrdering.cartsLoading;
+export const selectCartsDisplayNames = (
+  state: RootState
+): Record<number, string> => state.directOrdering.cartsDisplayNames;
+/** True if the user has at least one cart that contains items */
+export const selectTotalCartsWithItems = (state: RootState): number =>
+  state.directOrdering.carts.filter((c) => c.items.length > 0).length;
+/** Total item count across all carts */
+export const selectTotalCartItemCount = (state: RootState): number =>
+  state.directOrdering.carts.reduce(
+    (sum, c) => sum + c.items.reduce((s, i) => s + i.quantity, 0),
+    0
+  );

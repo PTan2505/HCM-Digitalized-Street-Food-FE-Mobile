@@ -1,5 +1,6 @@
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
 import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
+import { MyCartsScreen } from '@features/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';
 import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
 import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
@@ -75,7 +76,7 @@ const RootStack = createNativeStackNavigator({
         path: 'restaurant/:branchId',
         parse: { branchId: Number },
       },
-      params: {} as { branchId: number },
+      params: {} as { branchId: number; tab?: TabType },
     },
     RestaurantSwipe: {
       screen: RestaurantSwipeScreen,
@@ -148,10 +149,15 @@ const RootStack = createNativeStackNavigator({
       screen: MyGhostPinsScreen,
       linking: 'ghost-pins',
     },
+    MyCarts: {
+      screen: MyCartsScreen,
+      linking: 'carts',
+    },
     PersonalCart: {
       screen: PersonalCartScreen,
       linking: 'cart',
       params: {} as {
+        branchId: number;
         branchName?: string;
         isOpen?: boolean;
       },

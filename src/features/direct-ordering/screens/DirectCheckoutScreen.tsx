@@ -32,6 +32,7 @@ const PAYMENT_METHODS: {
 }[] = [{ key: 'bank_transfer', icon: 'business-outline' }];
 
 type DirectCheckoutScreenProps = StaticScreenProps<{
+  branchId: number;
   branchName: string;
   note?: string;
 }>;
@@ -58,7 +59,7 @@ const calculateDiscount = (
 export const DirectCheckoutScreen = ({
   route,
 }: DirectCheckoutScreenProps): JSX.Element => {
-  const { branchName, note } = route.params;
+  const { branchId, branchName, note } = route.params;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -148,6 +149,7 @@ export const DirectCheckoutScreen = ({
     try {
       const result = await dispatch(
         checkoutThunk({
+          branchId: branchId,
           paymentMethod: selectedMethod,
           isTakeAway,
           note: note ?? null,
@@ -168,15 +170,16 @@ export const DirectCheckoutScreen = ({
       // Error is handled by the slice / useEffect above
     }
   }, [
+    cart,
+    t,
     dispatch,
+    branchId,
     selectedMethod,
     isTakeAway,
     note,
-    cart,
+    selectedVoucher?.voucherId,
     navigation,
     branchName,
-    selectedVoucher,
-    t,
   ]);
 
   return (
