@@ -1,3 +1,4 @@
+import type { TabType } from '@features/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch } from '@features/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
@@ -7,12 +8,12 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, View } from 'react-native';
 
-type Props = StaticScreenProps<{ branchId: number }>;
+type Props = StaticScreenProps<{ branchId: number; tab?: TabType }>;
 
 export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-  const { branchId } = route.params;
+  const { branchId, tab } = route.params;
   const { t } = useTranslation();
   const [error, setError] = useState(false);
 
@@ -53,7 +54,7 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
           totalReviewCount: detail.totalReviewCount,
           totalRatingSum: 0,
           isActive: detail.isActive,
-          isSubscribed: false,
+          isSubscribed: detail.isSubscribed,
           tierId: detail.tierId,
           tierName: detail.tierName ?? '',
           dietaryPreferenceNames: [],
@@ -62,10 +63,10 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
           dishes: paginatedDishes.items,
         };
 
-        navigation.replace('RestaurantDetails', { branch, displayName });
+        navigation.replace('RestaurantDetails', { branch, displayName, tab });
       })
       .catch(() => setError(true));
-  }, [branchId, navigation, t]);
+  }, [branchId, navigation, t, tab]);
 
   if (error) {
     navigation.goBack();

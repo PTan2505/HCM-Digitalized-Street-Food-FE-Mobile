@@ -112,6 +112,7 @@ const MenuTab = ({
           updateCartItemThunk({
             dishId: dish.dishId,
             quantity: newQty,
+            branchId,
           })
         );
       }
@@ -132,7 +133,9 @@ const MenuTab = ({
             text: t('cart.replace_confirm'),
             style: 'destructive',
             onPress: async (): Promise<void> => {
-              await dispatch(clearCartThunk()).unwrap();
+              await dispatch(
+                clearCartThunk(cart.branchId ?? branchId)
+              ).unwrap();
               addOrIncrement(dish);
             },
           },
@@ -152,17 +155,18 @@ const MenuTab = ({
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
       if (serverQty <= 1) {
-        dispatch(removeCartItemThunk(dish.dishId));
+        dispatch(removeCartItemThunk({ dishId: dish.dishId, branchId }));
       } else {
         dispatch(
           updateCartItemThunk({
             dishId: dish.dishId,
             quantity: newQty,
+            branchId,
           })
         );
       }
     },
-    [dispatch, getCartQuantity, getServerQuantity]
+    [dispatch, branchId, getCartQuantity, getServerQuantity]
   );
 
   const renderDish = (dish: Dish): JSX.Element => {

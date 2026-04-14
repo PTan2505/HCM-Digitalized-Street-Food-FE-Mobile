@@ -37,6 +37,7 @@ const PLACEHOLDER_DISH =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200';
 
 type PersonalCartScreenProps = StaticScreenProps<{
+  branchId: number;
   branchName?: string;
   isOpen?: boolean;
 }>;
@@ -44,7 +45,7 @@ type PersonalCartScreenProps = StaticScreenProps<{
 export const PersonalCartScreen = ({
   route,
 }: PersonalCartScreenProps): JSX.Element => {
-  const { branchName = '', isOpen = true } = route.params ?? {};
+  const { branchId, branchName = '', isOpen = true } = route.params ?? {};
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -85,8 +86,8 @@ export const PersonalCartScreen = ({
   }, [cart]);
 
   useEffect(() => {
-    dispatch(fetchCartThunk());
-  }, [dispatch]);
+    dispatch(fetchCartThunk(branchId));
+  }, [dispatch, branchId]);
 
   useEffect(() => {
     if (!cart?.branchId) return;
@@ -143,14 +144,21 @@ export const PersonalCartScreen = ({
 
   const handleUpdateQuantity = useCallback(
     (dishId: number, currentQty: number, delta: number) => {
+      const cartBranchId = cart?.branchId ?? branchId;
       const newQty = currentQty + delta;
       if (newQty <= 0) {
-        dispatch(removeCartItemThunk(dishId));
+        dispatch(removeCartItemThunk({ dishId, branchId: cartBranchId }));
       } else {
-        dispatch(updateCartItemThunk({ dishId, quantity: newQty }));
+        dispatch(
+          updateCartItemThunk({
+            dishId,
+            quantity: newQty,
+            branchId: cartBranchId,
+          })
+        );
       }
     },
-    [dispatch]
+    [dispatch, cart?.branchId, branchId]
   );
 
   const handleClearCart = useCallback(() => {
@@ -160,20 +168,21 @@ export const PersonalCartScreen = ({
         text: t('dietary.confirm'),
         style: 'destructive',
         onPress: (): void => {
-          dispatch(clearCartThunk()).then(() => {
+          dispatch(clearCartThunk(cart?.branchId ?? branchId)).then(() => {
             navigation.goBack();
           });
         },
       },
     ]);
-  }, [dispatch, navigation, t]);
+  }, [dispatch, navigation, t, cart?.branchId, branchId]);
 
   const handlePlaceOrder = useCallback(() => {
     navigation.navigate('DirectCheckout', {
+      branchId: cart?.branchId ?? branchId,
       branchName: cartDisplayName ?? branchName,
       note,
     });
-  }, [navigation, cartDisplayName, branchName, note]);
+  }, [navigation, cartDisplayName, branchName, note, cart?.branchId, branchId]);
 
   const getCartQuantity = useCallback(
     (dishId: number): number => {
@@ -196,10 +205,11 @@ export const PersonalCartScreen = ({
       const newQty = displayQty + 1;
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
-      if (serverQty === 0 && cart?.branchId) {
+      const cartBranchId = cart?.branchId ?? branchId;
+      if (serverQty === 0) {
         dispatch(
           addCartItemThunk({
-            branchId: cart.branchId,
+            branchId: cartBranchId,
             dishId: dish.dishId,
             quantity: newQty,
             displayName: cartDisplayName ?? branchName,
@@ -207,13 +217,18 @@ export const PersonalCartScreen = ({
         );
       } else {
         dispatch(
-          updateCartItemThunk({ dishId: dish.dishId, quantity: newQty })
+          updateCartItemThunk({
+            dishId: dish.dishId,
+            quantity: newQty,
+            branchId: cartBranchId,
+          })
         );
       }
     },
     [
       dispatch,
       cart?.branchId,
+      branchId,
       cartDisplayName,
       branchName,
       getCartQuantity,
@@ -228,15 +243,22 @@ export const PersonalCartScreen = ({
       const newQty = displayQty - 1;
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
+      const cartBranchId = cart?.branchId ?? branchId;
       if (serverQty <= 1) {
-        dispatch(removeCartItemThunk(dish.dishId));
+        dispatch(
+          removeCartItemThunk({ dishId: dish.dishId, branchId: cartBranchId })
+        );
       } else {
         dispatch(
-          updateCartItemThunk({ dishId: dish.dishId, quantity: newQty })
+          updateCartItemThunk({
+            dishId: dish.dishId,
+            quantity: newQty,
+            branchId: cartBranchId,
+          })
         );
       }
     },
-    [dispatch, getCartQuantity, getServerQuantity]
+    [dispatch, branchId, cart?.branchId, getCartQuantity, getServerQuantity]
   );
 
   const menuCategories = [

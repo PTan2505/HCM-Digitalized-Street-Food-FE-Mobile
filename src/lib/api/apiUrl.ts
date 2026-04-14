@@ -85,6 +85,7 @@ export const apiUrl = {
   },
   cart: {
     my: '/api/Cart/my',
+    myBranch: (branchId: number): string => `/api/Cart/my/branches/${branchId}`,
     items: '/api/Cart/items',
     itemByDish: (dishId: number): string => `/api/Cart/items/${dishId}`,
     clear: '/api/Cart/clear',
