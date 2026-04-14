@@ -93,10 +93,7 @@ export const QuestDetailScreen = ({
       }));
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header
         title={t('quest.detail')}
         onBackPress={(): void => navigation.goBack()}

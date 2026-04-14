@@ -240,7 +240,7 @@ export const OrderHistoryScreen = (): JSX.Element => {
   };
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header
         title={t('order.history_title')}

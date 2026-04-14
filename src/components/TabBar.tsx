@@ -211,7 +211,9 @@ export const TabBar = <T extends TabKey>({
 
   if (isEqualVariant) {
     return (
-      <View className="mb-2 border-b border-gray-200 px-4">{tabContainer}</View>
+      <View className="mb-2 border-b border-gray-200 bg-white px-4">
+        {tabContainer}
+      </View>
     );
   }
 
@@ -220,7 +222,7 @@ export const TabBar = <T extends TabKey>({
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
-      className="mb-2 border-b border-gray-200"
+      className="mb-2 border-b border-gray-200 bg-white"
       style={{ flexGrow: 0 }}
     >
       {tabContainer}

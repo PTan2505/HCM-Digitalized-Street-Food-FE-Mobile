@@ -51,10 +51,7 @@ export const CurrentPicksScreen = (): JSX.Element => {
 
   return (
     <GestureHandlerRootView className="flex-1">
-      <SafeAreaView
-        className="flex-1 bg-white"
-        edges={['top', 'left', 'right']}
-      >
+      <SafeAreaView className="flex-1 bg-white" edges={['left', 'right']}>
         <StatusBar barStyle="dark-content" />
 
         <Header

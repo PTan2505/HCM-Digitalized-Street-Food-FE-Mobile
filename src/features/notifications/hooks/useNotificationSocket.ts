@@ -83,7 +83,7 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
           .catch(() => {});
 
         // Refresh quest list in background so screens stay up-to-date
-        dispatch(fetchMyQuests(undefined));
+        dispatch(fetchMyQuests({ isTierUp: false }));
       }
     });
 

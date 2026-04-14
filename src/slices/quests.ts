@@ -6,6 +6,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import type {
   PaginatedQuests,
+  PaginatedUserQuests,
   QuestTaskRewardItem,
   UserQuestProgress,
 } from '@features/quests/types/quest';
@@ -16,7 +17,7 @@ export interface PendingQuestReward {
 
 export interface QuestsState {
   publicQuests: PaginatedQuests | null;
-  myQuests: UserQuestProgress[];
+  myQuests: PaginatedUserQuests | null;
   currentQuestDetail: UserQuestProgress | null;
   pendingReward: PendingQuestReward | null;
   loading: boolean;
@@ -25,7 +26,7 @@ export interface QuestsState {
 
 const initialState: QuestsState = {
   publicQuests: null,
-  myQuests: [],
+  myQuests: null,
   currentQuestDetail: null,
   pendingReward: null,
   loading: false,
@@ -35,11 +36,26 @@ const initialState: QuestsState = {
 export const fetchPublicQuests = createAppAsyncThunk(
   'quests/fetchPublicQuests',
   async (
-    { pageNumber, pageSize }: { pageNumber?: number; pageSize?: number },
+    {
+      pageNumber,
+      pageSize,
+      isStandalone,
+      isTierUp,
+    }: {
+      pageNumber?: number;
+      pageSize?: number;
+      isStandalone?: boolean;
+      isTierUp?: boolean;
+    },
     { rejectWithValue }
   ) => {
     try {
-      return await axiosApi.questApi.getPublicQuests(pageNumber, pageSize);
+      return await axiosApi.questApi.getPublicQuests(
+        pageNumber,
+        pageSize,
+        isStandalone,
+        isTierUp
+      );
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : 'Failed to fetch quests'
@@ -63,9 +79,27 @@ export const enrollInQuest = createAppAsyncThunk(
 
 export const fetchMyQuests = createAppAsyncThunk(
   'quests/fetchMyQuests',
-  async (status: string | undefined, { rejectWithValue }) => {
+  async (
+    {
+      status,
+      isTierUp,
+      pageNumber,
+      pageSize,
+    }: {
+      status?: string;
+      isTierUp?: boolean;
+      pageNumber?: number;
+      pageSize?: number;
+    } = {},
+    { rejectWithValue }
+  ) => {
     try {
-      return await axiosApi.questApi.getMyQuests(status);
+      return await axiosApi.questApi.getMyQuests(
+        status,
+        isTierUp,
+        pageNumber,
+        pageSize
+      );
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : 'Failed to fetch my quests'
@@ -136,7 +170,7 @@ export default questsSlice.reducer;
 // Selectors
 export const selectPublicQuests = (state: RootState): PaginatedQuests | null =>
   state.quests.publicQuests;
-export const selectMyQuests = (state: RootState): UserQuestProgress[] =>
+export const selectMyQuests = (state: RootState): PaginatedUserQuests | null =>
   state.quests.myQuests;
 export const selectQuestsLoading = (state: RootState): boolean =>
   state.quests.loading;

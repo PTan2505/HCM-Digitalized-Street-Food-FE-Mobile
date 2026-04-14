@@ -241,10 +241,7 @@ export const SystemCampaignDetailScreen = ({
       : `${t('campaign.remaining', { count: daysLeft })}`;
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header
         title={t('campaign.system_detail')}
         onBackPress={(): void => navigation.goBack()}

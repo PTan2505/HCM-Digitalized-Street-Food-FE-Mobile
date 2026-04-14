@@ -4,7 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const EditUserInfoScreen = (): JSX.Element => {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      className="bg-white"
+      edges={['left', 'right', 'bottom']}
+      style={{ flex: 1 }}
+    >
       <UserProfileForm />
     </SafeAreaView>
   );

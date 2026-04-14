@@ -100,3 +100,13 @@ export interface PaginatedQuests {
   hasNext: boolean;
   items: QuestResponse[];
 }
+
+export interface PaginatedUserQuests {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: UserQuestProgress[];
+}

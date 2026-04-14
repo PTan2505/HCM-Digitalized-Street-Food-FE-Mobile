@@ -133,7 +133,7 @@ export const MyGhostPinsScreen = (): JSX.Element => {
   }, [load]);
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-gray-50">
+    <SafeAreaView edges={['bottom']} className="flex-1 bg-gray-50">
       {/* Header */}
       <Header
         title={t('my_ghost_pins.title')}

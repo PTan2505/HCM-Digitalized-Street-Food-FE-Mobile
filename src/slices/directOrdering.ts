@@ -101,23 +101,23 @@ export const fetchMyCartsThunk = createAppAsyncThunk(
       const displayNames: Record<number, string> = {};
       await Promise.all(
         carts
-          .filter((c) => c.branchId != null)
+          .filter(
+            (c): c is CartResponse & { branchId: number } => c.branchId != null
+          )
           .map(async (c) => {
             try {
-              const branch = await axiosApi.branchApi.getBranchById(
-                c.branchId!
-              );
+              const branch = await axiosApi.branchApi.getBranchById(c.branchId);
               const vendor = await axiosApi.vendorApi.getVendorById(
                 branch.vendorId
               );
               const vendorBranches =
                 await axiosApi.branchApi.getBranchesByVendor(branch.vendorId);
-              displayNames[c.branchId!] =
+              displayNames[c.branchId] =
                 vendorBranches.totalCount > 1
                   ? `${vendor.name} - ${t('branch')} ${branch.name}`
                   : vendor.name;
             } catch {
-              displayNames[c.branchId!] = c.branchName ?? '';
+              displayNames[c.branchId] = c.branchName ?? '';
             }
           })
       );

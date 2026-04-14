@@ -183,7 +183,7 @@ export const DirectCheckoutScreen = ({
   ]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header
         title={t('checkout.order_summary')}

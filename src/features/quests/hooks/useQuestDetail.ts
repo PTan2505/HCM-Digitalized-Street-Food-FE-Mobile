@@ -36,7 +36,9 @@ export const useQuestDetail = (
         axiosApi.questApi.getMyQuests(),
       ]);
       setQuest(questData);
-      const enrolled = myQuests.find((q) => q.questId === questId) ?? null;
+      const enrolled =
+        myQuests.items.find((q: UserQuestProgress) => q.questId === questId) ??
+        null;
       setMyProgress(enrolled);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load quest');
