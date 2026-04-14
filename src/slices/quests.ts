@@ -3,6 +3,14 @@ import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import type { APIErrorResponse } from '@custom-types/apiResponse';
+
+const extractErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object' && 'message' in error)
+    return (error as APIErrorResponse).message ?? fallback;
+  return fallback;
+};
 
 import type {
   PaginatedQuests,
@@ -58,7 +66,7 @@ export const fetchPublicQuests = createAppAsyncThunk(
       );
     } catch (error) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch quests'
+        extractErrorMessage(error, 'Failed to fetch quests')
       );
     }
   }
@@ -71,7 +79,20 @@ export const enrollInQuest = createAppAsyncThunk(
       return await axiosApi.questApi.enrollInQuest(questId);
     } catch (error) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to enroll in quest'
+        extractErrorMessage(error, 'Failed to enroll in quest')
+      );
+    }
+  }
+);
+
+export const stopQuest = createAppAsyncThunk(
+  'quests/stopQuest',
+  async (questId: number, { rejectWithValue }) => {
+    try {
+      return await axiosApi.questApi.stopQuest(questId);
+    } catch (error) {
+      return rejectWithValue(
+        extractErrorMessage(error, 'Failed to stop quest')
       );
     }
   }
@@ -102,7 +123,7 @@ export const fetchMyQuests = createAppAsyncThunk(
       );
     } catch (error) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch my quests'
+        extractErrorMessage(error, 'Failed to fetch my quests')
       );
     }
   }
@@ -145,6 +166,18 @@ const questsSlice = createSlice({
         state.currentQuestDetail = action.payload;
       })
       .addCase(enrollInQuest.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(stopQuest.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(stopQuest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentQuestDetail = action.payload;
+      })
+      .addCase(stopQuest.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

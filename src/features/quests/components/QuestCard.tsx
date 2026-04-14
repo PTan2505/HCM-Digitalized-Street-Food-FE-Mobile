@@ -265,7 +265,7 @@ export const QuestCard = ({
                 </Text>
               )}
             </View>
-          ) : (
+          ) : enrolledInfo.status === 'IN_PROGRESS' ? (
             <View className="rounded-2xl border border-primary/20 bg-primary/5 px-3 py-3">
               <View className="mb-2 flex-row items-center justify-between">
                 <Text className="text-sm font-semibold text-primary-dark">
@@ -281,6 +281,15 @@ export const QuestCard = ({
                   className="h-full rounded-full bg-primary"
                   style={{ width: `${progress}%` }}
                 />
+              </View>
+            </View>
+          ) : (
+            <View className="rounded-2xl border border-red-200 bg-red-50 px-3 py-2">
+              <View className="flex-row items-center">
+                <Ionicons name="stop-circle" size={16} color="#b91c1c" />
+                <Text className="ml-1 text-sm font-semibold text-red-700">
+                  {t('quest.stopped')}
+                </Text>
               </View>
             </View>
           ))}

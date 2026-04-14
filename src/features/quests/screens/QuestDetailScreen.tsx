@@ -33,15 +33,46 @@ export const QuestDetailScreen = ({
   const navigation = useNavigation();
   const { questId } = route.params;
 
-  const { quest, myProgress, loading, enrolling, error, handleEnroll } =
-    useQuestDetail(questId);
+  const {
+    quest,
+    myProgress,
+    loading,
+    enrolling,
+    stopping,
+    error,
+    handleEnroll,
+    handleStop,
+  } = useQuestDetail(questId);
 
   const onEnroll = async (): Promise<void> => {
     try {
       await handleEnroll();
-    } catch {
-      Alert.alert(t('quest.error'), t('quest.enrollError'));
+    } catch (err) {
+      Alert.alert(
+        t('quest.error'),
+        typeof err === 'string' ? err : t('quest.enrollError')
+      );
     }
+  };
+
+  const onStop = (): void => {
+    Alert.alert(t('quest.stopTitle'), t('quest.stopConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('quest.stop'),
+        style: 'destructive',
+        onPress: async (): Promise<void> => {
+          try {
+            await handleStop();
+          } catch (err) {
+            Alert.alert(
+              t('quest.error'),
+              typeof err === 'string' ? err : t('quest.stopError')
+            );
+          }
+        },
+      },
+    ]);
   };
 
   if (loading) {
@@ -209,6 +240,46 @@ export const QuestDetailScreen = ({
             ) : (
               <Text className="text-base font-bold text-white">
                 {t('quest.startQuest')}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Stop button — only for standalone quests in progress */}
+      {quest.isStandalone && myProgress?.status === 'IN_PROGRESS' && (
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
+          <TouchableOpacity
+            onPress={onStop}
+            disabled={stopping}
+            className="items-center rounded-full border border-red-400 py-3.5"
+            activeOpacity={0.8}
+          >
+            {stopping ? (
+              <ActivityIndicator color="#f87171" />
+            ) : (
+              <Text className="text-base font-bold text-red-400">
+                {t('quest.stop')}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Continue button — standalone quest that was stopped */}
+      {quest.isStandalone && myProgress?.status === 'STOPPED' && (
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
+          <TouchableOpacity
+            onPress={onEnroll}
+            disabled={enrolling}
+            className="items-center rounded-full bg-primary py-3.5"
+            activeOpacity={0.8}
+          >
+            {enrolling ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-base font-bold text-white">
+                {t('quest.continue')}
               </Text>
             )}
           </TouchableOpacity>
