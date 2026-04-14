@@ -309,6 +309,18 @@ export const refreshUserBalanceThunk = createAppAsyncThunk(
   }
 );
 
+export const refreshUserPointsThunk = createAppAsyncThunk(
+  'user/refreshPoints',
+  async (_, { rejectWithValue }) => {
+    try {
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
+      return userProfile.point ?? 0;
+    } catch (error) {
+      return rejectWithValue(serializeError(error));
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: 'user',
   initialState,
@@ -358,6 +370,11 @@ export const authSlice = createSlice({
       .addCase(refreshUserBalanceThunk.fulfilled, (state, action) => {
         if (state.value) {
           state.value.moneyBalance = action.payload;
+        }
+      })
+      .addCase(refreshUserPointsThunk.fulfilled, (state, action) => {
+        if (state.value) {
+          state.value.point = action.payload;
         }
       })
       .addCase(userLogout.fulfilled, () => {

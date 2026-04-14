@@ -1,7 +1,7 @@
 import type { VoucherDto } from '@features/campaigns/api/voucherApi';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { selectUser } from '@slices/auth';
+import { refreshUserPointsThunk, selectUser } from '@slices/auth';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +15,7 @@ interface RedeemState {
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const useVoucherMarketplace = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
 
   const [vouchers, setVouchers] = useState<VoucherDto[]>([]);
@@ -57,6 +58,7 @@ export const useVoucherMarketplace = () => {
         });
         // Refresh list so remaining quantity updates
         void fetchMarketplace();
+        void dispatch(refreshUserPointsThunk());
       } catch {
         setRedeemState({
           voucherId,
