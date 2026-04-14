@@ -2,7 +2,8 @@ export type QuestTaskType =
   | 'REVIEW'
   | 'ORDER_AMOUNT'
   | 'SHARE'
-  | 'CREATE_GHOST_PIN';
+  | 'CREATE_GHOST_PIN'
+  | 'TIER_UP';
 export type QuestRewardType = 'BADGE' | 'POINTS' | 'VOUCHER';
 export type UserQuestStatus =
   | 'IN_PROGRESS'
@@ -10,14 +11,20 @@ export type UserQuestStatus =
   | 'EXPIRED'
   | 'STOPPED';
 
+export interface QuestTaskRewardItem {
+  questTaskRewardId: number;
+  rewardType: QuestRewardType;
+  rewardValue: number;
+  quantity: number;
+}
+
 export interface QuestTaskResponse {
   questTaskId: number;
   questId: number;
   type: QuestTaskType;
   targetValue: number;
   description: string | null;
-  rewardType: QuestRewardType;
-  rewardValue: number;
+  rewards: QuestTaskRewardItem[];
 }
 
 export interface QuestResponse {
@@ -29,6 +36,7 @@ export interface QuestResponse {
   endDate: string;
   isActive: boolean;
   isStandalone: boolean;
+  requiresEnrollment: boolean;
   campaignId: number | null;
   createdAt: string;
   updatedAt: string | null;
@@ -42,8 +50,7 @@ export interface UserQuestTaskProgress {
   type: QuestTaskType;
   targetValue: number;
   description: string | null;
-  rewardType: QuestRewardType;
-  rewardValue: number;
+  rewards: QuestTaskRewardItem[];
   currentValue: number;
   isCompleted: boolean;
   completedAt: string | null;
@@ -92,4 +99,14 @@ export interface PaginatedQuests {
   hasPrevious: boolean;
   hasNext: boolean;
   items: QuestResponse[];
+}
+
+export interface PaginatedUserQuests {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  items: UserQuestProgress[];
 }

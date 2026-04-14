@@ -7,18 +7,12 @@ import {
   FlatList,
   RefreshControl,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, {
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Header from '@components/Header';
+import TabBar from '@components/TabBar';
 import { QuestCard } from '@features/quests/components/QuestCard';
 import { useQuests } from '@features/quests/hooks/useQuests';
 import { useNavigation } from '@react-navigation/native';
@@ -34,73 +28,26 @@ export const QuestListScreen = (): JSX.Element => {
     useQuests();
   const [activeTab, setActiveTab] = useState<Tab>('discover');
   const [refreshing, setRefreshing] = useState(false);
-  const [tabWidth, setTabWidth] = useState(0);
 
-  const tabKeys: Tab[] = ['discover', 'my', 'completed'];
-  const indicatorX = useSharedValue(0);
-  const tab0Active = useSharedValue(1);
-  const tab1Active = useSharedValue(0);
-  const tab2Active = useSharedValue(0);
-  const tabActives = [tab0Active, tab1Active, tab2Active];
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
-  }));
-
-  const tab0TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(
-      tab0Active.value,
-      [0, 1],
-      ['#9CA3AF', COLORS.primaryLight]
-    ),
-  }));
-  const tab1TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(
-      tab1Active.value,
-      [0, 1],
-      ['#9CA3AF', COLORS.primaryLight]
-    ),
-  }));
-  const tab2TextStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(
-      tab2Active.value,
-      [0, 1],
-      ['#9CA3AF', COLORS.primaryLight]
-    ),
-  }));
-  const tabTextStyles = [tab0TextStyle, tab1TextStyle, tab2TextStyle];
-
-  const handleTabChange = useCallback(
-    (key: Tab) => {
-      const newIdx = tabKeys.indexOf(key);
-      indicatorX.value = withTiming(newIdx * tabWidth, { duration: 250 });
-      tabActives.forEach((v, i) => {
-        v.value = withTiming(i === newIdx ? 1 : 0, { duration: 250 });
-      });
-      setActiveTab(key);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tabWidth]
-  );
+  const discoverQuests = publicQuests?.items ?? [];
+  const myQuestItems = myQuests?.items ?? [];
+  const activeQuests = myQuestItems.filter((q) => q.status === 'IN_PROGRESS');
+  const completedQuests = myQuestItems.filter((q) => q.status === 'COMPLETED');
 
   useEffect(() => {
-    if (tabWidth > 0) {
-      indicatorX.value = tabKeys.indexOf(activeTab) * tabWidth;
+    if (activeTab === 'discover') {
+      loadPublicQuests(1, 10, true);
+    } else {
+      loadMyQuests(undefined, false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabWidth]);
-
-  const activeQuests = myQuests.filter(
-    (q) => q.status === 'IN_PROGRESS' || q.status === 'STOPPED'
-  );
-  const completedQuests = myQuests.filter((q) => q.status === 'COMPLETED');
+  }, [activeTab, loadPublicQuests, loadMyQuests]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     if (activeTab === 'discover') {
-      loadPublicQuests();
+      loadPublicQuests(1, 10, true);
     } else {
-      loadMyQuests();
+      loadMyQuests(undefined, false);
     }
     setTimeout(() => setRefreshing(false), 500);
   }, [activeTab, loadPublicQuests, loadMyQuests]);
@@ -112,48 +59,21 @@ export const QuestListScreen = (): JSX.Element => {
   ];
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      {/* Header */}
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-100">
       <Header
         title={t('quest.title')}
         onBackPress={() => navigation.goBack()}
       />
 
-      {/* Tabs */}
-      <View className="border-b border-gray-200 px-4">
-        <View
-          className="flex-row"
-          onLayout={(e) =>
-            setTabWidth(e.nativeEvent.layout.width / tabs.length)
-          }
-        >
-          {tabs.map((tab, i) => (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => handleTabChange(tab.key)}
-              className="flex-1 items-center pb-3"
-            >
-              <Animated.Text
-                className="text-base font-semibold"
-                style={tabTextStyles[i]}
-              >
-                {tab.label}
-              </Animated.Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Animated.View
-          style={[
-            {
-              width: tabWidth,
-              height: 2,
-              backgroundColor: COLORS.primary,
-              marginTop: -2,
-            },
-            indicatorStyle,
-          ]}
-        />
-      </View>
+      <TabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        variant="equal"
+        activeColor={COLORS.primaryLight}
+        inactiveColor="#9CA3AF"
+        indicatorColor={COLORS.primary}
+      />
 
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center">
@@ -161,7 +81,7 @@ export const QuestListScreen = (): JSX.Element => {
         </View>
       ) : activeTab === 'discover' ? (
         <FlatList
-          data={publicQuests?.items ?? []}
+          data={discoverQuests}
           keyExtractor={(item) => String(item.questId)}
           contentContainerStyle={{ padding: 16 }}
           refreshControl={
@@ -173,7 +93,9 @@ export const QuestListScreen = (): JSX.Element => {
             />
           }
           renderItem={({ item }) => {
-            const enrolled = myQuests.find((q) => q.questId === item.questId);
+            const enrolled = myQuestItems.find(
+              (q) => q.questId === item.questId
+            );
             return (
               <QuestCard
                 quest={item}
@@ -227,6 +149,7 @@ export const QuestListScreen = (): JSX.Element => {
                 endDate: '',
                 isActive: true,
                 isStandalone: item.isStandalone,
+                requiresEnrollment: true,
                 campaignId: item.campaignId,
                 createdAt: item.startedAt,
                 updatedAt: null,
@@ -278,6 +201,7 @@ export const QuestListScreen = (): JSX.Element => {
                 endDate: '',
                 isActive: true,
                 isStandalone: item.isStandalone,
+                requiresEnrollment: true,
                 campaignId: item.campaignId,
                 createdAt: item.startedAt,
                 updatedAt: null,

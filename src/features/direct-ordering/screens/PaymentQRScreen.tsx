@@ -187,7 +187,7 @@ export const PaymentQRScreen = ({
   }, [navigation, orderId, branchName]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header title={t('checkout.payment_qr_title')} onBackPress={handleBack} />
 

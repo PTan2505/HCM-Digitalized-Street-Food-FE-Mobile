@@ -90,7 +90,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
         : 'voucher_wallet.voucher_empty';
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header
         title={t('voucher_wallet.voucher_wallet')}

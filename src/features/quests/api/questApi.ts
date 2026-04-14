@@ -2,6 +2,7 @@ import type ApiClient from '@lib/api/apiClient';
 
 import type {
   PaginatedQuests,
+  PaginatedUserQuests,
   QuestBadgeDetail,
   QuestResponse,
   QuestTaskResponse,
@@ -18,11 +19,18 @@ export class QuestApi {
 
   async getPublicQuests(
     pageNumber = 1,
-    pageSize = 10
+    pageSize = 10,
+    isStandalone?: boolean,
+    isTierUp?: boolean
   ): Promise<PaginatedQuests> {
     const res = await this.apiClient.get<PaginatedQuests>({
       url: '/api/Quest/public',
-      params: { pageNumber, pageSize },
+      params: {
+        pageNumber,
+        pageSize,
+        ...(isStandalone !== undefined && { isStandalone }),
+        ...(isTierUp !== undefined && { isTierUp }),
+      },
     });
     return res.data;
   }
@@ -41,10 +49,20 @@ export class QuestApi {
     return res.data;
   }
 
-  async getMyQuests(status?: string): Promise<UserQuestProgress[]> {
-    const res = await this.apiClient.get<UserQuestProgress[]>({
+  async getMyQuests(
+    status?: string,
+    isTierUp?: boolean,
+    pageNumber = 1,
+    pageSize = 10
+  ): Promise<PaginatedUserQuests> {
+    const res = await this.apiClient.get<PaginatedUserQuests>({
       url: '/api/Quest/my',
-      params: status ? { status } : undefined,
+      params: {
+        ...(status && { status }),
+        ...(isTierUp !== undefined && { isTierUp }),
+        pageNumber,
+        pageSize,
+      },
     });
     return res.data;
   }

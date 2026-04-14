@@ -11,12 +11,22 @@ import {
 } from '@slices/quests';
 
 export const useQuests = (): {
-  publicQuests: import('@features/quests/types/quest').PaginatedQuests | null;
-  myQuests: import('@features/quests/types/quest').UserQuestProgress[];
+  publicQuests: ReturnType<typeof selectPublicQuests>;
+  myQuests: ReturnType<typeof selectMyQuests>;
   loading: boolean;
   error: string | null;
-  loadPublicQuests: (pageNumber?: number, pageSize?: number) => void;
-  loadMyQuests: (status?: string) => void;
+  loadPublicQuests: (
+    pageNumber?: number,
+    pageSize?: number,
+    isStandalone?: boolean,
+    isTierUp?: boolean
+  ) => void;
+  loadMyQuests: (
+    status?: string,
+    isTierUp?: boolean,
+    pageNumber?: number,
+    pageSize?: number
+  ) => void;
 } => {
   const dispatch = useAppDispatch();
   const publicQuests = useAppSelector(selectPublicQuests);
@@ -25,22 +35,29 @@ export const useQuests = (): {
   const error = useAppSelector(selectQuestsError);
 
   const loadPublicQuests = useCallback(
-    (pageNumber = 1, pageSize = 10) => {
-      void dispatch(fetchPublicQuests({ pageNumber, pageSize }));
+    (
+      pageNumber = 1,
+      pageSize = 10,
+      isStandalone?: boolean,
+      isTierUp?: boolean
+    ) => {
+      void dispatch(
+        fetchPublicQuests({ pageNumber, pageSize, isStandalone, isTierUp })
+      );
     },
     [dispatch]
   );
 
   const loadMyQuests = useCallback(
-    (status?: string) => {
-      void dispatch(fetchMyQuests(status));
+    (status?: string, isTierUp?: boolean, pageNumber = 1, pageSize = 10) => {
+      void dispatch(fetchMyQuests({ status, isTierUp, pageNumber, pageSize }));
     },
     [dispatch]
   );
 
   useEffect(() => {
-    loadPublicQuests();
-    loadMyQuests();
+    loadPublicQuests(1, 10, true);
+    loadMyQuests(undefined, false);
   }, [loadPublicQuests, loadMyQuests]);
 
   return {

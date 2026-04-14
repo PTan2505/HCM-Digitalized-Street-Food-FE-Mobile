@@ -23,7 +23,7 @@ export const FavoritesScreen = (): JSX.Element => {
   );
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <Header
         title={t('favorites.title')}
         onBackPress={() => navigation.goBack()}

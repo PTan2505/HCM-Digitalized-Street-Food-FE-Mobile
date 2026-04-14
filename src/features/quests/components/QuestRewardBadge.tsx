@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { JSX } from 'react';
+import type { ComponentProps, JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
-import type { QuestRewardType } from '@features/quests/types/quest';
+import type {
+  QuestRewardType,
+  QuestTaskRewardItem,
+} from '@features/quests/types/quest';
 import { axiosApi } from '@lib/api/apiInstance';
 
 // Backend may return the enum as an integer (BADGE=1, POINTS=2, VOUCHER=3)
@@ -22,7 +25,7 @@ function normalizeRewardType(value: QuestRewardType | number): QuestRewardType {
 const REWARD_CONFIG: Record<
   QuestRewardType,
   {
-    icon: React.ComponentProps<typeof Ionicons>['name'];
+    icon: ComponentProps<typeof Ionicons>['name'];
     bg: string;
     text: string;
     iconColor: string;
@@ -55,24 +58,24 @@ const CLAIMED_CONFIG = {
 };
 
 interface QuestRewardBadgeProps {
-  rewardType: QuestRewardType | number;
-  rewardValue: number;
+  rewards: QuestTaskRewardItem[];
   claimed?: boolean;
 }
 
-export const QuestRewardBadge = ({
-  rewardType,
-  rewardValue,
-  claimed = false,
-}: QuestRewardBadgeProps): JSX.Element => {
+interface RewardRowProps {
+  reward: QuestTaskRewardItem;
+  claimed: boolean;
+}
+
+const RewardRow = ({ reward, claimed }: RewardRowProps): JSX.Element => {
   const { t } = useTranslation();
-  const normalized = normalizeRewardType(rewardType);
+  const normalized = normalizeRewardType(reward.rewardType);
   const config = REWARD_CONFIG[normalized];
 
   const bg = claimed ? CLAIMED_CONFIG.bg : config.bg;
   const textColor = claimed ? CLAIMED_CONFIG.text : config.text;
   const iconColor = claimed ? CLAIMED_CONFIG.iconColor : config.iconColor;
-  const icon: React.ComponentProps<typeof Ionicons>['name'] = claimed
+  const icon: ComponentProps<typeof Ionicons>['name'] = claimed
     ? 'checkmark-circle'
     : config.icon;
 
@@ -86,13 +89,13 @@ export const QuestRewardBadge = ({
   useEffect(() => {
     if (normalized === 'BADGE') {
       axiosApi.questApi
-        .getBadgeById(rewardValue)
+        .getBadgeById(reward.rewardValue)
         .then((b) => setBadgeName(b.badgeName))
         .catch(() => {});
     }
     if (normalized === 'VOUCHER') {
       axiosApi.questApi
-        .getVoucherById(rewardValue)
+        .getVoucherById(reward.rewardValue)
         .then((v) => {
           const isPercent = v.type.toUpperCase().includes('PERCENT');
           const discount = isPercent
@@ -103,17 +106,17 @@ export const QuestRewardBadge = ({
         })
         .catch(() => {});
     }
-  }, [normalized, rewardValue, t]);
+  }, [normalized, reward.rewardValue, t]);
 
   const getLabel = (): string => {
     if (normalized === 'POINTS')
-      return `+${rewardValue} ${t('quest.reward.points')}`;
+      return `+${reward.rewardValue * reward.quantity} ${t('quest.reward.points')}`;
     if (normalized === 'BADGE') return badgeName ?? t('quest.reward.badge');
     return t('quest.reward.voucher');
   };
 
   return (
-    <View className={`items-end rounded-xl px-2.5 py-1.5 ${bg}`}>
+    <View className={`mb-1 items-end rounded-xl px-2.5 py-1.5 ${bg}`}>
       <View className="flex-row items-center gap-x-1">
         <Ionicons name={icon} size={13} color={iconColor} />
         <Text className={`text-sm font-bold ${textColor}`}>
@@ -121,6 +124,11 @@ export const QuestRewardBadge = ({
             ? voucherDisplay.name
             : getLabel()}
         </Text>
+        {reward.quantity > 1 && normalized !== 'POINTS' && (
+          <Text className={`text-xs font-semibold ${textColor}`}>
+            ×{reward.quantity}
+          </Text>
+        )}
       </View>
       {normalized === 'VOUCHER' && voucherDisplay && (
         <>
@@ -132,6 +140,25 @@ export const QuestRewardBadge = ({
           </Text>
         </>
       )}
+    </View>
+  );
+};
+
+export const QuestRewardBadge = ({
+  rewards,
+  claimed = false,
+}: QuestRewardBadgeProps): JSX.Element => {
+  if (rewards.length === 0) return <View />;
+
+  return (
+    <View className="items-end">
+      {rewards.map((reward) => (
+        <RewardRow
+          key={reward.questTaskRewardId}
+          reward={reward}
+          claimed={claimed}
+        />
+      ))}
     </View>
   );
 };

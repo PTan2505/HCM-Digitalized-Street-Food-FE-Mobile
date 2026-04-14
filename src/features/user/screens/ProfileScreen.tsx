@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
@@ -5,6 +6,7 @@ import { ProfileActionCards } from '@features/user/components/profile/ProfileAct
 import { ProfileFeatureButtons } from '@features/user/components/profile/ProfileFeatureButtons';
 import { ProfileListItem } from '@features/user/components/profile/ProfileListItem';
 import { ProfileTabs } from '@features/user/components/profile/ProfileTabs';
+import { XPProgressBar } from '@features/user/components/profile/XPProgressBar';
 import { getProfileSections } from '@features/user/config/profileSections';
 import { ProfileSection } from '@features/user/types/profileConfig';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -113,22 +115,14 @@ export const ProfileScreen = (): JSX.Element => {
   };
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
+      <Header title={t('profile.title', 'Hồ sơ')} />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header Section */}
-        <View className="mb-6 bg-white pb-6 pt-4">
-          <View className="mb-4 flex-row items-center justify-between px-4">
-            <Text className="text-xl font-bold text-gray-900">
-              {t('profile.title', 'Hồ sơ')}
-            </Text>
-            <Pressable onPress={() => navigation.navigate('MyCarts')}>
-              <Ionicons name="cart-outline" size={24} color="black" />
-            </Pressable>
-          </View>
-
+        <View className="mb-6 bg-white pt-4">
           <View className="items-center">
             <View className="relative">
               {getHighResAvatar(user?.avatarUrl) ? (
@@ -163,6 +157,15 @@ export const ProfileScreen = (): JSX.Element => {
               <Ionicons name="chevron-forward" size={14} color="#666" />
             </Pressable>
           </View>
+
+          {/* XP Progress Bar */}
+          {user?.tierId != null && (
+            <XPProgressBar
+              xp={user.xp ?? 0}
+              tierId={user.tierId}
+              onPress={() => navigation.navigate('TierProgress')}
+            />
+          )}
         </View>
 
         {/* Render all sections from config */}

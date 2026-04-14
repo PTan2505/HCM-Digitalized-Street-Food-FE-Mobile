@@ -87,7 +87,7 @@ export const VoucherSelectScreen = ({
   }, [vouchers, totalAmount, searchQuery]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header
         title={t('checkout.select_voucher')}
