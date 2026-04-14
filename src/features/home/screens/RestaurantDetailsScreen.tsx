@@ -189,8 +189,8 @@ export const RestaurantDetailsScreen = ({
   const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
 
   useEffect(() => {
-    dispatch(fetchCartThunk());
-  }, [dispatch]);
+    dispatch(fetchCartThunk(branch.branchId));
+  }, [dispatch, branch.branchId]);
 
   useEffect(() => {
     const { getBranchTier } = getLowcaAPIUnimplementedEndpoints();
@@ -557,16 +557,13 @@ export const RestaurantDetailsScreen = ({
         <View className="absolute bottom-0 left-0 right-0 bg-white px-4 pb-8 pt-3 shadow-lg">
           <View className="flex-row items-center">
             <Text className="mb-2 text-xl font-bold text-gray-700">
-              {t('cart.title')} •{' '}
-            </Text>
-
-            <Text className="mb-2 text-lg font-semibold text-gray-700">
-              {cartBranchDisplayName}
+              {t('cart.title')}
             </Text>
           </View>
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('PersonalCart', {
+                branchId: branch.branchId,
                 branchName: cartBranchDisplayName,
                 isOpen,
               })

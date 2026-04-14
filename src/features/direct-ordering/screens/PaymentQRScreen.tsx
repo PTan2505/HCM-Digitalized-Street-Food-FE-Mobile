@@ -13,6 +13,7 @@ import {
   clearCart,
   confirmPaymentThunk,
   fetchCartThunk,
+  selectActiveOrder,
   selectCheckoutOrderCode,
 } from '@slices/directOrdering';
 import * as Sharing from 'expo-sharing';
@@ -58,8 +59,10 @@ export const PaymentQRScreen = ({
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const orderCode = useAppSelector(selectCheckoutOrderCode);
+  const activeOrder = useAppSelector(selectActiveOrder);
   const { paymentStatus } = usePaymentSocket(orderCode);
   const orderCodeRef = useRef(orderCode);
+  const branchIdRef = useRef(activeOrder?.branchId ?? 0);
   const screenShotRef = useRef<ViewShot>(null);
   const cancelledRef = useRef(false);
   const [sharing, setSharing] = useState(false);
@@ -107,7 +110,7 @@ export const PaymentQRScreen = ({
             result.paymentStatus === 'CANCELLED' ||
             result.paymentStatus === 'EXPIRED'
           ) {
-            dispatch(fetchCartThunk());
+            dispatch(fetchCartThunk(branchIdRef.current));
             Alert.alert(t('auth.error'), t('checkout.payment_failed'));
           }
         })
@@ -124,7 +127,7 @@ export const PaymentQRScreen = ({
       dispatch(clearCart());
       navigateToOrderStatusAfterPayment();
     } else if (paymentStatus === 'CANCELLED' || paymentStatus === 'EXPIRED') {
-      dispatch(fetchCartThunk());
+      dispatch(fetchCartThunk(branchIdRef.current));
       Alert.alert(t('auth.error'), t('checkout.payment_failed'));
     }
   }, [paymentStatus, dispatch, navigateToOrderStatusAfterPayment, t]);
@@ -157,7 +160,7 @@ export const PaymentQRScreen = ({
       cancelledRef.current = true;
       dispatch(cancelOrderThunk(orderId))
         .unwrap()
-        .then(() => dispatch(fetchCartThunk()))
+        .then(() => dispatch(fetchCartThunk(branchIdRef.current)))
         .catch(() => {});
     });
   }, [navigation, dispatch, orderId]);
@@ -171,7 +174,7 @@ export const PaymentQRScreen = ({
     dispatch(cancelOrderThunk(orderId))
       .unwrap()
       .then(() => {
-        dispatch(fetchCartThunk());
+        dispatch(fetchCartThunk(branchIdRef.current));
         navigation.goBack();
       })
       .catch(() => {

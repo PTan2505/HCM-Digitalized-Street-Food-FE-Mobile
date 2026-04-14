@@ -25,6 +25,10 @@ import {
   selectDietaryState,
   selectUserDietaryPreferences,
 } from '@slices/dietary';
+import {
+  fetchMyCartsThunk,
+  selectTotalCartsWithItems,
+} from '@slices/directOrdering';
 import { fetchUnreadCount } from '@slices/notifications';
 import { registerCallback } from '@utils/callbackRegistry';
 import '@utils/i18n';
@@ -91,6 +95,7 @@ export const HomeScreen = (): JSX.Element => {
     imageMap: vendorCampaignImageMap,
     isLoading: vendorCampaignLoading,
   } = useVendorCampaignBranches(userCoords, permissionStatus);
+  const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -293,6 +298,12 @@ export const HomeScreen = (): JSX.Element => {
   useEffect(() => {
     void dispatch(fetchUnreadCount());
   }, [dispatch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void dispatch(fetchMyCartsThunk());
+    }, [dispatch])
+  );
 
   const handleCampaignPress = useCallback(
     (campaignId: string, campaignType: 'system' | 'restaurant') => {
@@ -738,6 +749,54 @@ export const HomeScreen = (): JSX.Element => {
           </>
         )}
       </View>
+      {/* Floating cart button — visible when user has active carts */}
+      {totalCartsWithItems > 0 && (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('MyCarts')}
+          style={{
+            position: 'absolute',
+            bottom: 120,
+            right: 20,
+            backgroundColor: COLORS.primary,
+            borderRadius: 32,
+            paddingHorizontal: 18,
+            paddingVertical: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 8,
+            zIndex: 200,
+          }}
+        >
+          <Ionicons name="cart" size={22} color="#fff" />
+          <View
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 10,
+              minWidth: 20,
+              height: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: 6,
+              paddingHorizontal: 4,
+            }}
+          >
+            <Text
+              style={{
+                color: COLORS.primary,
+                fontWeight: '700',
+                fontSize: 12,
+              }}
+            >
+              {totalCartsWithItems}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+
       {/* Sticky SearchBar — appears when the in-list bar scrolls out of view */}
       <Animated.View
         pointerEvents={showStickyBar ? 'auto' : 'none'}

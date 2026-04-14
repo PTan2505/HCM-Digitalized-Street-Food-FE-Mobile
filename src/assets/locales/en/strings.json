@@ -280,7 +280,13 @@
     "replace_message": "Your current cart will be cleared when you add items from a different stall.",
     "replace_confirm": "Confirm",
     "add_more": "Add more",
-    "view_all_menu": "View all"
+    "view_all_menu": "View all",
+    "my_carts": "My Carts",
+    "my_carts_empty": "No carts yet",
+    "my_carts_empty_hint": "Add dishes from restaurants to get started",
+    "view_menu": "View menu",
+    "n_items": "{{count}} items",
+    "n_items_total": "{{count}} items • {{total}}"
   },
   "checkout": {
     "title": "Checkout",

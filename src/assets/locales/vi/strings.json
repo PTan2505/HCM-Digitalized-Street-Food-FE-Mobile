@@ -280,7 +280,13 @@
     "replace_message": "Giỏ hàng hiện tại sẽ bị xoá khi bạn thêm món từ quán khác.",
     "replace_confirm": "Đồng ý",
     "add_more": "Thêm món",
-    "view_all_menu": "Xem tất cả"
+    "view_all_menu": "Xem tất cả",
+    "my_carts": "Giỏ hàng của tôi",
+    "my_carts_empty": "Chưa có giỏ hàng nào",
+    "my_carts_empty_hint": "Thêm món ăn từ các quán để bắt đầu",
+    "view_menu": "Xem thực đơn",
+    "n_items": "{{count}} món",
+    "n_items_total": "{{count}} món • {{total}}"
   },
   "checkout": {
     "title": "Thanh toán",

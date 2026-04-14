@@ -124,7 +124,7 @@ export const ProfileScreen = (): JSX.Element => {
             <Text className="text-xl font-bold text-gray-900">
               {t('profile.title', 'Hồ sơ')}
             </Text>
-            <Pressable onPress={() => navigation.navigate('PersonalCart', {})}>
+            <Pressable onPress={() => navigation.navigate('MyCarts')}>
               <Ionicons name="cart-outline" size={24} color="black" />
             </Pressable>
           </View>
