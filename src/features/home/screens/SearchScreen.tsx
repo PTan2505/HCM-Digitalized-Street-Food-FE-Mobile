@@ -1,7 +1,7 @@
 import { FilterChipBar } from '@components/FilterChipBar';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
 import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
@@ -313,7 +313,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   );
 
   const showHistory =
-    isInputFocused &&
     !hasSearched &&
     !keyword.trim() &&
     activeFilters == null &&
@@ -435,6 +434,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
             setFilterSection(section);
             setFilterModalVisible(true);
           }}
+          defaultDistance={DEFAULT_DISTANCE}
         />
 
         {/* Active filter chips */}
@@ -539,14 +539,9 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           {showHistory ? (
             <View className="pt-2">
               <View className="mb-2 flex-row items-center justify-between">
-                <Text className="text-base font-semibold text-gray-700">
+                <Text className="text-xl font-bold text-gray-700">
                   {t('search.history_title')}
                 </Text>
-                <TouchableOpacity onPress={clearHistory} hitSlop={8}>
-                  <Text className="text-sm text-gray-400">
-                    {t('search.clear_history')}
-                  </Text>
-                </TouchableOpacity>
               </View>
               {history.map((kw) => (
                 <TouchableOpacity
@@ -555,8 +550,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
                   onPress={() => handleKeywordSelect(kw)}
                 >
                   <View className="flex-row items-center gap-3">
-                    <Ionicons name="time-outline" size={18} color="#9CA3AF" />
-                    <Text className="text-base text-gray-800">{kw}</Text>
+                    <FontAwesome5 name="history" size={18} color="black" />
+                    <Text className="text-lg text-gray-800">{kw}</Text>
                   </View>
                   <TouchableOpacity
                     onPress={() => removeFromHistory(kw)}

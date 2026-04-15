@@ -1,4 +1,3 @@
-import { COLORS } from '@constants/colors';
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -75,13 +74,6 @@ export const MapBranchCard = ({
               </>
             )}
           </Text>
-          <TouchableOpacity className="ml-1">
-            <MaterialCommunityIcons
-              name="bookmark-outline"
-              size={20}
-              color={COLORS.secondary}
-            />
-          </TouchableOpacity>
         </View>
 
         {/* Rating + Distance */}

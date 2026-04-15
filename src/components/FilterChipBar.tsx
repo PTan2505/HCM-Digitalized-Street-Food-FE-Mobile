@@ -15,12 +15,14 @@ interface FilterChipBarProps {
   activeFilters: FilterState | null;
   onOpenFilter: (section: FilterSection) => void;
   ignoreDefaultDistance?: boolean;
+  defaultDistance?: number;
 }
 
 export const FilterChipBar = ({
   activeFilters,
   onOpenFilter,
   ignoreDefaultDistance = false,
+  defaultDistance = 5,
 }: FilterChipBarProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -32,7 +34,9 @@ export const FilterChipBar = ({
       case 'priceRange':
         return activeFilters.minPrice > 0 || activeFilters.maxPrice < 5000000;
       case 'distance':
-        return ignoreDefaultDistance || activeFilters.distance !== 5;
+        return (
+          ignoreDefaultDistance || activeFilters.distance !== defaultDistance
+        );
       case 'dietary':
         return activeFilters.dietaryTags.length > 0;
       case 'taste':
