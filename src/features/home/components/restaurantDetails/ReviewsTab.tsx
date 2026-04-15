@@ -1,7 +1,6 @@
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ReviewIneligibilityReason } from '@features/home/hooks/useReviewEligibility';
-import type { Dish } from '@features/home/types/branch';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectCart } from '@slices/directOrdering';
@@ -35,14 +34,16 @@ interface ReviewsTabProps {
   averageRating: number;
   totalCount: number;
   feedbackDetails: Record<string, number>;
+  /** True when the non-order velocity check passes */
   canReview: boolean;
   reviewIneligibilityReason: ReviewIneligibilityReason | null;
   isEligibilityLoading: boolean;
-  /** Set when the current user already has a review for this branch */
+  /** Set when the current user already has a non-order review for this branch */
   ownFeedbackId?: number;
+  /** True when user has at least one completed order — bypasses velocity check */
+  hasCompletedOrders?: boolean;
   branchId: number;
   displayName: string;
-  dishes: Dish[];
   branchLat: number;
   branchLong: number;
   onWriteReview: () => void;
@@ -53,9 +54,10 @@ interface ReviewsTabProps {
 
 const INELIGIBILITY_MESSAGES: Record<ReviewIneligibilityReason, string> = {
   permission_denied: 'Cần quyền truy cập vị trí để đánh giá',
-  too_far: 'Bạn cần ở gần quán hơn để đánh giá',
-  daily_limit_reached: 'Bạn đã đánh giá đủ số lần cho phép hôm nay',
-  already_reviewed_today: 'Bạn đã đánh giá quán này hôm nay',
+  too_far: 'Bạn cần ở gần quán hơn để đánh giá (tối đa 300m)',
+  daily_limit_reached: 'Bạn đã đánh giá đủ số quán cho phép hôm nay',
+  already_reviewed_branch:
+    'Mỗi quán chỉ được đánh giá 1 lần khi không có đơn hàng',
   loading: '',
 };
 
@@ -68,9 +70,9 @@ const ReviewsTab = ({
   reviewIneligibilityReason,
   isEligibilityLoading,
   ownFeedbackId,
+  hasCompletedOrders = false,
   branchId,
   displayName,
-  dishes,
   branchLat,
   branchLong,
   onWriteReview,
@@ -138,7 +140,6 @@ const ReviewsTab = ({
                   branchId,
                   displayName,
                   ownFeedbackId,
-                  dishes,
                   branchLat,
                   branchLong,
                 });
@@ -175,31 +176,46 @@ const ReviewsTab = ({
 
         {/* Write / Edit Review */}
         <View className="mb-4">
-          {!ownFeedbackId && (
+          {/* Show "Write review" when: user has a completed order (order path)
+              OR user has no review yet (non-order path) */}
+          {(hasCompletedOrders || !ownFeedbackId) && (
             <>
-              <TouchableOpacity
-                onPress={onWriteReview}
-                disabled={!canReview || isEligibilityLoading}
-                className={`items-center rounded-xl py-3 ${canReview && !isEligibilityLoading ? 'bg-primary' : 'bg-gray-200'}`}
-              >
-                {isEligibilityLoading ? (
-                  <ActivityIndicator size="small" color={COLORS.primaryLight} />
-                ) : (
-                  <Text
-                    className={`text-base font-semibold ${canReview ? 'text-white' : 'text-gray-400'}`}
-                  >
-                    Viết đánh giá
-                  </Text>
-                )}
-              </TouchableOpacity>
-              {!canReview &&
-                !isEligibilityLoading &&
-                reviewIneligibilityReason &&
-                reviewIneligibilityReason !== 'loading' && (
-                  <Text className="mt-1.5 text-center text-sm text-gray-500">
-                    {INELIGIBILITY_MESSAGES[reviewIneligibilityReason]}
-                  </Text>
-                )}
+              {((): JSX.Element => {
+                const canWrite =
+                  hasCompletedOrders || (canReview && !ownFeedbackId);
+                const buttonEnabled = canWrite && !isEligibilityLoading;
+                return (
+                  <>
+                    <TouchableOpacity
+                      onPress={onWriteReview}
+                      disabled={!buttonEnabled}
+                      className={`items-center rounded-xl py-3 ${buttonEnabled ? 'bg-primary' : 'bg-gray-200'}`}
+                    >
+                      {isEligibilityLoading ? (
+                        <ActivityIndicator
+                          size="small"
+                          color={COLORS.primaryLight}
+                        />
+                      ) : (
+                        <Text
+                          className={`text-base font-semibold ${buttonEnabled ? 'text-white' : 'text-gray-400'}`}
+                        >
+                          Viết đánh giá
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                    {/* Show ineligibility reason only when both paths are blocked */}
+                    {!canWrite &&
+                      !isEligibilityLoading &&
+                      reviewIneligibilityReason &&
+                      reviewIneligibilityReason !== 'loading' && (
+                        <Text className="mt-1.5 text-center text-sm text-gray-500">
+                          {INELIGIBILITY_MESSAGES[reviewIneligibilityReason]}
+                        </Text>
+                      )}
+                  </>
+                );
+              })()}
             </>
           )}
         </View>

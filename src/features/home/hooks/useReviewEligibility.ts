@@ -1,17 +1,14 @@
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
-import { haversineKm } from '@utils/haversineFormula';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
-
-const GEO_FENCE_KM = parseFloat(process.env.EXPO_PUBLIC_GEO_FENCE_KM ?? '0.05');
 
 export type ReviewIneligibilityReason =
   | 'permission_denied'
   | 'too_far'
   | 'daily_limit_reached'
-  | 'already_reviewed_today'
+  | 'already_reviewed_branch'
   | 'loading';
 
 export interface ReviewEligibilityResult {
@@ -24,31 +21,36 @@ export interface ReviewEligibilityResult {
 }
 
 /**
- * Determines whether the user is eligible to review this branch.
+ * Determines whether the user is eligible to write a NON-ORDER review for
+ * this branch.  Pass `hasCompletedOrders=true` to bypass all velocity/location
+ * checks — the caller will use an `orderId` in the submit payload instead.
  *
- * This hook combines TWO data sources:
- * 1. Location permission + user coordinates (local side-effect via expo-location)
- * 2. Velocity check API call (migrated to React Query for caching)
+ * TWO DATA SOURCES (non-order path only):
+ * 1. Location permission + user coordinates (local, via expo-location)
+ * 2. Branch-specific velocity check API (includes distance, daily limit,
+ *    and permanent "already reviewed this branch without order" check)
  *
- * WHY `placeholderData` IS USED:
- * We pass `{ remainingTotalToday: 1, reviewedBranchIds: [] }` as placeholder
- * so the UI doesn't block on the velocity API. If the API fails, we
- * optimistically allow the review (same as the original behavior).
+ * VELOCITY QUERY KEY:
+ * Uses `queryKeys.feedback.velocityBranch(branchId, lat, lng)` so each
+ * branch/position combination is cached independently.  `refetchVelocity`
+ * invalidates the `['feedback', 'velocity']` prefix, which covers all
+ * velocity cache entries.
  *
- * HOW `refetchVelocity` WORKS:
- * After submitting or deleting a review, the caller invokes refetchVelocity()
- * which calls `queryClient.invalidateQueries()`. This marks the cached velocity
- * data as stale, triggering an immediate background refetch. The cache key
- * is ['feedback', 'velocity'] — shared across all instances of this hook.
+ * ORDER PATH:
+ * When `hasCompletedOrders=true` this hook immediately returns
+ * `{ canReview: true, isLoading: false }`.  The velocity API is not called.
+ * Location is still fetched in the background so `userLat/userLong` are
+ * available for any non-order fallback scenario, but they are not required.
  */
 export const useReviewEligibility = (
   branchId: number,
   branchLat: number,
-  branchLong: number
+  branchLong: number,
+  hasCompletedOrders?: boolean
 ): ReviewEligibilityResult => {
   const queryClient = useQueryClient();
 
-  // ── Location (unchanged — not an API cache concern) ──
+  // ── Location ──────────────────────────────────────────────────────────────
   const [permissionStatus, setPermissionStatus] =
     useState<Location.PermissionStatus>(Location.PermissionStatus.UNDETERMINED);
   const [userLat, setUserLat] = useState<number | null>(null);
@@ -98,11 +100,27 @@ export const useReviewEligibility = (
     };
   }, []);
 
-  // ── Velocity check (migrated to React Query) ──
+  // ── Branch-specific velocity check (non-order path only) ─────────────────
+  const velocityEnabled =
+    !hasCompletedOrders &&
+    !isLocationLoading &&
+    userLat != null &&
+    userLong != null;
+
   const { data: velocity, isLoading: isVelocityLoading } = useQuery({
-    queryKey: queryKeys.feedback.velocity(),
-    queryFn: () => axiosApi.feedbackApi.checkVelocity(),
-    staleTime: 30 * 1000, // 30 sec — velocity can change after each review
+    queryKey: queryKeys.feedback.velocityBranch(
+      branchId,
+      userLat ?? branchLat,
+      userLong ?? branchLong
+    ),
+    queryFn: () =>
+      axiosApi.feedbackApi.checkVelocity({
+        branchId,
+        userLat: userLat!,
+        userLong: userLong!,
+      }),
+    enabled: velocityEnabled,
+    staleTime: 30 * 1000,
     placeholderData: {
       remainingTotalToday: 1,
       dailyLimit: 5,
@@ -110,16 +128,26 @@ export const useReviewEligibility = (
     },
   });
 
-  const remainingToday = velocity?.remainingTotalToday ?? 1;
-  const reviewedBranchIds = velocity?.reviewedBranchIds ?? [];
-
   const refetchVelocity = (): void => {
     void queryClient.invalidateQueries({
       queryKey: queryKeys.feedback.velocity(),
     });
   };
 
-  const isLoading = isLocationLoading || isVelocityLoading;
+  // ── Short-circuit for order-based path ────────────────────────────────────
+  if (hasCompletedOrders) {
+    return {
+      canReview: true,
+      reason: null,
+      userLat,
+      userLong,
+      isLoading: false,
+      refetchVelocity,
+    };
+  }
+
+  // ── Loading states ────────────────────────────────────────────────────────
+  const isLoading = isLocationLoading || (velocityEnabled && isVelocityLoading);
 
   if (isLoading) {
     return {
@@ -132,6 +160,7 @@ export const useReviewEligibility = (
     };
   }
 
+  // ── Location denied ───────────────────────────────────────────────────────
   if (permissionStatus !== Location.PermissionStatus.GRANTED) {
     return {
       canReview: false,
@@ -143,9 +172,14 @@ export const useReviewEligibility = (
     };
   }
 
-  if (userLat !== null && userLong !== null) {
-    const dist = haversineKm(userLat, userLong, branchLat, branchLong);
-    if (dist > GEO_FENCE_KM) {
+  // ── Velocity/eligibility (non-order path) ─────────────────────────────────
+  //
+  // Prefer the branch-specific `canReviewWithoutOrder` flag from the API.
+  // If not yet available (using placeholder), fall back to the daily limit
+  // counter so the UI is never incorrectly blocked.
+  if (velocity?.canReviewWithoutOrder === false) {
+    // Determine the most specific reason
+    if (velocity.isWithinDistance === false) {
       return {
         canReview: false,
         reason: 'too_far',
@@ -155,12 +189,20 @@ export const useReviewEligibility = (
         refetchVelocity,
       };
     }
-  }
-
-  if (remainingToday <= 0) {
+    if ((velocity.remainingTotalToday ?? 1) <= 0) {
+      return {
+        canReview: false,
+        reason: 'daily_limit_reached',
+        userLat,
+        userLong,
+        isLoading: false,
+        refetchVelocity,
+      };
+    }
+    // Within range and under daily limit → branch already reviewed without order
     return {
       canReview: false,
-      reason: 'daily_limit_reached',
+      reason: 'already_reviewed_branch',
       userLat,
       userLong,
       isLoading: false,
@@ -168,15 +210,18 @@ export const useReviewEligibility = (
     };
   }
 
-  if (reviewedBranchIds.includes(branchId)) {
-    return {
-      canReview: false,
-      reason: 'already_reviewed_today',
-      userLat,
-      userLong,
-      isLoading: false,
-      refetchVelocity,
-    };
+  // Fallback for placeholder data (canReviewWithoutOrder not yet returned)
+  if (velocity?.canReviewWithoutOrder == null) {
+    if ((velocity?.remainingTotalToday ?? 1) <= 0) {
+      return {
+        canReview: false,
+        reason: 'daily_limit_reached',
+        userLat,
+        userLong,
+        isLoading: false,
+        refetchVelocity,
+      };
+    }
   }
 
   return {

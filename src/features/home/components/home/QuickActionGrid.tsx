@@ -19,7 +19,7 @@ export const QuickActionGrid = ({ actions }: Props): JSX.Element => {
           activeOpacity={0.75}
           className="w-1/4 items-center px-4 pb-3"
         >
-          <View className="mb-2 aspect-square w-full items-center justify-center rounded-2xl bg-secondary/20">
+          <View className="mb-2 aspect-square w-full items-center justify-center rounded-2xl bg-gray-200">
             <Ionicons
               name={action.ionIcon as 'location'}
               size={32}

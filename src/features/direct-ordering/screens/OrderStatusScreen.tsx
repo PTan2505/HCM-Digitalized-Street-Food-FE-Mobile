@@ -232,6 +232,25 @@ export const OrderStatusScreen = ({
             </Text>
           </View>
         </View>
+
+        {/* Write Review — only shown for completed orders */}
+        {order.status === ORDER_STATUS.Complete && (
+          <View className="px-4 pb-4">
+            <TouchableOpacity
+              onPress={(): void =>
+                navigation.navigate('WriteReview', {
+                  orderId: order.orderId,
+                  branchId: order.branchId,
+                })
+              }
+              className="items-center rounded-xl bg-primary py-4"
+            >
+              <Text className="text-base font-semibold text-white">
+                {t('review.write', 'Viết đánh giá')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

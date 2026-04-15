@@ -17,6 +17,7 @@ import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetail
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
 import { RestaurantDeepLinkScreen } from '@features/home/screens/RestaurantDeepLinkScreen';
 import { ReviewListScreen } from '@features/home/screens/ReviewListScreen';
+import { WriteReviewScreen } from '@features/home/screens/WriteReviewScreen';
 import { SearchScreen } from '@features/home/screens/SearchScreen';
 import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationScreen';
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
@@ -43,7 +44,7 @@ import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletSc
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/screens/RestaurantDetailsScreen';
-import type { ActiveBranch, Dish } from '@features/home/types/branch';
+import type { ActiveBranch } from '@features/home/types/branch';
 import { QuestDetailScreen } from '@features/quests/screens/QuestDetailScreen';
 import { QuestListScreen } from '@features/quests/screens/QuestListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
@@ -96,13 +97,19 @@ const RootStack = createNativeStackNavigator({
         onRatingUpdateId?: string;
       },
     },
+    WriteReview: {
+      screen: WriteReviewScreen,
+      params: {} as {
+        orderId: number;
+        branchId: number;
+      },
+    },
     ReviewList: {
       screen: ReviewListScreen,
       params: {} as {
         branchId: number;
         displayName: string;
         ownFeedbackId?: number;
-        dishes: Dish[];
         branchLat: number;
         branchLong: number;
       },

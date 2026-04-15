@@ -72,7 +72,6 @@ export const useNotificationNavigation = (
             branchId: data.branchId,
             displayName: data.branchName ?? '',
             ownFeedbackId: data.feedbackId,
-            dishes: [],
             branchLat: 0,
             branchLong: 0,
           });

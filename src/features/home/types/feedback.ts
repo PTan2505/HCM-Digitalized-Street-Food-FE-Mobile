@@ -88,6 +88,9 @@ export interface SubmitFeedbackRequest {
   rating: number;
   comment: string | null;
   tagIds: number[];
+  /** Required by backend when orderId is null (non-order review) */
+  userLat?: number | null;
+  userLong?: number | null;
 }
 
 export interface UpdateFeedbackRequest {
@@ -143,4 +146,11 @@ export interface VelocityCheckResponse {
   remainingTotalToday: number;
   dailyLimit: number;
   reviewedBranchIds: number[];
+  /** Present when branchId + coords were provided to the check */
+  branchId?: number | null;
+  distanceMeters?: number | null;
+  maxDistanceMeters?: number | null;
+  isWithinDistance?: boolean | null;
+  /** True only when within range, under daily limit, and branch not yet reviewed without order */
+  canReviewWithoutOrder?: boolean | null;
 }

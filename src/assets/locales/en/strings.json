@@ -186,6 +186,7 @@
     "challenges": "Challenges",
     "general": "General",
     "edit_profile": "Edit Profile",
+    "update_profile": "Update Profile",
     "notifications": "Notifications",
     "language": "Language",
     "help_support": "Help & Support",
@@ -443,7 +444,9 @@
       "error_submit_not_near": "Cannot submit review. You may be too far from this place.",
       "error_submit_default": "Failed to submit review. Please try again.",
       "save_changes": "Save changes",
-      "submit": "Submit review"
+      "submit": "Submit review",
+      "order_review_notice": "This review is linked to your order. Each order can only be reviewed once.",
+      "error_location_required": "GPS is required to review without an order."
     }
   },
   "common": {
