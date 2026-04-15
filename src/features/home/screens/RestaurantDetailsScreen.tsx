@@ -4,11 +4,10 @@ import type { VendorTier } from '@custom-types/vendor';
 import { Ionicons } from '@expo/vector-icons';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
+import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import FixedHeaderControls from '@features/home/components/restaurantDetails/FixedHeaderControls';
 import HeaderImage from '@features/home/components/restaurantDetails/HeaderImage';
 import MenuTab from '@features/home/components/restaurantDetails/MenuTab';
-import type { NearbyRestaurant } from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
-import RestaurantsMayLikeTab from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
 import type { Review } from '@features/home/components/restaurantDetails/ReviewsTab';
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
@@ -480,21 +479,6 @@ export const RestaurantDetailsScreen = ({
     };
   });
 
-  const nearbyRestaurants: NearbyRestaurant[] = nearbyBranches.map((b) => {
-    const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
-    const displayName = computeDisplayName(b, isMultiBranch, t('branch'));
-    return {
-      id: String(b.branchId),
-      name: displayName,
-      rating: b.avgRating,
-      distance: b.distanceKm != null ? `${b.distanceKm.toFixed(1)} km` : '',
-      priceRange: getPriceRange(b.dishes),
-      imageUri: b.dishes[0]?.imageUrl,
-      onPress: () =>
-        navigation.navigate('RestaurantDetails', { branch: b, displayName }),
-    };
-  });
-
   const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
 
   return (
@@ -619,7 +603,31 @@ export const RestaurantDetailsScreen = ({
         )}
 
         {activeTab === 'nearby' && (
-          <RestaurantsMayLikeTab restaurants={nearbyRestaurants} />
+          <View className="px-4 pb-4 pt-3">
+            {nearbyBranches.map((b) => {
+              const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
+              const nearbyDisplayName = computeDisplayName(
+                b,
+                isMultiBranch,
+                t('branch')
+              );
+
+              return (
+                <SearchResultCard
+                  key={b.branchId}
+                  branch={b}
+                  displayName={nearbyDisplayName}
+                  imageUri={b.dishes[0]?.imageUrl}
+                  onPress={() =>
+                    navigation.navigate('RestaurantDetails', {
+                      branch: b,
+                      displayName: nearbyDisplayName,
+                    })
+                  }
+                />
+              );
+            })}
+          </View>
         )}
       </ScrollView>
 
