@@ -697,11 +697,11 @@
   },
   "home_quick_actions": {
     "section_title": "Khám phá Lowca",
-    "ghost_pin": "Chia sẻ quán ăn",
+    "ghost_pin": "Chia sẻ quán",
     "quest": "Thử thách",
     "voucher_market": "Chợ Voucher",
     "personal_cart": "Giỏ hàng",
-    "favorites": "Quán yêu thích"
+    "favorites": "Yêu thích"
   },
   "voucher": {
     "discount": "Giảm giá",
