@@ -7,16 +7,7 @@ import axios, {
   type AxiosResponse,
 } from 'axios';
 
-const skipAuthorizationPaths = [
-  apiUrl.auth.googleLogin,
-  apiUrl.auth.login,
-  apiUrl.auth.register,
-  apiUrl.auth.verifyRegistration,
-  apiUrl.auth.resendRegistrationOTP,
-  apiUrl.auth.forgetPassword,
-  apiUrl.auth.resetPassword,
-  apiUrl.auth.resendForgetPasswordOTP,
-];
+const skipAuthorizationPaths = [apiUrl.auth.googleLogin, apiUrl.auth.login];
 export interface ApiService {
   // TODO: Standardize the error response
   call<TResponse = unknown, TRequest = unknown>(

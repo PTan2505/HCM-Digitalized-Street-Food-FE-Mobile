@@ -1,7 +1,11 @@
 import { AxiosApiService } from '@config/axiosApiService';
-import { ForgetPasswordApi } from '@features/auth/api/forgetPasswordApi';
 import { LoginApi } from '@features/auth/api/loginApi';
-import { RegisterApi } from '@features/auth/api/registerApi';
+import { VoucherApi } from '@features/campaigns/api/voucherApi';
+import {
+  CartApi,
+  OrderApi,
+  PaymentApi,
+} from '@features/direct-ordering/api/cartApi';
 import { BranchApi } from '@features/home/api/branchApi';
 import { CategoryApi } from '@features/home/api/categoryApi';
 import { FeedbackApi } from '@features/home/api/feedbackApi';
@@ -9,17 +13,11 @@ import { FeedbackTagApi } from '@features/home/api/feedbackTagApi';
 import { StallSearchApi } from '@features/home/api/stallSearchApi';
 import { TasteApi } from '@features/home/api/tasteApi';
 import { VendorApi } from '@features/home/api/vendorApi';
-import {
-  CartApi,
-  OrderApi,
-  PaymentApi,
-} from '@features/direct-ordering/api/cartApi';
 import { GhostPinApi } from '@features/maps/api/ghostPinApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
 import { QuestApi } from '@features/quests/api/questApi';
-import { VoucherApi } from '@features/campaigns/api/voucherApi';
-import { UserProfileApi } from '@features/user/api/profileApi';
 import { UserPaymentApi } from '@features/user/api/paymentApi';
+import { UserProfileApi } from '@features/user/api/profileApi';
 
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserDietaryApi } from '@features/user/api/userDietaryApi';
@@ -30,8 +28,6 @@ const axiosClient = new ApiClient(axiosService);
 
 export const axiosApi = {
   loginApi: new LoginApi(axiosClient),
-  registerApi: new RegisterApi(axiosClient),
-  forgetPasswordApi: new ForgetPasswordApi(axiosClient),
   userProfileApi: new UserProfileApi(axiosClient),
   dietaryPreferenceApi: new DietaryPreferenceApi(axiosClient),
   userDietaryApi: new UserDietaryApi(axiosClient),
