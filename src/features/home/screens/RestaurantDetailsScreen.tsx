@@ -57,14 +57,23 @@ import {
   Pressable,
   ScrollView,
   Share,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 export type TabType = 'menu' | 'reviews' | 'nearby';
 
-import { useSharedValue } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
@@ -77,6 +86,7 @@ export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
   const { branch, displayName, tab, onRatingUpdateId } = route.params;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     return (): void => {
@@ -163,7 +173,44 @@ export const RestaurantDetailsScreen = ({
     undefined
   );
   const [showOrderPicker, setShowOrderPicker] = useState(false);
+  const [orderPickerBackdrop, setOrderPickerBackdrop] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const backdropProgress = useSharedValue(0);
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      backdropProgress.value,
+      [0, 1],
+      ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)']
+    ),
+  }));
+
+  const openOrderPicker = useCallback(() => {
+    if (closeBackdropTimeoutRef.current) {
+      clearTimeout(closeBackdropTimeoutRef.current);
+      closeBackdropTimeoutRef.current = null;
+    }
+    setOrderPickerBackdrop(true);
+    setShowOrderPicker(true);
+    backdropProgress.value = withTiming(1, { duration: 220 });
+  }, [backdropProgress]);
+
+  const closeOrderPicker = useCallback(() => {
+    setShowOrderPicker(false);
+    backdropProgress.value = withTiming(0, { duration: 220 });
+
+    if (closeBackdropTimeoutRef.current) {
+      clearTimeout(closeBackdropTimeoutRef.current);
+    }
+
+    closeBackdropTimeoutRef.current = setTimeout(() => {
+      setOrderPickerBackdrop(false);
+      closeBackdropTimeoutRef.current = null;
+    }, 220);
+  }, [backdropProgress]);
 
   const { isFavorite, toggleFavorite } = useFavoriteBranches();
 
@@ -220,6 +267,14 @@ export const RestaurantDetailsScreen = ({
     if (tab) setActiveTab(tab);
   }, [tab]);
 
+  useEffect((): (() => void) => {
+    return (): void => {
+      if (closeBackdropTimeoutRef.current) {
+        clearTimeout(closeBackdropTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleDeleteReview = useCallback(
     (feedbackId: number) => {
       const deletedFeedback = feedbacks.find((f) => f.id === feedbackId);
@@ -268,7 +323,7 @@ export const RestaurantDetailsScreen = ({
     if (hasCompletedOrders && completedOrders.length > 0) {
       // Pre-select newest order; show picker so user can choose
       setSelectedOrderId(completedOrders[0].orderId);
-      setShowOrderPicker(true);
+      openOrderPicker();
     } else {
       setSelectedOrderId(null);
       setShowReviewModal(true);
@@ -568,18 +623,41 @@ export const RestaurantDetailsScreen = ({
         )}
       </ScrollView>
 
+      {orderPickerBackdrop && (
+        <>
+          {/* Backdrop — animated independently from the sliding sheet */}
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                top: -insets.top,
+                bottom: -insets.bottom,
+              },
+              backdropAnimatedStyle,
+            ]}
+          />
+          <Pressable
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                top: -insets.top,
+                bottom: -insets.bottom,
+              },
+            ]}
+            onPress={closeOrderPicker}
+          />
+        </>
+      )}
       {/* Order picker — shown when user has completed orders and taps Write Review */}
       <Modal
         visible={showOrderPicker}
         transparent
         animationType="slide"
-        onRequestClose={(): void => setShowOrderPicker(false)}
+        onRequestClose={closeOrderPicker}
       >
         <View className="flex-1">
-          <Pressable
-            className="absolute inset-0 bg-black/50"
-            onPress={(): void => setShowOrderPicker(false)}
-          />
+          <Pressable className="absolute inset-0" onPress={closeOrderPicker} />
           <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white pb-8 pt-4">
             {/* Handle */}
             <View className="mb-4 items-center">
@@ -627,7 +705,7 @@ export const RestaurantDetailsScreen = ({
 
             <TouchableOpacity
               onPress={(): void => {
-                setShowOrderPicker(false);
+                closeOrderPicker();
                 setShowReviewModal(true);
               }}
               disabled={selectedOrderId == null}
