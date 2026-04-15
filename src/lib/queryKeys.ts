@@ -42,7 +42,17 @@ export const queryKeys = {
     branch: (branchId: number) => ['feedback', 'branch', branchId] as const,
     list: (branchId: number, sortBy: string) =>
       ['feedback', 'list', branchId, sortBy] as const,
+    /** Global velocity key — also used as prefix for invalidating all velocity queries */
     velocity: () => ['feedback', 'velocity'] as const,
+    /** Branch-specific velocity key (includes distance + canReviewWithoutOrder) */
+    velocityBranch: (branchId: number, lat: number, lng: number) =>
+      ['feedback', 'velocity', 'branch', branchId, lat, lng] as const,
+  },
+
+  orders: {
+    all: ['orders'] as const,
+    completedByBranch: (branchId: number) =>
+      ['orders', 'completed', 'branch', branchId] as const,
   },
 
   cart: {

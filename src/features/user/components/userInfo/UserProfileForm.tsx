@@ -4,7 +4,7 @@ import { CustomInput } from '@components/CustomInput';
 import Header from '@components/Header';
 import { APIErrorResponse } from '@custom-types/apiResponse';
 import { User } from '@custom-types/user';
-import { Ionicons } from '@expo/vector-icons';
+import useLogin from '@features/auth/hooks/useLogin';
 import { getUpdateProfileSchema } from '@features/auth/utils/updateUserProfileSchema';
 import { useAvatarPicker } from '@features/user/hooks/profile/useAvatarPicker';
 import useProfile from '@features/user/hooks/profile/useProfile';
@@ -13,7 +13,7 @@ import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
 import getHighResAvatar from '@utils/getHighResAvatar';
-import { JSX, useMemo, useState } from 'react';
+import { JSX, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -30,9 +30,10 @@ const UserProfileForm = (): JSX.Element => {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const navigation = useNavigation();
+  const isFirstScreen = !navigation.canGoBack();
   const { updateUserProfile } = useProfile();
   const { avatarUri, pickAvatar } = useAvatarPicker();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const { onLogout } = useLogin();
 
   const schema = useMemo(() => getUpdateProfileSchema(t), [t]);
   const methods = useForm<Partial<User>>({
@@ -51,7 +52,6 @@ const UserProfileForm = (): JSX.Element => {
   const onSubmit = async (data: Partial<User>): Promise<void> => {
     try {
       await updateUserProfile(data);
-      setIsEditing(false);
       navigation.navigate('Main');
     } catch (error) {
       const err = error as APIErrorResponse;
@@ -80,29 +80,16 @@ const UserProfileForm = (): JSX.Element => {
       style={{ flex: 1 }}
     >
       <Header
-        title={t('profile.title')}
-        onBackPress={() => navigation.goBack()}
-        secondaryAction={{
-          label: isEditing
-            ? t('common.done', { defaultValue: 'Done' })
-            : t('common.edit', { defaultValue: 'Edit' }),
-          icon: (
-            <Ionicons
-              name={isEditing ? 'checkmark' : 'create-outline'}
-              size={18}
-              color="#111827"
-            />
-          ),
-          onPress: () => setIsEditing((prev) => !prev),
-        }}
+        title={
+          isFirstScreen
+            ? t('profile.update_profile')
+            : t('profile.edit_profile')
+        }
+        onBackPress={isFirstScreen ? onLogout : (): void => navigation.goBack()}
       />
       <ScrollView className="flex-1">
         <View className="items-center py-6">
-          <Pressable
-            className="relative"
-            onPress={pickAvatar}
-            disabled={!isEditing}
-          >
+          <Pressable className="relative" onPress={pickAvatar}>
             <Image
               source={
                 avatarUri
@@ -126,7 +113,6 @@ const UserProfileForm = (): JSX.Element => {
               label={t('edit_profile.username')}
               type="username"
               placeholder={t('edit_profile.enter_username')}
-              readonly={!isEditing}
               required
             />
 
@@ -136,7 +122,6 @@ const UserProfileForm = (): JSX.Element => {
               type="email"
               placeholder={t('edit_profile.enter_email')}
               keyboardType="email-address"
-              readonly={!isEditing || !!user?.email}
             />
 
             <CustomInput<Partial<User>>
@@ -144,7 +129,6 @@ const UserProfileForm = (): JSX.Element => {
               label={t('edit_profile.first_name')}
               type="name"
               placeholder={t('edit_profile.enter_first_name')}
-              readonly={!isEditing}
               required
             />
 
@@ -153,7 +137,6 @@ const UserProfileForm = (): JSX.Element => {
               label={t('edit_profile.last_name')}
               type="name"
               placeholder={t('edit_profile.enter_last_name')}
-              readonly={!isEditing}
               required
             />
 
@@ -163,20 +146,17 @@ const UserProfileForm = (): JSX.Element => {
               type="phone"
               placeholder={t('edit_profile.enter_phone_number')}
               keyboardType="phone-pad"
-              readonly={!isEditing}
             />
           </View>
 
-          {isEditing && (
-            <View className="px-4 py-6">
-              <View className="gap-3">
-                <CustomButton
-                  text={t('edit_profile.save_changes')}
-                  onPress={handleSubmit(onSubmit)}
-                />
-              </View>
+          <View className="px-4 py-6">
+            <View className="gap-3">
+              <CustomButton
+                text={t('edit_profile.save_changes')}
+                onPress={handleSubmit(onSubmit)}
+              />
             </View>
-          )}
+          </View>
         </FormProvider>
       </ScrollView>
     </KeyboardAvoidingView>

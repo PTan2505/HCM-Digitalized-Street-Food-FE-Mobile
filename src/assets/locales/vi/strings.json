@@ -186,6 +186,7 @@
     "challenges": "Thử thách",
     "general": "Tổng quát",
     "edit_profile": "Chỉnh sửa hồ sơ",
+    "update_profile": "Cập nhật hồ sơ",
     "notifications": "Thông báo",
     "language": "Ngôn ngữ",
     "help_support": "Trợ giúp & Hỗ trợ",
@@ -443,7 +444,9 @@
       "error_submit_not_near": "Không thể gửi đánh giá. Bạn có thể không ở gần quán.",
       "error_submit_default": "Gửi đánh giá thất bại. Vui lòng thử lại.",
       "save_changes": "Lưu thay đổi",
-      "submit": "Gửi đánh giá"
+      "submit": "Gửi đánh giá",
+      "order_review_notice": "Đánh giá này được gắn với đơn hàng của bạn. Mỗi đơn hàng chỉ được đánh giá 1 lần.",
+      "error_location_required": "Cần bật GPS để đánh giá khi không có đơn hàng."
     }
   },
   "common": {
@@ -694,7 +697,7 @@
   },
   "home_quick_actions": {
     "section_title": "Khám phá Lowca",
-    "ghost_pin": "Chia sẻ quán ăn mới",
+    "ghost_pin": "Chia sẻ quán ăn",
     "quest": "Thử thách",
     "voucher_market": "Chợ Voucher",
     "personal_cart": "Giỏ hàng",

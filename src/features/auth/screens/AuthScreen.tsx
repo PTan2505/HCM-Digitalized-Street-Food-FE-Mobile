@@ -106,7 +106,10 @@ export const AuthScreen = (): JSX.Element => {
     }).start();
   }, [isSendedOTP, formTransition]);
   return (
-    <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={['left', 'right', 'bottom']}
+    >
       <View className="relative">
         <Animated.View
           style={{
