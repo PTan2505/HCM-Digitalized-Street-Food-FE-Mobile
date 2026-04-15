@@ -38,6 +38,7 @@ interface SearchBarProps {
   onSelectPrediction?: (prediction: AutocompletePrediction) => void;
   onFocus?: () => void;
   onBlur?: () => void;
+  onPickOnMap?: () => void;
 
   // Search area button (MapScreen specific)
   showSearchAreaButton?: boolean;
@@ -70,6 +71,7 @@ const SearchBar = ({
   onSelectPrediction,
   onFocus,
   onBlur,
+  onPickOnMap,
   showSearchAreaButton = false,
   onSearchArea,
   searchAreaButtonText = 'Tìm khu vực này',
@@ -171,6 +173,17 @@ const SearchBar = ({
               </Text>
             </TouchableOpacity>
           ))}
+          {onPickOnMap && (
+            <TouchableOpacity
+              className="flex-row items-center gap-3 px-4 py-3"
+              onPress={onPickOnMap}
+            >
+              <Ionicons name="map-outline" size={16} color="#588d22" />
+              <Text className="text-base font-medium text-primary">
+                {t('map.pick_on_map')}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 

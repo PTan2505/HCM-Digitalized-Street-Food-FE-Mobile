@@ -61,6 +61,15 @@
     "clear_history": "Clear all",
     "address_history_title": "Recent addresses"
   },
+  "map": {
+    "search_address_placeholder": "Search address...",
+    "pick_on_map": "Pick on map",
+    "drag_to_pick": "Drag map to pick a location",
+    "picked_location_label": "Selected location",
+    "finding_address": "Finding address...",
+    "confirm_location": "Find food here",
+    "search_around_user": "Search around you"
+  },
   "sort_by": "Sort By",
   "categories": {
     "rice": "Rice",
