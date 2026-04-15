@@ -61,6 +61,15 @@
     "clear_history": "Xóa tất cả",
     "address_history_title": "Địa chỉ tìm kiếm gần đây"
   },
+  "map": {
+    "search_address_placeholder": "Tìm địa chỉ...",
+    "pick_on_map": "Chọn trên bản đồ",
+    "drag_to_pick": "Kéo bản đồ để chọn vị trí",
+    "picked_location_label": "Vị trí đã chọn",
+    "finding_address": "Đang tìm địa chỉ...",
+    "confirm_location": "Tìm quán ăn tại đây",
+    "search_around_user": "Tìm xung quanh bạn"
+  },
   "sort_by": "Sắp xếp theo",
   "categories": {
     "rice": "Cơm",

@@ -30,6 +30,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -515,6 +516,10 @@ interface MapsProps {
   branches?: ActiveBranch[];
   branchImageMap?: Record<number, string[]>;
   ghostPins?: GhostPinResponse[];
+  /** When true: shows a draggable center pin so the user can pick a location */
+  isPickingLocation?: boolean;
+  /** Fixed pin shown at the last explicitly-searched coordinate */
+  searchCenter?: [number, number] | null;
 }
 
 const PEEK_BAR_OFFSET = 20;
@@ -530,12 +535,20 @@ export const Maps = ({
   branches = [],
   branchImageMap = {},
   ghostPins = [],
+  isPickingLocation = false,
+  searchCenter = null,
 }: MapsProps): JSX.Element => {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapViewRef>(null);
+  const initialCameraSettingsRef = useRef({
+    centerCoordinate: initialCenter,
+    zoomLevel: DEFAULT_ZOOM,
+  });
   const userLocationRef = useRef<[number, number] | null>(null);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
+  const [isPickingDragging, setIsPickingDragging] = useState(false);
 
   // ── Android: composite marker bitmaps (pin + vendor photo) ──
   const [androidMarkerImages, setAndroidMarkerImages] = useState<
@@ -614,18 +627,19 @@ export const Maps = ({
     });
   }, [cameraRef]);
 
-  // ── Drag → peek ──
+  // ── Drag → peek / picking drag state ──
   const handleRegionWillChange = useCallback(
     (feature: RegionPayloadFeature) => {
       console.log('[DEBUG Maps] handleRegionWillChange', {
         isUserInteraction: feature.properties.isUserInteraction,
         selectedBranchId,
       });
-      if (feature.properties.isUserInteraction && selectedBranchId) {
-        onUserDrag?.();
+      if (feature.properties.isUserInteraction) {
+        if (selectedBranchId) onUserDrag?.();
+        if (isPickingLocation) setIsPickingDragging(true);
       }
     },
-    [selectedBranchId, onUserDrag]
+    [selectedBranchId, onUserDrag, isPickingLocation]
   );
 
   // ── Zoom tracking (throttled to avoid rapid MarkerView mount/unmount) ──
@@ -671,6 +685,7 @@ export const Maps = ({
 
       // Report visible center to parent when user interaction ends
       if (feature.properties.isUserInteraction) {
+        if (isPickingLocation) setIsPickingDragging(false);
         const bounds = feature.properties.visibleBounds;
         if (bounds?.[0] && bounds?.[1]) {
           const centerLng = (bounds[0][0] + bounds[1][0]) / 2;
@@ -680,7 +695,7 @@ export const Maps = ({
         }
       }
     },
-    [updateZoomBucket, onMapIdle]
+    [updateZoomBucket, onMapIdle, isPickingLocation]
   );
 
   // ── Continuous zoom tracking during gestures ──
@@ -734,10 +749,7 @@ export const Maps = ({
       >
         <Camera
           ref={cameraRef}
-          defaultSettings={{
-            centerCoordinate: initialCenter,
-            zoomLevel: DEFAULT_ZOOM,
-          }}
+          defaultSettings={initialCameraSettingsRef.current}
         />
 
         <UserLocation visible onUpdate={handleUserLocationUpdate} />
@@ -852,6 +864,28 @@ export const Maps = ({
             <GhostPinCallout name={pin.name} status={pin.status} />
           </MarkerView>
         ))}
+
+        {/* Search-center pin — shown after an explicit text/pick search */}
+        {searchCenter && !isPickingLocation && (
+          <MarkerView
+            coordinate={searchCenter}
+            anchor={{ x: 0.5, y: 1 }}
+            allowOverlap
+          >
+            <View style={{ width: 40, height: 48, alignItems: 'center' }}>
+              <Ionicons
+                name="location-sharp"
+                size={40}
+                color={COLORS.primary}
+                style={{
+                  textShadowColor: 'rgba(0,0,0,0.25)',
+                  textShadowOffset: { width: 0, height: 2 },
+                  textShadowRadius: 4,
+                }}
+              />
+            </View>
+          </MarkerView>
+        )}
       </MapView>
 
       {/* Android: hidden offscreen views for bitmap capture */}
@@ -892,9 +926,45 @@ export const Maps = ({
         </View>
       )}
 
-      {/* Locate Me FAB */}
+      {/* ── Center pin (picking mode) ── */}
+      {isPickingLocation && (
+        <View
+          pointerEvents="none"
+          className="absolute inset-0 items-center justify-center"
+        >
+          <View style={{ marginBottom: 40 }}>
+            <Ionicons
+              name="location-sharp"
+              size={52}
+              color={COLORS.primary}
+              style={{
+                textShadowColor: 'rgba(0,0,0,0.25)',
+                textShadowOffset: { width: 0, height: 2 },
+                textShadowRadius: 4,
+              }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* ── Drag hint toast (picking mode) ── */}
+      {isPickingLocation && !isPickingDragging && (
+        <View
+          pointerEvents="none"
+          className="absolute inset-x-0 items-center"
+          style={{ bottom: 240 }}
+        >
+          <View className="rounded-full bg-black/60 px-4 py-2">
+            <Text className="text-sm font-medium text-white">
+              {t('map.drag_to_pick')}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Locate Me FAB — hidden in picking mode */}
       <Animated.View
-        className="absolute right-4"
+        className="absolute right-4 top-52"
         style={fabAnimatedStyle}
         pointerEvents="box-none"
       >
