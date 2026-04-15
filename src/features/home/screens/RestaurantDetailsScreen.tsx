@@ -15,6 +15,7 @@ import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useBranchImages } from '@features/home/hooks/useBranchImages';
+import { useCompletedOrdersForBranch } from '@features/home/hooks/useCompletedOrdersForBranch';
 import { useFavoriteBranches } from '@features/home/hooks/useFavoriteBranches';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
@@ -51,7 +52,9 @@ import {
   ActionSheetIOS,
   Alert,
   Linking,
+  Modal,
   Platform,
+  Pressable,
   ScrollView,
   Share,
   Text,
@@ -159,6 +162,8 @@ export const RestaurantDetailsScreen = ({
   const [editingFeedback, setEditingFeedback] = useState<Feedback | undefined>(
     undefined
   );
+  const [showOrderPicker, setShowOrderPicker] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const { isFavorite, toggleFavorite } = useFavoriteBranches();
 
@@ -175,11 +180,23 @@ export const RestaurantDetailsScreen = ({
   } = useBranchFeedback(branch.branchId);
   const { ownFeedback, setOwnFeedback } = useOwnBranchFeedback(branch.branchId);
   const {
+    hasCompletedOrders,
+    completedOrders,
+    isLoading: isOrdersLoading,
+  } = useCompletedOrdersForBranch(branch.branchId);
+  const {
     canReview,
     reason: reviewIneligibilityReason,
     isLoading: isEligibilityLoading,
+    userLat,
+    userLong,
     refetchVelocity,
-  } = useReviewEligibility(branch.branchId, branch.lat, branch.long);
+  } = useReviewEligibility(
+    branch.branchId,
+    branch.lat,
+    branch.long,
+    hasCompletedOrders
+  );
   const { branches: nearbyBranches } = useNearbyBranches(
     branch.lat,
     branch.long,
@@ -248,7 +265,14 @@ export const RestaurantDetailsScreen = ({
 
   const handleOpenWriteReview = (): void => {
     setEditingFeedback(undefined);
-    setShowReviewModal(true);
+    if (hasCompletedOrders && completedOrders.length > 0) {
+      // Pre-select newest order; show picker so user can choose
+      setSelectedOrderId(completedOrders[0].orderId);
+      setShowOrderPicker(true);
+    } else {
+      setSelectedOrderId(null);
+      setShowReviewModal(true);
+    }
   };
 
   const isSharingRef = useRef(false);
@@ -419,7 +443,7 @@ export const RestaurantDetailsScreen = ({
   const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
 
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <FixedHeaderControls
         onSharePress={handleSharePress}
         isFavorite={isFavorite(branch.branchId)}
@@ -525,11 +549,11 @@ export const RestaurantDetailsScreen = ({
             feedbackDetails={feedbackDetails}
             canReview={canReview && ownFeedback == null}
             reviewIneligibilityReason={reviewIneligibilityReason}
-            isEligibilityLoading={isEligibilityLoading}
+            isEligibilityLoading={isEligibilityLoading || isOrdersLoading}
             ownFeedbackId={ownFeedback?.id}
+            hasCompletedOrders={hasCompletedOrders}
             branchId={branch.branchId}
             displayName={displayName}
-            dishes={branch.dishes ?? []}
             branchLat={branch.lat}
             branchLong={branch.long}
             onWriteReview={handleOpenWriteReview}
@@ -544,11 +568,90 @@ export const RestaurantDetailsScreen = ({
         )}
       </ScrollView>
 
+      {/* Order picker — shown when user has completed orders and taps Write Review */}
+      <Modal
+        visible={showOrderPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={(): void => setShowOrderPicker(false)}
+      >
+        <View className="flex-1">
+          <Pressable
+            className="absolute inset-0 bg-black/50"
+            onPress={(): void => setShowOrderPicker(false)}
+          />
+          <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white pb-8 pt-4">
+            {/* Handle */}
+            <View className="mb-4 items-center">
+              <View className="h-1 w-12 rounded-full bg-gray-300" />
+            </View>
+
+            <Text className="mb-3 px-4 text-lg font-bold text-black">
+              {t('review.pick_order', 'Chọn đơn hàng để đánh giá')}
+            </Text>
+
+            {[...completedOrders]
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((order) => {
+                const isSelected = selectedOrderId === order.orderId;
+                return (
+                  <TouchableOpacity
+                    key={order.orderId}
+                    onPress={(): void => setSelectedOrderId(order.orderId)}
+                    className={`mx-4 mb-2 rounded-xl border px-4 py-3 ${
+                      isSelected
+                        ? 'border-primary bg-primary/10'
+                        : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <Text
+                        className={`text-base font-semibold ${isSelected ? 'text-primary-dark' : 'text-gray-800'}`}
+                      >
+                        #{order.orderId}
+                      </Text>
+                      <Text className="text-sm text-gray-500">
+                        {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                      </Text>
+                    </View>
+                    <Text className="mt-1 text-sm text-gray-600">
+                      {order.finalAmount.toLocaleString('vi-VN')}₫
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+
+            <TouchableOpacity
+              onPress={(): void => {
+                setShowOrderPicker(false);
+                setShowReviewModal(true);
+              }}
+              disabled={selectedOrderId == null}
+              className={`mx-4 mt-3 items-center rounded-xl py-4 ${
+                selectedOrderId != null ? 'bg-primary' : 'bg-gray-200'
+              }`}
+            >
+              <Text
+                className={`text-base font-semibold ${selectedOrderId != null ? 'text-white' : 'text-gray-400'}`}
+              >
+                {t('review.write', 'Viết đánh giá')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <ReviewFormModal
         visible={showReviewModal}
         branchId={branch.branchId}
-        dishes={branch.dishes}
         existingFeedback={editingFeedback}
+        orderId={editingFeedback == null ? selectedOrderId : null}
+        userLat={userLat}
+        userLong={userLong}
         onClose={() => setShowReviewModal(false)}
         onSuccess={handleReviewSuccess}
       />

@@ -211,9 +211,14 @@ export class FeedbackApi {
 
   // ── Velocity ───────────────────────────────────────────────────────────────
 
-  async checkVelocity(): Promise<VelocityCheckResponse> {
+  async checkVelocity(params?: {
+    branchId?: number;
+    userLat?: number;
+    userLong?: number;
+  }): Promise<VelocityCheckResponse> {
     const res = await this.apiClient.get<VelocityCheckResponse>({
       url: apiUrl.feedback.velocityCheck,
+      params,
     });
     return res.data;
   }

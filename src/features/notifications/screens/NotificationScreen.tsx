@@ -139,13 +139,10 @@ export const NotificationScreen = (): JSX.Element => {
                     Promise.all([
                       axiosApi.vendorApi.getVendorById(detail.vendorId),
                       axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
-                      axiosApi.branchApi.getDishesByBranch(detail.branchId, {
-                        pageSize: 100,
-                      }),
                       Promise.resolve(detail),
                     ])
                   )
-                  .then(([vendor, vendorBranches, paginatedDishes, detail]) => {
+                  .then(([vendor, vendorBranches, detail]) => {
                     const isMultiBranch = vendorBranches.totalCount > 1;
                     const displayName = isMultiBranch
                       ? `${vendor.name} - ${t('branch')} ${detail.name}`
@@ -154,7 +151,6 @@ export const NotificationScreen = (): JSX.Element => {
                       branchId: detail.branchId,
                       displayName,
                       ownFeedbackId: item.referenceId ?? undefined,
-                      dishes: paginatedDishes.items,
                       branchLat: detail.lat,
                       branchLong: detail.long,
                     });

@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { Dish } from '@features/home/types/branch';
 import type {
   Feedback,
   FeedbackTag,
@@ -42,9 +41,16 @@ interface KeptImage {
 interface ReviewFormModalProps {
   visible: boolean;
   branchId: number;
-  dishes: Dish[];
   /** Pass to open in edit mode */
   existingFeedback?: Feedback;
+  /**
+   * When provided the review is linked to a completed order.
+   * Order-based reviews bypass velocity/distance restrictions.
+   */
+  orderId?: number | null;
+  /** Required in the submit payload for non-order reviews */
+  userLat?: number | null;
+  userLong?: number | null;
   onClose: () => void;
   onSuccess: (feedback: Feedback, isEdit: boolean) => void;
 }
@@ -52,25 +58,25 @@ interface ReviewFormModalProps {
 export const ReviewFormModal = ({
   visible,
   branchId,
-  dishes,
   existingFeedback,
+  orderId,
+  userLat,
+  userLong,
   onClose,
   onSuccess,
 }: ReviewFormModalProps): JSX.Element => {
   const isEditMode = existingFeedback != null;
+  const isOrderMode = !isEditMode && orderId != null;
   const { t } = useTranslation();
 
   const [rating, setRating] = useState(existingFeedback?.rating ?? 0);
   const [comment, setComment] = useState(existingFeedback?.comment ?? '');
-  const [selectedDishId, setSelectedDishId] = useState<number | null>(
-    existingFeedback?.dishId ?? null
-  );
   /** New images picked/taken (not yet uploaded) */
   const [newImages, setNewImages] = useState<PickedImage[]>([]);
   /** Existing images kept in edit mode; removed ones will be deleted via API */
   const [keptImages, setKeptImages] = useState<KeptImage[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
-    existingFeedback?.tags?.map((t) => t.id) ?? []
+    existingFeedback?.tags?.map((tag) => tag.id) ?? []
   );
   const [availableTags, setAvailableTags] = useState<FeedbackTag[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,8 +100,7 @@ export const ReviewFormModal = ({
     if (visible) {
       setRating(existingFeedback?.rating ?? 0);
       setComment(existingFeedback?.comment ?? '');
-      setSelectedDishId(existingFeedback?.dishId ?? null);
-      setSelectedTagIds(existingFeedback?.tags?.map((t) => t.id) ?? []);
+      setSelectedTagIds(existingFeedback?.tags?.map((tag) => tag.id) ?? []);
       setKeptImages(
         existingFeedback?.images?.map((img) => ({
           id: img.id,
@@ -107,29 +112,46 @@ export const ReviewFormModal = ({
 
       // Check if user can submit a new review (only in write mode)
       if (!isEditMode) {
-        setIsCheckingLimit(true);
-        setCanSubmitReview(true);
-        axiosApi.feedbackApi
-          .checkVelocity()
-          .then((velocityData) => {
-            if (velocityData.remainingTotalToday === 0) {
-              setCanSubmitReview(false);
-              setSubmitError(t('review.form.error_daily_limit'));
-            }
-          })
-          .catch(() => {
-            // On error, allow submission (fail open)
-            setCanSubmitReview(true);
-          })
-          .finally(() => setIsCheckingLimit(false));
+        if (orderId != null) {
+          // Order-based review: no velocity check needed
+          setCanSubmitReview(true);
+        } else if (userLat != null && userLong != null) {
+          // Non-order review: verify eligibility with branch-specific check
+          setIsCheckingLimit(true);
+          setCanSubmitReview(true);
+          axiosApi.feedbackApi
+            .checkVelocity({ branchId, userLat, userLong })
+            .then((velocityData) => {
+              if (velocityData.canReviewWithoutOrder === false) {
+                setCanSubmitReview(false);
+                setSubmitError(t('review.form.error_daily_limit'));
+              }
+            })
+            .catch(() => {
+              setCanSubmitReview(true);
+            })
+            .finally(() => setIsCheckingLimit(false));
+        } else {
+          // No location — block non-order submission
+          setCanSubmitReview(false);
+          setSubmitError(t('review.form.error_location_required'));
+        }
       }
     }
-  }, [visible, existingFeedback, isEditMode, t]);
+  }, [
+    visible,
+    existingFeedback,
+    isEditMode,
+    orderId,
+    branchId,
+    userLat,
+    userLong,
+    t,
+  ]);
 
   const reset = (): void => {
     setRating(0);
     setComment('');
-    setSelectedDishId(null);
     setSelectedTagIds([]);
     setNewImages([]);
     setKeptImages([]);
@@ -219,7 +241,6 @@ export const ReviewFormModal = ({
       return;
     }
 
-    // Check daily limit (only in write mode)
     if (!isEditMode && !canSubmitReview) {
       setSubmitError(t('review.form.error_daily_limit'));
       return;
@@ -233,7 +254,6 @@ export const ReviewFormModal = ({
 
       if (isEditMode) {
         const payload: UpdateFeedbackRequest = {
-          dishId: selectedDishId ?? undefined,
           rating,
           comment: comment.trim() || undefined,
           tagIds: selectedTagIds,
@@ -243,14 +263,28 @@ export const ReviewFormModal = ({
           payload
         );
         await deleteRemovedImages(feedback.id);
-      } else {
+      } else if (isOrderMode) {
+        // Order-based review: link to order, no location required
         const payload: SubmitFeedbackRequest = {
           branchId,
-          dishId: selectedDishId,
+          dishId: null,
+          orderId: orderId,
+          rating,
+          comment: comment.trim() || null,
+          tagIds: selectedTagIds,
+        };
+        feedback = await axiosApi.feedbackApi.submitFeedback(payload);
+      } else {
+        // Non-order review: include user coordinates
+        const payload: SubmitFeedbackRequest = {
+          branchId,
+          dishId: null,
           orderId: null,
           rating,
           comment: comment.trim() || null,
           tagIds: selectedTagIds,
+          userLat: userLat ?? null,
+          userLong: userLong ?? null,
         };
         feedback = await axiosApi.feedbackApi.submitFeedback(payload);
       }
@@ -272,7 +306,7 @@ export const ReviewFormModal = ({
         );
       } else if (apiErr?.status === 429) {
         setSubmitError(t('review.form.error_daily_limit'));
-        setCanSubmitReview(false); // Prevent retry
+        setCanSubmitReview(false);
       } else {
         setSubmitError(t('review.form.error_submit_default'));
       }
@@ -328,6 +362,14 @@ export const ReviewFormModal = ({
               </View>
             )}
 
+            {isOrderMode && (
+              <View className="mb-4 mt-5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">
+                <Text className="text-sm text-blue-700">
+                  {t('review.form.order_review_notice')}
+                </Text>
+              </View>
+            )}
+
             {/* Star rating */}
             <View className={`mb-6 items-center ${isEditMode ? '' : 'mt-5'}`}>
               <Text className="mb-3 text-base font-medium text-gray-700">
@@ -349,181 +391,6 @@ export const ReviewFormModal = ({
                 ))}
               </View>
             </View>
-
-            {/* Dish selector */}
-            {dishes.length > 0 && (
-              <View className="mb-5">
-                <Text className="mb-3 text-base font-medium text-gray-700">
-                  {t('review.form.dish_optional')}
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  className="-mx-1"
-                >
-                  {dishes.map((dish) => {
-                    const isSelected = selectedDishId === dish.dishId;
-                    return (
-                      <TouchableOpacity
-                        key={dish.dishId}
-                        onPress={() =>
-                          setSelectedDishId(isSelected ? null : dish.dishId)
-                        }
-                        className={`mx-1 w-40 overflow-hidden rounded-2xl border ${
-                          isSelected
-                            ? 'border-primary bg-primary-light/20'
-                            : 'border-gray-200 bg-white'
-                        }`}
-                        disabled={dish.isSoldOut}
-                      >
-                        {/* Dish Image */}
-                        {dish.imageUrl ? (
-                          <View className="relative">
-                            <Image
-                              source={{ uri: dish.imageUrl }}
-                              className="h-24 w-full"
-                              resizeMode="cover"
-                            />
-                            {dish.isSoldOut && (
-                              <View className="absolute inset-0 items-center justify-center bg-black/50">
-                                <Text className="text-sm font-semibold text-white">
-                                  {t('actions.sold_out')}
-                                </Text>
-                              </View>
-                            )}
-                            {isSelected && (
-                              <View className="absolute right-2 top-2 rounded-full bg-primary p-1">
-                                <Ionicons
-                                  name="checkmark"
-                                  size={14}
-                                  color="#fff"
-                                />
-                              </View>
-                            )}
-                          </View>
-                        ) : (
-                          <View
-                            className={`h-24 w-full items-center justify-center ${
-                              dish.isSoldOut ? 'bg-gray-200' : 'bg-gray-100'
-                            }`}
-                          >
-                            <Ionicons
-                              name="restaurant-outline"
-                              size={32}
-                              color={dish.isSoldOut ? '#9CA3AF' : '#D1D5DB'}
-                            />
-                            {dish.isSoldOut && (
-                              <Text className="mt-1 text-sm font-semibold text-gray-500">
-                                {t('actions.sold_out')}
-                              </Text>
-                            )}
-                            {isSelected && !dish.isSoldOut && (
-                              <View className="absolute right-2 top-2 rounded-full bg-primary p-1">
-                                <Ionicons
-                                  name="checkmark"
-                                  size={14}
-                                  color="#fff"
-                                />
-                              </View>
-                            )}
-                          </View>
-                        )}
-
-                        {/* Dish Details */}
-                        <View className="p-3">
-                          <Text
-                            className={`mb-1 text-base font-semibold ${
-                              dish.isSoldOut
-                                ? 'text-gray-400'
-                                : isSelected
-                                  ? 'text-primary-dark'
-                                  : 'text-gray-900'
-                            }`}
-                            numberOfLines={1}
-                          >
-                            {dish.name}
-                          </Text>
-
-                          <Text
-                            className={`mb-2 text-sm font-medium ${
-                              dish.isSoldOut ? 'text-gray-400' : 'text-primary'
-                            }`}
-                          >
-                            {dish.price.toLocaleString('vi-VN')}đ
-                          </Text>
-
-                          {dish.description && (
-                            <Text
-                              className={`mb-2 text-sm ${
-                                dish.isSoldOut
-                                  ? 'text-gray-400'
-                                  : 'text-gray-600'
-                              }`}
-                              numberOfLines={2}
-                            >
-                              {dish.description}
-                            </Text>
-                          )}
-
-                          {/* Taste Tags */}
-                          {dish.tasteNames.length > 0 && (
-                            <View className="flex-row flex-wrap gap-1">
-                              {dish.tasteNames.slice(0, 2).map((taste, idx) => (
-                                <View
-                                  key={idx}
-                                  className={`rounded-full px-2 py-0.5 ${
-                                    dish.isSoldOut
-                                      ? 'bg-gray-100'
-                                      : isSelected
-                                        ? 'bg-primary/20'
-                                        : 'bg-gray-100'
-                                  }`}
-                                >
-                                  <Text
-                                    className={`text-[10px] ${
-                                      dish.isSoldOut
-                                        ? 'text-gray-400'
-                                        : isSelected
-                                          ? 'text-primary-dark'
-                                          : 'text-gray-600'
-                                    }`}
-                                  >
-                                    {taste}
-                                  </Text>
-                                </View>
-                              ))}
-                              {dish.tasteNames.length > 2 && (
-                                <View
-                                  className={`rounded-full px-2 py-0.5 ${
-                                    dish.isSoldOut
-                                      ? 'bg-gray-100'
-                                      : isSelected
-                                        ? 'bg-primary/20'
-                                        : 'bg-gray-100'
-                                  }`}
-                                >
-                                  <Text
-                                    className={`text-[10px] ${
-                                      dish.isSoldOut
-                                        ? 'text-gray-400'
-                                        : isSelected
-                                          ? 'text-primary-dark'
-                                          : 'text-gray-600'
-                                    }`}
-                                  >
-                                    +{dish.tasteNames.length - 2}
-                                  </Text>
-                                </View>
-                              )}
-                            </View>
-                          )}
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              </View>
-            )}
 
             {/* Tags */}
             {availableTags.length > 0 && (

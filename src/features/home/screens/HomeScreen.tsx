@@ -753,46 +753,15 @@ export const HomeScreen = (): JSX.Element => {
       {totalCartsWithItems > 0 && (
         <TouchableOpacity
           onPress={() => navigation.navigate('MyCarts')}
-          style={{
-            position: 'absolute',
-            bottom: 120,
-            right: 20,
-            backgroundColor: COLORS.primary,
-            borderRadius: 32,
-            paddingHorizontal: 18,
-            paddingVertical: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-            elevation: 8,
-            zIndex: 200,
-          }}
+          className="absolute bottom-[120px] right-[20px] z-[200] aspect-square w-16 flex-row items-center justify-center rounded-lg bg-primary shadow-lg"
         >
-          <Ionicons name="cart" size={22} color="#fff" />
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 10,
-              minWidth: 20,
-              height: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginLeft: 6,
-              paddingHorizontal: 4,
-            }}
-          >
-            <Text
-              style={{
-                color: COLORS.primary,
-                fontWeight: '700',
-                fontSize: 12,
-              }}
-            >
-              {totalCartsWithItems}
-            </Text>
+          <View className="relative">
+            <Ionicons name="cart" size={28} color="#fff" />
+            <View className="absolute -right-2 -top-1 h-[12px] min-w-[1px] items-center justify-center rounded-full bg-red-600 px-1">
+              <Text className="text-[8px] font-bold leading-[12px] text-white">
+                {totalCartsWithItems > 99 ? '99+' : totalCartsWithItems}
+              </Text>
+            </View>
           </View>
         </TouchableOpacity>
       )}

@@ -37,16 +37,10 @@ export const getUpdateProfileSchema = (t: TFunction) =>
       .nullable(),
     email: z
       .string()
-      .nonempty(t(VALIDATE_ERROR_MESSAGES.EMPTY_EMAIL))
       .optional()
       .nullable()
-      .refine(
-        (value): boolean => {
-          if (!value) return true;
-          return validator.isEmail(value);
-        },
-        {
-          message: t(VALIDATE_ERROR_MESSAGES.INVALID_EMAIL),
-        }
-      ),
+      .transform((value) => (value === '' ? null : value))
+      .refine((value) => !value || validator.isEmail(value), {
+        message: t(VALIDATE_ERROR_MESSAGES.INVALID_EMAIL),
+      }),
   });
