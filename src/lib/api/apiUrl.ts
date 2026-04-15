@@ -5,13 +5,6 @@ export const apiUrl = {
     phoneVerify: '/api/Auth/phone-verify',
     login: '/api/Auth/login',
     googleLogin: '/api/Auth/google-login',
-    profile: '/api/Auth/profile',
-    register: '/api/Auth/register',
-    verifyRegistration: '/api/Auth/verify-registration',
-    resendRegistrationOTP: '/api/Auth/resend-registration-otp',
-    forgetPassword: '/api/Auth/forget-password',
-    resetPassword: '/api/Auth/reset-password',
-    resendForgetPasswordOTP: '/api/Auth/resend-forget-password-otp',
   },
   dietaryPreference: {
     getAll: '/api/DietaryPreference',
@@ -72,6 +65,7 @@ export const apiUrl = {
     userDietary: '/api/UserDietary/user',
   },
   user: {
+    profile: '/api/User/profile',
     userSetup: {
       userinfo: '/api/UserSetup/userinfo-setup',
       dietary: '/api/UserSetup/dietary-setup',

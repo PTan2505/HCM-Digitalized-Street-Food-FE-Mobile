@@ -11,14 +11,14 @@ export class UserProfileApi {
 
   async getUserProfile(): Promise<User> {
     const res = await this.apiClient.get<User>({
-      url: apiUrl.auth.profile,
+      url: apiUrl.user.profile,
     });
     return res.data;
   }
 
   async updateUserProfile(data: Partial<User>): Promise<User> {
     const res = await this.apiClient.put<User, Partial<User>>({
-      url: apiUrl.auth.profile,
+      url: apiUrl.user.profile,
       data,
     });
     return res.data;
