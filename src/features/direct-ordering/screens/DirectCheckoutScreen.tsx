@@ -159,7 +159,6 @@ export const DirectCheckoutScreen = ({
 
       navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
-        qrCode: result.payment.qrCode ?? '',
         totalAmount: result.order.finalAmount,
         branchName,
         bin: result.payment.bin,
