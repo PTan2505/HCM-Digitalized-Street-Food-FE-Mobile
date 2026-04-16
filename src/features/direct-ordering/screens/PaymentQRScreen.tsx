@@ -1,6 +1,7 @@
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import { usePaymentSocket } from '@features/direct-ordering/hooks/usePaymentSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import {
@@ -18,7 +19,7 @@ import {
 } from '@slices/directOrdering';
 import * as Sharing from 'expo-sharing';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -29,13 +30,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
 
 type PaymentQRScreenProps = StaticScreenProps<{
   orderId: number;
-  qrCode: string;
   totalAmount: number;
   branchName: string;
   bin?: string | null;
@@ -46,15 +45,8 @@ type PaymentQRScreenProps = StaticScreenProps<{
 export const PaymentQRScreen = ({
   route,
 }: PaymentQRScreenProps): JSX.Element => {
-  const {
-    orderId,
-    qrCode,
-    totalAmount,
-    branchName,
-    bin,
-    accountNumber,
-    accountName,
-  } = route.params;
+  const { orderId, totalAmount, branchName, bin, accountNumber, accountName } =
+    route.params;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -66,10 +58,47 @@ export const PaymentQRScreen = ({
   const screenShotRef = useRef<ViewShot>(null);
   const cancelledRef = useRef(false);
   const [sharing, setSharing] = useState(false);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     orderCodeRef.current = orderCode;
   }, [orderCode]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return (): void => clearInterval(timer);
+  }, []);
+
+  const pendingCountdownText = useMemo(() => {
+    if (activeOrder?.status !== ORDER_STATUS.Pending) {
+      return null;
+    }
+
+    const baseTime = new Date(
+      activeOrder.updatedAt ?? activeOrder.createdAt
+    ).getTime();
+    const expiresAt = baseTime + 10 * 60 * 1000;
+    const remainingMs = Math.max(0, expiresAt - now);
+
+    if (remainingMs === 0) {
+      return t('checkout.payment_qr_expired');
+    }
+
+    const totalSeconds = Math.floor(remainingMs / 1000);
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+
+    return t('checkout.payment_qr_expires_in', {
+      time: `${minutes}:${seconds}`,
+    });
+  }, [activeOrder, now, t]);
+  const isPendingCountdownExpired =
+    pendingCountdownText === t('checkout.payment_qr_expired');
 
   // After a successful payment, replace everything from PersonalCart onward
   // with OrderStatusScreen so the user cannot swipe back into the cart/QR flow.
@@ -196,6 +225,13 @@ export const PaymentQRScreen = ({
         <Text className="mb-6 text-center text-base text-gray-500">
           {t('checkout.payment_qr_instruction')}
         </Text>
+        {pendingCountdownText && (
+          <Text
+            className={`mb-4 text-center text-sm font-semibold ${isPendingCountdownExpired ? 'text-red-500' : 'text-[#00B14F]'}`}
+          >
+            {pendingCountdownText}
+          </Text>
+        )}
         {/* Everything above the buttons is captured as a screenshot */}
         <ViewShot
           ref={screenShotRef}
@@ -209,17 +245,13 @@ export const PaymentQRScreen = ({
         >
           {/* QR Code */}
           <View>
-            {bin && accountNumber ? (
-              <Image
-                source={{
-                  uri: `https://img.vietqr.io/image/${bin}-${accountNumber}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${orderId}`.slice(0, 25))}${accountName ? `&accountName=${encodeURIComponent(accountName)}` : ''}`,
-                }}
-                style={{ width: 300, height: 300 }}
-                resizeMode="contain"
-              />
-            ) : (
-              <QRCode value={qrCode} size={300} />
-            )}
+            <Image
+              source={{
+                uri: `https://img.vietqr.io/image/${bin}-${accountNumber}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${orderId}`.slice(0, 25))}${accountName ? `&accountName=${encodeURIComponent(accountName)}` : ''}`,
+              }}
+              style={{ width: 300, height: 300 }}
+              resizeMode="contain"
+            />
           </View>
 
           {/* Amount */}

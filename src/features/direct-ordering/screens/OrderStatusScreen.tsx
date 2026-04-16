@@ -6,12 +6,21 @@ import {
 } from '@features/direct-ordering/api/cartApi';
 import { useOrderStatus } from '@features/direct-ordering/hooks/useOrderStatus';
 import { usePickupCode } from '@features/direct-ordering/hooks/usePickupCode';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import {
+  checkoutThunk,
+  selectCheckoutAccountName,
+  selectCheckoutAccountNumber,
+  selectCheckoutBin,
+  selectCheckoutOrderCode,
+} from '@slices/directOrdering';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -46,10 +55,15 @@ export const OrderStatusScreen = ({
 }: OrderStatusScreenProps): JSX.Element => {
   const { orderId } = route.params;
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const { order } = useOrderStatus(orderId);
   const { pickupCode } = usePickupCode(orderId, order?.status);
   const displayName = useBranchDisplayName(order?.branchId ?? 0);
+  const checkoutOrderCode = useAppSelector(selectCheckoutOrderCode);
+  const checkoutBin = useAppSelector(selectCheckoutBin);
+  const checkoutAccountNumber = useAppSelector(selectCheckoutAccountNumber);
+  const checkoutAccountName = useAppSelector(selectCheckoutAccountName);
 
   const getStepIndex = (): number => {
     if (!order) return 0;
@@ -69,6 +83,59 @@ export const OrderStatusScreen = ({
       </SafeAreaView>
     );
   }
+
+  const canRepay = order.status === ORDER_STATUS.Pending;
+
+  const handleRepay = async (): Promise<void> => {
+    if (!canRepay) {
+      Alert.alert(t('auth.error'), t('checkout.payment_qr_unavailable'));
+      return;
+    }
+
+    if (
+      checkoutOrderCode != null &&
+      checkoutBin != null &&
+      checkoutAccountNumber != null
+    ) {
+      navigation.navigate('PaymentQR', {
+        orderId: order.orderId,
+        totalAmount: order.finalAmount,
+        branchName: displayName ?? order.branchName,
+        bin: checkoutBin,
+        accountNumber: checkoutAccountNumber,
+        accountName: checkoutAccountName,
+      });
+      return;
+    }
+
+    try {
+      const result = await dispatch(
+        checkoutThunk({
+          branchId: order.branchId,
+          paymentMethod: order.paymentMethod ?? 'bank_transfer',
+          isTakeAway: order.isTakeAway,
+          note: null,
+          voucherId: null,
+        })
+      ).unwrap();
+
+      if (!result.payment.bin || !result.payment.accountNumber) {
+        Alert.alert(t('auth.error'), t('checkout.payment_qr_unavailable'));
+        return;
+      }
+
+      navigation.navigate('PaymentQR', {
+        orderId: result.order.orderId,
+        totalAmount: result.order.finalAmount,
+        branchName: displayName ?? order.branchName,
+        bin: result.payment.bin,
+        accountNumber: result.payment.accountNumber,
+        accountName: result.payment.accountName,
+      });
+    } catch {
+      Alert.alert(t('auth.error'), t('checkout.payment_qr_unavailable'));
+    }
+  };
 
   const formattedDate = new Date(order.createdAt).toLocaleDateString('vi-VN', {
     day: '2-digit',
@@ -156,7 +223,7 @@ export const OrderStatusScreen = ({
         )}
 
         {/* Pickup Code */}
-        {pickupCode && (
+        {order.status === ORDER_STATUS.Paid && pickupCode && (
           <View className="mx-4 my-4 items-center rounded-2xl border border-primary bg-[#f6ffed] px-4 py-5">
             <Text className="text-base font-semibold text-gray-500">
               {t('order.pickup_code_label')}
@@ -232,6 +299,22 @@ export const OrderStatusScreen = ({
             </Text>
           </View>
         </View>
+
+        {order.status === ORDER_STATUS.Pending && (
+          <View className="px-4 pb-4">
+            <TouchableOpacity
+              onPress={handleRepay}
+              disabled={!canRepay}
+              className={`items-center rounded-xl py-4 ${canRepay ? 'bg-primary' : 'bg-gray-200'}`}
+            >
+              <Text
+                className={`text-base font-semibold ${canRepay ? 'text-white' : 'text-gray-400'}`}
+              >
+                {t('order.re_pay')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Write Review — only shown for completed orders */}
         {order.status === ORDER_STATUS.Complete && (

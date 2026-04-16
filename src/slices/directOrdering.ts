@@ -26,7 +26,9 @@ export interface DirectOrderingState {
   activeOrder: OrderResponse | null;
   checkoutPaymentUrl: string | null;
   checkoutOrderCode: number | null;
-  checkoutQrCode: string | null;
+  checkoutBin: string | null;
+  checkoutAccountNumber: string | null;
+  checkoutAccountName: string | null;
   orderLoading: boolean;
   orderError: string | null;
   orderHistory: PaginatedOrders | null;
@@ -46,7 +48,9 @@ const initialState: DirectOrderingState = {
   activeOrder: null,
   checkoutPaymentUrl: null,
   checkoutOrderCode: null,
-  checkoutQrCode: null,
+  checkoutBin: null,
+  checkoutAccountNumber: null,
+  checkoutAccountName: null,
   orderLoading: false,
   orderError: null,
   orderHistory: null,
@@ -311,7 +315,9 @@ const directOrderingSlice = createSlice({
       state.activeOrder = null;
       state.checkoutPaymentUrl = null;
       state.checkoutOrderCode = null;
-      state.checkoutQrCode = null;
+      state.checkoutBin = null;
+      state.checkoutAccountNumber = null;
+      state.checkoutAccountName = null;
     },
     clearOrderError: (state) => {
       state.orderError = null;
@@ -411,7 +417,10 @@ const directOrderingSlice = createSlice({
         state.activeOrder = action.payload.order;
         state.checkoutPaymentUrl = action.payload.payment.paymentUrl ?? null;
         state.checkoutOrderCode = action.payload.payment.orderCode ?? null;
-        state.checkoutQrCode = action.payload.payment.qrCode ?? null;
+        state.checkoutBin = action.payload.payment.bin ?? null;
+        state.checkoutAccountNumber =
+          action.payload.payment.accountNumber ?? null;
+        state.checkoutAccountName = action.payload.payment.accountName ?? null;
         // Cart is NOT cleared here — backend keeps it so user can re-checkout
         // if payment is abandoned. Cart is cleared only when PAID is confirmed.
       })
@@ -425,6 +434,36 @@ const directOrderingSlice = createSlice({
       // Order
       .addCase(fetchOrderThunk.fulfilled, (state, action) => {
         state.activeOrder = action.payload;
+      })
+      .addCase(cancelOrderThunk.fulfilled, (state, action) => {
+        const order = action.payload;
+        state.activeOrder = order;
+
+        const targetStatusKey = getOrderHistoryStatusKey(order.status);
+
+        Object.entries(state.orderHistoryByStatus).forEach(
+          ([statusKey, paginated]) => {
+            const filteredItems = paginated.items.filter(
+              (item) => item.orderId !== order.orderId
+            );
+
+            const shouldInclude =
+              statusKey === 'all' || statusKey === targetStatusKey;
+
+            state.orderHistoryByStatus[statusKey] = {
+              ...paginated,
+              items: shouldInclude
+                ? upsertOrderInList(filteredItems, order)
+                : filteredItems,
+            };
+          }
+        );
+
+        const currentStatusKey = getOrderHistoryStatusKey(
+          state.orderHistoryStatusFilter
+        );
+        state.orderHistory =
+          state.orderHistoryByStatus[currentStatusKey] ?? null;
       })
 
       // Order history
@@ -523,8 +562,12 @@ export const selectCheckoutPaymentUrl = (state: RootState): string | null =>
   state.directOrdering.checkoutPaymentUrl;
 export const selectCheckoutOrderCode = (state: RootState): number | null =>
   state.directOrdering.checkoutOrderCode;
-export const selectCheckoutQrCode = (state: RootState): string | null =>
-  state.directOrdering.checkoutQrCode;
+export const selectCheckoutBin = (state: RootState): string | null =>
+  state.directOrdering.checkoutBin;
+export const selectCheckoutAccountNumber = (state: RootState): string | null =>
+  state.directOrdering.checkoutAccountNumber;
+export const selectCheckoutAccountName = (state: RootState): string | null =>
+  state.directOrdering.checkoutAccountName;
 export const selectOrderLoading = (state: RootState): boolean =>
   state.directOrdering.orderLoading;
 export const selectOrderError = (state: RootState): string | null =>
