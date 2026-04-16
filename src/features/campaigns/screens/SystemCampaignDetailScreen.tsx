@@ -97,14 +97,7 @@ export const SystemCampaignDetailScreen = ({
   const rewardItems = useMemo(() => {
     if (!quest?.tasks?.length) return [];
 
-    return quest.tasks.map((task) => {
-      const primaryReward = task.rewards[0];
-      const rewardType = primaryReward
-        ? normalizeRewardType(
-            primaryReward.rewardType as CampaignRewardType | number
-          )
-        : ('POINTS' as CampaignRewardType);
-      const rewardValue = primaryReward?.rewardValue ?? 0;
+    return quest.tasks.flatMap((task) => {
       const taskType = normalizeTaskType(task.type as string | number);
 
       let taskLabel = task.description ?? '';
@@ -121,28 +114,47 @@ export const SystemCampaignDetailScreen = ({
         }
       }
 
-      let rewardLabel = '';
-      if (rewardType === 'POINTS') {
-        rewardLabel = `+${rewardValue} ${t('quest.reward.points')}`;
-      } else if (rewardType === 'BADGE') {
-        rewardLabel = `${t('quest.reward.badge')} #${rewardValue}`;
-      } else {
-        rewardLabel = `${t('quest.reward.voucher')} #${rewardValue}`;
+      if (!task.rewards?.length) {
+        return [];
       }
 
-      return {
-        id: task.questTaskId,
-        taskLabel,
-        rewardType,
-        rewardLabel,
-        rewardValue,
-      };
+      return task.rewards.map((reward, index) => {
+        const rewardType = normalizeRewardType(
+          reward.rewardType as CampaignRewardType | number
+        );
+        const rewardValue = reward.rewardValue ?? 0;
+        const quantity = reward.quantity ?? 1;
+        const rewardId = `${task.questTaskId}-${reward.questTaskRewardId ?? index}`;
+
+        let rewardLabel = '';
+        if (rewardType === 'POINTS') {
+          const totalPoints = rewardValue * quantity;
+          rewardLabel = `+${totalPoints} ${t('quest.reward.points')}`;
+        } else if (rewardType === 'BADGE') {
+          rewardLabel = `${t('quest.reward.badge')} #${rewardValue}`;
+        } else {
+          rewardLabel = `${t('quest.reward.voucher')} #${rewardValue}`;
+        }
+
+        if (quantity > 1 && rewardType !== 'POINTS') {
+          rewardLabel = `${rewardLabel} x${quantity}`;
+        }
+
+        return {
+          id: rewardId,
+          taskLabel,
+          rewardType,
+          rewardLabel,
+          rewardValue,
+          quantity,
+        };
+      });
     });
   }, [quest, t]);
 
   const [rewardDetailsByTaskId, setRewardDetailsByTaskId] = useState<
     Record<
-      number,
+      string,
       {
         title?: string;
         subtitle?: string;
@@ -425,7 +437,13 @@ export const SystemCampaignDetailScreen = ({
                           className="mt-1 text-base font-bold text-gray-900"
                           numberOfLines={2}
                         >
-                          {rewardTitle}
+                          {rewardTitle}{' '}
+                          {item.rewardType === 'VOUCHER' &&
+                          item.quantity > 1 ? (
+                            <Text className="mt-0.5 text-sm font-medium text-gray-600">
+                              x{item.quantity}
+                            </Text>
+                          ) : null}
                         </Text>
 
                         {rewardDetail?.subtitle ? (

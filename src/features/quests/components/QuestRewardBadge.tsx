@@ -151,7 +151,7 @@ export const QuestRewardBadge = ({
   if (rewards.length === 0) return <View />;
 
   return (
-    <View className="items-end">
+    <View className="flex-row flex-wrap items-start gap-2">
       {rewards.map((reward) => (
         <RewardRow
           key={reward.questTaskRewardId}

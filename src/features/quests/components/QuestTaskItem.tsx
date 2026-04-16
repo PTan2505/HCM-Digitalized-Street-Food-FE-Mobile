@@ -109,7 +109,6 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
             </Text>
           </View>
         </View>
-        <QuestRewardBadge rewards={task.rewards} claimed={task.rewardClaimed} />
       </View>
 
       <View className="mb-1 h-2.5 overflow-hidden rounded-full bg-gray-200">
@@ -131,6 +130,7 @@ export const QuestTaskItem = ({ task }: QuestTaskItemProps): JSX.Element => {
           </Text>
         )}
       </View>
+      <QuestRewardBadge rewards={task.rewards} claimed={task.rewardClaimed} />
     </View>
   );
 };
