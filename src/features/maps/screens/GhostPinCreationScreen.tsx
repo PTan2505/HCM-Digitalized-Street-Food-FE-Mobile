@@ -111,11 +111,11 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const handlePredictionSelect = useCallback(
     async (prediction: AutocompletePrediction): Promise<void> => {
       setPredictions([]);
-      setAddressQuery(prediction.mainText);
       setIsGeocodingAddress(true);
 
       const detail = await getPlaceDetail(prediction.placeId);
       if (detail) {
+        setAddressQuery(detail.formattedAddress);
         setAddressDetail(detail.addressDetail);
         setWard(detail.ward);
         setCity(detail.city);

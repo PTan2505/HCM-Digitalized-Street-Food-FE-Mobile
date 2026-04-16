@@ -1,9 +1,9 @@
 import { FilterChipBar } from '@components/FilterChipBar';
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
-import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useCategories } from '@features/home/hooks/useCategories';
 import { useDishKeywords } from '@features/home/hooks/useDishKeywords';

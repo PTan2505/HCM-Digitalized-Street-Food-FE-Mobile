@@ -1,9 +1,9 @@
+import SearchBar from '@components/SearchBar';
 import { Ionicons } from '@expo/vector-icons';
 import { ApplicableBranchGridItem } from '@features/campaigns/components/ApplicableBranchGridItem';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useSystemCampaignBranches } from '@features/campaigns/hooks/useSystemCampaignBranches';
 import { PlaceCardSkeleton } from '@features/home/components/common/HomeSkeleton';
-import SearchBar from '@features/home/components/common/SearchBar';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { Voucher } from '@slices/campaigns';

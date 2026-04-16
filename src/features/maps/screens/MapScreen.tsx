@@ -1,8 +1,8 @@
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
-import SearchBar from '@features/home/components/common/SearchBar';
 import { useSearchHistory } from '@features/home/hooks/useSearchHistory';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';

@@ -433,7 +433,7 @@ export const WithdrawScreen = (): JSX.Element => {
                   filteredBanks.map((bank) => (
                     <TouchableOpacity
                       key={`${bank.bankCode}-${bank.bin}`}
-                      className={`mx-6 flex-row items-center justify-between border-b py-6 border-gray-400${
+                      className={`mx-6 flex-row items-center justify-between border-b py-4 border-gray-200${
                         selectedBin === bank.bin ? 'bg-primary/10' : ''
                       }`}
                       onPress={() => {
@@ -457,7 +457,7 @@ export const WithdrawScreen = (): JSX.Element => {
                           >
                             {formatBankTitle(bank.shortName, bank.bankCode)}
                           </Text>
-                          <Text className="mt-1 text-lg leading-8 text-[#6B7280]">
+                          <Text className="mt-1 text-base leading-8 text-[#6B7280]">
                             {bank.name}
                           </Text>
                         </View>

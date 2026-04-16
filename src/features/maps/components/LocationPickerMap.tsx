@@ -1,3 +1,4 @@
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -29,12 +30,10 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Keyboard,
   Platform,
   Pressable,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -262,7 +261,6 @@ const LocationPickerMapInner = React.forwardRef<
   // Search state
   const [searchText, setSearchText] = useState('');
   const [suggestions, setSuggestions] = useState<AutocompletePrediction[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const justSelectedRef = useRef(false);
 
@@ -295,7 +293,6 @@ const LocationPickerMapInner = React.forwardRef<
 
     let cancelled = false;
     const doSearch = async (): Promise<void> => {
-      setIsSearching(true);
       const results = await searchAddress(debouncedSearch, {
         lat: centerCoord[1],
         lng: centerCoord[0],
@@ -303,7 +300,6 @@ const LocationPickerMapInner = React.forwardRef<
       if (!cancelled) {
         setSuggestions(results);
         setShowSuggestions(results.length > 0);
-        setIsSearching(false);
       }
     };
     void doSearch();
@@ -596,89 +592,23 @@ const LocationPickerMapInner = React.forwardRef<
 
       {/* ── Search Bar + Suggestions ── */}
       <View className="absolute left-4 right-4" style={{ top: insets.top + 8 }}>
-        {/* Back button + Search input */}
-        <View className="flex-row items-center rounded-2xl bg-white px-3 py-1 shadow-lg">
-          {onBack && (
-            <Pressable onPress={onBack} className="mr-2 p-1">
-              <Ionicons name="arrow-back" size={22} color="#333" />
-            </Pressable>
-          )}
-          <Ionicons
-            name="search"
-            size={18}
-            color="#9ca3af"
-            style={{ marginRight: 8 }}
-          />
-          <TextInput
-            className="flex-1 py-2.5 text-base text-gray-800"
-            placeholder="Tìm địa chỉ..."
-            placeholderTextColor="#9ca3af"
-            value={searchText}
-            onChangeText={(text) => {
-              setSearchText(text);
-              if (text.trim()) setShowSuggestions(true);
-            }}
-            onFocus={() => {
-              if (suggestions.length > 0) setShowSuggestions(true);
-            }}
-            returnKeyType="search"
-          />
-          {isSearching && (
-            <ActivityIndicator size="small" color={COLORS.primary} />
-          )}
-          {searchText.length > 0 && !isSearching && (
-            <Pressable
-              onPress={() => {
-                setSearchText('');
-                setSuggestions([]);
-                setShowSuggestions(false);
-              }}
-              className="p-1"
-            >
-              <Ionicons name="close-circle" size={18} color="#9ca3af" />
-            </Pressable>
-          )}
-        </View>
-
-        {/* Suggestions dropdown */}
-        {showSuggestions && suggestions.length > 0 && (
-          <View className="mt-1 max-h-60 overflow-hidden rounded-xl bg-white shadow-lg">
-            <FlatList
-              data={suggestions}
-              keyExtractor={(item) => item.placeId}
-              keyboardShouldPersistTaps="handled"
-              renderItem={({ item }) => (
-                <Pressable
-                  onPress={() => void handleSelectSuggestion(item)}
-                  className="flex-row items-center border-b border-gray-100 px-4 py-3 active:bg-gray-50"
-                >
-                  <Ionicons
-                    name="location-outline"
-                    size={16}
-                    color={COLORS.primary}
-                    style={{ marginRight: 10 }}
-                  />
-                  <View className="flex-1">
-                    <Text
-                      className="text-base font-medium text-gray-800"
-                      numberOfLines={1}
-                    >
-                      {item.mainText}
-                    </Text>
-                    {item.secondaryText ? (
-                      <Text
-                        className="mt-0.5 text-sm text-gray-500"
-                        numberOfLines={1}
-                      >
-                        {item.secondaryText}
-                      </Text>
-                    ) : null}
-                  </View>
-                </Pressable>
-              )}
-            />
-          </View>
-        )}
+        <SearchBar
+          placeholder="Tìm địa chỉ..."
+          value={searchText}
+          onChangeText={(text: string) => {
+            setSearchText(text);
+            if (text.trim()) setShowSuggestions(true);
+          }}
+          showBackButton={!!onBack}
+          onBackPress={onBack}
+          predictions={suggestions}
+          showPredictions={showSuggestions}
+          onSelectPrediction={handleSelectSuggestion}
+          onFocus={() => {
+            if (suggestions.length > 0) setShowSuggestions(true);
+          }}
+          noMargin
+        />
       </View>
 
       {/* ── Bottom Card: Address + Confirm ── */}

@@ -1,9 +1,9 @@
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
-import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/home/types/branch';
