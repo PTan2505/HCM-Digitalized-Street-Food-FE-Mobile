@@ -453,12 +453,22 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
 
       const newCenter: [number, number] = [detail.lng, detail.lat];
       setSearchCenterCoord(newCenter);
+
+      if (clearNativeTargetTimer.current) {
+        clearTimeout(clearNativeTargetTimer.current);
+      }
       cameraRef.current?.setCamera({
         centerCoordinate: newCenter,
         zoomLevel: 14,
         animationDuration: 800,
         animationMode: 'easeTo',
       });
+      if (Platform.OS === 'android') {
+        clearNativeTargetTimer.current = setTimeout(() => {
+          clearNativeTargetTimer.current = null;
+          cameraRef.current?.setCamera({ animationDuration: 0 });
+        }, 850);
+      }
 
       fetchBranchesForLocation(detail.lat, detail.lng);
     },
@@ -482,12 +492,22 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           if (!detail) return;
           const coord: [number, number] = [detail.lng, detail.lat];
           setSearchCenterCoord(coord);
+
+          if (clearNativeTargetTimer.current) {
+            clearTimeout(clearNativeTargetTimer.current);
+          }
           cameraRef.current?.setCamera({
             centerCoordinate: coord,
             zoomLevel: 14,
             animationDuration: 800,
             animationMode: 'easeTo',
           });
+          if (Platform.OS === 'android') {
+            clearNativeTargetTimer.current = setTimeout(() => {
+              clearNativeTargetTimer.current = null;
+              cameraRef.current?.setCamera({ animationDuration: 0 });
+            }, 850);
+          }
           fetchBranchesForLocation(detail.lat, detail.lng);
         }
       }, 0);
