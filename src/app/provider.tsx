@@ -11,6 +11,7 @@ import {
   selectUserStatus,
 } from '@slices/auth';
 import { getUserDietaryPreferences } from '@slices/dietary';
+import { fetchSettings } from '@slices/settings';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -51,6 +52,7 @@ function AppInitializer({
     if (userStatus === 'succeeded' && user && !hasFetchedDietaryRef.current) {
       hasFetchedDietaryRef.current = true;
       void dispatch(getUserDietaryPreferences());
+      void dispatch(fetchSettings());
     }
   }, [dispatch, userStatus, user]);
 

@@ -39,6 +39,8 @@ export interface NotificationDto {
   referenceId: number | null;
   isRead: boolean;
   createdAt: string;
+  /** XP awarded for this event — sent by the backend when a quest task completes */
+  xpEarned?: number;
 }
 
 /** Paginated response for notifications list. */

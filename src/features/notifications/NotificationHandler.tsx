@@ -2,9 +2,10 @@ import { useNotificationNavigation } from '@features/notifications/hooks/useNoti
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
 import { QuestRewardModal } from '@features/quests/components/QuestRewardModal';
+import { XPProgressToast } from '@features/xp/components/XPProgressToast';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { selectUser } from '@slices/auth';
+import { addXP, selectUser } from '@slices/auth';
 import {
   clearPendingReward,
   selectPendingReward,
@@ -41,11 +42,18 @@ export const NotificationHandler = (): JSX.Element => {
     const questTaskId = data.questTaskId as number | undefined;
     if (!questTaskId) return;
 
+    // Apply XP immediately so XP bar and tier badge update before modal opens
+    const xpEarned =
+      typeof data.xpEarned === 'number' ? data.xpEarned : undefined;
+    if (xpEarned && xpEarned > 0) {
+      dispatch(addXP(xpEarned));
+    }
+
     axiosApi.questApi
       .getQuestTaskById(questTaskId)
       .then((task) => {
-        if (task.rewards.length > 0) {
-          dispatch(setPendingReward({ rewards: task.rewards }));
+        if (task.rewards.length > 0 || xpEarned) {
+          dispatch(setPendingReward({ rewards: task.rewards, xpEarned }));
         }
       })
       .catch(() => {});
@@ -56,10 +64,14 @@ export const NotificationHandler = (): JSX.Element => {
   };
 
   return (
-    <QuestRewardModal
-      visible={pendingReward !== null}
-      rewards={pendingReward?.rewards ?? []}
-      onDismiss={handleDismiss}
-    />
+    <>
+      <XPProgressToast />
+      <QuestRewardModal
+        visible={pendingReward !== null}
+        rewards={pendingReward?.rewards ?? []}
+        xpEarned={pendingReward?.xpEarned}
+        onDismiss={handleDismiss}
+      />
+    </>
   );
 };

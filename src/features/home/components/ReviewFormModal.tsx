@@ -5,7 +5,11 @@ import type {
   SubmitFeedbackRequest,
   UpdateFeedbackRequest,
 } from '@features/home/types/feedback';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
+import { addXP, selectUserXP } from '@slices/auth';
+import { selectFeedbackXP } from '@slices/settings';
+import { showXPToast } from '@slices/xpToast';
 import type { PickedImage } from '@utils/imagePicker';
 import {
   compressImageForUpload,
@@ -68,6 +72,9 @@ export const ReviewFormModal = ({
   const isEditMode = existingFeedback != null;
   const isOrderMode = !isEditMode && orderId != null;
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const currentXP = useAppSelector(selectUserXP);
+  const feedbackXP = useAppSelector(selectFeedbackXP);
 
   const [rating, setRating] = useState(existingFeedback?.rating ?? 0);
   const [comment, setComment] = useState(existingFeedback?.comment ?? '');
@@ -296,7 +303,14 @@ export const ReviewFormModal = ({
         feedback.id
       );
 
-      if (!isEditMode) reset();
+      if (!isEditMode) {
+        reset();
+        const newXP = currentXP + feedbackXP;
+        dispatch(addXP(feedbackXP));
+        dispatch(
+          showXPToast({ xpEarned: feedbackXP, previousXP: currentXP, newXP })
+        );
+      }
       onSuccess(updatedFeedback, isEditMode);
     } catch (err: unknown) {
       const apiErr = err as { status?: number; message?: string };

@@ -1,12 +1,18 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import { axiosApi } from '@lib/api/apiInstance';
-import { useAppDispatch } from '@hooks/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
-import { addPoints, refreshUserBalanceThunk } from '@slices/auth';
+import {
+  addPoints,
+  addXP,
+  refreshUserBalanceThunk,
+  selectUserXP,
+} from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
 import { fetchMyQuests, setPendingReward } from '@slices/quests';
+import { showXPToast } from '@slices/xpToast';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -17,6 +23,12 @@ const INITIAL_RETRY_DELAY_MS = 2_000;
 
 export const useNotificationSocket = (isAuthenticated: boolean): void => {
   const dispatch = useAppDispatch();
+  const currentXPRef = useRef(0);
+  // Keep a ref so the SignalR callback always reads the latest XP without
+  // needing to re-subscribe (the callback closure captures the ref, not state)
+  const currentXP = useAppSelector(selectUserXP);
+  currentXPRef.current = currentXP;
+
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
   useEffect(() => {
@@ -54,17 +66,36 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
 
       const isQuestTaskCompleted =
         notification.type === 'QuestTaskCompleted' || notification.type === '3';
+      const isQuestCompleted =
+        notification.type === 'QuestCompleted' || notification.type === '4';
 
-      if (isQuestTaskCompleted && notification.referenceId) {
+      if (
+        (isQuestTaskCompleted || isQuestCompleted) &&
+        notification.referenceId
+      ) {
         const questTaskId = notification.referenceId;
+        const previousXP = currentXPRef.current;
 
-        // Fetch the task definition to get reward info, then show modal.
-        // Delay showing the modal by 1 s so any currently-open modal (e.g. the
-        // ReviewFormModal) has time to dismiss before we present the reward card.
+        // Apply XP immediately if the backend sent the amount
+        if (notification.xpEarned && notification.xpEarned > 0) {
+          const newXP = previousXP + notification.xpEarned;
+          dispatch(addXP(notification.xpEarned));
+          dispatch(
+            showXPToast({
+              xpEarned: notification.xpEarned,
+              previousXP,
+              newXP,
+            })
+          );
+        }
+
+        // Fetch task to get reward items, then show the reward modal.
+        // 1 s delay so any currently-open modal (e.g. ReviewFormModal) can
+        // dismiss before we present the quest reward card.
         axiosApi.questApi
           .getQuestTaskById(questTaskId)
           .then((task) => {
-            // POINTS — update user balance immediately (no need to wait)
+            // Update points balance immediately
             const pointsReward = task.rewards.find(
               (r) => r.rewardType === 'POINTS'
             );
@@ -74,16 +105,24 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
               );
             }
 
-            if (task.rewards.length > 0) {
+            // Show reward modal — QuestCompleted always shows it; QuestTaskCompleted
+            // shows it only when there are rewards to display
+            const shouldShowModal = isQuestCompleted || task.rewards.length > 0;
+            if (shouldShowModal) {
               setTimeout(() => {
-                dispatch(setPendingReward({ rewards: task.rewards }));
+                dispatch(
+                  setPendingReward({
+                    rewards: task.rewards,
+                    xpEarned: notification.xpEarned,
+                  })
+                );
               }, 1000);
             }
           })
           .catch(() => {});
 
-        // Refresh quest list in background so screens stay up-to-date
-        dispatch(fetchMyQuests({ isTierUp: false }));
+        // Refresh quest list in background
+        dispatch(fetchMyQuests({ isTierUp: isQuestCompleted }));
       }
     });
 

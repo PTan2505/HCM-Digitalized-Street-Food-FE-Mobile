@@ -21,6 +21,7 @@ import type {
 
 export interface PendingQuestReward {
   rewards: QuestTaskRewardItem[];
+  xpEarned?: number;
 }
 
 export interface QuestsState {

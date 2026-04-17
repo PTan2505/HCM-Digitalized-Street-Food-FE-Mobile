@@ -22,6 +22,7 @@ import { UserProfileApi } from '@features/user/api/profileApi';
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserDietaryApi } from '@features/user/api/userDietaryApi';
 import ApiClient from '@lib/api/apiClient';
+import { SettingsApi } from '@lib/api/settingsApi';
 
 const axiosService = new AxiosApiService();
 const axiosClient = new ApiClient(axiosService);
@@ -46,4 +47,5 @@ export const axiosApi = {
   questApi: new QuestApi(axiosClient),
   voucherApi: new VoucherApi(axiosClient),
   userPaymentApi: new UserPaymentApi(axiosClient),
+  settingsApi: new SettingsApi(axiosClient),
 };
