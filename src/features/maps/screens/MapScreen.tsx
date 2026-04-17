@@ -419,6 +419,16 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
         animationMode: 'easeTo',
       });
       console.log('[SAU] setCamera dispatched');
+
+      // Android: neutralise the native camera target once the animation
+      // finishes so a subsequent picking-mode drag doesn't snap back here.
+      // (Same pattern as onMarkerPress's clearNativeTargetTimer.)
+      if (Platform.OS === 'android') {
+        clearNativeTargetTimer.current = setTimeout(() => {
+          clearNativeTargetTimer.current = null;
+          cameraRef.current?.setCamera({ animationDuration: 0 });
+        }, 850); // 800ms animation + 50ms safety margin
+      }
     }, 32);
 
     fetchBranchesForLocation(
@@ -774,7 +784,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
             pointerEvents="box-none"
             style={{
               position: 'absolute',
-              top: insets.top + 116,
+              top: insets.top + 140,
               left: 0,
               right: 0,
               alignItems: 'center',

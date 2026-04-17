@@ -328,6 +328,8 @@ interface MarkerBitmapItemProps {
   onCapture: (key: string, uri: string) => void;
 }
 
+const MARKER_CAPTURE_MAX_RETRIES = 3;
+
 const MarkerBitmapItem = ({
   branchId,
   imageUrl,
@@ -335,31 +337,46 @@ const MarkerBitmapItem = ({
   onCapture,
 }: MarkerBitmapItemProps): JSX.Element => {
   const viewRef = useRef<View>(null);
-  const [imageLoaded, setImageLoaded] = useState(!imageUrl);
-  const captured = useRef(false);
+  // Start as true when there's no image to wait for; set to true once the
+  // image finishes loading (or errors) so the capture effect can fire.
+  const [imageReady, setImageReady] = useState(!imageUrl);
+  const [imageError, setImageError] = useState(false);
+  // Incremented on each failed capture attempt to re-trigger the effect.
+  const [retryCount, setRetryCount] = useState(0);
+  const captureSucceeded = useRef(false);
+
   const captureKey = isSelected
     ? `marker-selected-${branchId}`
     : `marker-${branchId}`;
 
   useEffect(() => {
-    if (!imageLoaded || captured.current) return;
-    captured.current = true;
+    if (!imageReady || captureSucceeded.current) return;
 
+    // Each retry waits a bit longer, giving the native view more time to paint.
+    const delay = 120 + retryCount * 150; // 120ms → 270ms → 420ms → 570ms
     const timer = setTimeout(async () => {
       try {
         if (!viewRef.current) return;
         const uri = await captureRef(viewRef, {
           format: 'png',
-          quality: 0.9,
+          quality: 1,
+          // Fixed 2× output so the bitmap is always 76×104px regardless of
+          // device pixel ratio. iconSize: 0.5 then maps it back to 38×52dp.
+          width: 76,
+          height: 104,
         });
+        captureSucceeded.current = true;
         onCapture(captureKey, uri);
       } catch {
-        // Silently skip — marker falls back to default pin icon
+        // Native view may not be ready yet — retry up to MAX_RETRIES times.
+        if (retryCount < MARKER_CAPTURE_MAX_RETRIES) {
+          setRetryCount((r) => r + 1);
+        }
       }
-    }, 100);
+    }, delay);
 
     return (): void => clearTimeout(timer);
-  }, [imageLoaded, captureKey, onCapture]);
+  }, [imageReady, captureKey, onCapture, retryCount]);
 
   const PinIcon = isSelected ? MarkerSelectedIcon : MarkerIcon;
 
@@ -378,12 +395,23 @@ const MarkerBitmapItem = ({
           overflow: 'hidden',
         }}
       >
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <Image
             source={{ uri: imageUrl }}
             style={{ width: 28, height: 28 }}
             resizeMode="cover"
-            onLoad={() => setImageLoaded(true)}
+            onLoad={() => {
+              // Wait for the next paint frame before signalling ready.
+              // onLoad fires when RN has the image data, but Android still
+              // needs one more frame to composite it into the native View.
+              // Capturing before that frame produces a blank circle.
+              requestAnimationFrame(() => setImageReady(true));
+            }}
+            onError={() => {
+              // Image URL failed — show fallback icon and still capture the view.
+              setImageError(true);
+              setImageReady(true);
+            }}
           />
         ) : (
           <View
@@ -485,8 +513,8 @@ const buildAndroidSymbolStyle = (
   iconSize: [
     'case',
     ['==', ['get', 'id'], selectedId],
-    0.45, // selected: slightly larger
-    0.35, // smaller markers on Android
+    0.6, // selected: slightly larger (2× bitmap → 0.5 base, +0.1 for emphasis)
+    0.5, // bitmap is 2× logical size (76×104px), so 0.5 = 38×52dp on screen
   ] as unknown as number,
   iconAnchor: 'bottom' as const,
   iconAllowOverlap: true,
@@ -546,6 +574,9 @@ export const Maps = ({
     zoomLevel: DEFAULT_ZOOM,
   });
   const userLocationRef = useRef<[number, number] | null>(null);
+  const locateMeNeutralizeTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
   const [isPickingDragging, setIsPickingDragging] = useState(false);
@@ -618,6 +649,10 @@ export const Maps = ({
     const coords = userLocationRef.current;
     if (!coords) return;
 
+    if (locateMeNeutralizeTimer.current) {
+      clearTimeout(locateMeNeutralizeTimer.current);
+    }
+
     cameraRef.current?.setCamera({
       centerCoordinate: coords,
       zoomLevel: 15,
@@ -625,6 +660,15 @@ export const Maps = ({
       animationDuration: 800,
       animationMode: 'easeTo',
     });
+
+    // Android: neutralise the committed native camera target once the
+    // animation finishes so a subsequent picking-mode drag doesn't snap back.
+    if (Platform.OS === 'android') {
+      locateMeNeutralizeTimer.current = setTimeout(() => {
+        locateMeNeutralizeTimer.current = null;
+        cameraRef.current?.setCamera({ animationDuration: 0 });
+      }, 850);
+    }
   }, [cameraRef]);
 
   // ── Drag → peek / picking drag state ──
@@ -891,7 +935,15 @@ export const Maps = ({
       {/* Android: hidden offscreen views for bitmap capture */}
       {Platform.OS === 'android' && (
         <View
-          style={{ position: 'absolute', left: -9999, top: -9999 }}
+          style={{
+            position: 'absolute',
+            // Use transform instead of left/top offset so Android's view
+            // system still considers this view "on-screen" and fully renders
+            // its Image children. With left: -9999 Android skips compositing
+            // images that are outside the viewport, causing captureRef to
+            // capture a blank circle even though onLoad already fired.
+            transform: [{ translateX: -10000 }],
+          }}
           pointerEvents="none"
         >
           {visibleMarkers.flatMap((marker) => {

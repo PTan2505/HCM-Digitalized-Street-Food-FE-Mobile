@@ -15,7 +15,7 @@ export const QuickActionGrid = ({ actions }: Props): JSX.Element => {
           key={action.id}
           onPress={action.onPress}
           activeOpacity={0.75}
-          className="w-1/4 items-center px-4 pb-3"
+          className="w-1/4 items-center px-3 pb-3"
         >
           <View className="mb-2 aspect-square w-full items-center justify-center gap-2 rounded-2xl bg-primary-light/15">
             <Image
