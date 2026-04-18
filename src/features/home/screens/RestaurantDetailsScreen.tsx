@@ -27,6 +27,7 @@ import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   StaticScreenProps,
   useFocusEffect,
@@ -103,7 +104,7 @@ export const RestaurantDetailsScreen = ({
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const detailTabs = useMemo(
     () => [
       {
@@ -251,9 +252,11 @@ export const RestaurantDetailsScreen = ({
 
   const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
 
-  useEffect(() => {
-    dispatch(fetchCartThunk(branch.branchId));
-  }, [dispatch, branch.branchId]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchCartThunk(branch.branchId));
+    }, [dispatch, branch.branchId])
+  );
 
   useEffect(() => {
     const { getBranchTier } = getLowcaAPIUnimplementedEndpoints();
@@ -619,9 +622,10 @@ export const RestaurantDetailsScreen = ({
                   displayName={nearbyDisplayName}
                   imageUri={b.dishes[0]?.imageUrl}
                   onPress={() =>
-                    navigation.navigate('RestaurantDetails', {
+                    navigation.push('RestaurantDetails', {
                       branch: b,
                       displayName: nearbyDisplayName,
+                      tab: 'menu',
                     })
                   }
                 />
