@@ -84,7 +84,7 @@ export default tseslint.config(
             // },
             {
               target: './src/features',
-              from: './src/app',
+              from: ['./src/apps/customer', './src/apps/manager'],
             },
             {
               target: [
@@ -93,8 +93,13 @@ export default tseslint.config(
                 './src/utils',
                 './src/config',
                 './src/constants',
+                './src/screens',
               ],
-              from: ['./src/features', './src/app'],
+              from: [
+                './src/features',
+                './src/apps/customer',
+                './src/apps/manager',
+              ],
             },
           ],
         },

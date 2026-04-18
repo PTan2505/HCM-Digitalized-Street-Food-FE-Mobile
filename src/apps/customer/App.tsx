@@ -1,6 +1,6 @@
-import { CustomTheme } from '@app/navigation/customNavigationTheme';
-import { Navigation } from '@app/navigation/stackNavigator';
-import { AppProvider, AppSplashGate } from '@app/provider';
+import { CustomTheme } from '@customer-app/navigation/customNavigationTheme';
+import { Navigation } from '@customer-app/navigation/stackNavigator';
+import { AppProvider, AppSplashGate } from '@customer-app/provider';
 import {
   Nunito_300Light,
   Nunito_400Regular,

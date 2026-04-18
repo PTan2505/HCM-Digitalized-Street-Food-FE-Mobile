@@ -1,10 +1,11 @@
-import App from '@app/App';
 import { registerRootComponent } from 'expo';
 import './index.css';
 import './ReactotronConfig';
 import './src/utils/i18n';
+import CustomerApp from './src/apps/customer/App';
+import ManagerApp from './src/apps/manager/App';
+import { isManagerApp } from './src/utils/appVariant';
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
+const App = isManagerApp ? ManagerApp : CustomerApp;
+
 registerRootComponent(App);

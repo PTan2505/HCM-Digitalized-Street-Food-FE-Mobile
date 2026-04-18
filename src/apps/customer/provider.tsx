@@ -1,4 +1,4 @@
-import { store } from '@app/store';
+import { store } from '@customer-app/store';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/campaigns/api/generated';
 import { NotificationHandler } from '@features/notifications/NotificationHandler';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -16,7 +16,7 @@ import * as React from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
-import LottieSplashScreen from '../screens/LottieSplashScreen';
+import LottieSplashScreen from '@screens/LottieSplashScreen';
 
 const campaignApi = getLowcaAPIUnimplementedEndpoints();
 

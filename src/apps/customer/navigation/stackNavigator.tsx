@@ -1,4 +1,4 @@
-import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
 import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';

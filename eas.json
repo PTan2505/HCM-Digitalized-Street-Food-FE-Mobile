@@ -4,22 +4,79 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "customer:development": {
+      "developmentClient": true,
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "NODE_ENV": "development",
+        "APP_VARIANT": "customer"
+      }
+    },
+    "customer:preview": {
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "customer"
+      }
+    },
+    "customer:production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "customer"
+      }
+    },
+    "manager:development": {
+      "developmentClient": true,
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "NODE_ENV": "development",
+        "APP_VARIANT": "manager"
+      }
+    },
+    "manager:preview": {
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "manager"
+      }
+    },
+    "manager:production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "manager"
+      }
+    },
     "development": {
       "developmentClient": true,
       "ios": {
         "simulator": true
       },
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "APP_VARIANT": "customer"
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "customer"
+      }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "customer"
       }
     }
   },

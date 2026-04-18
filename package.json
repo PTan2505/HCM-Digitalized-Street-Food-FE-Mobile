@@ -16,10 +16,19 @@
     "check:bundle": "expo export -p ios --no-bytecode --output-dir dist-check && expo export -p android --no-bytecode --output-dir dist-check",
     "generate": "orval",
     "strip-ios-push": "node -e \"const fs=require('fs'),p='ios/Lowca/Lowca.entitlements';if(fs.existsSync(p)){const c=fs.readFileSync(p,'utf8').replace(/\\s*<key>aps-environment<\\/key>\\s*<string>[^<]*<\\/string>/g,'');fs.writeFileSync(p,c);console.log('Stripped aps-environment from entitlements')}\"",
+    "strip-ios-push:manager": "node -e \"const fs=require('fs'),p='ios/LowcaManager/LowcaManager.entitlements';if(fs.existsSync(p)){const c=fs.readFileSync(p,'utf8').replace(/\\s*<key>aps-environment<\\/key>\\s*<string>[^<]*<\\/string>/g,'');fs.writeFileSync(p,c);console.log('Stripped aps-environment from manager entitlements')}\"",
     "prebuild:ios": "expo prebuild --platform ios --clean && bun run strip-ios-push",
     "prebuild:android": "expo prebuild --platform android --clean",
     "build:android": "bun run prebuild:android && eas build --platform android --profile development --local",
-    "build:ios": "bun run prebuild:ios && eas build --platform ios --profile development --local"
+    "build:ios": "bun run prebuild:ios && eas build --platform ios --profile development --local",
+    "prebuild:manager:android": "APP_VARIANT=manager expo prebuild --platform android --clean",
+    "prebuild:manager:ios": "APP_VARIANT=manager expo prebuild --platform ios --clean && bun run strip-ios-push:manager",
+    "build:manager:android": "bun run prebuild:manager:android && APP_VARIANT=manager eas build --platform android --profile manager:development --local",
+    "build:manager:ios": "bun run prebuild:manager:ios && APP_VARIANT=manager eas build --platform ios --profile manager:development --local",
+    "ios:device": "bun run prebuild:ios && expo run:ios --device",
+    "manager:android": "bun run prebuild:manager:android && APP_VARIANT=manager expo run:android",
+    "manager:ios": "bun run prebuild:manager:ios && APP_VARIANT=manager expo run:ios",
+    "manager:ios:device": "bun run prebuild:manager:ios && APP_VARIANT=manager expo run:ios --device"
   },
   "dependencies": {
     "@expo-google-fonts/nunito": "^0.4.2",

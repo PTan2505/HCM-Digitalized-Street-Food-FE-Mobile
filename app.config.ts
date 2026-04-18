@@ -1,10 +1,15 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+const variant = process.env.APP_VARIANT ?? 'customer';
+const isManager = variant === 'manager';
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Lowca',
-  scheme: 'lowca',
-  slug: 'hcm-digitalized-street-food-fe-mobile',
+  name: isManager ? 'Lowca Manager' : 'Lowca',
+  scheme: isManager ? 'lowca-manager' : 'lowca',
+  slug: isManager
+    ? 'hcm-digitalized-street-food-fe-mobile-manager'
+    : 'hcm-digitalized-street-food-fe-mobile',
   version: '1.0.0',
   owner: 'street-food',
   orientation: 'portrait',
@@ -19,7 +24,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.hcmstreetfood.mobile',
+    bundleIdentifier: isManager
+      ? 'com.hcmstreetfood.manager'
+      : 'com.hcmstreetfood.mobile',
     icon: './assets/ios-light.png',
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
@@ -38,9 +45,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: 'com.hcmstreetfood.mobile',
-    googleServicesFile:
-      process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
+    package: isManager
+      ? 'com.hcmstreetfood.manager'
+      : 'com.hcmstreetfood.mobile',
+    googleServicesFile: isManager
+      ? (process.env.GOOGLE_SERVICES_JSON_MANAGER ??
+        './google-services-manager.json')
+      : (process.env.GOOGLE_SERVICES_JSON ?? './google-services.json'),
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       monochromeImage: './assets/adaptive-icon.png',
@@ -56,36 +67,42 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'RECEIVE_BOOT_COMPLETED',
       'VIBRATE',
     ],
-    intentFilters: [
-      {
-        action: 'VIEW',
-        autoVerify: true,
-        data: [
+    intentFilters: isManager
+      ? []
+      : [
           {
-            scheme: 'https',
-            host: 'lowca-seven.vercel.app',
-            pathPrefix: '/',
+            action: 'VIEW',
+            autoVerify: true,
+            data: [
+              {
+                scheme: 'https',
+                host: 'lowca-seven.vercel.app',
+                pathPrefix: '/',
+              },
+            ],
+            category: ['BROWSABLE', 'DEFAULT'],
           },
         ],
-        category: ['BROWSABLE', 'DEFAULT'],
-      },
-    ],
   },
   web: {
     favicon: './assets/favicon.png',
     bundler: 'metro',
   },
   extra: {
+    appVariant: variant,
     eas: {
-      projectId: 'fc2233e3-5c88-40b1-9ee2-e576aa043330',
+      projectId: isManager
+        ? 'a3799062-c31f-47b5-ad2b-a387d0179f1b'
+        : 'fc2233e3-5c88-40b1-9ee2-e576aa043330',
     },
   },
   plugins: [
     [
       '@react-native-google-signin/google-signin',
       {
-        iosUrlScheme:
-          'com.googleusercontent.apps.1007238627252-i94s152d100nfooh48athhbg3lp101s4',
+        iosUrlScheme: isManager
+          ? 'com.googleusercontent.apps.1007238627252-udfele2m575qjei21vdpr0vanabkg677'
+          : 'com.googleusercontent.apps.1007238627252-i94s152d100nfooh48athhbg3lp101s4',
       },
     ],
     [
@@ -93,7 +110,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         appID: '702936619420508',
         clientToken: 'b729db072cd18408c9596df88868a408',
-        displayName: 'Street Food HCM',
+        displayName: isManager ? 'Street Food HCM Manager' : 'Street Food HCM',
         scheme: 'fb702936619420508',
         advertiserIDCollectionEnabled: false,
         autoLogAppEventsEnabled: false,

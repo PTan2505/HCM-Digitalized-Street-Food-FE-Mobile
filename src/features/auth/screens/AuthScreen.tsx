@@ -9,6 +9,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { OTPForm } from '@features/auth/components/OTPForm';
 import useLogin from '@features/auth/hooks/useLogin';
 import { useAppSelector } from '@hooks/reduxHooks';
+import { isManagerApp } from '@utils/appVariant';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -50,7 +51,9 @@ export const AuthScreen = (): JSX.Element => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      iosClientId: isManagerApp
+        ? process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID_MANAGER
+        : process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
       offlineAccess: true,
     });
@@ -59,7 +62,7 @@ export const AuthScreen = (): JSX.Element => {
   // Navigate to Main if user is already logged in
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
-      navigation.replace('Main');
+      navigation.replace(isManagerApp ? 'Notifications' : 'Main');
     }
   }, [user, userStatus, navigation]);
 
@@ -71,6 +74,7 @@ export const AuthScreen = (): JSX.Element => {
       if (err?.code === 'CANCELLED') {
         console.log(err);
       } else {
+        console.error('[GoogleLogin] error code:', err?.code, 'message:', err?.message, 'raw:', JSON.stringify(error));
         Alert.alert(t('auth.error'), t('auth.google_login_failed'));
       }
     }
