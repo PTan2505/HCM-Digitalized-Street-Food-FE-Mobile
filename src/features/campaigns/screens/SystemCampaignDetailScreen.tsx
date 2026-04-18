@@ -5,6 +5,8 @@ import { useCampaignQuest } from '@features/campaigns/hooks/useCampaignQuests';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { Voucher } from '@slices/campaigns';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';
@@ -83,7 +85,8 @@ export const SystemCampaignDetailScreen = ({
   route,
 }: SystemCampaignDetailScreenProps): JSX.Element => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { campaignId } = route.params;
 
   const { systemCampaigns } = useSystemCampaigns();
@@ -159,6 +162,7 @@ export const SystemCampaignDetailScreen = ({
         title?: string;
         subtitle?: string;
         extra?: string;
+        voucherData?: Voucher;
       }
     >
   >({});
@@ -199,6 +203,24 @@ export const SystemCampaignDetailScreen = ({
               const discount = isPercent
                 ? `${t('quest.reward.voucherOff')} ${voucher.discountValue}%`
                 : `${t('quest.reward.voucherOff')} ${voucher.discountValue.toLocaleString('vi-VN')}đ`;
+              const voucherData: Voucher = {
+                userVoucherId: 0,
+                voucherId: voucher.voucherId,
+                voucherCode: '',
+                voucherName: voucher.name,
+                description: null,
+                voucherType: voucher.type,
+                discountValue: voucher.discountValue,
+                minAmountRequired: null,
+                maxDiscountValue: voucher.maxDiscountValue,
+                startDate: null,
+                endDate: null,
+                expiredDate: null,
+                isActive: true,
+                campaignId: Number(campaignId),
+                quantity: item.quantity,
+                isAvailable: true,
+              };
               return [
                 item.id,
                 {
@@ -207,8 +229,17 @@ export const SystemCampaignDetailScreen = ({
                   extra: t('quest.reward.voucherRemain', {
                     count: voucher.remain,
                   }),
+                  voucherData,
                 },
-              ] as const;
+              ] as [
+                string,
+                {
+                  title: string;
+                  subtitle: string;
+                  extra: string;
+                  voucherData: Voucher;
+                },
+              ];
             } catch {
               return [item.id, {}] as const;
             }
@@ -228,7 +259,7 @@ export const SystemCampaignDetailScreen = ({
     return (): void => {
       isCancelled = true;
     };
-  }, [rewardItems, t]);
+  }, [rewardItems, t, campaignId]);
 
   if (!campaign) {
     return (
@@ -399,72 +430,108 @@ export const SystemCampaignDetailScreen = ({
                       ? t('quest.reward.voucher')
                       : t('quest.reward.points');
 
+                const cardStyle = {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
+                };
+
+                const cardInner = (
+                  <View className="flex-row items-start">
+                    <View
+                      className={`rounded-xl p-2.5 ${rewardUI.bgClassName}`}
+                    >
+                      <Ionicons
+                        name={rewardUI.icon}
+                        size={18}
+                        color={rewardUI.iconColor}
+                      />
+                    </View>
+
+                    <View className="ml-3 flex-1">
+                      <View
+                        className={`self-start rounded-full px-2.5 py-0.5 ${rewardUI.bgClassName}`}
+                      >
+                        <Text
+                          className={`text-xs font-semibold uppercase ${rewardUI.textClassName}`}
+                        >
+                          {rewardTypeLabel}
+                        </Text>
+                      </View>
+
+                      <Text
+                        className="mt-1 text-base font-bold text-gray-900"
+                        numberOfLines={2}
+                      >
+                        {rewardTitle}{' '}
+                        {item.rewardType === 'VOUCHER' && item.quantity > 1 ? (
+                          <Text className="mt-0.5 text-sm font-medium text-gray-600">
+                            x{item.quantity}
+                          </Text>
+                        ) : null}
+                      </Text>
+
+                      {rewardDetail?.subtitle ? (
+                        <Text
+                          className="mt-1 text-sm text-gray-600"
+                          numberOfLines={1}
+                        >
+                          {rewardDetail.subtitle}
+                        </Text>
+                      ) : null}
+
+                      {rewardDetail?.extra ? (
+                        <Text
+                          className="mt-0.5 text-sm font-medium text-gray-500"
+                          numberOfLines={1}
+                        >
+                          {rewardDetail.extra}
+                        </Text>
+                      ) : null}
+                    </View>
+
+                    {item.rewardType === 'VOUCHER' &&
+                    rewardDetail?.voucherData ? (
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color="#9CA3AF"
+                        style={{ alignSelf: 'center' }}
+                      />
+                    ) : null}
+                  </View>
+                );
+
+                if (
+                  item.rewardType === 'VOUCHER' &&
+                  rewardDetail?.voucherData
+                ) {
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      activeOpacity={0.7}
+                      className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3"
+                      style={cardStyle}
+                      onPress={() =>
+                        navigation.navigate('VoucherApplicableBranches', {
+                          voucher: rewardDetail.voucherData!,
+                        })
+                      }
+                    >
+                      {cardInner}
+                    </TouchableOpacity>
+                  );
+                }
+
                 return (
                   <View
                     key={item.id}
                     className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3"
-                    style={{
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.05,
-                      shadowRadius: 8,
-                      elevation: 2,
-                    }}
+                    style={cardStyle}
                   >
-                    <View className="flex-row items-start">
-                      <View
-                        className={`rounded-xl p-2.5 ${rewardUI.bgClassName}`}
-                      >
-                        <Ionicons
-                          name={rewardUI.icon}
-                          size={18}
-                          color={rewardUI.iconColor}
-                        />
-                      </View>
-
-                      <View className="ml-3 flex-1">
-                        <View
-                          className={`self-start rounded-full px-2.5 py-0.5 ${rewardUI.bgClassName}`}
-                        >
-                          <Text
-                            className={`text-xs font-semibold uppercase ${rewardUI.textClassName}`}
-                          >
-                            {rewardTypeLabel}
-                          </Text>
-                        </View>
-
-                        <Text
-                          className="mt-1 text-base font-bold text-gray-900"
-                          numberOfLines={2}
-                        >
-                          {rewardTitle}{' '}
-                          {item.rewardType === 'VOUCHER' &&
-                          item.quantity > 1 ? (
-                            <Text className="mt-0.5 text-sm font-medium text-gray-600">
-                              x{item.quantity}
-                            </Text>
-                          ) : null}
-                        </Text>
-
-                        {rewardDetail?.subtitle ? (
-                          <Text
-                            className="mt-1 text-sm text-gray-600"
-                            numberOfLines={1}
-                          >
-                            {rewardDetail.subtitle}
-                          </Text>
-                        ) : null}
-
-                        {rewardDetail?.extra ? (
-                          <Text
-                            className="mt-0.5 text-sm font-medium text-gray-500"
-                            numberOfLines={1}
-                          >
-                            {rewardDetail.extra}
-                          </Text>
-                        ) : null}
-                      </View>
-                    </View>
+                    {cardInner}
                   </View>
                 );
               })}

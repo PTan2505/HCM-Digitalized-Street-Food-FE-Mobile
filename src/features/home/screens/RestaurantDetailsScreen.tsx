@@ -104,7 +104,8 @@ export const RestaurantDetailsScreen = ({
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
   const { t } = useTranslation();
-  const navigation = useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const detailTabs = useMemo(
     () => [
       {
