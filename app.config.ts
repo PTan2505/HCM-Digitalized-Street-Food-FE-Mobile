@@ -27,7 +27,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: isManager
       ? 'com.hcmstreetfood.manager'
       : 'com.hcmstreetfood.mobile',
-    icon: './assets/ios-light.png',
+    icon: isManager
+      ? './assets/ios-light-manager.png'
+      : './assets/ios-light.png',
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'Allow Lowca to access your location to show nearby street food vendors.',
