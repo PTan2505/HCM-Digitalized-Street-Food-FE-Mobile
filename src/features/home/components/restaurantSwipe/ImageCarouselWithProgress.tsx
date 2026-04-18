@@ -2,14 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
 import { useRef } from 'react';
 import { Dimensions, Image, View } from 'react-native';
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
+import { useSharedValue } from 'react-native-reanimated';
 import Carousel, {
+  Pagination,
   type ICarouselInstance,
 } from 'react-native-reanimated-carousel';
 
@@ -56,54 +51,30 @@ const ImageCarouselWithProgress = ({
           </View>
         )}
       />
-      {/* Progress Indicator Bar at Top */}
-      <View className="absolute left-0 right-0 top-20 flex-row gap-1 px-3">
-        {images.map((_, index) => {
-          return (
-            <PaginationItem
-              key={index}
-              index={index}
-              length={images.length}
-              animValue={progress}
-            />
-          );
-        })}
+      <View className="absolute bottom-3 w-full items-center">
+        <Pagination.Basic
+          progress={progress}
+          data={images}
+          size={10}
+          dotStyle={{
+            borderRadius: 100,
+            backgroundColor: '#262626',
+          }}
+          activeDotStyle={{
+            borderRadius: 100,
+            overflow: 'hidden',
+            backgroundColor: '#f1f1f1',
+          }}
+          containerStyle={[
+            {
+              gap: 5,
+              marginBottom: 10,
+            },
+          ]}
+          horizontal
+        />
       </View>
     </View>
-  );
-};
-
-const PaginationItem: React.FC<{
-  index: number;
-  length: number;
-  animValue: SharedValue<number>;
-}> = ({ index, length, animValue }) => {
-  const animStyle = useAnimatedStyle(() => {
-    let inputRange = [index - 1, index, index + 1];
-    let outputRange = [0.3, 1, 0.3];
-
-    if (index === 0 && animValue?.value > length - 1) {
-      inputRange = [length - 1, length, length + 1];
-      outputRange = [0.3, 1, 0.3];
-    }
-
-    return {
-      opacity: interpolate(
-        animValue?.value,
-        inputRange,
-        outputRange,
-        Extrapolation.CLAMP
-      ),
-    };
-  }, [animValue, index, length]);
-
-  return (
-    <Animated.View
-      className="h-1 flex-1 overflow-hidden rounded-full bg-white/40"
-      style={[animStyle]}
-    >
-      <Animated.View className="h-full w-full rounded-full bg-white" />
-    </Animated.View>
   );
 };
 

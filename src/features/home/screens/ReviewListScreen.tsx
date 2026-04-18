@@ -217,6 +217,7 @@ export const ReviewListScreen = ({
         upVotes: item.upVotes,
         downVotes: item.downVotes,
         userVote: item.userVote,
+        vendorName: displayName,
         vendorReply: item.vendorReply
           ? {
               content: item.vendorReply.content,
@@ -225,7 +226,7 @@ export const ReviewListScreen = ({
             }
           : undefined,
       })),
-    [reviews, ownFeedback?.id, t]
+    [reviews, ownFeedback?.id, t, displayName]
   );
 
   const renderReviewItem = useCallback(

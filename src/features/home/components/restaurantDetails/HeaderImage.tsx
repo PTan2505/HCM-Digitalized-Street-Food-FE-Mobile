@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
-import { Dimensions, Image, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
+import { Dimensions, Image, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 

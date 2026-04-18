@@ -143,7 +143,7 @@ export const RestaurantSwipeScreen = ({
               onRatingUpdate={handleRatingUpdate}
             />
           </View>
-          {similarBranches.length > 0 && <SwipeUpPrompt />}
+          {<SwipeUpPrompt />}
           <View className="px-0 pb-8">
             {similarBranches.length === 0 && !isFetchingNextPage && (
               <View className="items-center py-12">
