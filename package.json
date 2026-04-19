@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "expo start",
+    "start:manager": "APP_VARIANT=manager expo start --scheme lowca-manager",
+    "start:customer": "expo start --scheme lowca",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",

@@ -1,5 +1,6 @@
 import { AxiosApiService } from '@config/axiosApiService';
 import { LoginApi } from '@features/auth/api/loginApi';
+import { ManagerBranchApi } from '@features/manager/api/managerBranchApi';
 import { VoucherApi } from '@features/campaigns/api/voucherApi';
 import {
   CartApi,
@@ -46,4 +47,5 @@ export const axiosApi = {
   questApi: new QuestApi(axiosClient),
   voucherApi: new VoucherApi(axiosClient),
   userPaymentApi: new UserPaymentApi(axiosClient),
+  managerBranchApi: new ManagerBranchApi(axiosClient),
 };

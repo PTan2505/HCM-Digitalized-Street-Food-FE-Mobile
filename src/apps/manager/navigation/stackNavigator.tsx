@@ -1,10 +1,10 @@
+import { ManagerHomeScreen } from '@manager/screens/ManagerHomeScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useManagerSelector } from '@manager-app/managerHooks';
 import { createStaticNavigation, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { selectUser } from '@slices/auth';
 import { navigationRef } from '@utils/navigationRef';
+import React from 'react';
 
 const ManagerRootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
@@ -13,18 +13,11 @@ const ManagerRootStack = createNativeStackNavigator({
     Auth: {
       screen: AuthScreen,
     },
-    Notifications: {
-      screen: NotificationScreen,
-      linking: 'notifications',
+    ManagerHome: {
+      screen: ManagerHomeScreen,
     },
-    // TODO: add manager screens here
   },
 });
-
-// Manager routes are merged into the shared global RootParamList via
-// the customer stackNavigator's declaration. Do NOT add a second global
-// declaration here — it would conflict with the customer's augmentation
-// since both files share the same TypeScript compilation.
 
 const StaticNavigation = createStaticNavigation(ManagerRootStack);
 
@@ -33,15 +26,16 @@ export function ManagerNavigation({
 }: {
   theme: Theme;
 }): React.JSX.Element {
-  const user = useAppSelector(selectUser);
+  const user = useManagerSelector((state) => state.user.value);
 
   return (
     <StaticNavigation
-      ref={navigationRef}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ref={navigationRef as any}
       theme={theme}
       initialState={{
         index: 0,
-        routes: [{ name: user !== null ? 'Notifications' : 'Auth' }],
+        routes: [{ name: user !== null ? 'ManagerHome' : 'Auth' }],
       }}
       linking={{
         prefixes: ['lowca-manager://'],

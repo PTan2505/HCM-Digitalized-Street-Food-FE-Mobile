@@ -252,7 +252,8 @@
     "resend_code_after": "Gửi lại mã sau",
     "resend_code": "Gửi lại mã",
     "confirm": "Xác nhận",
-    "confirming": "Đang xác nhận..."
+    "confirming": "Đang xác nhận...",
+    "manager_access_denied": "Tài khoản này không có quyền truy cập quản lý"
   },
   "validation": {
     "required": "Trường này là bắt buộc!",
@@ -719,5 +720,14 @@
   "voucher": {
     "discount": "Giảm giá",
     "min_order": "Đơn tối thiểu"
+  },
+  "manager_login": {
+    "title": "Đăng nhập quản lý",
+    "subtitle": "Nhập số điện thoại của bạn để nhận mã OTP",
+    "verify_title": "Xác nhận OTP",
+    "verify_subtitle": "Nhập mã OTP đã được gửi đến",
+    "error": "Lỗi",
+    "error_generic": "Đã xảy ra lỗi, vui lòng thử lại",
+    "access_denied": "Tài khoản này không có quyền truy cập quản lý"
   }
 }

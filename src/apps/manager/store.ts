@@ -5,13 +5,12 @@ import branchesReducer from '@slices/branches';
 import campaignsReducer from '@slices/campaigns';
 import dietaryReducer from '@slices/dietary';
 import directOrderingReducer from '@slices/directOrdering';
+import managerAuthReducer from '@slices/managerAuth';
 import notificationsReducer from '@slices/notifications';
 import questsReducer from '@slices/quests';
 import tastesReducer from '@slices/tastes';
 import vendorsReducer from '@slices/vendors';
 
-// Same reducer shape as customer so shared selectors and hooks stay compatible.
-// Manager-specific slices can be added here as the feature grows.
 const rootReducer = combineReducers({
   user: authReducer,
   dietary: dietaryReducer,
@@ -22,6 +21,7 @@ const rootReducer = combineReducers({
   notifications: notificationsReducer,
   campaigns: campaignsReducer,
   quests: questsReducer,
+  managerAuth: managerAuthReducer,
 });
 
 export const managerStore = configureStore({

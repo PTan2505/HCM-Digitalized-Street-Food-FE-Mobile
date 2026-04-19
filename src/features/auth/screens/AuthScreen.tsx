@@ -4,16 +4,17 @@ import GoogleLogo from '@assets/logos/googleLogo.svg';
 import lowcaLogo from '@assets/logos/lowcaLogo.svg';
 import { LoginForm } from '@auth/components/LoginForm';
 import SvgIcon from '@components/SvgIcon';
+import { ROLES } from '@constants/roles';
 import { APIErrorResponse } from '@custom-types/apiResponse';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { OTPForm } from '@features/auth/components/OTPForm';
 import useLogin from '@features/auth/hooks/useLogin';
 import { useAppSelector } from '@hooks/reduxHooks';
-import { isManagerApp } from '@utils/appVariant';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
+import { isManagerApp } from '@utils/appVariant';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -59,10 +60,18 @@ export const AuthScreen = (): JSX.Element => {
     });
   }, []);
 
-  // Navigate to Main if user is already logged in
+  // Navigate after auth state resolves
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
-      navigation.replace(isManagerApp ? 'Notifications' : 'Main');
+      if (!isManagerApp) {
+        navigation.replace('Main');
+        return;
+      }
+      if (user.role === ROLES.MANAGER) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (navigation as any).replace('ManagerHome');
+      }
+      // Non-manager in manager app: useManagerRoleGate handles logout + alert
     }
   }, [user, userStatus, navigation]);
 
@@ -70,11 +79,14 @@ export const AuthScreen = (): JSX.Element => {
     try {
       await onGoogleLoginSubmit();
     } catch (error) {
-      const err = error as APIErrorResponse; // Assert the type here
-      if (err?.code === 'CANCELLED') {
-        console.log(err);
-      } else {
-        console.error('[GoogleLogin] error code:', err?.code, 'message:', err?.message, 'raw:', JSON.stringify(error));
+      const err = error as APIErrorResponse;
+      const msg = err?.message ?? '';
+      const isCancelled =
+        err?.code === 'CANCELLED' ||
+        msg.includes('No ID token') ||
+        msg.includes('cancelled') ||
+        msg.includes('canceled');
+      if (!isCancelled) {
         Alert.alert(t('auth.error'), t('auth.google_login_failed'));
       }
     }

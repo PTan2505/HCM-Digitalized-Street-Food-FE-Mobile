@@ -1,7 +1,10 @@
 import { managerStore } from '@manager-app/store';
-import { NotificationHandler } from '@features/notifications/NotificationHandler';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { loadUserFromStorage, selectUserStatus } from '@slices/auth';
+import {
+  useManagerDispatch,
+  useManagerSelector,
+} from '@manager-app/managerHooks';
+import { useManagerRoleGate } from '@manager/hooks/useManagerRoleGate';
+import { loadUserFromStorage } from '@slices/auth';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { Provider } from 'react-redux';
@@ -12,8 +15,8 @@ function ManagerAppInitializer({
 }: {
   children: React.ReactNode;
 }): React.JSX.Element {
-  const dispatch = useAppDispatch();
-  const userStatus = useAppSelector(selectUserStatus);
+  const dispatch = useManagerDispatch();
+  const userStatus = useManagerSelector((state) => state.user.status);
 
   useEffect(() => {
     if (userStatus === 'idle') {
@@ -21,12 +24,9 @@ function ManagerAppInitializer({
     }
   }, [dispatch, userStatus]);
 
-  return (
-    <>
-      <NotificationHandler />
-      {children}
-    </>
-  );
+  useManagerRoleGate();
+
+  return <>{children}</>;
 }
 
 export function ManagerAppProvider({

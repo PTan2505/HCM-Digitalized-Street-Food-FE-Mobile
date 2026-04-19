@@ -252,7 +252,8 @@
     "resend_code_after": "Resend code after",
     "resend_code": "Resend code",
     "confirm": "Confirm",
-    "confirming": "Confirming..."
+    "confirming": "Confirming...",
+    "manager_access_denied": "This account does not have manager access"
   },
   "validation": {
     "required": "This field is required!",
@@ -719,5 +720,14 @@
   "voucher": {
     "discount": "Discount",
     "min_order": "Minimum order"
+  },
+  "manager_login": {
+    "title": "Manager Login",
+    "subtitle": "Enter your phone number to receive an OTP",
+    "verify_title": "Verify OTP",
+    "verify_subtitle": "Enter the OTP sent to",
+    "error": "Error",
+    "error_generic": "Something went wrong, please try again",
+    "access_denied": "This account does not have manager access"
   }
 }
