@@ -11,6 +11,7 @@ export interface User {
   tierId?: number;
   createdAt?: string;
   emailVerified?: boolean;
+  phoneNumberVerified?: boolean;
   phoneNumber?: string | null;
   userInfoSetup?: boolean;
   dietarySetup?: boolean;

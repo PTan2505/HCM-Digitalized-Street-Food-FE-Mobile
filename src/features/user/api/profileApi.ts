@@ -2,6 +2,16 @@ import type { User } from '@custom-types/user';
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 
+export interface ContactVerificationResponse {
+  message: string;
+  channels: string[];
+}
+
+export interface VerifyOtpResponse {
+  message: string;
+  channel: string;
+}
+
 export class UserProfileApi {
   private apiClient: ApiClient;
 
@@ -20,6 +30,21 @@ export class UserProfileApi {
     const res = await this.apiClient.put<User, Partial<User>>({
       url: apiUrl.user.profile,
       data,
+    });
+    return res.data;
+  }
+
+  async startContactVerification(): Promise<ContactVerificationResponse> {
+    const res = await this.apiClient.post<ContactVerificationResponse, null>({
+      url: apiUrl.auth.contactVerification,
+    });
+    return res.data;
+  }
+
+  async verifyContactOtp(otp: string): Promise<VerifyOtpResponse> {
+    const res = await this.apiClient.post<VerifyOtpResponse, { otp: string }>({
+      url: apiUrl.user.verifyOtp,
+      data: { otp },
     });
     return res.data;
   }
