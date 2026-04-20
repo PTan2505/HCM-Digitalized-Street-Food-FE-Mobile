@@ -1,41 +1,20 @@
+import type {
+  AutocompletePrediction,
+  ForwardGeocodeResult,
+  PlaceDetailResult,
+  ReverseGeocodeResult,
+} from '@custom-types/geocoding';
 import axios from 'axios';
+
+export type {
+  AutocompletePrediction,
+  ForwardGeocodeResult,
+  PlaceDetailResult,
+  ReverseGeocodeResult,
+};
 
 const API_KEY = process.env.EXPO_PUBLIC_OPENMAP_API_KEY ?? '';
 const BASE = 'https://mapapis.openmap.vn/v1';
-
-// ── Types ──
-
-export interface AutocompletePrediction {
-  description: string;
-  placeId: string;
-  mainText: string;
-  secondaryText: string;
-}
-
-export interface ReverseGeocodeResult {
-  address: string;
-  formattedAddress: string;
-  name: string;
-  placeId: string;
-  lat: number;
-  lng: number;
-}
-
-export interface ForwardGeocodeResult {
-  address: string;
-  lat: number;
-  lng: number;
-}
-
-export interface PlaceDetailResult {
-  formattedAddress: string;
-  name: string;
-  addressDetail: string;
-  ward: string;
-  city: string;
-  lat: number;
-  lng: number;
-}
 
 // ── Autocomplete ──
 

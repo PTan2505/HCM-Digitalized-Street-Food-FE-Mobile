@@ -49,11 +49,12 @@ export class BranchApi {
   async getBranchesByVendor(
     vendorId: number,
     pageNumber = 1,
-    pageSize = 10
+    pageSize = 10,
+    onlyActive = true
   ): Promise<PaginatedBranches> {
     const res = await this.apiClient.get<PaginatedBranches>({
       url: `${apiUrl.branch.byVendor}/${vendorId}`,
-      params: { pageNumber, pageSize },
+      params: { pageNumber, pageSize, onlyActive },
     });
     return res.data;
   }

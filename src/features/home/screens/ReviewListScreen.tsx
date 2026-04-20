@@ -19,6 +19,7 @@ import ReviewCard from '@features/home/components/restaurantDetails/ReviewCard';
 import type { Review } from '@features/home/components/restaurantDetails/ReviewCard';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
+import { useCompletedOrdersForBranch } from '@features/home/hooks/useCompletedOrdersForBranch';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
 import { useReviewEligibility } from '@features/home/hooks/useReviewEligibility';
 import type { ReviewSortBy } from '@features/home/hooks/useReviewList';
@@ -36,7 +37,6 @@ type ReviewListScreenProps = StaticScreenProps<{
   branchId: number;
   displayName: string;
   ownFeedbackId?: number;
-  dishes: import('@features/home/types/branch').Dish[];
   branchLat: number;
   branchLong: number;
 }>;
@@ -50,15 +50,16 @@ const SORT_OPTIONS: ReviewSortBy[] = [
 
 const INELIGIBILITY_MESSAGES: Record<string, string> = {
   permission_denied: 'Cần quyền truy cập vị trí để đánh giá',
-  too_far: 'Bạn cần ở gần quán hơn để đánh giá',
-  daily_limit_reached: 'Bạn đã đánh giá đủ số lần cho phép hôm nay',
-  already_reviewed_today: 'Bạn đã đánh giá quán này hôm nay',
+  too_far: 'Bạn cần ở gần quán hơn để đánh giá (tối đa 300m)',
+  daily_limit_reached: 'Bạn đã đánh giá đủ số quán cho phép hôm nay',
+  already_reviewed_branch:
+    'Mỗi quán chỉ được đánh giá 1 lần khi không có đơn hàng',
 };
 
 export const ReviewListScreen = ({
   route,
 }: ReviewListScreenProps): JSX.Element => {
-  const { branchId, displayName, dishes, branchLat, branchLong } = route.params;
+  const { branchId, displayName, branchLat, branchLong } = route.params;
   const navigation = useNavigation();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -87,12 +88,21 @@ export const ReviewListScreen = ({
   // Fetch own feedback for editing
   const { ownFeedback, setOwnFeedback } = useOwnBranchFeedback(branchId);
 
-  // Check if user can create a review
+  // Completed orders → order-based review path
+  const {
+    hasCompletedOrders,
+    firstOrderId,
+    isLoading: isOrdersLoading,
+  } = useCompletedOrdersForBranch(branchId);
+
+  // Check if user can create a non-order review
   const {
     canReview,
     reason: reviewIneligibilityReason,
     isLoading: isEligibilityLoading,
-  } = useReviewEligibility(branchId, branchLat, branchLong);
+    userLat,
+    userLong,
+  } = useReviewEligibility(branchId, branchLat, branchLong, hasCompletedOrders);
 
   // Fetch reviews with pagination
   const {
@@ -207,6 +217,7 @@ export const ReviewListScreen = ({
         upVotes: item.upVotes,
         downVotes: item.downVotes,
         userVote: item.userVote,
+        vendorName: displayName,
         vendorReply: item.vendorReply
           ? {
               content: item.vendorReply.content,
@@ -215,7 +226,7 @@ export const ReviewListScreen = ({
             }
           : undefined,
       })),
-    [reviews, ownFeedback?.id, t]
+    [reviews, ownFeedback?.id, t, displayName]
   );
 
   const renderReviewItem = useCallback(
@@ -265,8 +276,8 @@ export const ReviewListScreen = ({
     [t]
   );
 
-  // Check if user can write review (no existing review AND eligible)
-  const canWriteReview = !ownFeedback && canReview;
+  // Can write review when: has completed orders (order path) OR eligible non-order path
+  const canWriteReview = hasCompletedOrders || (!ownFeedback && canReview);
 
   if (error) {
     return (
@@ -349,19 +360,21 @@ export const ReviewListScreen = ({
         />
       )}
 
-      {/* Write Review Button */}
-      {!ownFeedback && (
+      {/* Write Review Button — visible for order path OR when no review yet */}
+      {(hasCompletedOrders || !ownFeedback) && (
         <View className="absolute bottom-6 left-4 right-4">
           <TouchableOpacity
             onPress={handleWriteReview}
-            disabled={!canWriteReview || isEligibilityLoading}
+            disabled={
+              !canWriteReview || isEligibilityLoading || isOrdersLoading
+            }
             className={`items-center rounded-xl py-4 shadow-lg ${
-              canWriteReview && !isEligibilityLoading
+              canWriteReview && !isEligibilityLoading && !isOrdersLoading
                 ? 'bg-primary'
                 : 'bg-gray-200'
             }`}
           >
-            {isEligibilityLoading ? (
+            {isEligibilityLoading || isOrdersLoading ? (
               <ActivityIndicator size="small" color={COLORS.primaryLight} />
             ) : (
               <Text
@@ -375,6 +388,7 @@ export const ReviewListScreen = ({
           </TouchableOpacity>
           {!canWriteReview &&
             !isEligibilityLoading &&
+            !isOrdersLoading &&
             reviewIneligibilityReason &&
             reviewIneligibilityReason !== 'loading' && (
               <Text className="mt-2 text-center text-sm text-gray-500">
@@ -444,8 +458,12 @@ export const ReviewListScreen = ({
       <ReviewFormModal
         visible={showReviewModal}
         branchId={branchId}
-        dishes={dishes}
         existingFeedback={editingFeedback}
+        orderId={
+          editingFeedback == null && hasCompletedOrders ? firstOrderId : null
+        }
+        userLat={userLat}
+        userLong={userLong}
         onClose={(): void => setShowReviewModal(false)}
         onSuccess={handleReviewSuccess}
       />

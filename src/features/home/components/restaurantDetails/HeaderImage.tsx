@@ -1,6 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { JSX } from 'react';
-import { View, Image, Dimensions } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
+import { Dimensions, Image, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 
@@ -15,6 +16,17 @@ const HeaderImage: (props: HeaderImageProps) => JSX.Element = ({
   images,
   progress,
 }) => {
+  if (images.length === 0) {
+    return (
+      <View
+        className="items-center justify-center bg-lime-100"
+        style={{ width, height: 300 }}
+      >
+        <Ionicons name="restaurant" size={64} color="#4D7C0F" />
+      </View>
+    );
+  }
+
   return (
     <View className="relative h-[300px]">
       <Carousel

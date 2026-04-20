@@ -59,10 +59,6 @@ export const DetailCard = ({
     overflow: 'hidden' as const,
   }));
 
-  const resolvedImageUri =
-    imageUri ??
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(branch.name)}&background=a1d973&color=fff&size=300`;
-
   const distanceLabel =
     branch.distanceKm != null
       ? branch.distanceKm < 1
@@ -114,11 +110,17 @@ export const DetailCard = ({
         <Animated.View style={contentAnimatedStyle}>
           {/* Hero image */}
           <View className="relative h-40 w-full bg-gray-200">
-            <Image
-              source={{ uri: resolvedImageUri }}
-              className="h-full w-full"
-              resizeMode="cover"
-            />
+            {imageUri ? (
+              <Image
+                source={{ uri: imageUri }}
+                className="h-full w-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="h-full w-full items-center justify-center bg-lime-100">
+                <Ionicons name="restaurant" size={40} color="#4D7C0F" />
+              </View>
+            )}
 
             <View className="absolute bottom-3 left-3 flex-row items-center rounded-full bg-white/90 px-2.5 py-1">
               <MaterialIcons name="star" size={14} color="#FFB800" />

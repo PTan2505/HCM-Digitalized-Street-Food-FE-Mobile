@@ -32,6 +32,7 @@ const PAYMENT_METHODS: {
 }[] = [{ key: 'bank_transfer', icon: 'business-outline' }];
 
 type DirectCheckoutScreenProps = StaticScreenProps<{
+  branchId: number;
   branchName: string;
   note?: string;
 }>;
@@ -58,7 +59,7 @@ const calculateDiscount = (
 export const DirectCheckoutScreen = ({
   route,
 }: DirectCheckoutScreenProps): JSX.Element => {
-  const { branchName, note } = route.params;
+  const { branchId, branchName, note } = route.params;
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -148,36 +149,40 @@ export const DirectCheckoutScreen = ({
     try {
       const result = await dispatch(
         checkoutThunk({
+          branchId: branchId,
           paymentMethod: selectedMethod,
           isTakeAway,
-          table: note ?? undefined,
+          note: note ?? null,
           voucherId: selectedVoucher?.voucherId ?? null,
         })
       ).unwrap();
 
       navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
-        qrCode: result.payment.qrCode ?? '',
         totalAmount: result.order.finalAmount,
         branchName,
+        bin: result.payment.bin,
+        accountNumber: result.payment.accountNumber,
+        accountName: result.payment.accountName,
       });
     } catch {
       // Error is handled by the slice / useEffect above
     }
   }, [
+    cart,
+    t,
     dispatch,
+    branchId,
     selectedMethod,
     isTakeAway,
     note,
-    cart,
+    selectedVoucher?.voucherId,
     navigation,
     branchName,
-    selectedVoucher,
-    t,
   ]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header
         title={t('checkout.order_summary')}

@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { VendorCampaignBranch } from '@features/campaigns/types/generated';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,7 +9,7 @@ import Title from '../common/Title';
 
 interface BranchCardProps {
   branch: VendorCampaignBranch;
-  imageUri: string;
+  imageUri?: string;
   onPress: () => void;
 }
 
@@ -35,11 +35,17 @@ const BranchCard = ({
     >
       <View className="p-[6px]">
         <View className="relative h-[100px] w-full overflow-hidden rounded-xl">
-          <Image
-            className="h-full w-full"
-            source={{ uri: imageUri }}
-            resizeMode="cover"
-          />
+          {imageUri ? (
+            <Image
+              className="h-full w-full"
+              source={{ uri: imageUri }}
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="h-full w-full items-center justify-center bg-lime-100">
+              <Ionicons name="restaurant" size={34} color="#4D7C0F" />
+            </View>
+          )}
           <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-secondary px-2 py-0.5">
             <MaterialCommunityIcons name="tag" size={10} color="#fff" />
             <Text className="text-[9px] font-bold text-white">
@@ -127,10 +133,7 @@ export const VendorCampaignBranchesSection = ({
         renderItem={({ item }) => (
           <BranchCard
             branch={item}
-            imageUri={
-              imageMap[item.branchId] ??
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=300`
-            }
+            imageUri={imageMap[item.branchId]}
             onPress={() =>
               navigation.navigate('Restaurant', { branchId: item.branchId })
             }

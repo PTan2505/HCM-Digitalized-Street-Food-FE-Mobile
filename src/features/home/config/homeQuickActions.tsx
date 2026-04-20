@@ -1,8 +1,12 @@
+import Heart from '@assets/quickActions/heart.png';
+import Map from '@assets/quickActions/map.png';
+import Quest from '@assets/quickActions/quest.png';
+import Shop from '@assets/quickActions/store.png';
 import { TFunction } from 'i18next';
 
 export interface HomeQuickAction {
   id: string;
-  ionIcon: string;
+  icon: number;
   label: string;
   onPress: () => void;
 }
@@ -17,25 +21,25 @@ export const getHomeQuickActions = (
 ): HomeQuickAction[] => [
   {
     id: 'ghost-pin',
-    ionIcon: 'location',
+    icon: Map,
     label: t('home_quick_actions.ghost_pin'),
     onPress: (): void => navigation.navigate('GhostPinCreation'),
   },
   {
     id: 'quest',
-    ionIcon: 'trophy',
+    icon: Quest,
     label: t('home_quick_actions.quest'),
     onPress: (): void => navigation.navigate('QuestList'),
   },
   {
     id: 'voucher-market',
-    ionIcon: 'storefront',
+    icon: Shop,
     label: t('home_quick_actions.voucher_market'),
     onPress: (): void => navigation.navigate('VoucherMarketplace'),
   },
   {
     id: 'favorites',
-    ionIcon: 'heart',
+    icon: Heart,
     label: t('home_quick_actions.favorites'),
     onPress: (): void => navigation.navigate('Favorites'),
   },

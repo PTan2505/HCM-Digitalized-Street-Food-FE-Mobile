@@ -35,7 +35,8 @@ export interface UpdateCartItemRequest {
 // ── Checkout types ──
 
 export interface CheckoutCartRequest {
-  table?: string | null;
+  branchId: number;
+  note?: string | null;
   paymentMethod?: string | null;
   voucherId?: number | null;
   isTakeAway: boolean;
@@ -49,6 +50,9 @@ export interface PaymentLinkResult {
   paymentLinkId?: string | null;
   qrCode?: string | null;
   requiresConfirmation: boolean;
+  bin?: string | null;
+  accountNumber?: string | null;
+  accountName?: string | null;
 }
 
 export interface CheckoutCartResponse {
@@ -139,8 +143,14 @@ export class CartApi {
     this.apiClient = client;
   }
 
-  getMyCart(): Promise<ApiResponse<CartResponse>> {
-    return this.apiClient.get<CartResponse>({ url: apiUrl.cart.my });
+  getMyCarts(): Promise<ApiResponse<CartResponse[]>> {
+    return this.apiClient.get<CartResponse[]>({ url: apiUrl.cart.my });
+  }
+
+  getMyCartByBranch(branchId: number): Promise<ApiResponse<CartResponse>> {
+    return this.apiClient.get<CartResponse>({
+      url: apiUrl.cart.myBranch(branchId),
+    });
   }
 
   addItem(data: AddCartItemRequest): Promise<ApiResponse<CartResponse>> {
@@ -152,22 +162,31 @@ export class CartApi {
 
   updateItemQuantity(
     dishId: number,
+    branchId: number,
     data: UpdateCartItemRequest
   ): Promise<ApiResponse<CartResponse>> {
     return this.apiClient.put<CartResponse, UpdateCartItemRequest>({
       url: apiUrl.cart.itemByDish(dishId),
+      params: { branchId },
       data,
     });
   }
 
-  removeItem(dishId: number): Promise<ApiResponse<CartResponse>> {
+  removeItem(
+    dishId: number,
+    branchId: number
+  ): Promise<ApiResponse<CartResponse>> {
     return this.apiClient.delete<CartResponse>({
       url: apiUrl.cart.itemByDish(dishId),
+      params: { branchId },
     });
   }
 
-  clearCart(): Promise<ApiResponse<CartResponse>> {
-    return this.apiClient.delete<CartResponse>({ url: apiUrl.cart.clear });
+  clearCart(branchId: number): Promise<ApiResponse<CartResponse>> {
+    return this.apiClient.delete<CartResponse>({
+      url: apiUrl.cart.clear,
+      params: { branchId },
+    });
   }
 
   checkout(

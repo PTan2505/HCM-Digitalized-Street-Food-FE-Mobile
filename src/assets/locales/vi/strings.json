@@ -20,7 +20,7 @@
     "error_title": "Lỗi",
     "error_message": "Cập nhật sở thích ăn uống thất bại"
   },
-  "search_placeholder": "Tìm nhà hàng, quán cà phê...",
+  "search_placeholder": "Tìm quán, món ăn...",
   "what_want_eat": "Bạn muốn ăn gì?",
   "places_might_like": "Những quán bạn có thể thích",
   "discount_branches_title": "Đang có khuyến mãi",
@@ -56,7 +56,19 @@
     "empty": "Không tìm thấy kết quả nào",
     "empty_hint": "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm",
     "error": "Không thể tải kết quả. Vui lòng thử lại.",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "history_title": "Tìm kiếm gần đây",
+    "clear_history": "Xóa tất cả",
+    "address_history_title": "Địa chỉ tìm kiếm gần đây"
+  },
+  "map": {
+    "search_address_placeholder": "Tìm địa chỉ...",
+    "pick_on_map": "Chọn trên bản đồ",
+    "drag_to_pick": "Kéo bản đồ để chọn vị trí",
+    "picked_location_label": "Vị trí đã chọn",
+    "finding_address": "Đang tìm địa chỉ...",
+    "confirm_location": "Tìm quán ăn tại đây",
+    "search_around_user": "Tìm xung quanh bạn"
   },
   "sort_by": "Sắp xếp theo",
   "categories": {
@@ -106,6 +118,7 @@
     "view_detail": "Xem chi tiết",
     "swipe_up": "Vuốt lên",
     "to_see_similar": "Để xem các quán tương tự",
+    "no_similar_branches": "Không tìm thấy quán tương tự",
     "sort_by": "Sắp xếp theo",
     "all": "Tất cả",
     "new": "Mới",
@@ -150,7 +163,7 @@
   "tabs": {
     "menu": "Menu Quán",
     "reviews": "Bình luận",
-    "nearby": "Bạn có thể thích"
+    "nearby": "Trong khu vực"
   },
   "current_pick": {
     "title": "Danh sách yêu thích",
@@ -182,6 +195,7 @@
     "challenges": "Thử thách",
     "general": "Tổng quát",
     "edit_profile": "Chỉnh sửa hồ sơ",
+    "update_profile": "Cập nhật hồ sơ",
     "notifications": "Thông báo",
     "language": "Ngôn ngữ",
     "help_support": "Trợ giúp & Hỗ trợ",
@@ -193,7 +207,24 @@
     "my_balance": "Ví Lowca",
     "voucher_wallet": "Ví mã giảm giá",
     "voucher_marketplace": "Chợ voucher",
-    "personal-features": "Tính năng cá nhân"
+    "personal-features": "Tính năng cá nhân",
+    "xp_progress": "Tiến độ XP",
+    "xp_next_tier": "đến hạng tiếp theo",
+    "tier_silver": "Bạc",
+    "tier_gold": "Vàng",
+    "tier_diamond": "Kim cương",
+    "max_tier": "Cấp độ tối đa",
+    "tier_progress_title": "Hành trình hạng thành viên",
+    "tier_progress_subtitle": "Tích lũy XP để nâng hạng và nhận phần thưởng",
+    "xp_to_gold": "Tích lũy {{xp}} XP để lên hạng Vàng",
+    "xp_to_diamond": "Tích lũy {{xp}} XP để lên hạng Kim Cương",
+    "tier_reached": "Đã đạt được",
+    "tier_current": "Hạng hiện tại",
+    "tier_locked": "Chưa đạt",
+    "xp_remaining": "Còn {{xp}} XP",
+    "tier_silver_desc": "Hạng khởi đầu dành cho mọi thành viên",
+    "tier_gold_desc": "Mở khóa ưu đãi đặc biệt dành cho hạng Vàng",
+    "tier_diamond_desc": "Hưởng đặc quyền cao nhất dành cho hạng Kim Cương"
   },
   "favorites": {
     "title": "Quán yêu thích",
@@ -252,7 +283,8 @@
     "withdraw_empty_amount": "Vui lòng nhập số tiền!",
     "withdraw_min_amount": "Số tiền tối thiểu là 1.000 đ!",
     "withdraw_empty_description": "Vui lòng nhập mô tả!",
-    "withdraw_max_description": "Mô tả không được vượt quá 255 ký tự!"
+    "withdraw_max_description": "Mô tả không được vượt quá 255 ký tự!",
+    "withdraw_exceed_balance": "Số tiền rút không được vượt quá số dư tài khoản!"
   },
   "cart": {
     "title": "Giỏ hàng",
@@ -275,7 +307,13 @@
     "replace_message": "Giỏ hàng hiện tại sẽ bị xoá khi bạn thêm món từ quán khác.",
     "replace_confirm": "Đồng ý",
     "add_more": "Thêm món",
-    "view_all_menu": "Xem tất cả"
+    "view_all_menu": "Xem tất cả",
+    "my_carts": "Giỏ hàng của tôi",
+    "my_carts_empty": "Chưa có giỏ hàng nào",
+    "my_carts_empty_hint": "Thêm món ăn từ các quán để bắt đầu",
+    "view_menu": "Xem thực đơn",
+    "n_items": "{{count}} món",
+    "n_items_total": "{{count}} món • {{total}}"
   },
   "checkout": {
     "title": "Thanh toán",
@@ -292,10 +330,13 @@
     "payment_failed": "Thanh toán không thành công hoặc đã bị huỷ. Vui lòng thử lại.",
     "payment_qr_title": "Thanh toán QR",
     "payment_qr_instruction": "Quét mã QR bằng ứng dụng ngân hàng để thanh toán đơn hàng",
+    "payment_qr_expires_in": "Hết hạn sau {{time}}",
+    "payment_qr_expired": "Đã hết hạn thanh toán",
     "payment_qr_order_id": "Mã đơn hàng",
     "payment_qr_share": "Chia sẻ mã QR",
     "payment_qr_share_error": "Không thể chia sẻ mã QR. Vui lòng thử lại.",
     "payment_qr_view_order": "Xem trạng thái đơn",
+    "payment_qr_unavailable": "Liên kết thanh toán hiện không khả dụng. Vui lòng đặt món lại.",
     "cancel_order_title": "Huỷ đơn hàng",
     "cancel_order_message": "Bạn có chắc muốn huỷ đơn hàng này không?",
     "voucher": "Voucher",
@@ -338,6 +379,7 @@
       "cancelled": "Đã huỷ"
     },
     "confirmed_title": "Đặt món thành công!",
+    "re_pay": "Thanh toán",
     "cancelled_title": "Đơn hàng đã huỷ",
     "table_label": "Bàn số",
     "take_away": "Mang đi",
@@ -415,7 +457,9 @@
       "error_submit_not_near": "Không thể gửi đánh giá. Bạn có thể không ở gần quán.",
       "error_submit_default": "Gửi đánh giá thất bại. Vui lòng thử lại.",
       "save_changes": "Lưu thay đổi",
-      "submit": "Gửi đánh giá"
+      "submit": "Gửi đánh giá",
+      "order_review_notice": "Đánh giá này được gắn với đơn hàng của bạn. Mỗi đơn hàng chỉ được đánh giá 1 lần.",
+      "error_location_required": "Cần bật GPS để đánh giá khi không có đơn hàng."
     }
   },
   "common": {
@@ -558,15 +602,24 @@
     "inProgress": "Đang thực hiện",
     "error": "Lỗi",
     "enrollError": "Không thể tham gia thử thách. Vui lòng thử lại.",
+    "continue": "Tiếp tục thử thách",
+    "stop": "Dừng thử thách",
+    "stopped": "Đã dừng",
+    "stopTitle": "Dừng thử thách",
+    "stopConfirm": "Bạn có chắc muốn dừng thử thách này không? Tiến độ của bạn sẽ được giữ lại.",
+    "stopError": "Không thể dừng thử thách. Vui lòng thử lại.",
     "notFound": "Không tìm thấy thử thách",
     "homeTitle": "Thử thách",
     "homeSubtitle": "Hoàn thành nhiệm vụ và nhận thưởng",
     "rewards": "Phần thưởng có thể nhận",
+    "auto": "Tự động",
+    "autoActivated": "Tự động kích hoạt",
     "taskType": {
       "review": "Viết đánh giá",
       "orderAmount": "Chi tiêu",
       "share": "Chia sẻ quán",
-      "createGhostPin": "Gắn địa điểm mới"
+      "createGhostPin": "Gắn địa điểm mới",
+      "tierUp": "Đạt cấp độ"
     },
     "reward": {
       "badge": "Huy hiệu",
@@ -600,7 +653,8 @@
     "error_title": "Lỗi",
     "error_message": "Không thể gửi yêu cầu rút tiền. Vui lòng thử lại.",
     "search_bank": "Tìm ngân hàng...",
-    "no_bank_found": "Không tìm thấy ngân hàng"
+    "no_bank_found": "Không tìm thấy ngân hàng",
+    "account_privacy_notice": "Thông tin tài khoản chỉ áp dụng cho phiên rút tiền này, hệ thống sẽ không lưu"
   },
   "ghost_pin_creation": {
     "title": "Thêm quán ăn mới",
@@ -656,14 +710,31 @@
   },
   "home_quick_actions": {
     "section_title": "Khám phá Lowca",
-    "ghost_pin": "Chia sẻ quán ăn mới",
+    "ghost_pin": "Chia sẻ quán",
     "quest": "Thử thách",
     "voucher_market": "Chợ Voucher",
     "personal_cart": "Giỏ hàng",
-    "favorites": "Quán yêu thích"
+    "favorites": "Yêu thích"
   },
   "voucher": {
     "discount": "Giảm giá",
     "min_order": "Đơn tối thiểu"
+  },
+  "verify": {
+    "unverified": "Chưa xác thực",
+    "verify_button": "Xác thực",
+    "sending": "Đang gửi...",
+    "otp_title": "Xác minh liên hệ",
+    "otp_sent_to": "Mã OTP đã được gửi đến",
+    "channel_email": "email của bạn",
+    "channel_phone": "số điện thoại của bạn",
+    "channel_both": "email và số điện thoại của bạn",
+    "otp_label": "Mã OTP",
+    "confirm": "Xác nhận",
+    "confirming": "Đang xác nhận...",
+    "cancel": "Huỷ",
+    "resend_otp": "Gửi lại mã OTP",
+    "resending_otp": "Đang gửi lại...",
+    "resend_in": "Gửi lại sau {{time}}"
   }
 }

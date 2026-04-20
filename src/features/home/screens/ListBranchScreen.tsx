@@ -7,7 +7,6 @@ import { useLocationPermission } from '@features/maps/hooks/useLocationPermissio
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   fetchActiveBranches,
@@ -20,6 +19,7 @@ import {
   updateBranchRating,
 } from '@slices/branches';
 import { selectUserDietaryPreferences } from '@slices/dietary';
+import { registerCallback } from '@utils/callbackRegistry';
 import type { JSX } from 'react';
 import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -159,7 +159,7 @@ export const ListBranchScreen = ({
   );
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <Header
         title={routeTitle ?? t('places_might_like')}
         onBackPress={() => navigation.goBack()}

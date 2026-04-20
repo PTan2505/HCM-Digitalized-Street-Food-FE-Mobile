@@ -5,6 +5,8 @@ import { useCampaignQuest } from '@features/campaigns/hooks/useCampaignQuests';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { Voucher } from '@slices/campaigns';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';
@@ -83,7 +85,8 @@ export const SystemCampaignDetailScreen = ({
   route,
 }: SystemCampaignDetailScreenProps): JSX.Element => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { campaignId } = route.params;
 
   const { systemCampaigns } = useSystemCampaigns();
@@ -97,10 +100,7 @@ export const SystemCampaignDetailScreen = ({
   const rewardItems = useMemo(() => {
     if (!quest?.tasks?.length) return [];
 
-    return quest.tasks.map((task) => {
-      const rewardType = normalizeRewardType(
-        task.rewardType as CampaignRewardType | number
-      );
+    return quest.tasks.flatMap((task) => {
       const taskType = normalizeTaskType(task.type as string | number);
 
       let taskLabel = task.description ?? '';
@@ -117,31 +117,52 @@ export const SystemCampaignDetailScreen = ({
         }
       }
 
-      let rewardLabel = '';
-      if (rewardType === 'POINTS') {
-        rewardLabel = `+${task.rewardValue} ${t('quest.reward.points')}`;
-      } else if (rewardType === 'BADGE') {
-        rewardLabel = `${t('quest.reward.badge')} #${task.rewardValue}`;
-      } else {
-        rewardLabel = `${t('quest.reward.voucher')} #${task.rewardValue}`;
+      if (!task.rewards?.length) {
+        return [];
       }
 
-      return {
-        id: task.questTaskId,
-        taskLabel,
-        rewardType,
-        rewardLabel,
-      };
+      return task.rewards.map((reward, index) => {
+        const rewardType = normalizeRewardType(
+          reward.rewardType as CampaignRewardType | number
+        );
+        const rewardValue = reward.rewardValue ?? 0;
+        const quantity = reward.quantity ?? 1;
+        const rewardId = `${task.questTaskId}-${reward.questTaskRewardId ?? index}`;
+
+        let rewardLabel = '';
+        if (rewardType === 'POINTS') {
+          const totalPoints = rewardValue * quantity;
+          rewardLabel = `+${totalPoints} ${t('quest.reward.points')}`;
+        } else if (rewardType === 'BADGE') {
+          rewardLabel = `${t('quest.reward.badge')} #${rewardValue}`;
+        } else {
+          rewardLabel = `${t('quest.reward.voucher')} #${rewardValue}`;
+        }
+
+        if (quantity > 1 && rewardType !== 'POINTS') {
+          rewardLabel = `${rewardLabel} x${quantity}`;
+        }
+
+        return {
+          id: rewardId,
+          taskLabel,
+          rewardType,
+          rewardLabel,
+          rewardValue,
+          quantity,
+        };
+      });
     });
   }, [quest, t]);
 
   const [rewardDetailsByTaskId, setRewardDetailsByTaskId] = useState<
     Record<
-      number,
+      string,
       {
         title?: string;
         subtitle?: string;
         extra?: string;
+        voucherData?: Voucher;
       }
     >
   >({});
@@ -157,15 +178,10 @@ export const SystemCampaignDetailScreen = ({
     const loadRewardDetails = async (): Promise<void> => {
       const entries = await Promise.all(
         rewardItems.map(async (item) => {
-          const sourceTask = quest?.tasks.find(
-            (t) => t.questTaskId === item.id
-          );
-          if (!sourceTask) return [item.id, {}] as const;
-
           if (item.rewardType === 'BADGE') {
             try {
               const badge = await axiosApi.questApi.getBadgeById(
-                sourceTask.rewardValue
+                item.rewardValue
               );
               return [
                 item.id,
@@ -181,12 +197,30 @@ export const SystemCampaignDetailScreen = ({
           if (item.rewardType === 'VOUCHER') {
             try {
               const voucher = await axiosApi.questApi.getVoucherById(
-                sourceTask.rewardValue
+                item.rewardValue
               );
               const isPercent = voucher.type.toUpperCase().includes('PERCENT');
               const discount = isPercent
                 ? `${t('quest.reward.voucherOff')} ${voucher.discountValue}%`
                 : `${t('quest.reward.voucherOff')} ${voucher.discountValue.toLocaleString('vi-VN')}đ`;
+              const voucherData: Voucher = {
+                userVoucherId: 0,
+                voucherId: voucher.voucherId,
+                voucherCode: '',
+                voucherName: voucher.name,
+                description: null,
+                voucherType: voucher.type,
+                discountValue: voucher.discountValue,
+                minAmountRequired: null,
+                maxDiscountValue: voucher.maxDiscountValue,
+                startDate: null,
+                endDate: null,
+                expiredDate: null,
+                isActive: true,
+                campaignId: Number(campaignId),
+                quantity: item.quantity,
+                isAvailable: true,
+              };
               return [
                 item.id,
                 {
@@ -195,8 +229,17 @@ export const SystemCampaignDetailScreen = ({
                   extra: t('quest.reward.voucherRemain', {
                     count: voucher.remain,
                   }),
+                  voucherData,
                 },
-              ] as const;
+              ] as [
+                string,
+                {
+                  title: string;
+                  subtitle: string;
+                  extra: string;
+                  voucherData: Voucher;
+                },
+              ];
             } catch {
               return [item.id, {}] as const;
             }
@@ -216,7 +259,7 @@ export const SystemCampaignDetailScreen = ({
     return (): void => {
       isCancelled = true;
     };
-  }, [rewardItems, quest?.tasks, t]);
+  }, [rewardItems, t, campaignId]);
 
   if (!campaign) {
     return (
@@ -241,10 +284,7 @@ export const SystemCampaignDetailScreen = ({
       : `${t('campaign.remaining', { count: daysLeft })}`;
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header
         title={t('campaign.system_detail')}
         onBackPress={(): void => navigation.goBack()}
@@ -390,66 +430,108 @@ export const SystemCampaignDetailScreen = ({
                       ? t('quest.reward.voucher')
                       : t('quest.reward.points');
 
+                const cardStyle = {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
+                };
+
+                const cardInner = (
+                  <View className="flex-row items-start">
+                    <View
+                      className={`rounded-xl p-2.5 ${rewardUI.bgClassName}`}
+                    >
+                      <Ionicons
+                        name={rewardUI.icon}
+                        size={18}
+                        color={rewardUI.iconColor}
+                      />
+                    </View>
+
+                    <View className="ml-3 flex-1">
+                      <View
+                        className={`self-start rounded-full px-2.5 py-0.5 ${rewardUI.bgClassName}`}
+                      >
+                        <Text
+                          className={`text-xs font-semibold uppercase ${rewardUI.textClassName}`}
+                        >
+                          {rewardTypeLabel}
+                        </Text>
+                      </View>
+
+                      <Text
+                        className="mt-1 text-base font-bold text-gray-900"
+                        numberOfLines={2}
+                      >
+                        {rewardTitle}{' '}
+                        {item.rewardType === 'VOUCHER' && item.quantity > 1 ? (
+                          <Text className="mt-0.5 text-sm font-medium text-gray-600">
+                            x{item.quantity}
+                          </Text>
+                        ) : null}
+                      </Text>
+
+                      {rewardDetail?.subtitle ? (
+                        <Text
+                          className="mt-1 text-sm text-gray-600"
+                          numberOfLines={1}
+                        >
+                          {rewardDetail.subtitle}
+                        </Text>
+                      ) : null}
+
+                      {rewardDetail?.extra ? (
+                        <Text
+                          className="mt-0.5 text-sm font-medium text-gray-500"
+                          numberOfLines={1}
+                        >
+                          {rewardDetail.extra}
+                        </Text>
+                      ) : null}
+                    </View>
+
+                    {item.rewardType === 'VOUCHER' &&
+                    rewardDetail?.voucherData ? (
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color="#9CA3AF"
+                        style={{ alignSelf: 'center' }}
+                      />
+                    ) : null}
+                  </View>
+                );
+
+                if (
+                  item.rewardType === 'VOUCHER' &&
+                  rewardDetail?.voucherData
+                ) {
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      activeOpacity={0.7}
+                      className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3"
+                      style={cardStyle}
+                      onPress={() =>
+                        navigation.navigate('VoucherApplicableBranches', {
+                          voucher: rewardDetail.voucherData!,
+                        })
+                      }
+                    >
+                      {cardInner}
+                    </TouchableOpacity>
+                  );
+                }
+
                 return (
                   <View
                     key={item.id}
                     className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3"
-                    style={{
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.05,
-                      shadowRadius: 8,
-                      elevation: 2,
-                    }}
+                    style={cardStyle}
                   >
-                    <View className="flex-row items-start">
-                      <View
-                        className={`rounded-xl p-2.5 ${rewardUI.bgClassName}`}
-                      >
-                        <Ionicons
-                          name={rewardUI.icon}
-                          size={18}
-                          color={rewardUI.iconColor}
-                        />
-                      </View>
-
-                      <View className="ml-3 flex-1">
-                        <View
-                          className={`self-start rounded-full px-2.5 py-0.5 ${rewardUI.bgClassName}`}
-                        >
-                          <Text
-                            className={`text-xs font-semibold uppercase ${rewardUI.textClassName}`}
-                          >
-                            {rewardTypeLabel}
-                          </Text>
-                        </View>
-
-                        <Text
-                          className="mt-1 text-base font-bold text-gray-900"
-                          numberOfLines={2}
-                        >
-                          {rewardTitle}
-                        </Text>
-
-                        {rewardDetail?.subtitle ? (
-                          <Text
-                            className="mt-1 text-sm text-gray-600"
-                            numberOfLines={1}
-                          >
-                            {rewardDetail.subtitle}
-                          </Text>
-                        ) : null}
-
-                        {rewardDetail?.extra ? (
-                          <Text
-                            className="mt-0.5 text-sm font-medium text-gray-500"
-                            numberOfLines={1}
-                          >
-                            {rewardDetail.extra}
-                          </Text>
-                        ) : null}
-                      </View>
-                    </View>
+                    {cardInner}
                   </View>
                 );
               })}

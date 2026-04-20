@@ -1,16 +1,17 @@
 import { FilterChipBar } from '@components/FilterChipBar';
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
-import SearchBar from '@features/home/components/common/SearchBar';
 import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import { useCategories } from '@features/home/hooks/useCategories';
+import { useDishKeywords } from '@features/home/hooks/useDishKeywords';
+import { useSearchHistory } from '@features/home/hooks/useSearchHistory';
 import { useStallSearch } from '@features/home/hooks/useStallSearch';
 import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   selectBranchImageMap,
@@ -19,12 +20,15 @@ import {
 } from '@slices/branches';
 import { selectDietaryPreferences } from '@slices/dietary';
 import { selectTastes } from '@slices/tastes';
+import { registerCallback } from '@utils/callbackRegistry';
+import { normalizeForMatch } from '@utils/normalizeText';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   InteractionManager,
+  Keyboard,
   Text,
   TouchableOpacity,
   View,
@@ -39,7 +43,7 @@ type SearchScreenProps = StaticScreenProps<{
 
 const DEFAULT_MIN_PRICE = 0;
 const DEFAULT_MAX_PRICE = 5000000;
-const DEFAULT_DISTANCE = 5;
+const DEFAULT_DISTANCE = 50;
 
 const FilterChip = ({
   label,
@@ -55,6 +59,55 @@ const FilterChip = ({
     <TouchableOpacity onPress={onRemove} hitSlop={6}>
       <Ionicons name="close" size={14} color={COLORS.primaryDark} />
     </TouchableOpacity>
+  </View>
+);
+
+const HighlightedText = ({
+  text,
+  query,
+}: {
+  text: string;
+  query: string;
+}): JSX.Element => {
+  const normText = normalizeForMatch(text);
+  const normQuery = normalizeForMatch(query);
+  const idx = normQuery ? normText.indexOf(normQuery) : -1;
+  if (idx === -1) {
+    return <Text className="text-base text-gray-800">{text}</Text>;
+  }
+
+  const matchLen = normQuery.length;
+  return (
+    <Text className="text-base text-gray-800">
+      {text.slice(0, idx)}
+      <Text className="font-bold text-gray-900">
+        {text.slice(idx, idx + matchLen)}
+      </Text>
+      {text.slice(idx + matchLen)}
+    </Text>
+  );
+};
+
+const SuggestionPanel = ({
+  suggestions,
+  query,
+  onSelect,
+}: {
+  suggestions: string[];
+  query: string;
+  onSelect: (kw: string) => void;
+}): JSX.Element => (
+  <View className="pt-2">
+    {suggestions.map((kw) => (
+      <TouchableOpacity
+        key={kw}
+        className="flex-row items-center gap-3 border-b border-gray-100 py-3"
+        onPress={() => onSelect(kw)}
+      >
+        <Ionicons name="search-outline" size={16} color="#9CA3AF" />
+        <HighlightedText text={kw} query={query} />
+      </TouchableOpacity>
+    ))}
   </View>
 );
 
@@ -97,6 +150,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const dietaryPreferences = useAppSelector(selectDietaryPreferences);
   const tastes = useAppSelector(selectTastes);
   const { categories } = useCategories();
+  const { history, addToHistory, removeFromHistory, clearHistory } =
+    useSearchHistory();
 
   useEffect(() => {
     if (!openFilter) return;
@@ -107,7 +162,15 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   }, [openFilter]);
 
   const { coords } = useLocationPermission();
-  const { stalls, isLoading, error, search, clearError } = useStallSearch();
+  const dishKeywords = useDishKeywords();
+  const {
+    stalls,
+    imageMap: searchImageMap,
+    isLoading,
+    error,
+    search,
+    clearError,
+  } = useStallSearch();
 
   const multiBranchVendorIds = useMemo(() => {
     const vendorCounts = new Map<number, number>();
@@ -135,7 +198,9 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           ? {
               Lat: coords.latitude,
               Long: coords.longitude,
-              ...(hasDistanceFilter ? { Distance: filters?.distance } : {}),
+              Distance: hasDistanceFilter
+                ? filters?.distance
+                : DEFAULT_DISTANCE,
             }
           : {}),
         DietaryIds: filters?.dietaryTags
@@ -160,14 +225,52 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     [coords, search]
   );
 
-  const handleSearch = (text: string): void => {
+  const suggestions = useMemo(() => {
+    const q = normalizeForMatch(keyword.trim());
+    if (!q) return [];
+    const historyMatches = history.filter(
+      (h) => normalizeForMatch(h).includes(q) && normalizeForMatch(h) !== q
+    );
+    const categoryMatches = categories
+      .map((c) => c.name)
+      .filter((name) => normalizeForMatch(name).includes(q));
+    const dishMatches = dishKeywords.filter(
+      (name) =>
+        normalizeForMatch(name).includes(q) && normalizeForMatch(name) !== q
+    );
+    return [
+      ...new Set([...historyMatches, ...categoryMatches, ...dishMatches]),
+    ].slice(0, 6);
+  }, [keyword, history, categories, dishKeywords]);
+
+  const showSuggestions =
+    isInputFocused && keyword.trim().length > 0 && suggestions.length > 0;
+
+  // Real-time keyword update (no debounce) — feeds suggestion matching
+  const handleChangeText = (text: string): void => {
     setKeyword(text);
+    if (!text.trim() && !activeFilters) setHasSearched(false);
+  };
+
+  // Submit callback from SearchBar — triggers actual API call on Enter/Search
+  const handleSubmitSearch = (text: string): void => {
     if (!text.trim() && !activeFilters) {
       setHasSearched(false);
       return;
     }
     setHasSearched(true);
+    if (text.trim()) addToHistory(text.trim());
     triggerSearch(text, activeFilters);
+  };
+
+  // Shared handler for tapping a history item or suggestion
+  const handleKeywordSelect = (kw: string): void => {
+    setKeyword(kw);
+    setHasSearched(true);
+    setIsInputFocused(false);
+    Keyboard.dismiss();
+    addToHistory(kw);
+    triggerSearch(kw, activeFilters);
   };
 
   const handleFilterApply = (filters: FilterState): void => {
@@ -209,14 +312,14 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     [dispatch]
   );
 
-  const renderEmptyOrError = (): JSX.Element => {
-    const shouldShowFocusSkeleton =
-      isInputFocused &&
-      !hasSearched &&
-      !keyword.trim() &&
-      activeFilters == null;
+  const showHistory =
+    !hasSearched &&
+    !keyword.trim() &&
+    activeFilters == null &&
+    history.length > 0;
 
-    if (shouldShowFocusSkeleton || (hasSearched && isLoading)) {
+  const renderEmptyOrError = (): JSX.Element => {
+    if (hasSearched && isLoading) {
       return <SearchSkeletonList />;
     }
 
@@ -302,7 +405,9 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           </TouchableOpacity>
           <View className="flex-1">
             <SearchBar
-              onSearch={handleSearch}
+              value={keyword}
+              onChangeText={handleChangeText}
+              onSearch={handleSubmitSearch}
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               showFilterButton
@@ -320,9 +425,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           >
             <Ionicons name="map-outline" size={20} color="#666" />
           </TouchableOpacity>
-          <TouchableOpacity className="items-center justify-center">
-            <Ionicons name="bookmark-outline" size={20} color="#666" />
-          </TouchableOpacity>
         </View>
 
         {/* Filter category chips */}
@@ -332,6 +434,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
             setFilterSection(section);
             setFilterModalVisible(true);
           }}
+          defaultDistance={DEFAULT_DISTANCE}
         />
 
         {/* Active filter chips */}
@@ -431,46 +534,83 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
           />
         )}
 
-        {/* Results List */}
+        {/* Suggestions / Results */}
         <View className="flex-1 px-4">
-          <FlatList
-            data={hasSearched ? stalls : []}
-            keyExtractor={(item) => String(item.branchId)}
-            renderItem={({ item }) => {
-              const isMultiBranch = multiBranchVendorIds.includes(
-                item.vendorId
-              );
-              const displayName = computeDisplayName(
-                item,
-                isMultiBranch,
-                t('branch')
-              );
-              return (
-                <SearchResultCard
-                  branch={item}
-                  imageUri={branchImageMap[item.branchId]?.[0]}
-                  displayName={displayName}
-                  onPress={() =>
-                    navigation.navigate('RestaurantDetails', {
-                      branch: item,
-                      displayName,
-                      onRatingUpdateId: registerCallback(
-                        (avgRating, totalReviewCount) =>
-                          handleRatingUpdate(
-                            item.branchId,
-                            avgRating,
-                            totalReviewCount
-                          )
-                      ),
-                    })
-                  }
-                />
-              );
-            }}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
-            ListEmptyComponent={renderEmptyOrError}
-          />
+          {showHistory ? (
+            <View className="pt-2">
+              <View className="mb-2 flex-row items-center justify-between">
+                <Text className="text-xl font-bold text-gray-700">
+                  {t('search.history_title')}
+                </Text>
+              </View>
+              {history.map((kw) => (
+                <TouchableOpacity
+                  key={kw}
+                  className="flex-row items-center justify-between border-b border-gray-100 py-3"
+                  onPress={() => handleKeywordSelect(kw)}
+                >
+                  <View className="flex-row items-center gap-3">
+                    <FontAwesome5 name="history" size={18} color="black" />
+                    <Text className="text-lg text-gray-800">{kw}</Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => removeFromHistory(kw)}
+                    hitSlop={8}
+                  >
+                    <Ionicons name="close" size={16} color="#9CA3AF" />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : showSuggestions ? (
+            <SuggestionPanel
+              suggestions={suggestions}
+              query={keyword.trim()}
+              onSelect={handleKeywordSelect}
+            />
+          ) : (
+            <FlatList
+              data={hasSearched ? stalls : []}
+              keyExtractor={(item) => String(item.branchId)}
+              renderItem={({ item }) => {
+                const isMultiBranch = multiBranchVendorIds.includes(
+                  item.vendorId
+                );
+                const displayName = computeDisplayName(
+                  item,
+                  isMultiBranch,
+                  t('branch')
+                );
+                return (
+                  <SearchResultCard
+                    branch={item}
+                    imageUri={
+                      searchImageMap[item.branchId] ??
+                      branchImageMap[item.branchId]?.[0]
+                    }
+                    displayName={displayName}
+                    onPress={() =>
+                      navigation.navigate('RestaurantDetails', {
+                        branch: item,
+                        displayName,
+                        onRatingUpdateId: registerCallback(
+                          (avgRating, totalReviewCount) =>
+                            handleRatingUpdate(
+                              item.branchId,
+                              avgRating,
+                              totalReviewCount
+                            )
+                        ),
+                      })
+                    }
+                  />
+                );
+              }}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingTop: 16, flexGrow: 1 }}
+              ListEmptyComponent={renderEmptyOrError}
+            />
+          )}
         </View>
       </View>
 

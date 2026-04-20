@@ -28,4 +28,5 @@ export const VALIDATE_ERROR_MESSAGES = {
   WITHDRAW_MIN_AMOUNT: 'validation.withdraw_min_amount',
   WITHDRAW_EMPTY_DESCRIPTION: 'validation.withdraw_empty_description',
   WITHDRAW_MAX_DESCRIPTION: 'validation.withdraw_max_description',
+  WITHDRAW_EXCEED_BALANCE: 'validation.withdraw_exceed_balance',
 } as const;

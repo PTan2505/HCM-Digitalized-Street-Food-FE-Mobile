@@ -30,6 +30,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -39,7 +40,6 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
-/** Shape of the location object from MapLibre's UserLocation onUpdate */
 interface MapLibreLocation {
   coords: {
     latitude: number;
@@ -53,7 +53,6 @@ interface MapLibreLocation {
   timestamp?: number;
 }
 
-/** RegionPayload from MapLibre onRegionWillChange / onRegionDidChange */
 interface RegionPayloadFeature {
   properties: {
     isUserInteraction: boolean;
@@ -65,10 +64,10 @@ interface RegionPayloadFeature {
   };
 }
 
-// ── Config ──
+// OpenMap Vietnam doesn't require an access token
 setAccessToken(null);
 
-// Suppress 429 rate-limit errors from the tile server.
+// Silence 429 tile-server errors from the map logger
 Logger.setLogCallback((log) => {
   if (log.level === 'error' && log.message?.includes('status code 429')) {
     return true;
@@ -78,7 +77,7 @@ Logger.setLogCallback((log) => {
 
 const DEFAULT_ZOOM = 14;
 
-/** Camera bottom padding to offset the marker above the Detail Card (~300pt). */
+/** Bottom padding applied when the detail card is open (~300pt tall). */
 export const CAMERA_BOTTOM_PADDING = 320;
 
 const OPENMAP_VN_STYLE = `${
@@ -86,6 +85,7 @@ const OPENMAP_VN_STYLE = `${
   'https://maptiles.openmap.vn/styles/day-v1/style.json'
 }?apikey=${process.env.EXPO_PUBLIC_OPENMAP_API_KEY}`;
 
+// Base-style layers we want to hide entirely
 const HIDDEN_SYMBOL_LAYERS = [
   'poi-level-street-furniture',
   'poi-natural-tree',
@@ -99,24 +99,21 @@ const HIDDEN_SYMBOL_LAYERS = [
   'building-label',
   'label-housenum',
   'traffic_signals',
-
-  'place-suburb', // Ẩn tên Phường, Quận
-  'place-village', // Ẩn tên Xã, Thôn
-  'place-town', // Ẩn tên Thị trấn
-  'place-other', // Ẩn các địa danh khu dân cư nhỏ khác
+  'place-suburb',
+  'place-village',
+  'place-town',
+  'place-other',
 ] as const;
 
 const HIDDEN_BUILDING_LAYERS = ['building'] as const;
 
+// Road/tunnel/bridge casing layers — faded to reduce visual noise
 const FADED_CASING_LAYERS = [
-  // ── 1. ĐƯỜNG HẦM (TUNNELS) ──
   'tunnel-service-track-casing',
   'tunnel-minor-casing',
   'tunnel-secondary-tertiary-casing',
   'tunnel-trunk-primary-casing',
   'tunnel-motorway-casing',
-
-  // ── 2. ĐƯỜNG BỘ MẶT ĐẤT (HIGHWAYS) ──
   'highway-motorway-link-casing',
   'highway-link-casing',
   'highway-minor-casing',
@@ -125,25 +122,21 @@ const FADED_CASING_LAYERS = [
   'highway-secondary-tertiary-casing',
   'highway-primary-casing',
   'highway-motorway-casing',
-
-  // ── 3. CẦU VÀ CẦU VƯỢT (BRIDGES) ──
   'bridge-link-casing',
   'bridge-secondary-tertiary-casing',
   'bridge-trunk-primary-casing',
   'bridge-motorway-casing',
-  'bridge-path-casing', // Viền cầu dành cho người đi bộ/xe đạp
+  'bridge-path-casing',
 ] as const;
 
+// Road/tunnel/bridge fill layers — faded to reduce visual noise
 const FADED_ROAD_LAYERS = [
-  // ── 1. RUỘT ĐƯỜNG HẦM ──
   'tunnel-service-track',
   'tunnel-minor',
   'tunnel-secondary-tertiary',
   'tunnel-trunk-primary',
   'tunnel-motorway',
   'tunnel-path',
-
-  // ── 2. RUỘT ĐƯỜNG BỘ ──
   'highway-motorway-link',
   'highway-link',
   'highway-minor-service',
@@ -153,22 +146,19 @@ const FADED_ROAD_LAYERS = [
   'highway-primary',
   'highway-motorway',
   'highway-path',
-
-  // ── 3. RUỘT CẦU ──
   'bridge-link',
   'bridge-secondary-tertiary',
   'bridge-trunk-primary',
   'bridge-path',
 ] as const;
-// ── Priority Mapping (based on finalScore 0–1) ──
-// 1 = High (always pill), 2 = Medium (pill at z≥13), 3 = Low (pill at z≥15)
+
+// Maps finalScore (0–1) to a display priority: 1 = high, 2 = medium, 3 = low
 const scoreToPriority = (finalScore: number): number => {
-  if (finalScore >= 0.7) return 1; // High: always show full marker
-  if (finalScore >= 0.3) return 2; // Medium: show at zoom ≥ 13
-  return 3; // Low: show at zoom ≥ 15
+  if (finalScore >= 0.7) return 1;
+  if (finalScore >= 0.3) return 2;
+  return 3;
 };
 
-// ── GeoJSON FeatureCollection Builder ──
 const buildBranchGeoJSON = (
   branches: ActiveBranch[]
 ): GeoJSON.FeatureCollection => ({
@@ -194,20 +184,17 @@ const buildBranchGeoJSON = (
 const SOURCE_ID = 'vendor-source';
 const CIRCLE_LAYER_ID = 'vendor-dots';
 
-// ── Zoom Thresholds (dot → full marker) ──
-const ZOOM_THRESHOLD_STANDARD = 13; // Priority 2 (tier_standard)
-const ZOOM_THRESHOLD_BASIC = 15; // Priority 3 (tier_basic)
+// Zoom levels at which medium/low priority markers become visible
+const ZOOM_THRESHOLD_STANDARD = 13;
+const ZOOM_THRESHOLD_BASIC = 15;
 
 const shouldShowFullMarker = (priority: number, zoom: number): boolean => {
-  if (priority === 1) return true; // Premium: always full marker
+  if (priority === 1) return true;
   if (priority === 2) return zoom >= ZOOM_THRESHOLD_STANDARD;
-  return zoom >= ZOOM_THRESHOLD_BASIC; // Basic
+  return zoom >= ZOOM_THRESHOLD_BASIC;
 };
 
-// Built dynamically from props in the component via useMemo
-
-// ── CircleLayer Style (dot representation) ──
-// Ghost Pins (isVerified=false) render as gray dashed-border dots; verified = green
+// Dot shown at low zoom; hides automatically when the full pin appears
 const CIRCLE_STYLE = {
   circleRadius: [
     'interpolate',
@@ -224,12 +211,13 @@ const CIRCLE_STYLE = {
   circleColor: [
     'case',
     ['==', ['get', 'isVerified'], false],
-    '#9CA3AF',
+    '#9CA3AF', // unverified → gray
     COLORS.primary,
   ] as unknown as string,
   circleStrokeWidth: 2,
   circleStrokeColor: '#ffffff',
 
+  // Hide dot once the full marker (pin) is visible for that priority tier
   circleOpacity: [
     'step',
     ['zoom'],
@@ -251,7 +239,9 @@ const CIRCLE_STYLE = {
   ] as unknown as number,
 };
 
-// ── VendorMarker — pin (marker SVG + circular image) ──
+// ── VendorMarker (iOS) ──
+// Rendered directly as a React Native view inside a MapLibre MarkerView.
+
 interface VendorMarkerProps {
   imageUrl?: string;
   isSelected?: boolean;
@@ -314,11 +304,11 @@ const VendorMarker = ({
   return <Animated.View style={fadeStyle}>{inner}</Animated.View>;
 };
 
-// ── Android: Generate composite marker bitmaps (pin + vendor photo) ──
-// SymbolLayer can only display pre-registered static images. To show vendor
-// photos inside pins, we render hidden VendorMarker views offscreen, capture
-// them as PNG bitmaps via react-native-view-shot, and register them as map
-// images keyed by branchId.
+// ── MarkerBitmapItem (Android only) ──
+// Android's SymbolLayer can only show pre-registered static images, not live
+// React Native views. So for each branch we render a hidden VendorMarker,
+// snapshot it as a PNG via react-native-view-shot, then register the PNG with
+// the MapLibre Images component so the SymbolLayer can use it.
 
 interface MarkerBitmapItemProps {
   branchId: number;
@@ -327,6 +317,8 @@ interface MarkerBitmapItemProps {
   onCapture: (key: string, uri: string) => void;
 }
 
+const MARKER_CAPTURE_MAX_RETRIES = 3;
+
 const MarkerBitmapItem = ({
   branchId,
   imageUrl,
@@ -334,31 +326,44 @@ const MarkerBitmapItem = ({
   onCapture,
 }: MarkerBitmapItemProps): JSX.Element => {
   const viewRef = useRef<View>(null);
-  const [imageLoaded, setImageLoaded] = useState(!imageUrl);
-  const captured = useRef(false);
+  // false until the image has loaded (or errored), then true to allow capture
+  const [imageReady, setImageReady] = useState(!imageUrl);
+  const [imageError, setImageError] = useState(false);
+  // incrementing this re-triggers the capture effect on failure
+  const [retryCount, setRetryCount] = useState(0);
+  const captureSucceeded = useRef(false);
+
   const captureKey = isSelected
     ? `marker-selected-${branchId}`
     : `marker-${branchId}`;
 
   useEffect(() => {
-    if (!imageLoaded || captured.current) return;
-    captured.current = true;
+    if (!imageReady || captureSucceeded.current) return;
 
+    // Delay increases with each retry to give the native view more time to paint
+    const delay = 120 + retryCount * 150;
     const timer = setTimeout(async () => {
       try {
         if (!viewRef.current) return;
         const uri = await captureRef(viewRef, {
           format: 'png',
-          quality: 0.9,
+          quality: 1,
+          // Fixed 2× size (76×104px) so the bitmap is device-independent.
+          // SymbolLayer iconSize: 0.5 maps this back to 38×52dp on screen.
+          width: 76,
+          height: 104,
         });
+        captureSucceeded.current = true;
         onCapture(captureKey, uri);
       } catch {
-        // Silently skip — marker falls back to default pin icon
+        if (retryCount < MARKER_CAPTURE_MAX_RETRIES) {
+          setRetryCount((r) => r + 1);
+        }
       }
-    }, 100);
+    }, delay);
 
     return (): void => clearTimeout(timer);
-  }, [imageLoaded, captureKey, onCapture]);
+  }, [imageReady, captureKey, onCapture, retryCount]);
 
   const PinIcon = isSelected ? MarkerSelectedIcon : MarkerIcon;
 
@@ -377,12 +382,21 @@ const MarkerBitmapItem = ({
           overflow: 'hidden',
         }}
       >
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <Image
             source={{ uri: imageUrl }}
             style={{ width: 28, height: 28 }}
             resizeMode="cover"
-            onLoad={() => setImageLoaded(true)}
+            onLoad={() => {
+              // Wait one frame so Android composites the image into the native
+              // view before we snapshot it — otherwise we get a blank circle.
+              requestAnimationFrame(() => setImageReady(true));
+            }}
+            onError={() => {
+              // Show the fallback icon and proceed with capture anyway
+              setImageError(true);
+              setImageReady(true);
+            }}
           />
         ) : (
           <View
@@ -402,7 +416,7 @@ const MarkerBitmapItem = ({
   );
 };
 
-// ── Maps Component ──
+// ── GhostPinCallout ──
 
 interface GhostPinMarkerCalloutProps {
   name: string;
@@ -446,62 +460,55 @@ const GhostPinCallout = ({
   </View>
 );
 
-// ── Android SymbolLayer style ──
-// On Android, MarkerView/PointAnnotation are unreliable (drift, broken bitmap
-// capture with New Architecture). Instead we use a SymbolLayer with a static
-// PNG icon for unselected markers (pure GL — perfect tracking & native press),
-// and a single MarkerView only for the selected marker (ActivePill).
+// ── Android SymbolLayer ──
+// On Android, MarkerView drifts and breaks with the New Architecture, so we
+// use a GL SymbolLayer instead. It renders all pins natively and handles press
+// via ShapeSource.onPress — no React Native views on the map at all.
+
 const ANDROID_SYMBOL_LAYER_ID = 'vendor-symbols-android';
 const ANDROID_MARKER_IMAGE_KEY = 'vendor-marker-icon';
 const ANDROID_MARKER_SELECTED_IMAGE_KEY = 'vendor-marker-selected-icon';
 
-// Visibility is the inverse of the CircleLayer: show pin when dot is hidden.
-// iconImage switches between orange (default) and green (selected) based on
-// whether the feature's id matches the currently selected branch.
-// selectedBranchId is injected at render time via buildAndroidSymbolStyle().
 const buildAndroidSymbolStyle = (
   selectedId: string
 ): Record<string, unknown> => ({
-  // Use per-vendor composite bitmap if available, else fallback to default pin.
-  // Selected marker always uses the green pin (no composite needed — detail card
-  // is visible so photo in pin is redundant).
+  // Use the captured composite bitmap (pin + photo) if ready, else the static PNG
   iconImage: [
     'case',
     ['==', ['get', 'id'], selectedId],
-    // Selected: try green composite, fall back to static green pin
     [
       'coalesce',
       ['image', ['concat', 'marker-selected-', ['get', 'id']]],
       ['image', ANDROID_MARKER_SELECTED_IMAGE_KEY],
     ],
-    // Unselected: try orange composite, fall back to static orange pin
     [
       'coalesce',
       ['image', ['concat', 'marker-', ['get', 'id']]],
       ['image', ANDROID_MARKER_IMAGE_KEY],
     ],
   ] as unknown as string,
+  // Bitmap is captured at 2× (76×104px), so 0.5 = 38×52dp; selected is slightly larger
   iconSize: [
     'case',
     ['==', ['get', 'id'], selectedId],
-    0.45, // selected: slightly larger
-    0.35, // smaller markers on Android
+    0.6,
+    0.5,
   ] as unknown as number,
   iconAnchor: 'bottom' as const,
   iconAllowOverlap: true,
+  // Match the same zoom-based visibility as CircleLayer
   iconOpacity: [
     'step',
     ['zoom'],
-    // z < 13: only P1
     ['match', ['get', 'priority'], 1, 1, 0],
     13,
-    // 13 ≤ z < 15: P1 + P2
     ['match', ['get', 'priority'], 1, 1, 2, 1, 0],
     15,
-    // z ≥ 15: all
     1,
   ] as unknown as number,
 });
+
+// ── Maps component ──
 
 interface MapsProps {
   cameraRef: React.RefObject<CameraRef | null>;
@@ -510,11 +517,15 @@ interface MapsProps {
   isPeeked: boolean;
   onMarkerPress: (branchId: number) => void;
   onUserDrag?: () => void;
-  /** Fired after map stops moving with the visible center coordinate [lng, lat] */
+  /** Called after the map stops moving with the visible center [lng, lat] */
   onMapIdle?: (center: [number, number]) => void;
   branches?: ActiveBranch[];
   branchImageMap?: Record<number, string[]>;
   ghostPins?: GhostPinResponse[];
+  /** When true, shows a draggable center pin for location picking */
+  isPickingLocation?: boolean;
+  /** Dropped pin shown after an explicit address/text search */
+  searchCenter?: [number, number] | null;
 }
 
 const PEEK_BAR_OFFSET = 20;
@@ -530,14 +541,27 @@ export const Maps = ({
   branches = [],
   branchImageMap = {},
   ghostPins = [],
+  isPickingLocation = false,
+  searchCenter = null,
 }: MapsProps): JSX.Element => {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapViewRef>(null);
+  const initialCameraSettingsRef = useRef({
+    centerCoordinate: initialCenter,
+    zoomLevel: DEFAULT_ZOOM,
+  });
   const userLocationRef = useRef<[number, number] | null>(null);
+  // Android: clears the native camera target after a setCamera animation so
+  // dragging in picking mode doesn't snap back to the animation's destination
+  const locateMeNeutralizeTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [styleLoaded, setStyleLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
+  const [isPickingDragging, setIsPickingDragging] = useState(false);
 
-  // ── Android: composite marker bitmaps (pin + vendor photo) ──
+  // Android composite bitmaps: captured PNG per branch keyed by branchId
   const [androidMarkerImages, setAndroidMarkerImages] = useState<
     Record<string, { uri: string }>
   >({});
@@ -545,12 +569,12 @@ export const Maps = ({
   const pendingCapturesRef = useRef<Record<string, { uri: string }>>({});
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Batches multiple captures into a single state update
   const handleMarkerBitmapCapture = useCallback((key: string, uri: string) => {
     if (capturedIdsRef.current.has(key)) return;
     capturedIdsRef.current.add(key);
     pendingCapturesRef.current[key] = { uri };
 
-    // Batch updates to avoid excessive re-renders
     flushTimerRef.current ??= setTimeout(() => {
       flushTimerRef.current = null;
       setAndroidMarkerImages((prev) => ({
@@ -577,7 +601,7 @@ export const Maps = ({
     [branches, branchImageMap]
   );
 
-  // ── FAB position ──
+  // FAB slides up/down when the detail card opens, peeks, or closes
   const fabBottom = useSharedValue(insets.bottom + 40);
 
   useEffect(() => {
@@ -593,7 +617,6 @@ export const Maps = ({
     bottom: fabBottom.value,
   }));
 
-  // ── User location ──
   const handleUserLocationUpdate = useCallback((location: MapLibreLocation) => {
     userLocationRef.current = [
       location.coords.longitude,
@@ -605,6 +628,10 @@ export const Maps = ({
     const coords = userLocationRef.current;
     if (!coords) return;
 
+    if (locateMeNeutralizeTimer.current) {
+      clearTimeout(locateMeNeutralizeTimer.current);
+    }
+
     cameraRef.current?.setCamera({
       centerCoordinate: coords,
       zoomLevel: 15,
@@ -612,23 +639,28 @@ export const Maps = ({
       animationDuration: 800,
       animationMode: 'easeTo',
     });
+
+    // Android: flush the native camera target after the animation so a
+    // subsequent picking-mode drag doesn't snap back to this position
+    if (Platform.OS === 'android') {
+      locateMeNeutralizeTimer.current = setTimeout(() => {
+        locateMeNeutralizeTimer.current = null;
+        cameraRef.current?.setCamera({ animationDuration: 0 });
+      }, 850);
+    }
   }, [cameraRef]);
 
-  // ── Drag → peek ──
   const handleRegionWillChange = useCallback(
     (feature: RegionPayloadFeature) => {
-      console.log('[DEBUG Maps] handleRegionWillChange', {
-        isUserInteraction: feature.properties.isUserInteraction,
-        selectedBranchId,
-      });
-      if (feature.properties.isUserInteraction && selectedBranchId) {
-        onUserDrag?.();
+      if (feature.properties.isUserInteraction) {
+        if (selectedBranchId) onUserDrag?.();
+        if (isPickingLocation) setIsPickingDragging(true);
       }
     },
-    [selectedBranchId, onUserDrag]
+    [selectedBranchId, onUserDrag, isPickingLocation]
   );
 
-  // ── Zoom tracking (throttled to avoid rapid MarkerView mount/unmount) ──
+  // Zoom is throttled so MarkerView components don't mount/unmount too rapidly
   const lastZoomUpdateRef = useRef(0);
   const pendingZoomRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ZOOM_THROTTLE_MS = 150;
@@ -663,27 +695,21 @@ export const Maps = ({
 
   const handleRegionDidChange = useCallback(
     (feature: RegionPayloadFeature) => {
-      console.log('[DEBUG Maps] handleRegionDidChange', {
-        isUserInteraction: feature.properties.isUserInteraction,
-        zoomLevel: feature.properties.zoomLevel.toFixed(2),
-      });
       updateZoomBucket(feature.properties.zoomLevel);
 
-      // Report visible center to parent when user interaction ends
       if (feature.properties.isUserInteraction) {
+        if (isPickingLocation) setIsPickingDragging(false);
         const bounds = feature.properties.visibleBounds;
         if (bounds?.[0] && bounds?.[1]) {
           const centerLng = (bounds[0][0] + bounds[1][0]) / 2;
           const centerLat = (bounds[0][1] + bounds[1][1]) / 2;
-          console.log('[DEBUG Maps] onMapIdle center:', [centerLng, centerLat]);
           onMapIdle?.([centerLng, centerLat]);
         }
       }
     },
-    [updateZoomBucket, onMapIdle]
+    [updateZoomBucket, onMapIdle, isPickingLocation]
   );
 
-  // ── Continuous zoom tracking during gestures ──
   const handleRegionIsChanging = useCallback(
     (feature: RegionPayloadFeature) => {
       updateZoomBucket(feature.properties.zoomLevel);
@@ -691,7 +717,7 @@ export const Maps = ({
     [updateZoomBucket]
   );
 
-  // ── Visible pill markers (selected branch always included; Ghost Pins excluded) ──
+  // Only verified branches; selected branch is always included regardless of zoom
   const visibleMarkers = useMemo(
     () =>
       branchMarkers.filter(
@@ -703,7 +729,6 @@ export const Maps = ({
     [branchMarkers, zoomLevel, selectedBranchId]
   );
 
-  // ── ShapeSource press → select branch ──
   const handleSourcePress = useCallback(
     (event: {
       features: GeoJSON.Feature[];
@@ -734,15 +759,12 @@ export const Maps = ({
       >
         <Camera
           ref={cameraRef}
-          defaultSettings={{
-            centerCoordinate: initialCenter,
-            zoomLevel: DEFAULT_ZOOM,
-          }}
+          defaultSettings={initialCameraSettingsRef.current}
         />
 
         <UserLocation visible onUpdate={handleUserLocationUpdate} />
 
-        {/* Hide unwanted labels from base style */}
+        {/* Override base-style layers once the style has loaded */}
         {styleLoaded && (
           <>
             {HIDDEN_SYMBOL_LAYERS.map((layerId) => (
@@ -763,26 +785,20 @@ export const Maps = ({
               <LineLayer
                 key={layerId}
                 id={layerId}
-                style={{
-                  lineColor: '#e0e0e0', // Màu xám nhạt
-                  lineOpacity: 0.6,
-                }}
+                style={{ lineColor: '#e0e0e0', lineOpacity: 0.6 }}
               />
             ))}
             {FADED_ROAD_LAYERS.map((layerId) => (
               <LineLayer
                 key={layerId}
                 id={layerId}
-                style={{
-                  lineColor: '#ffffff',
-                  lineOpacity: 0.7,
-                }}
+                style={{ lineColor: '#ffffff', lineOpacity: 0.7 }}
               />
             ))}
           </>
         )}
 
-        {/* Android: register marker PNGs + composite bitmaps for SymbolLayer */}
+        {/* Android: register the static fallback PNGs and captured composites */}
         {Platform.OS === 'android' && (
           <Images
             images={{
@@ -793,7 +809,7 @@ export const Maps = ({
           />
         )}
 
-        {/* Semantic Zoom — CircleLayer dots at low zoom */}
+        {/* Dots at low zoom + pins at high zoom via CircleLayer / SymbolLayer */}
         <ShapeSource
           id={SOURCE_ID}
           shape={branchGeoJSON}
@@ -802,9 +818,7 @@ export const Maps = ({
         >
           <CircleLayer id={CIRCLE_LAYER_ID} style={CIRCLE_STYLE} />
 
-          {/* Android: SymbolLayer-only rendering. Pure GL — perfect camera
-              tracking + native press via ShapeSource.onPress. Selected marker
-              renders as a green pin (larger), unselected as orange. */}
+          {/* Android pins — pure GL, no React Native views on the map */}
           {Platform.OS === 'android' && (
             <SymbolLayer
               id={ANDROID_SYMBOL_LAYER_ID}
@@ -819,7 +833,7 @@ export const Maps = ({
           )}
         </ShapeSource>
 
-        {/* ── Pill Markers (iOS only — Android uses SymbolLayer exclusively) ── */}
+        {/* iOS pins — React Native views anchored to map coordinates */}
         {Platform.OS !== 'android' &&
           visibleMarkers.map((marker) => {
             const isSelected = marker.branchId === selectedBranchId;
@@ -841,7 +855,7 @@ export const Maps = ({
             );
           })}
 
-        {/* Ghost Pin Markers — grey unverified markers with status callout */}
+        {/* Unverified ghost pins with a status callout */}
         {ghostPins.map((pin) => (
           <MarkerView
             key={`ghost-${pin.ghostPinId}`}
@@ -852,17 +866,41 @@ export const Maps = ({
             <GhostPinCallout name={pin.name} status={pin.status} />
           </MarkerView>
         ))}
+
+        {/* Dropped pin after an address/text search */}
+        {searchCenter && !isPickingLocation && (
+          <MarkerView
+            coordinate={searchCenter}
+            anchor={{ x: 0.5, y: 1 }}
+            allowOverlap
+          >
+            <View style={{ width: 40, height: 48, alignItems: 'center' }}>
+              <Ionicons
+                name="location-sharp"
+                size={40}
+                color={COLORS.primary}
+                style={{
+                  textShadowColor: 'rgba(0,0,0,0.25)',
+                  textShadowOffset: { width: 0, height: 2 },
+                  textShadowRadius: 4,
+                }}
+              />
+            </View>
+          </MarkerView>
+        )}
       </MapView>
 
-      {/* Android: hidden offscreen views for bitmap capture */}
+      {/* Android: off-screen views used to snapshot marker bitmaps.
+          Uses transform (not left/top) so Android still renders the images —
+          views far outside the viewport get skipped by Android's render system,
+          producing blank snapshots. */}
       {Platform.OS === 'android' && (
         <View
-          style={{ position: 'absolute', left: -9999, top: -9999 }}
+          style={{ position: 'absolute', transform: [{ translateX: -10000 }] }}
           pointerEvents="none"
         >
           {visibleMarkers.flatMap((marker) => {
             const items: JSX.Element[] = [];
-            // Orange (unselected) composite
             if (!capturedIdsRef.current.has(`marker-${marker.branchId}`)) {
               items.push(
                 <MarkerBitmapItem
@@ -873,7 +911,6 @@ export const Maps = ({
                 />
               );
             }
-            // Green (selected) composite
             if (
               !capturedIdsRef.current.has(`marker-selected-${marker.branchId}`)
             ) {
@@ -892,9 +929,45 @@ export const Maps = ({
         </View>
       )}
 
+      {/* Center crosshair pin in picking mode */}
+      {isPickingLocation && (
+        <View
+          pointerEvents="none"
+          className="absolute inset-0 items-center justify-center"
+        >
+          <View style={{ marginBottom: 40 }}>
+            <Ionicons
+              name="location-sharp"
+              size={52}
+              color={COLORS.primary}
+              style={{
+                textShadowColor: 'rgba(0,0,0,0.25)',
+                textShadowOffset: { width: 0, height: 2 },
+                textShadowRadius: 4,
+              }}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* Drag hint toast — shown until the user starts dragging */}
+      {isPickingLocation && !isPickingDragging && (
+        <View
+          pointerEvents="none"
+          className="absolute inset-x-0 items-center"
+          style={{ bottom: 240 }}
+        >
+          <View className="rounded-full bg-black/60 px-4 py-2">
+            <Text className="text-sm font-medium text-white">
+              {t('map.drag_to_pick')}
+            </Text>
+          </View>
+        </View>
+      )}
+
       {/* Locate Me FAB */}
       <Animated.View
-        className="absolute right-4"
+        className="absolute right-4 top-52"
         style={fabAnimatedStyle}
         pointerEvents="box-none"
       >

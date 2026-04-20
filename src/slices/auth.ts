@@ -297,12 +297,47 @@ export const markDietarySetup = createAppAsyncThunk(
   }
 );
 
+export const refreshUserBalanceThunk = createAppAsyncThunk(
+  'user/refreshBalance',
+  async (_, { rejectWithValue }) => {
+    try {
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
+      return userProfile.moneyBalance ?? 0;
+    } catch (error) {
+      return rejectWithValue(serializeError(error));
+    }
+  }
+);
+
+export const refreshUserPointsThunk = createAppAsyncThunk(
+  'user/refreshPoints',
+  async (_, { rejectWithValue }) => {
+    try {
+      const userProfile = await axiosApi.userProfileApi.getUserProfile();
+      return userProfile.point ?? 0;
+    } catch (error) {
+      return rejectWithValue(serializeError(error));
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    updateUserVerificationStatus: (
+      state,
+      action: PayloadAction<{ channel: string }>
+    ) => {
+      if (state.value) {
+        if (action.payload.channel === 'email')
+          state.value.emailVerified = true;
+        if (action.payload.channel === 'phone')
+          state.value.phoneNumberVerified = true;
+      }
     },
     updateMoneyBalance: (state, action: PayloadAction<number>) => {
       if (state.value) {
@@ -343,6 +378,16 @@ export const authSlice = createSlice({
           state.value.dietarySetup = true;
         }
       })
+      .addCase(refreshUserBalanceThunk.fulfilled, (state, action) => {
+        if (state.value) {
+          state.value.moneyBalance = action.payload;
+        }
+      })
+      .addCase(refreshUserPointsThunk.fulfilled, (state, action) => {
+        if (state.value) {
+          state.value.point = action.payload;
+        }
+      })
       .addCase(userLogout.fulfilled, () => {
         return initialState;
       })
@@ -368,7 +413,12 @@ export const authSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { clearError, updateMoneyBalance, addPoints } = authSlice.actions;
+export const {
+  clearError,
+  updateMoneyBalance,
+  addPoints,
+  updateUserVerificationStatus,
+} = authSlice.actions;
 
 export default authSlice.reducer;
 

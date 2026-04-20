@@ -1,3 +1,4 @@
+import { QuantityControl } from '@components/QuantityControl';
 import type { TabBarItem } from '@components/TabBar';
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
@@ -36,6 +37,7 @@ const PLACEHOLDER_DISH =
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200';
 
 type PersonalCartScreenProps = StaticScreenProps<{
+  branchId: number;
   branchName?: string;
   isOpen?: boolean;
 }>;
@@ -43,7 +45,7 @@ type PersonalCartScreenProps = StaticScreenProps<{
 export const PersonalCartScreen = ({
   route,
 }: PersonalCartScreenProps): JSX.Element => {
-  const { branchName = '', isOpen = true } = route.params ?? {};
+  const { branchId, branchName = '', isOpen = true } = route.params ?? {};
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
@@ -84,8 +86,8 @@ export const PersonalCartScreen = ({
   }, [cart]);
 
   useEffect(() => {
-    dispatch(fetchCartThunk());
-  }, [dispatch]);
+    dispatch(fetchCartThunk(branchId));
+  }, [dispatch, branchId]);
 
   useEffect(() => {
     if (!cart?.branchId) return;
@@ -142,14 +144,21 @@ export const PersonalCartScreen = ({
 
   const handleUpdateQuantity = useCallback(
     (dishId: number, currentQty: number, delta: number) => {
+      const cartBranchId = cart?.branchId ?? branchId;
       const newQty = currentQty + delta;
       if (newQty <= 0) {
-        dispatch(removeCartItemThunk(dishId));
+        dispatch(removeCartItemThunk({ dishId, branchId: cartBranchId }));
       } else {
-        dispatch(updateCartItemThunk({ dishId, quantity: newQty }));
+        dispatch(
+          updateCartItemThunk({
+            dishId,
+            quantity: newQty,
+            branchId: cartBranchId,
+          })
+        );
       }
     },
-    [dispatch]
+    [dispatch, cart?.branchId, branchId]
   );
 
   const handleClearCart = useCallback(() => {
@@ -159,20 +168,21 @@ export const PersonalCartScreen = ({
         text: t('dietary.confirm'),
         style: 'destructive',
         onPress: (): void => {
-          dispatch(clearCartThunk()).then(() => {
+          dispatch(clearCartThunk(cart?.branchId ?? branchId)).then(() => {
             navigation.goBack();
           });
         },
       },
     ]);
-  }, [dispatch, navigation, t]);
+  }, [dispatch, navigation, t, cart?.branchId, branchId]);
 
   const handlePlaceOrder = useCallback(() => {
     navigation.navigate('DirectCheckout', {
+      branchId: cart?.branchId ?? branchId,
       branchName: cartDisplayName ?? branchName,
       note,
     });
-  }, [navigation, cartDisplayName, branchName, note]);
+  }, [navigation, cartDisplayName, branchName, note, cart?.branchId, branchId]);
 
   const getCartQuantity = useCallback(
     (dishId: number): number => {
@@ -195,10 +205,11 @@ export const PersonalCartScreen = ({
       const newQty = displayQty + 1;
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
-      if (serverQty === 0 && cart?.branchId) {
+      const cartBranchId = cart?.branchId ?? branchId;
+      if (serverQty === 0) {
         dispatch(
           addCartItemThunk({
-            branchId: cart.branchId,
+            branchId: cartBranchId,
             dishId: dish.dishId,
             quantity: newQty,
             displayName: cartDisplayName ?? branchName,
@@ -206,13 +217,18 @@ export const PersonalCartScreen = ({
         );
       } else {
         dispatch(
-          updateCartItemThunk({ dishId: dish.dishId, quantity: newQty })
+          updateCartItemThunk({
+            dishId: dish.dishId,
+            quantity: newQty,
+            branchId: cartBranchId,
+          })
         );
       }
     },
     [
       dispatch,
       cart?.branchId,
+      branchId,
       cartDisplayName,
       branchName,
       getCartQuantity,
@@ -227,15 +243,22 @@ export const PersonalCartScreen = ({
       const newQty = displayQty - 1;
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
+      const cartBranchId = cart?.branchId ?? branchId;
       if (serverQty <= 1) {
-        dispatch(removeCartItemThunk(dish.dishId));
+        dispatch(
+          removeCartItemThunk({ dishId: dish.dishId, branchId: cartBranchId })
+        );
       } else {
         dispatch(
-          updateCartItemThunk({ dishId: dish.dishId, quantity: newQty })
+          updateCartItemThunk({
+            dishId: dish.dishId,
+            quantity: newQty,
+            branchId: cartBranchId,
+          })
         );
       }
     },
-    [dispatch, getCartQuantity, getServerQuantity]
+    [dispatch, branchId, cart?.branchId, getCartQuantity, getServerQuantity]
   );
 
   const menuCategories = [
@@ -326,33 +349,15 @@ export const PersonalCartScreen = ({
                     </Text>
                   </View>
 
-                  <View className="flex-row items-center rounded-full bg-gray-100">
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleUpdateQuantity(item.dishId, item.quantity, -1)
-                      }
-                      disabled={cartLoading}
-                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
-                    >
-                      <Text className="text-lg font-bold text-white">−</Text>
-                    </TouchableOpacity>
-                    <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                      {item.quantity}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleUpdateQuantity(item.dishId, item.quantity, 1)
-                      }
-                      disabled={cartLoading}
-                      className="h-8 w-8 items-center justify-center rounded-full bg-primary"
-                    >
-                      <Text className="text-lg font-bold text-white">+</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <Text className="ml-3 min-w-[50px] text-right text-base font-semibold text-black">
-                    {`${Math.round(item.lineTotal / 1000)}k`}
-                  </Text>
+                  <QuantityControl
+                    quantity={item.quantity}
+                    onDecrement={() =>
+                      handleUpdateQuantity(item.dishId, item.quantity, -1)
+                    }
+                    onIncrement={() =>
+                      handleUpdateQuantity(item.dishId, item.quantity, 1)
+                    }
+                  />
                 </View>
               ))}
 
@@ -433,7 +438,6 @@ export const PersonalCartScreen = ({
                             {cat}
                           </Text>
                           {group.map((dish) => {
-                            const qty = getCartQuantity(dish.dishId);
                             return (
                               <View key={dish.dishId} className="mb-4 flex-row">
                                 <Image
@@ -474,7 +478,7 @@ export const PersonalCartScreen = ({
                                       <Text className="text-sm text-red-400">
                                         {t('actions.sold_out')}
                                       </Text>
-                                    ) : !isOpen ? null : qty === 0 ? (
+                                    ) : !isOpen ? null : (
                                       <TouchableOpacity
                                         onPress={() => handleMenuAdd(dish)}
                                         className="rounded-full bg-primary px-4 py-1.5"
@@ -483,34 +487,6 @@ export const PersonalCartScreen = ({
                                           {t('cart.add')}
                                         </Text>
                                       </TouchableOpacity>
-                                    ) : (
-                                      <View className="flex-row items-center rounded-full bg-gray-100">
-                                        <TouchableOpacity
-                                          onPress={() =>
-                                            handleMenuDecrement(dish)
-                                          }
-                                          className="h-10 w-10 items-center justify-center rounded-full"
-                                        >
-                                          <Ionicons
-                                            name="remove-circle"
-                                            size={32}
-                                            color={COLORS.primary}
-                                          />
-                                        </TouchableOpacity>
-                                        <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                                          {qty}
-                                        </Text>
-                                        <TouchableOpacity
-                                          onPress={() => handleMenuAdd(dish)}
-                                          className="h-10 w-10 items-center justify-center rounded-full"
-                                        >
-                                          <Ionicons
-                                            name="add-circle"
-                                            size={32}
-                                            color={COLORS.primary}
-                                          />
-                                        </TouchableOpacity>
-                                      </View>
                                     )}
                                   </View>
                                 </View>
@@ -576,31 +552,13 @@ export const PersonalCartScreen = ({
                                     </Text>
                                   </TouchableOpacity>
                                 ) : (
-                                  <View className="flex-row items-center rounded-full bg-gray-100">
-                                    <TouchableOpacity
-                                      onPress={() => handleMenuDecrement(dish)}
-                                      className="h-10 w-10 items-center justify-center rounded-full"
-                                    >
-                                      <Ionicons
-                                        name="remove-circle"
-                                        size={32}
-                                        color={COLORS.primary}
-                                      />
-                                    </TouchableOpacity>
-                                    <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                                      {qty}
-                                    </Text>
-                                    <TouchableOpacity
-                                      onPress={() => handleMenuAdd(dish)}
-                                      className="h-10 w-10 items-center justify-center rounded-full"
-                                    >
-                                      <Ionicons
-                                        name="add-circle"
-                                        size={32}
-                                        color={COLORS.primary}
-                                      />
-                                    </TouchableOpacity>
-                                  </View>
+                                  <QuantityControl
+                                    quantity={qty}
+                                    onDecrement={() =>
+                                      handleMenuDecrement(dish)
+                                    }
+                                    onIncrement={() => handleMenuAdd(dish)}
+                                  />
                                 )}
                               </View>
                             </View>

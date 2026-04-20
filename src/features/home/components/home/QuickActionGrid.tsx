@@ -1,8 +1,6 @@
-import { COLORS } from '@constants/colors';
-import { Ionicons } from '@expo/vector-icons';
 import type { HomeQuickAction } from '@features/home/config/homeQuickActions';
 import type { JSX } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
   actions: HomeQuickAction[];
@@ -17,13 +15,13 @@ export const QuickActionGrid = ({ actions }: Props): JSX.Element => {
           key={action.id}
           onPress={action.onPress}
           activeOpacity={0.75}
-          className="w-1/4 items-center px-4 pb-3"
+          className="w-1/4 items-center px-3 pb-3"
         >
-          <View className="mb-2 aspect-square w-full items-center justify-center rounded-2xl bg-secondary/20">
-            <Ionicons
-              name={action.ionIcon as 'location'}
-              size={32}
-              color={COLORS.secondary}
+          <View className="mb-2 aspect-square w-full items-center justify-center gap-2 rounded-2xl bg-primary-light/15">
+            <Image
+              source={action.icon}
+              style={{ width: 32, height: 32 }}
+              resizeMode="contain"
             />
             <Text
               className="text-center text-sm font-bold text-gray-800"

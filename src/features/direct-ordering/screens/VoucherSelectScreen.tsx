@@ -87,7 +87,7 @@ export const VoucherSelectScreen = ({
   }, [vouchers, totalAmount, searchQuery]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
       <Header
         title={t('checkout.select_voucher')}
@@ -212,7 +212,10 @@ export const VoucherSelectScreen = ({
             </Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={handleSkip} className="items-center py-2">
+          <TouchableOpacity
+            onPress={handleSkip}
+            className="items-center rounded-2xl bg-primary py-3.5"
+          >
             <Text className="text-base font-semibold text-gray-500">
               {t('checkout.skip_voucher')}
             </Text>

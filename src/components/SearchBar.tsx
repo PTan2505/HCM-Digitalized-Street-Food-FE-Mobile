@@ -3,10 +3,10 @@ import { FilterChipBar } from '@components/FilterChipBar';
 import SvgIcon from '@components/SvgIcon';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
+import type { AutocompletePrediction } from '@custom-types/geocoding';
 import { Ionicons } from '@expo/vector-icons';
-import type { AutocompletePrediction } from '@features/maps/services/geocoding';
 import type { JSX } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -15,10 +15,9 @@ interface SearchBarProps {
   placeholder?: string;
   value?: string; // Controlled value
   onChangeText?: (text: string) => void;
-  onSearch?: (text: string) => void; // Debounced callback
+  onSearch?: (text: string) => void; // Submit callback (keyboard search/enter)
   autoFocus?: boolean;
   editable?: boolean;
-  debounceMs?: number;
 
   // Navigation
   showBackButton?: boolean;
@@ -39,6 +38,7 @@ interface SearchBarProps {
   onSelectPrediction?: (prediction: AutocompletePrediction) => void;
   onFocus?: () => void;
   onBlur?: () => void;
+  onPickOnMap?: () => void;
 
   // Search area button (MapScreen specific)
   showSearchAreaButton?: boolean;
@@ -57,7 +57,6 @@ const SearchBar = ({
   onSearch,
   autoFocus = false,
   editable = true,
-  debounceMs = 400,
   showBackButton = false,
   onBackPress,
   onPress,
@@ -72,6 +71,7 @@ const SearchBar = ({
   onSelectPrediction,
   onFocus,
   onBlur,
+  onPickOnMap,
   showSearchAreaButton = false,
   onSearchArea,
   searchAreaButtonText = 'Tìm khu vực này',
@@ -80,27 +80,12 @@ const SearchBar = ({
 }: SearchBarProps): JSX.Element => {
   const { t } = useTranslation();
   const [internalValue, setInternalValue] = useState('');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSearchRef = useRef(onSearch);
   onSearchRef.current = onSearch;
 
   // Use controlled value if provided, otherwise use internal state
   const inputValue = controlledValue ?? internalValue;
   const setInputValue = onChangeText ?? setInternalValue;
-
-  // Debounced search
-  useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (!onSearchRef.current) return;
-
-    timerRef.current = setTimeout(() => {
-      onSearchRef.current?.(inputValue);
-    }, debounceMs);
-
-    return (): void => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [inputValue, debounceMs]);
 
   const handleClearInput = (): void => {
     setInputValue('');
@@ -138,6 +123,7 @@ const SearchBar = ({
             onFocus={onFocus}
             onBlur={onBlur}
             returnKeyType="search"
+            onSubmitEditing={() => onSearchRef.current?.(inputValue)}
           />
 
           {/* Clear button (inline) */}
@@ -187,6 +173,17 @@ const SearchBar = ({
               </Text>
             </TouchableOpacity>
           ))}
+          {onPickOnMap && (
+            <TouchableOpacity
+              className="flex-row items-center gap-3 px-4 py-3"
+              onPress={onPickOnMap}
+            >
+              <Ionicons name="map-outline" size={16} color="#588d22" />
+              <Text className="text-base font-medium text-primary">
+                {t('map.pick_on_map')}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 

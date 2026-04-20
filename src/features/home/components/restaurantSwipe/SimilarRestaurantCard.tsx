@@ -11,9 +11,6 @@ import { TouchableOpacity, View } from 'react-native';
 import ActionButtons from './ActionButtons';
 import ImageCarouselWithProgress from './ImageCarouselWithProgress';
 
-const PLACEHOLDER_IMAGE =
-  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
-
 interface SimilarRestaurantCardProps {
   restaurant: Omit<RestaurantInfoData, 'priceRange' | 'isOpen' | 'schedules'>;
   branchId: number;
@@ -30,7 +27,7 @@ const SimilarRestaurantCard = ({
   const { imageUrls } = useBranchImages(branchId);
   const { isOpen, schedules } = useWorkSchedule(branchId);
   const { dishes } = useBranchDishes(branchId);
-  const images = imageUrls.length > 0 ? imageUrls : [PLACEHOLDER_IMAGE];
+  const images = imageUrls;
 
   const restaurantInfo: RestaurantInfoData = {
     ...restaurant,

@@ -20,7 +20,7 @@
     "error_title": "Error",
     "error_message": "Failed to update dietary preferences"
   },
-  "search_placeholder": "Search restaurants, coffee...",
+  "search_placeholder": "Search stall, food...",
   "what_want_eat": "What Do You Want To Eat?",
   "places_might_like": "Stall Might You Like",
   "discount_branches_title": "Now On Promotion",
@@ -56,7 +56,19 @@
     "empty": "No results found",
     "empty_hint": "Try changing your filters or search keyword",
     "error": "Could not load results. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "history_title": "Recent searches",
+    "clear_history": "Clear all",
+    "address_history_title": "Recent addresses"
+  },
+  "map": {
+    "search_address_placeholder": "Search address...",
+    "pick_on_map": "Pick on map",
+    "drag_to_pick": "Drag map to pick a location",
+    "picked_location_label": "Selected location",
+    "finding_address": "Finding address...",
+    "confirm_location": "Find food here",
+    "search_around_user": "Search around you"
   },
   "sort_by": "Sort By",
   "categories": {
@@ -106,6 +118,7 @@
     "view_detail": "View detail",
     "swipe_up": "Swipe up",
     "to_see_similar": "To see similar restaurants",
+    "no_similar_branches": "No similar restaurants found",
     "sort_by": "Sort by",
     "all": "All",
     "new": "New",
@@ -182,6 +195,7 @@
     "challenges": "Challenges",
     "general": "General",
     "edit_profile": "Edit Profile",
+    "update_profile": "Update Profile",
     "notifications": "Notifications",
     "language": "Language",
     "help_support": "Help & Support",
@@ -193,7 +207,24 @@
     "my_balance": "Lowca Wallet",
     "voucher_wallet": "Voucher Wallet",
     "voucher_marketplace": "Voucher Marketplace",
-    "personal-features": "Personal Features"
+    "personal-features": "Personal Features",
+    "xp_progress": "XP Progress",
+    "xp_next_tier": "to next tier",
+    "tier_silver": "Silver",
+    "tier_gold": "Gold",
+    "tier_diamond": "Diamond",
+    "max_tier": "Max Tier",
+    "tier_progress_title": "Membership Tier Journey",
+    "tier_progress_subtitle": "Earn XP to level up and unlock rewards",
+    "xp_to_gold": "Earn {xp} XP to reach Gold",
+    "xp_to_diamond": "Earn {xp} XP to reach Diamond",
+    "tier_reached": "Reached",
+    "tier_current": "Current tier",
+    "tier_locked": "Locked",
+    "xp_remaining": "{xp} XP remaining",
+    "tier_silver_desc": "Starting tier for all members",
+    "tier_gold_desc": "Unlock special perks for Gold members",
+    "tier_diamond_desc": "Enjoy the highest privileges as a Diamond member"
   },
   "favorites": {
     "title": "Favourites",
@@ -252,7 +283,8 @@
     "withdraw_empty_amount": "Please enter amount!",
     "withdraw_min_amount": "Amount must be at least 1,000 đ!",
     "withdraw_empty_description": "Please enter description!",
-    "withdraw_max_description": "Description must not exceed 255 characters!"
+    "withdraw_max_description": "Description must not exceed 255 characters!",
+    "withdraw_exceed_balance": "Withdrawal amount must not exceed your account balance!"
   },
   "cart": {
     "title": "Cart",
@@ -275,7 +307,13 @@
     "replace_message": "Your current cart will be cleared when you add items from a different stall.",
     "replace_confirm": "Confirm",
     "add_more": "Add more",
-    "view_all_menu": "View all"
+    "view_all_menu": "View all",
+    "my_carts": "My Carts",
+    "my_carts_empty": "No carts yet",
+    "my_carts_empty_hint": "Add dishes from restaurants to get started",
+    "view_menu": "View menu",
+    "n_items": "{{count}} items",
+    "n_items_total": "{{count}} items • {{total}}"
   },
   "checkout": {
     "title": "Checkout",
@@ -292,10 +330,13 @@
     "payment_failed": "Payment was not completed or was cancelled. Please try again.",
     "payment_qr_title": "QR Payment",
     "payment_qr_instruction": "Scan the QR code using your banking app to pay for your order",
+    "payment_qr_expires_in": "Payment expires in {{time}}",
+    "payment_qr_expired": "Payment expired",
     "payment_qr_order_id": "Order ID",
     "payment_qr_share": "Share QR Code",
     "payment_qr_share_error": "Could not share QR code. Please try again.",
     "payment_qr_view_order": "View Order Status",
+    "payment_qr_unavailable": "Payment link is unavailable. Please place the order again.",
     "cancel_order_title": "Cancel Order",
     "cancel_order_message": "Are you sure you want to cancel this order?",
     "voucher": "Voucher",
@@ -338,6 +379,7 @@
       "cancelled": "Cancelled"
     },
     "confirmed_title": "Order confirmed!",
+    "re_pay": "Pay",
     "cancelled_title": "Order cancelled",
     "table_label": "Table No.",
     "take_away": "Take Away",
@@ -415,7 +457,9 @@
       "error_submit_not_near": "Cannot submit review. You may be too far from this place.",
       "error_submit_default": "Failed to submit review. Please try again.",
       "save_changes": "Save changes",
-      "submit": "Submit review"
+      "submit": "Submit review",
+      "order_review_notice": "This review is linked to your order. Each order can only be reviewed once.",
+      "error_location_required": "GPS is required to review without an order."
     }
   },
   "common": {
@@ -558,15 +602,24 @@
     "inProgress": "In Progress",
     "error": "Error",
     "enrollError": "Failed to join challenge. Please try again.",
+    "continue": "Continue Challenge",
+    "stop": "Stop Challenge",
+    "stopped": "Stopped",
+    "stopTitle": "Stop Challenge",
+    "stopConfirm": "Are you sure you want to stop this challenge? Your progress will be saved.",
+    "stopError": "Failed to stop challenge. Please try again.",
     "notFound": "Challenge not found",
     "homeTitle": "Challenges",
     "homeSubtitle": "Complete tasks and earn rewards",
     "rewards": "Rewards can be claimed",
+    "auto": "Auto",
+    "autoActivated": "Auto-activated",
     "taskType": {
       "review": "Write a review",
       "orderAmount": "Spend amount",
       "share": "Share a stall",
-      "createGhostPin": "Pin a new location"
+      "createGhostPin": "Pin a new location",
+      "tierUp": "Reach tier"
     },
     "reward": {
       "badge": "Badge",
@@ -600,7 +653,8 @@
     "error_title": "Error",
     "error_message": "Failed to submit withdrawal request. Please try again.",
     "search_bank": "Search bank...",
-    "no_bank_found": "No bank found"
+    "no_bank_found": "No bank found",
+    "account_privacy_notice": "Account information only applies to this withdrawal session and will not be saved"
   },
   "ghost_pin_creation": {
     "title": "Add New Stall",
@@ -656,7 +710,7 @@
   },
   "home_quick_actions": {
     "section_title": "Explore Lowca",
-    "ghost_pin": "Share New Stall",
+    "ghost_pin": "Share Stall",
     "quest": "Quests",
     "voucher_market": "Voucher Market",
     "personal_cart": "Cart",
@@ -665,5 +719,22 @@
   "voucher": {
     "discount": "Discount",
     "min_order": "Minimum order"
+  },
+  "verify": {
+    "unverified": "Unverified",
+    "verify_button": "Verify",
+    "sending": "Sending...",
+    "otp_title": "Contact Verification",
+    "otp_sent_to": "OTP has been sent to",
+    "channel_email": "your email",
+    "channel_phone": "your phone number",
+    "channel_both": "your email and phone number",
+    "otp_label": "OTP code",
+    "confirm": "Confirm",
+    "confirming": "Confirming...",
+    "cancel": "Cancel",
+    "resend_otp": "Resend OTP",
+    "resending_otp": "Resending...",
+    "resend_in": "Resend in {{time}}"
   }
 }

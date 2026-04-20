@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { VoucherChip } from '@features/home/components/common/PlaceCard';
 import { useWorkSchedule } from '@features/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -47,11 +47,6 @@ const SearchResultCard = ({
   const { isLoading, isOpen } = useWorkSchedule(branch.branchId);
   const touchStartX = useRef(0);
 
-  const resolvedImageUri =
-    imageUri ??
-    branch.dishes[0]?.imageUrl ??
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(branch.name)}&background=a1d973&color=fff&size=300`;
-
   const distanceLabel =
     branch.distanceKm != null
       ? branch.distanceKm < 1
@@ -64,13 +59,19 @@ const SearchResultCard = ({
       {/* Left — image, stretches full card height */}
       <TouchableOpacity
         onPress={onPress}
-        className="relative w-[120px] overflow-hidden rounded-l-[16px]"
+        className="relative w-[120px] self-stretch overflow-hidden rounded-l-[16px]"
       >
-        <Image
-          source={{ uri: resolvedImageUri }}
-          style={{ flex: 1 }}
-          resizeMode="cover"
-        />
+        {imageUri ? (
+          <Image
+            style={{ flex: 1 }}
+            source={{ uri: imageUri }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="w-full flex-1 items-center justify-center bg-lime-100">
+            <Ionicons name="restaurant" size={34} color="#4D7C0F" />
+          </View>
+        )}
         {branch.tier && (
           <View
             className="absolute bottom-1.5 left-1.5 rounded-full px-1.5 py-0.5"

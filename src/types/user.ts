@@ -7,8 +7,11 @@ export interface User {
   avatarUrl?: string;
   role: string;
   point?: number;
+  xp?: number;
+  tierId?: number;
   createdAt?: string;
   emailVerified?: boolean;
+  phoneNumberVerified?: boolean;
   phoneNumber?: string | null;
   userInfoSetup?: boolean;
   dietarySetup?: boolean;

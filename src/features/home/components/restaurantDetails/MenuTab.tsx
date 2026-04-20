@@ -1,5 +1,5 @@
+import { QuantityControl } from '@components/QuantityControl';
 import TabBar from '@components/TabBar';
-import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import type { Dish } from '@features/home/types/branch';
@@ -36,6 +36,7 @@ const MenuTab = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector(selectCart);
+  const hasCart = (cart?.items.length ?? 0) > 0;
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   // Optimistic quantity overrides — updated instantly on press, cleared when cart syncs
@@ -111,6 +112,7 @@ const MenuTab = ({
           updateCartItemThunk({
             dishId: dish.dishId,
             quantity: newQty,
+            branchId,
           })
         );
       }
@@ -131,7 +133,9 @@ const MenuTab = ({
             text: t('cart.replace_confirm'),
             style: 'destructive',
             onPress: async (): Promise<void> => {
-              await dispatch(clearCartThunk()).unwrap();
+              await dispatch(
+                clearCartThunk(cart.branchId ?? branchId)
+              ).unwrap();
               addOrIncrement(dish);
             },
           },
@@ -151,17 +155,18 @@ const MenuTab = ({
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
       if (serverQty <= 1) {
-        dispatch(removeCartItemThunk(dish.dishId));
+        dispatch(removeCartItemThunk({ dishId: dish.dishId, branchId }));
       } else {
         dispatch(
           updateCartItemThunk({
             dishId: dish.dishId,
             quantity: newQty,
+            branchId,
           })
         );
       }
     },
-    [dispatch, getCartQuantity, getServerQuantity]
+    [dispatch, branchId, getCartQuantity, getServerQuantity]
   );
 
   const renderDish = (dish: Dish): JSX.Element => {
@@ -216,31 +221,11 @@ const MenuTab = ({
                 </Text>
               </TouchableOpacity>
             ) : (
-              <View className="flex-row items-center rounded-full bg-gray-100">
-                <TouchableOpacity
-                  onPress={() => handleDecrement(dish)}
-                  className="h-10 w-10 items-center justify-center rounded-full"
-                >
-                  <Ionicons
-                    name="remove-circle"
-                    size={32}
-                    color={COLORS.primary}
-                  />
-                </TouchableOpacity>
-                <Text className="min-w-[28px] text-center text-base font-semibold text-black">
-                  {qty}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => handleAdd(dish)}
-                  className="h-10 w-10 items-center justify-center rounded-full"
-                >
-                  <Ionicons
-                    name="add-circle"
-                    size={32}
-                    color={COLORS.primary}
-                  />
-                </TouchableOpacity>
-              </View>
+              <QuantityControl
+                quantity={qty}
+                onDecrement={() => handleDecrement(dish)}
+                onIncrement={() => handleAdd(dish)}
+              />
             )}
           </View>
         </View>
@@ -249,7 +234,7 @@ const MenuTab = ({
   };
 
   return (
-    <View className="mb-28 flex-1">
+    <View className={`flex-1 ${hasCart ? 'mb-32' : ''}`}>
       {/* Not subscribed notice */}
       {!isSubscribed && (
         <View className="mx-4 mt-4 flex-row items-center gap-2 rounded-xl bg-red-50 px-4 py-3">

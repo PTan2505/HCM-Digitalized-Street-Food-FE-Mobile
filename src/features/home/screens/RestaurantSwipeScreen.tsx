@@ -25,6 +25,7 @@ import {
   NativeSyntheticEvent,
   ScrollView,
   StatusBar,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -35,9 +36,6 @@ type RestaurantSwipeScreenProps = StaticScreenProps<{
   displayName: string;
   onRatingUpdateId?: string;
 }>;
-
-const PLACEHOLDER_IMAGE =
-  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
 
 const LOAD_MORE_THRESHOLD = 300;
 
@@ -80,8 +78,7 @@ export const RestaurantSwipeScreen = ({
     fetchNextPage,
   } = useSimilarBranches(branch.branchId);
 
-  const restaurantImages =
-    imageUrls.length > 0 ? imageUrls : [PLACEHOLDER_IMAGE];
+  const restaurantImages = imageUrls;
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,
@@ -134,7 +131,7 @@ export const RestaurantSwipeScreen = ({
           onScroll={handleScroll}
           scrollEventThrottle={400}
         >
-          <View style={{ height: 450 }}>
+          <View>
             <ImageCarouselWithProgress images={restaurantImages} />
           </View>
 
@@ -146,10 +143,15 @@ export const RestaurantSwipeScreen = ({
               onRatingUpdate={handleRatingUpdate}
             />
           </View>
-
-          <SwipeUpPrompt />
-
+          {<SwipeUpPrompt />}
           <View className="px-0 pb-8">
+            {similarBranches.length === 0 && !isFetchingNextPage && (
+              <View className="items-center py-12">
+                <Text className="text-base text-gray-400">
+                  {t('actions.no_similar_branches')}
+                </Text>
+              </View>
+            )}
             {similarBranches.map((similarBranch) => {
               const similarActiveBranch: ActiveBranch = {
                 branchId: similarBranch.branchId,

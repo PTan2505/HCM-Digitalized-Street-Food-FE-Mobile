@@ -33,15 +33,46 @@ export const QuestDetailScreen = ({
   const navigation = useNavigation();
   const { questId } = route.params;
 
-  const { quest, myProgress, loading, enrolling, error, handleEnroll } =
-    useQuestDetail(questId);
+  const {
+    quest,
+    myProgress,
+    loading,
+    enrolling,
+    stopping,
+    error,
+    handleEnroll,
+    handleStop,
+  } = useQuestDetail(questId);
 
   const onEnroll = async (): Promise<void> => {
     try {
       await handleEnroll();
-    } catch {
-      Alert.alert(t('quest.error'), t('quest.enrollError'));
+    } catch (err) {
+      Alert.alert(
+        t('quest.error'),
+        typeof err === 'string' ? err : t('quest.enrollError')
+      );
     }
+  };
+
+  const onStop = (): void => {
+    Alert.alert(t('quest.stopTitle'), t('quest.stopConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('quest.stop'),
+        style: 'destructive',
+        onPress: async (): Promise<void> => {
+          try {
+            await handleStop();
+          } catch (err) {
+            Alert.alert(
+              t('quest.error'),
+              typeof err === 'string' ? err : t('quest.stopError')
+            );
+          }
+        },
+      },
+    ]);
   };
 
   if (loading) {
@@ -85,8 +116,7 @@ export const QuestDetailScreen = ({
         type: task.type,
         targetValue: task.targetValue,
         description: task.description,
-        rewardType: task.rewardType,
-        rewardValue: task.rewardValue,
+        rewards: task.rewards,
         currentValue: 0,
         isCompleted: false,
         completedAt: null,
@@ -94,10 +124,7 @@ export const QuestDetailScreen = ({
       }));
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header
         title={t('quest.detail')}
         onBackPress={(): void => navigation.goBack()}
@@ -199,8 +226,8 @@ export const QuestDetailScreen = ({
         </View>
       </ScrollView>
 
-      {/* Enroll button (only show if not enrolled) */}
-      {!myProgress && (
+      {/* Enroll button — hidden for auto-activated quests (requiresEnrollment = false) */}
+      {!myProgress && quest.requiresEnrollment && (
         <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
           <TouchableOpacity
             onPress={onEnroll}
@@ -216,6 +243,58 @@ export const QuestDetailScreen = ({
               </Text>
             )}
           </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Stop button — only for standalone quests in progress */}
+      {quest.isStandalone && myProgress?.status === 'IN_PROGRESS' && (
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
+          <TouchableOpacity
+            onPress={onStop}
+            disabled={stopping}
+            className="items-center rounded-full border border-red-400 py-3.5"
+            activeOpacity={0.8}
+          >
+            {stopping ? (
+              <ActivityIndicator color="#f87171" />
+            ) : (
+              <Text className="text-base font-bold text-red-400">
+                {t('quest.stop')}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Continue button — standalone quest that was stopped */}
+      {quest.isStandalone && myProgress?.status === 'STOPPED' && (
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
+          <TouchableOpacity
+            onPress={onEnroll}
+            disabled={enrolling}
+            className="items-center rounded-full bg-primary py-3.5"
+            activeOpacity={0.8}
+          >
+            {enrolling ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-base font-bold text-white">
+                {t('quest.continue')}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Auto-activated label for tier-up quests */}
+      {!myProgress && !quest.requiresEnrollment && (
+        <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
+          <View className="flex-row items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 py-3.5">
+            <Ionicons name="flash-outline" size={18} color="#7AB82D" />
+            <Text className="text-base font-semibold text-primary-dark">
+              {t('quest.autoActivated')}
+            </Text>
+          </View>
         </View>
       )}
     </SafeAreaView>

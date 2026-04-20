@@ -1,7 +1,9 @@
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
+import { Ionicons } from '@expo/vector-icons';
 import FilterModal from '@features/home/components/common/FilterModal';
-import SearchBar from '@features/home/components/common/SearchBar';
+import { useSearchHistory } from '@features/home/hooks/useSearchHistory';
 import type { ActiveBranch } from '@features/home/types/branch';
 import type { GhostPinResponse } from '@features/maps/api/ghostPinApi';
 import { DetailCard } from '@features/maps/components/DetailCard';
@@ -11,13 +13,13 @@ import { useLocationPermission } from '@features/maps/hooks/useLocationPermissio
 import {
   type AutocompletePrediction,
   getPlaceDetail,
+  reverseGeocode,
   searchAddress,
 } from '@features/maps/services/geocoding';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { registerCallback } from '@utils/callbackRegistry';
 import {
   computeDisplayName,
   fetchActiveBranches,
@@ -27,6 +29,7 @@ import {
   selectMultiBranchVendorIds,
   updateBranchRating,
 } from '@slices/branches';
+import { registerCallback } from '@utils/callbackRegistry';
 import * as Location from 'expo-location';
 import type { JSX } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
@@ -119,15 +122,37 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     amenities: [],
   });
 
+  // Address history (separate storage key from SearchScreen's keyword history)
+  const { history: addressHistory, addToHistory: addToAddressHistory } =
+    useSearchHistory('@map_address_history');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
   // Search state
   const [searchText, setSearchText] = useState('');
   const [predictions, setPredictions] = useState<AutocompletePrediction[]>([]);
   const [showPredictions, setShowPredictions] = useState(false);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // "Search this area" state
-  const [showSearchArea, setShowSearchArea] = useState(false);
+  const showAddressHistory = isSearchFocused && !searchText.trim();
+
   const pendingCenterRef = useRef<{ lat: number; lng: number } | null>(null);
+
+  // Search-center pin — coordinate of the last explicit text/pick search
+  const [searchCenterCoord, setSearchCenterCoord] = useState<
+    [number, number] | null
+  >(null);
+
+  // "Pick on map" mode
+  const [isPickingLocation, setIsPickingLocation] = useState(false);
+  const [pickingAddress, setPickingAddress] = useState('');
+  const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
+  // Ref so the onMapIdle callback always reads the latest value without re-creating
+  const isPickingLocationRef = useRef(false);
+  // Ref so handleSearchAroundUser always reads the freshest coords/filters
+  const coordsRef = useRef(coords);
+  coordsRef.current = coords;
+  const activeFiltersRef = useRef(activeFilters);
+  activeFiltersRef.current = activeFilters;
 
   // ── Bottom sheet snap points ──
   // Positions are translateY values from the top of the sheet's natural position.
@@ -136,7 +161,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   const SNAP_HALF = SCREEN_HEIGHT * 0.2; // half position
   const SNAP_COLLAPSED = SCREEN_HEIGHT * 0.42; // only ~100px peek visible
 
-  const sheetTranslateY = useSharedValue(SNAP_HALF);
+  const sheetTranslateY = useSharedValue(SNAP_COLLAPSED);
   const sheetContext = useSharedValue(0);
 
   const snapToNearest = useCallback(
@@ -204,7 +229,6 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   const fetchBranchesForLocation = useCallback(
     (lat: number, lng: number, filters?: FilterState | null) => {
       setMapCenter({ lat, lng });
-      setShowSearchArea(false);
       void dispatch(
         fetchActiveBranches({
           page: 1,
@@ -285,30 +309,210 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   // ── Dismiss search on blur ──
   const dismissSearch = useCallback(() => {
     setShowPredictions(false);
+    setIsSearchFocused(false);
     Keyboard.dismiss();
   }, []);
+
+  // ── Pick on map: enter picking mode ──
+  const handlePickOnMap = useCallback(() => {
+    setShowPredictions(false);
+    setIsSearchFocused(false);
+    Keyboard.dismiss();
+    isPickingLocationRef.current = true;
+    setIsPickingLocation(true);
+    // Kick off an immediate reverse geocode for the current pending center
+    const center = pendingCenterRef.current ?? mapCenter;
+    if (center) {
+      setIsReverseGeocoding(true);
+      reverseGeocode(center.lat, center.lng)
+        .then((result) => {
+          setPickingAddress(
+            result?.formattedAddress ??
+              `${center.lat.toFixed(5)}, ${center.lng.toFixed(5)}`
+          );
+        })
+        .catch(() => {
+          setPickingAddress(
+            `${center.lat.toFixed(5)}, ${center.lng.toFixed(5)}`
+          );
+        })
+        .finally(() => setIsReverseGeocoding(false));
+    }
+  }, [mapCenter]);
+
+  // ── Pick on map: confirm chosen location ──
+  const handlePickingConfirm = useCallback(() => {
+    const center = pendingCenterRef.current ?? mapCenter;
+    if (!center) return;
+    isPickingLocationRef.current = false;
+    setIsPickingLocation(false);
+    setSearchText(pickingAddress);
+    if (pickingAddress) addToAddressHistory(pickingAddress);
+    setSearchCenterCoord([center.lng, center.lat]);
+    fetchBranchesForLocation(center.lat, center.lng, activeFilters);
+    setPickingAddress('');
+  }, [
+    mapCenter,
+    pickingAddress,
+    addToAddressHistory,
+    fetchBranchesForLocation,
+    activeFilters,
+  ]);
+
+  // ── Pick on map: cancel ──
+  const handlePickingCancel = useCallback(() => {
+    isPickingLocationRef.current = false;
+    setIsPickingLocation(false);
+    setPickingAddress('');
+    setIsReverseGeocoding(false);
+  }, []);
+
+  // ── Search around user: reset to user location ──
+  const handleSearchAroundUser = useCallback(() => {
+    const currentCoords = coordsRef.current;
+    console.log('[SAU] called — coordsRef.current =', currentCoords);
+    console.log('[SAU] cameraRef.current =', cameraRef.current);
+    console.log(
+      '[SAU] clearNativeTargetTimer pending =',
+      clearNativeTargetTimer.current !== null
+    );
+    if (!currentCoords) {
+      console.log('[SAU] early-return: no coords');
+      return;
+    }
+    setSearchCenterCoord(null);
+    setSearchText('');
+    // Cancel any pending native camera target neutralisation so it doesn't
+    // fight the new setCamera call (especially on Android).
+    if (clearNativeTargetTimer.current) {
+      console.log('[SAU] clearing pending native-target timer');
+      clearTimeout(clearNativeTargetTimer.current);
+      clearNativeTargetTimer.current = null;
+    }
+    const targetCoord = [currentCoords.longitude, currentCoords.latitude] as [
+      number,
+      number,
+    ];
+
+    // Step 1: pin the native camera at the current visible position with zero
+    // animation, flushing any queued animation state (Android silently drops a
+    // subsequent setCamera when a prior animation is still "committed").
+    const currentNativeCenter = pendingCenterRef.current;
+    if (currentNativeCenter) {
+      console.log('[SAU] neutralise with current center', currentNativeCenter);
+      cameraRef.current?.setCamera({
+        centerCoordinate: [currentNativeCenter.lng, currentNativeCenter.lat],
+        animationDuration: 0,
+      });
+    } else {
+      console.log('[SAU] no pendingCenterRef — skipping neutralise');
+    }
+
+    // Step 2: after the neutralise has been processed (one frame), move to
+    // user location.
+    setTimeout(() => {
+      console.log('[SAU] setTimeout fired — calling setCamera to', targetCoord);
+      cameraRef.current?.setCamera({
+        centerCoordinate: targetCoord,
+        zoomLevel: 14,
+        animationDuration: 800,
+        animationMode: 'easeTo',
+      });
+      console.log('[SAU] setCamera dispatched');
+
+      // Android: neutralise the native camera target once the animation
+      // finishes so a subsequent picking-mode drag doesn't snap back here.
+      // (Same pattern as onMarkerPress's clearNativeTargetTimer.)
+      if (Platform.OS === 'android') {
+        clearNativeTargetTimer.current = setTimeout(() => {
+          clearNativeTargetTimer.current = null;
+          cameraRef.current?.setCamera({ animationDuration: 0 });
+        }, 850); // 800ms animation + 50ms safety margin
+      }
+    }, 32);
+
+    fetchBranchesForLocation(
+      currentCoords.latitude,
+      currentCoords.longitude,
+      activeFiltersRef.current
+    );
+  }, [fetchBranchesForLocation]);
 
   // ── Select a prediction → move camera & fetch branches ──
   const handleSelectPrediction = useCallback(
     async (prediction: AutocompletePrediction) => {
       setShowPredictions(false);
       setSearchText(prediction.mainText);
+      setIsSearchFocused(false);
       Keyboard.dismiss();
+
+      addToAddressHistory(prediction.mainText);
 
       const detail = await getPlaceDetail(prediction.placeId);
       if (!detail) return;
 
       const newCenter: [number, number] = [detail.lng, detail.lat];
+      setSearchCenterCoord(newCenter);
+
+      if (clearNativeTargetTimer.current) {
+        clearTimeout(clearNativeTargetTimer.current);
+      }
       cameraRef.current?.setCamera({
         centerCoordinate: newCenter,
         zoomLevel: 14,
         animationDuration: 800,
         animationMode: 'easeTo',
       });
+      if (Platform.OS === 'android') {
+        clearNativeTargetTimer.current = setTimeout(() => {
+          clearNativeTargetTimer.current = null;
+          cameraRef.current?.setCamera({ animationDuration: 0 });
+        }, 850);
+      }
 
       fetchBranchesForLocation(detail.lat, detail.lng);
     },
-    [fetchBranchesForLocation]
+    [fetchBranchesForLocation, addToAddressHistory]
+  );
+
+  // ── Select a history address → search by address text ──
+  const handleSelectAddressHistory = useCallback(
+    (address: string) => {
+      setSearchText(address);
+      setIsSearchFocused(false);
+      Keyboard.dismiss();
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(async () => {
+        const results = await searchAddress(
+          address,
+          mapCenter ? { lat: mapCenter.lat, lng: mapCenter.lng } : undefined
+        );
+        if (results.length > 0) {
+          const detail = await getPlaceDetail(results[0].placeId);
+          if (!detail) return;
+          const coord: [number, number] = [detail.lng, detail.lat];
+          setSearchCenterCoord(coord);
+
+          if (clearNativeTargetTimer.current) {
+            clearTimeout(clearNativeTargetTimer.current);
+          }
+          cameraRef.current?.setCamera({
+            centerCoordinate: coord,
+            zoomLevel: 14,
+            animationDuration: 800,
+            animationMode: 'easeTo',
+          });
+          if (Platform.OS === 'android') {
+            clearNativeTargetTimer.current = setTimeout(() => {
+              clearNativeTargetTimer.current = null;
+              cameraRef.current?.setCamera({ animationDuration: 0 });
+            }, 850);
+          }
+          fetchBranchesForLocation(detail.lat, detail.lng);
+        }
+      }, 0);
+    },
+    [mapCenter, fetchBranchesForLocation]
   );
 
   // ── Helper: get displayName for a branch ──
@@ -385,29 +589,40 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     setIsPeeked(false);
   }, []);
 
-  // ── User drags map → peek card + dismiss search + track new center ──
+  // ── User drags map → peek card + dismiss search + collapse sheet ──
   const onUserDrag = useCallback(() => {
     if (selectedBranchId) {
       setIsPeeked(true);
+    } else {
+      sheetTranslateY.value = withSpring(SNAP_COLLAPSED, SPRING_CONFIG);
     }
     dismissSearch();
-  }, [selectedBranchId, dismissSearch]);
+  }, [selectedBranchId, dismissSearch, sheetTranslateY, SNAP_COLLAPSED]);
 
-  // ── Map stopped moving → check if center changed significantly ──
-  const onMapIdle = useCallback(
-    (center: [number, number]) => {
-      const [lng, lat] = center;
-      pendingCenterRef.current = { lat, lng };
-      if (!mapCenter) return;
-      const dist = Math.sqrt(
-        (lat - mapCenter.lat) ** 2 + (lng - mapCenter.lng) ** 2
-      );
-      if (dist > 0.01 && !selectedBranchId) {
-        setShowSearchArea(true);
-      }
-    },
-    [mapCenter, selectedBranchId]
-  );
+  // ── Map stopped moving → reverse geocode (picking) or show search-area button ──
+  const onMapIdle = useCallback((center: [number, number]) => {
+    const [lng, lat] = center;
+    pendingCenterRef.current = { lat, lng };
+
+    if (isPickingLocationRef.current) {
+      setIsReverseGeocoding(true);
+      reverseGeocode(lat, lng)
+        .then((result) => {
+          if (!isPickingLocationRef.current) return; // cancelled
+          setPickingAddress(
+            result?.formattedAddress ?? `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+          );
+        })
+        .catch(() => {
+          if (!isPickingLocationRef.current) return;
+          setPickingAddress(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        })
+        .finally(() => {
+          if (isPickingLocationRef.current) setIsReverseGeocoding(false);
+        });
+      return;
+    }
+  }, []);
 
   // ── Rating update callback ──
   const handleRatingUpdate = useCallback(
@@ -502,56 +717,133 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     <GestureHandlerRootView className="flex-1 bg-white">
       {/* ── Full-screen Map ── */}
       <View className="flex-1">
-        {/* Search bar overlay at top */}
-        <View
-          style={{
-            position: 'absolute',
-            top: insets.top + 8,
-            left: 12,
-            right: 12,
-            zIndex: 20,
-          }}
-        >
-          <SearchBar
-            placeholder="Tìm địa chỉ..."
-            value={searchText}
-            onChangeText={handleSearchTextChange}
-            showBackButton
-            onBackPress={() => navigation.goBack()}
-            showFilterChipBar
-            showFilterButton
-            activeFilters={activeFilters}
-            ignoreDefaultDistance
-            onFilterPress={() => {
-              setFilterSection(null);
-              setFilterModalVisible(true);
+        {/* Search bar overlay at top — hidden while picking */}
+        {!isPickingLocation && (
+          <View
+            style={{
+              position: 'absolute',
+              top: insets.top + 8,
+              left: 12,
+              right: 12,
+              zIndex: 20,
             }}
-            onOpenFilter={(section) => {
-              setFilterSection(section);
-              setFilterModalVisible(true);
+          >
+            <SearchBar
+              placeholder={t('map.search_address_placeholder')}
+              value={searchText}
+              onChangeText={handleSearchTextChange}
+              showBackButton
+              onBackPress={() => navigation.goBack()}
+              showFilterChipBar
+              showFilterButton
+              activeFilters={activeFilters}
+              ignoreDefaultDistance
+              onFilterPress={() => {
+                setFilterSection(null);
+                setFilterModalVisible(true);
+              }}
+              onOpenFilter={(section) => {
+                setFilterSection(section);
+                setFilterModalVisible(true);
+              }}
+              predictions={predictions}
+              showPredictions={showPredictions}
+              onSelectPrediction={handleSelectPrediction}
+              onFocus={() => {
+                setIsSearchFocused(true);
+                if (predictions.length > 0) setShowPredictions(true);
+              }}
+              onBlur={dismissSearch}
+              noMargin
+              onPickOnMap={handlePickOnMap}
+            />
+            {/* Recent address history dropdown */}
+            {showAddressHistory && (
+              <View className="mt-1 rounded-xl border border-gray-200 bg-white shadow-lg">
+                {/* "Pick on map" always at top */}
+                <TouchableOpacity
+                  className="flex-row items-center gap-3  px-4 py-3"
+                  onPress={handlePickOnMap}
+                >
+                  <Ionicons name="map-outline" size={16} color="#588d22" />
+                  <Text className="text-base font-medium text-primary">
+                    {t('map.pick_on_map')}
+                  </Text>
+                </TouchableOpacity>
+                {addressHistory.length > 0 && (
+                  <>
+                    <Text className="px-4 pb-1 pt-3 text-sm font-semibold text-gray-500">
+                      {t('search.address_history_title')}
+                    </Text>
+                    {addressHistory.map((address) => (
+                      <TouchableOpacity
+                        key={address}
+                        className="flex-row items-center gap-3 border-t border-gray-100 px-4 py-3"
+                        onPress={() => handleSelectAddressHistory(address)}
+                      >
+                        <Ionicons
+                          name="time-outline"
+                          size={16}
+                          color="#9CA3AF"
+                        />
+                        <Text className="flex-1 text-base text-gray-800">
+                          {address}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* "Search around you" pill — shown when map center differs from user location */}
+        {searchCenterCoord !== null && !isPickingLocation && coords && (
+          <View
+            pointerEvents="box-none"
+            style={{
+              position: 'absolute',
+              top: insets.top + 140,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              zIndex: 15,
             }}
-            predictions={predictions}
-            showPredictions={showPredictions}
-            onSelectPrediction={handleSelectPrediction}
-            onFocus={() => {
-              if (predictions.length > 0) setShowPredictions(true);
+          >
+            <TouchableOpacity
+              onPress={handleSearchAroundUser}
+              className="flex-row items-center gap-1.5 rounded-full bg-white px-4 py-2 shadow-lg"
+            >
+              <Ionicons name="navigate" size={14} color={COLORS.primary} />
+              <Text className="text-base font-semibold text-primary">
+                {t('map.search_around_user')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Picking mode — top cancel bar */}
+        {isPickingLocation && (
+          <View
+            style={{
+              position: 'absolute',
+              top: insets.top + 8,
+              left: 12,
+              right: 12,
+              zIndex: 20,
             }}
-            onBlur={dismissSearch}
-            showSearchAreaButton={showSearchArea}
-            onSearchArea={() => {
-              if (pendingCenterRef.current) {
-                fetchBranchesForLocation(
-                  pendingCenterRef.current.lat,
-                  pendingCenterRef.current.lng,
-                  activeFilters
-                );
-              }
-            }}
-            searchAreaButtonText="Tìm khu vực này"
-            topInset={insets.top}
-            noMargin
-          />
-        </View>
+          >
+            <View className="flex-row items-center rounded-[50px] bg-white px-4 py-4 shadow-sm">
+              <TouchableOpacity onPress={handlePickingCancel} className="mr-3">
+                <Ionicons name="chevron-back" size={22} color="#333" />
+              </TouchableOpacity>
+              <Text className="flex-1 text-base font-semibold text-gray-700">
+                {t('map.drag_to_pick')}
+              </Text>
+            </View>
+          </View>
+        )}
 
         <Maps
           cameraRef={cameraRef}
@@ -564,10 +856,12 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
           branches={branches}
           branchImageMap={branchImageMap}
           ghostPins={ghostPins}
+          isPickingLocation={isPickingLocation}
+          searchCenter={searchCenterCoord}
         />
 
         {/* Detail card — slides up when a branch is selected */}
-        {selectedBranch && (
+        {selectedBranch && !isPickingLocation && (
           <DetailCard
             branch={selectedBranch}
             displayName={getDisplayName(selectedBranch)}
@@ -578,10 +872,67 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
             onViewDetail={() => handleViewDetail(selectedBranch)}
           />
         )}
+
+        {/* Picking mode — bottom confirm card */}
+        {isPickingLocation && (
+          <View
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              paddingBottom: insets.bottom + 12,
+            }}
+            className="rounded-t-3xl bg-white px-5 pt-4 shadow-2xl"
+          >
+            <View className="mb-1 items-center">
+              <View className="h-1 w-10 rounded-full bg-gray-300" />
+            </View>
+            <View className="mb-4 mt-3 flex-row items-start">
+              <Ionicons
+                name="location-sharp"
+                size={20}
+                color={COLORS.primary}
+                style={{ marginTop: 2, marginRight: 8 }}
+              />
+              <View className="flex-1">
+                <Text className="text-sm font-medium text-gray-400">
+                  {t('map.picked_location_label')}
+                </Text>
+                {isReverseGeocoding ? (
+                  <View className="mt-1 flex-row items-center">
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <Text className="ml-2 text-base text-gray-400">
+                      {t('map.finding_address')}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text
+                    className="mt-0.5 text-base leading-5 text-gray-800"
+                    numberOfLines={2}
+                  >
+                    {pickingAddress || t('map.drag_to_pick')}
+                  </Text>
+                )}
+              </View>
+            </View>
+            <TouchableOpacity
+              onPress={handlePickingConfirm}
+              disabled={isReverseGeocoding}
+              className={`items-center rounded-xl py-3.5 ${
+                isReverseGeocoding ? 'bg-gray-300' : 'bg-primary'
+              }`}
+            >
+              <Text className="text-base font-bold text-white">
+                {t('map.confirm_location')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* ── Draggable Branch list bottom sheet ── */}
-      {!selectedBranch && (
+      {!selectedBranch && !isPickingLocation && (
         <Animated.View
           entering={SlideInDown.springify()
             .damping(20)

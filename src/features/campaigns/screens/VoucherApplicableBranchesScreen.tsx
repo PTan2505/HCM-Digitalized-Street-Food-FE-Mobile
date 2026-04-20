@@ -1,10 +1,9 @@
+import SearchBar from '@components/SearchBar';
 import { Ionicons } from '@expo/vector-icons';
 import { ApplicableBranchGridItem } from '@features/campaigns/components/ApplicableBranchGridItem';
 import { TicketVoucherCard } from '@features/campaigns/components/TicketVoucherCard';
 import { useSystemCampaignBranches } from '@features/campaigns/hooks/useSystemCampaignBranches';
 import { PlaceCardSkeleton } from '@features/home/components/common/HomeSkeleton';
-import SearchBar from '@features/home/components/common/SearchBar';
-import { useLocationPermission } from '@features/maps/hooks/useLocationPermission';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { Voucher } from '@slices/campaigns';
 import type { JSX } from 'react';
@@ -39,9 +38,9 @@ export const VoucherApplicableBranchesScreen = ({
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { coords } = useLocationPermission();
+  // const { coords } = useLocationPermission();
   const { branches, imageMap, isLoading, isError, refetch } =
-    useSystemCampaignBranches(voucher.campaignId, coords);
+    useSystemCampaignBranches(voucher.campaignId);
 
   const skeletonItems = Array.from({ length: 6 }, (_, i) => ({
     _skeleton: true as const,

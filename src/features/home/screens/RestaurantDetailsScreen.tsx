@@ -4,17 +4,17 @@ import type { VendorTier } from '@custom-types/vendor';
 import { Ionicons } from '@expo/vector-icons';
 import type { RestaurantInfoData } from '@features/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/home/components/common/RestaurantInfo';
+import SearchResultCard from '@features/home/components/common/SearchResultCard';
 import FixedHeaderControls from '@features/home/components/restaurantDetails/FixedHeaderControls';
 import HeaderImage from '@features/home/components/restaurantDetails/HeaderImage';
 import MenuTab from '@features/home/components/restaurantDetails/MenuTab';
-import type { NearbyRestaurant } from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
-import RestaurantsMayLikeTab from '@features/home/components/restaurantDetails/RestaurantsMayLikeTab';
 import type { Review } from '@features/home/components/restaurantDetails/ReviewsTab';
 import ReviewsTab from '@features/home/components/restaurantDetails/ReviewsTab';
 import { ReviewFormModal } from '@features/home/components/ReviewFormModal';
 import { useBranchDishes } from '@features/home/hooks/useBranchDishes';
 import { useBranchFeedback } from '@features/home/hooks/useBranchFeedback';
 import { useBranchImages } from '@features/home/hooks/useBranchImages';
+import { useCompletedOrdersForBranch } from '@features/home/hooks/useCompletedOrdersForBranch';
 import { useFavoriteBranches } from '@features/home/hooks/useFavoriteBranches';
 import { useNearbyBranches } from '@features/home/hooks/useNearbyBranches';
 import { useOwnBranchFeedback } from '@features/home/hooks/useOwnBranchFeedback';
@@ -27,6 +27,7 @@ import type { BranchTier } from '@features/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   StaticScreenProps,
   useFocusEffect,
@@ -51,20 +52,28 @@ import {
   ActionSheetIOS,
   Alert,
   Linking,
+  Modal,
   Platform,
+  Pressable,
   ScrollView,
   Share,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 export type TabType = 'menu' | 'reviews' | 'nearby';
 
-import { useSharedValue } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-const PLACEHOLDER_IMAGE =
-  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200';
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
@@ -77,6 +86,7 @@ export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
   const { branch, displayName, tab, onRatingUpdateId } = route.params;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     return (): void => {
@@ -94,7 +104,8 @@ export const RestaurantDetailsScreen = ({
   const [activeTab, setActiveTab] = useState<TabType>(tab ?? 'menu');
   const progress = useSharedValue<number>(0);
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const detailTabs = useMemo(
     () => [
       {
@@ -162,6 +173,45 @@ export const RestaurantDetailsScreen = ({
   const [editingFeedback, setEditingFeedback] = useState<Feedback | undefined>(
     undefined
   );
+  const [showOrderPicker, setShowOrderPicker] = useState(false);
+  const [orderPickerBackdrop, setOrderPickerBackdrop] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const backdropProgress = useSharedValue(0);
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      backdropProgress.value,
+      [0, 1],
+      ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)']
+    ),
+  }));
+
+  const openOrderPicker = useCallback(() => {
+    if (closeBackdropTimeoutRef.current) {
+      clearTimeout(closeBackdropTimeoutRef.current);
+      closeBackdropTimeoutRef.current = null;
+    }
+    setOrderPickerBackdrop(true);
+    setShowOrderPicker(true);
+    backdropProgress.value = withTiming(1, { duration: 220 });
+  }, [backdropProgress]);
+
+  const closeOrderPicker = useCallback(() => {
+    setShowOrderPicker(false);
+    backdropProgress.value = withTiming(0, { duration: 220 });
+
+    if (closeBackdropTimeoutRef.current) {
+      clearTimeout(closeBackdropTimeoutRef.current);
+    }
+
+    closeBackdropTimeoutRef.current = setTimeout(() => {
+      setOrderPickerBackdrop(false);
+      closeBackdropTimeoutRef.current = null;
+    }, 220);
+  }, [backdropProgress]);
 
   const { isFavorite, toggleFavorite } = useFavoriteBranches();
 
@@ -178,11 +228,23 @@ export const RestaurantDetailsScreen = ({
   } = useBranchFeedback(branch.branchId);
   const { ownFeedback, setOwnFeedback } = useOwnBranchFeedback(branch.branchId);
   const {
+    hasCompletedOrders,
+    completedOrders,
+    isLoading: isOrdersLoading,
+  } = useCompletedOrdersForBranch(branch.branchId);
+  const {
     canReview,
     reason: reviewIneligibilityReason,
     isLoading: isEligibilityLoading,
+    userLat,
+    userLong,
     refetchVelocity,
-  } = useReviewEligibility(branch.branchId, branch.lat, branch.long);
+  } = useReviewEligibility(
+    branch.branchId,
+    branch.lat,
+    branch.long,
+    hasCompletedOrders
+  );
   const { branches: nearbyBranches } = useNearbyBranches(
     branch.lat,
     branch.long,
@@ -191,9 +253,11 @@ export const RestaurantDetailsScreen = ({
 
   const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
 
-  useEffect(() => {
-    dispatch(fetchCartThunk());
-  }, [dispatch]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchCartThunk(branch.branchId));
+    }, [dispatch, branch.branchId])
+  );
 
   useEffect(() => {
     const { getBranchTier } = getLowcaAPIUnimplementedEndpoints();
@@ -205,6 +269,14 @@ export const RestaurantDetailsScreen = ({
   useEffect(() => {
     if (tab) setActiveTab(tab);
   }, [tab]);
+
+  useEffect((): (() => void) => {
+    return (): void => {
+      if (closeBackdropTimeoutRef.current) {
+        clearTimeout(closeBackdropTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleDeleteReview = useCallback(
     (feedbackId: number) => {
@@ -251,7 +323,14 @@ export const RestaurantDetailsScreen = ({
 
   const handleOpenWriteReview = (): void => {
     setEditingFeedback(undefined);
-    setShowReviewModal(true);
+    if (hasCompletedOrders && completedOrders.length > 0) {
+      // Pre-select newest order; show picker so user can choose
+      setSelectedOrderId(completedOrders[0].orderId);
+      openOrderPicker();
+    } else {
+      setSelectedOrderId(null);
+      setShowReviewModal(true);
+    }
   };
 
   const isSharingRef = useRef(false);
@@ -353,10 +432,7 @@ export const RestaurantDetailsScreen = ({
     [feedbacks, updateFeedback]
   );
 
-  const restaurantBanners =
-    branchImageUrls.length > 0
-      ? branchImageUrls.map((url) => ({ uri: url }))
-      : [{ uri: PLACEHOLDER_IMAGE }];
+  const restaurantBanners = branchImageUrls.map((url) => ({ uri: url }));
 
   const restaurantInfo: RestaurantInfoData = {
     name: displayName,
@@ -407,25 +483,10 @@ export const RestaurantDetailsScreen = ({
     };
   });
 
-  const nearbyRestaurants: NearbyRestaurant[] = nearbyBranches.map((b) => {
-    const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
-    const displayName = computeDisplayName(b, isMultiBranch, t('branch'));
-    return {
-      id: String(b.branchId),
-      name: displayName,
-      rating: b.avgRating,
-      distance: b.distanceKm != null ? `${b.distanceKm.toFixed(1)} km` : '',
-      priceRange: getPriceRange(b.dishes),
-      imageUri: b.dishes[0]?.imageUrl,
-      onPress: () =>
-        navigation.navigate('RestaurantDetails', { branch: b, displayName }),
-    };
-  });
-
   const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
 
   return (
-    <SafeAreaView edges={['left', 'right']} className="flex-1">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <FixedHeaderControls
         onSharePress={handleSharePress}
         isFavorite={isFavorite(branch.branchId)}
@@ -531,11 +592,11 @@ export const RestaurantDetailsScreen = ({
             feedbackDetails={feedbackDetails}
             canReview={canReview && ownFeedback == null}
             reviewIneligibilityReason={reviewIneligibilityReason}
-            isEligibilityLoading={isEligibilityLoading}
+            isEligibilityLoading={isEligibilityLoading || isOrdersLoading}
             ownFeedbackId={ownFeedback?.id}
+            hasCompletedOrders={hasCompletedOrders}
             branchId={branch.branchId}
             displayName={displayName}
-            dishes={branch.dishes ?? []}
             branchLat={branch.lat}
             branchLong={branch.long}
             onWriteReview={handleOpenWriteReview}
@@ -546,41 +607,171 @@ export const RestaurantDetailsScreen = ({
         )}
 
         {activeTab === 'nearby' && (
-          <RestaurantsMayLikeTab restaurants={nearbyRestaurants} />
+          <View className="px-4 pb-4 pt-3">
+            {nearbyBranches.map((b) => {
+              const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
+              const nearbyDisplayName = computeDisplayName(
+                b,
+                isMultiBranch,
+                t('branch')
+              );
+
+              return (
+                <SearchResultCard
+                  key={b.branchId}
+                  branch={b}
+                  displayName={nearbyDisplayName}
+                  imageUri={b.dishes[0]?.imageUrl}
+                  onPress={() =>
+                    navigation.push('RestaurantDetails', {
+                      branch: b,
+                      displayName: nearbyDisplayName,
+                      tab: 'menu',
+                    })
+                  }
+                />
+              );
+            })}
+          </View>
         )}
       </ScrollView>
+
+      {orderPickerBackdrop && (
+        <>
+          {/* Backdrop — animated independently from the sliding sheet */}
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                top: -insets.top,
+                bottom: -insets.bottom,
+              },
+              backdropAnimatedStyle,
+            ]}
+          />
+          <Pressable
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                top: -insets.top,
+                bottom: -insets.bottom,
+              },
+            ]}
+            onPress={closeOrderPicker}
+          />
+        </>
+      )}
+      {/* Order picker — shown when user has completed orders and taps Write Review */}
+      <Modal
+        visible={showOrderPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={closeOrderPicker}
+      >
+        <View className="flex-1">
+          <Pressable className="absolute inset-0" onPress={closeOrderPicker} />
+          <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white pb-8 pt-4">
+            {/* Handle */}
+            <View className="mb-4 items-center">
+              <View className="h-1 w-12 rounded-full bg-gray-300" />
+            </View>
+
+            <Text className="mb-3 px-4 text-lg font-bold text-black">
+              {t('review.pick_order', 'Chọn đơn hàng để đánh giá')}
+            </Text>
+
+            {[...completedOrders]
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((order) => {
+                const isSelected = selectedOrderId === order.orderId;
+                return (
+                  <TouchableOpacity
+                    key={order.orderId}
+                    onPress={(): void => setSelectedOrderId(order.orderId)}
+                    className={`mx-4 mb-2 rounded-xl border px-4 py-3 ${
+                      isSelected
+                        ? 'border-primary bg-primary/10'
+                        : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <Text
+                        className={`text-base font-semibold ${isSelected ? 'text-primary-dark' : 'text-gray-800'}`}
+                      >
+                        #{order.orderId}
+                      </Text>
+                      <Text className="text-sm text-gray-500">
+                        {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                      </Text>
+                    </View>
+                    <Text className="mt-1 text-sm text-gray-600">
+                      {order.finalAmount.toLocaleString('vi-VN')}₫
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+
+            <TouchableOpacity
+              onPress={(): void => {
+                closeOrderPicker();
+                setShowReviewModal(true);
+              }}
+              disabled={selectedOrderId == null}
+              className={`mx-4 mt-3 items-center rounded-xl py-4 ${
+                selectedOrderId != null ? 'bg-primary' : 'bg-gray-200'
+              }`}
+            >
+              <Text
+                className={`text-base font-semibold ${selectedOrderId != null ? 'text-white' : 'text-gray-400'}`}
+              >
+                {t('review.write', 'Viết đánh giá')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <ReviewFormModal
         visible={showReviewModal}
         branchId={branch.branchId}
-        dishes={branch.dishes}
         existingFeedback={editingFeedback}
+        orderId={editingFeedback == null ? selectedOrderId : null}
+        userLat={userLat}
+        userLong={userLong}
         onClose={() => setShowReviewModal(false)}
         onSuccess={handleReviewSuccess}
       />
 
       {cart && cart.items.length > 0 && (
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('PersonalCart', {
-              branchName: cartBranchDisplayName,
-              isOpen,
-            })
-          }
-          className="absolute bottom-6 left-4 right-4 flex-col justify-center rounded-2xl bg-primary px-5 py-4 shadow-lg"
-        >
-          <Text className="text-base font-bold text-white">
-            {cartBranchDisplayName}
-          </Text>
-          <View className="mt-1 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-secondary">
-              {t('cart.items_count', { count: cart.items.length })}
-            </Text>
-            <Text className="text-base font-bold text-secondary">
-              {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
+        <View className="absolute bottom-0 left-0 right-0 bg-white px-4 pb-8 pt-3 shadow-lg">
+          <View className="flex-row items-center">
+            <Text className="mb-2 text-xl font-bold text-gray-700">
+              {t('cart.title')}
             </Text>
           </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('PersonalCart', {
+                branchId: branch.branchId,
+                branchName: cartBranchDisplayName,
+                isOpen,
+              })
+            }
+            className="flex-row items-center justify-between rounded-2xl bg-primary px-5 py-4"
+          >
+            <Text className="text-base font-bold text-white">
+              {t('cart.items_count', { count: cart.items.length })}
+            </Text>
+            <Text className="text-base font-bold text-white">
+              {`${cart.totalAmount.toLocaleString('vi-VN')}đ`}
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
     </SafeAreaView>
   );

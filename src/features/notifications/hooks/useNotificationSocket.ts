@@ -1,8 +1,9 @@
 import type { NotificationDto } from '@features/notifications/types/notification';
+import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import * as signalR from '@microsoft/signalr';
-import { addPoints } from '@slices/auth';
+import { addPoints, refreshUserBalanceThunk } from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
 import { receiveNotification } from '@slices/notifications';
 import { fetchMyQuests, setPendingReward } from '@slices/quests';
@@ -41,7 +42,14 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       ) {
         dispatch(
           syncOrderToHistoryFromNotificationThunk(notification.referenceId)
-        );
+        )
+          .unwrap()
+          .then((order) => {
+            if (order.status === ORDER_STATUS.Cancelled) {
+              dispatch(refreshUserBalanceThunk());
+            }
+          })
+          .catch(() => {});
       }
 
       const isQuestTaskCompleted =
@@ -57,23 +65,25 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
           .getQuestTaskById(questTaskId)
           .then((task) => {
             // POINTS — update user balance immediately (no need to wait)
-            if (task.rewardType === 'POINTS') {
-              dispatch(addPoints(task.rewardValue));
+            const pointsReward = task.rewards.find(
+              (r) => r.rewardType === 'POINTS'
+            );
+            if (pointsReward) {
+              dispatch(
+                addPoints(pointsReward.rewardValue * pointsReward.quantity)
+              );
             }
 
-            setTimeout(() => {
-              dispatch(
-                setPendingReward({
-                  rewardType: task.rewardType,
-                  rewardValue: task.rewardValue,
-                })
-              );
-            }, 1000);
+            if (task.rewards.length > 0) {
+              setTimeout(() => {
+                dispatch(setPendingReward({ rewards: task.rewards }));
+              }, 1000);
+            }
           })
           .catch(() => {});
 
         // Refresh quest list in background so screens stay up-to-date
-        dispatch(fetchMyQuests(undefined));
+        dispatch(fetchMyQuests({ isTierUp: false }));
       }
     });
 

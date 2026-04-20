@@ -42,7 +42,7 @@ export class StallSearchApi {
         totalReviewCount: branch.totalReviewCount ?? 0,
         totalRatingSum: 0,
         isActive: branch.isActive,
-        isSubscribed: false,
+        isSubscribed: branch.isSubscribed,
         tierId: 0,
         tierName: '',
         finalScore: branch.finalScore ?? 0,

@@ -1,9 +1,9 @@
+import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/campaigns/hooks/useVendorCampaignBranches';
 import { PlaceCard } from '@features/home/components/common/PlaceCard';
-import SearchBar from '@features/home/components/common/SearchBar';
 import BannerCarousel from '@features/home/components/home/BannerCarousel';
 import { useCategories } from '@features/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -25,6 +25,10 @@ import {
   selectDietaryState,
   selectUserDietaryPreferences,
 } from '@slices/dietary';
+import {
+  fetchMyCartsThunk,
+  selectTotalCartsWithItems,
+} from '@slices/directOrdering';
 import { fetchUnreadCount } from '@slices/notifications';
 import { registerCallback } from '@utils/callbackRegistry';
 import '@utils/i18n';
@@ -91,6 +95,7 @@ export const HomeScreen = (): JSX.Element => {
     imageMap: vendorCampaignImageMap,
     isLoading: vendorCampaignLoading,
   } = useVendorCampaignBranches(userCoords, permissionStatus);
+  const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -294,6 +299,12 @@ export const HomeScreen = (): JSX.Element => {
     void dispatch(fetchUnreadCount());
   }, [dispatch]);
 
+  useFocusEffect(
+    useCallback(() => {
+      void dispatch(fetchMyCartsThunk());
+    }, [dispatch])
+  );
+
   const handleCampaignPress = useCallback(
     (campaignId: string, campaignType: 'system' | 'restaurant') => {
       if (campaignType === 'system') {
@@ -448,10 +459,7 @@ export const HomeScreen = (): JSX.Element => {
               renderItem={({ item }) => (
                 <CategoryCard
                   title={item.name}
-                  image={
-                    item.imageUrl ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=a1d973&color=fff&size=160`
-                  }
+                  image={item.imageUrl ?? undefined}
                   onPress={() =>
                     navigation.navigate('Search', {
                       selectedCategoryId: String(item.categoryId),
@@ -741,6 +749,23 @@ export const HomeScreen = (): JSX.Element => {
           </>
         )}
       </View>
+      {/* Floating cart button — visible when user has active carts */}
+      {totalCartsWithItems > 0 && (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('MyCarts')}
+          className="absolute bottom-[120px] right-[20px] z-[200] aspect-square w-16 flex-row items-center justify-center rounded-lg bg-primary shadow-lg"
+        >
+          <View className="relative">
+            <Ionicons name="cart" size={28} color="#fff" />
+            <View className="absolute -right-2 -top-1 h-[12px] min-w-[1px] items-center justify-center rounded-full bg-red-600 px-1">
+              <Text className="text-[8px] font-bold leading-[12px] text-white">
+                {totalCartsWithItems > 99 ? '99+' : totalCartsWithItems}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+
       {/* Sticky SearchBar — appears when the in-list bar scrolls out of view */}
       <Animated.View
         pointerEvents={showStickyBar ? 'auto' : 'none'}

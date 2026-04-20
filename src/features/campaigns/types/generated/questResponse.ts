@@ -8,6 +8,7 @@ export interface QuestResponse {
   startDate: string;
   endDate: string;
   isActive: boolean;
+  requiresEnrollment: boolean;
   campaignId?: number | null;
   createdAt: string;
   updatedAt?: string | null;

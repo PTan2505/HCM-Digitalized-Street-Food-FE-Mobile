@@ -95,16 +95,14 @@ export const usePaymentSocket = (
 
     connect();
 
-    // When app returns from background (e.g. banking app), reconnect if disconnected
+    // When app returns from background (e.g. banking app), reconnect if disconnected.
+    // We intentionally do NOT disconnect on background here — the user is actively
+    // waiting for payment confirmation and we want to receive PaymentStatusUpdate
+    // in real-time even while the payment browser is open.
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (cancelled) return;
       if (nextState === 'active') {
         connect();
-        return;
-      }
-      // 'inactive' is a transient iOS state — do not disconnect.
-      if (nextState === 'background') {
-        disconnect();
       }
     });
 

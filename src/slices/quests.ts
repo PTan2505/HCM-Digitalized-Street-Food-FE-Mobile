@@ -3,21 +3,29 @@ import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import type { APIErrorResponse } from '@custom-types/apiResponse';
+
+const extractErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object' && 'message' in error)
+    return (error as APIErrorResponse).message ?? fallback;
+  return fallback;
+};
 
 import type {
   PaginatedQuests,
-  QuestRewardType,
+  PaginatedUserQuests,
+  QuestTaskRewardItem,
   UserQuestProgress,
 } from '@features/quests/types/quest';
 
 export interface PendingQuestReward {
-  rewardType: QuestRewardType | number;
-  rewardValue: number;
+  rewards: QuestTaskRewardItem[];
 }
 
 export interface QuestsState {
   publicQuests: PaginatedQuests | null;
-  myQuests: UserQuestProgress[];
+  myQuests: PaginatedUserQuests | null;
   currentQuestDetail: UserQuestProgress | null;
   pendingReward: PendingQuestReward | null;
   loading: boolean;
@@ -26,7 +34,7 @@ export interface QuestsState {
 
 const initialState: QuestsState = {
   publicQuests: null,
-  myQuests: [],
+  myQuests: null,
   currentQuestDetail: null,
   pendingReward: null,
   loading: false,
@@ -36,14 +44,29 @@ const initialState: QuestsState = {
 export const fetchPublicQuests = createAppAsyncThunk(
   'quests/fetchPublicQuests',
   async (
-    { pageNumber, pageSize }: { pageNumber?: number; pageSize?: number },
+    {
+      pageNumber,
+      pageSize,
+      isStandalone,
+      isTierUp,
+    }: {
+      pageNumber?: number;
+      pageSize?: number;
+      isStandalone?: boolean;
+      isTierUp?: boolean;
+    },
     { rejectWithValue }
   ) => {
     try {
-      return await axiosApi.questApi.getPublicQuests(pageNumber, pageSize);
+      return await axiosApi.questApi.getPublicQuests(
+        pageNumber,
+        pageSize,
+        isStandalone,
+        isTierUp
+      );
     } catch (error) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch quests'
+        extractErrorMessage(error, 'Failed to fetch quests')
       );
     }
   }
@@ -56,7 +79,20 @@ export const enrollInQuest = createAppAsyncThunk(
       return await axiosApi.questApi.enrollInQuest(questId);
     } catch (error) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to enroll in quest'
+        extractErrorMessage(error, 'Failed to enroll in quest')
+      );
+    }
+  }
+);
+
+export const stopQuest = createAppAsyncThunk(
+  'quests/stopQuest',
+  async (questId: number, { rejectWithValue }) => {
+    try {
+      return await axiosApi.questApi.stopQuest(questId);
+    } catch (error) {
+      return rejectWithValue(
+        extractErrorMessage(error, 'Failed to stop quest')
       );
     }
   }
@@ -64,12 +100,30 @@ export const enrollInQuest = createAppAsyncThunk(
 
 export const fetchMyQuests = createAppAsyncThunk(
   'quests/fetchMyQuests',
-  async (status: string | undefined, { rejectWithValue }) => {
+  async (
+    {
+      status,
+      isTierUp,
+      pageNumber,
+      pageSize,
+    }: {
+      status?: string;
+      isTierUp?: boolean;
+      pageNumber?: number;
+      pageSize?: number;
+    } = {},
+    { rejectWithValue }
+  ) => {
     try {
-      return await axiosApi.questApi.getMyQuests(status);
+      return await axiosApi.questApi.getMyQuests(
+        status,
+        isTierUp,
+        pageNumber,
+        pageSize
+      );
     } catch (error) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to fetch my quests'
+        extractErrorMessage(error, 'Failed to fetch my quests')
       );
     }
   }
@@ -115,6 +169,18 @@ const questsSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(stopQuest.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(stopQuest.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentQuestDetail = action.payload;
+      })
+      .addCase(stopQuest.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(fetchMyQuests.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -137,7 +203,7 @@ export default questsSlice.reducer;
 // Selectors
 export const selectPublicQuests = (state: RootState): PaginatedQuests | null =>
   state.quests.publicQuests;
-export const selectMyQuests = (state: RootState): UserQuestProgress[] =>
+export const selectMyQuests = (state: RootState): PaginatedUserQuests | null =>
   state.quests.myQuests;
 export const selectQuestsLoading = (state: RootState): boolean =>
   state.quests.loading;

@@ -88,12 +88,12 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
         <View className="flex-row flex-wrap gap-3 ">
           {restaurant.dietaryPreferenceNames.length > 0 &&
             restaurant.dietaryPreferenceNames.map((name, index) => (
-              <Text
+              <View
                 key={index}
-                className="rounded-2xl bg-[#F1FAEA]  px-2 py-1 text-sm text-gray-600"
+                className="rounded-2xl bg-[#F1FAEA] px-2 py-0.5"
               >
-                {name}
-              </Text>
+                <Text className="text-sm text-gray-600">{name}</Text>
+              </View>
             ))}
         </View>
         <TierBadge tier={restaurant.tier} paused={restaurant.isTierPaused} />

@@ -13,6 +13,7 @@ import {
 import { getUserDietaryPreferences } from '@slices/dietary';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
 import LottieSplashScreen from '../screens/LottieSplashScreen';
@@ -161,7 +162,9 @@ export function AppProvider({
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <AppInitializer>{children}</AppInitializer>
+        <KeyboardProvider>
+          <AppInitializer>{children}</AppInitializer>
+        </KeyboardProvider>
       </Provider>
     </QueryClientProvider>
   );
