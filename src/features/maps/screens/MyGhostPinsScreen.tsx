@@ -140,7 +140,6 @@ export const MyGhostPinsScreen = (): JSX.Element => {
         onBackPress={() => navigation.goBack()}
         secondaryAction={{
           label: t('my_ghost_pins.add_action'),
-          icon: <Ionicons name="add" size={18} color="#111827" />,
           onPress: () => navigation.navigate('GhostPinCreation'),
         }}
       />

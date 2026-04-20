@@ -729,5 +729,22 @@
     "error": "Error",
     "error_generic": "Something went wrong, please try again",
     "access_denied": "This account does not have manager access"
+  },
+  "verify": {
+    "unverified": "Unverified",
+    "verify_button": "Verify",
+    "sending": "Sending...",
+    "otp_title": "Contact Verification",
+    "otp_sent_to": "OTP has been sent to",
+    "channel_email": "your email",
+    "channel_phone": "your phone number",
+    "channel_both": "your email and phone number",
+    "otp_label": "OTP code",
+    "confirm": "Confirm",
+    "confirming": "Confirming...",
+    "cancel": "Cancel",
+    "resend_otp": "Resend OTP",
+    "resending_otp": "Resending...",
+    "resend_in": "Resend in {{time}}"
   }
 }

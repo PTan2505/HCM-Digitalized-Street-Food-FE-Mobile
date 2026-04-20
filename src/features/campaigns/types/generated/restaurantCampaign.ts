@@ -17,7 +17,6 @@ import type { DiscountType } from './discountType';
 
 export interface RestaurantCampaign {
   campaignId: number;
-  createdByBranchId?: number | null;
   createdByVendorId?: number | null;
   name: string;
   description?: string | null;

@@ -16,7 +16,6 @@ The `data` field contains the schema documented per endpoint.
 
 export interface SystemCampaign {
   campaignId: number;
-  createdByBranchId?: number | null;
   createdByVendorId?: number | null;
   name: string;
   description?: string | null;

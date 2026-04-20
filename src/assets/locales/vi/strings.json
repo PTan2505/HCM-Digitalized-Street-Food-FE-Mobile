@@ -729,5 +729,22 @@
     "error": "Lỗi",
     "error_generic": "Đã xảy ra lỗi, vui lòng thử lại",
     "access_denied": "Tài khoản này không có quyền truy cập quản lý"
+  },
+  "verify": {
+    "unverified": "Chưa xác thực",
+    "verify_button": "Xác thực",
+    "sending": "Đang gửi...",
+    "otp_title": "Xác minh liên hệ",
+    "otp_sent_to": "Mã OTP đã được gửi đến",
+    "channel_email": "email của bạn",
+    "channel_phone": "số điện thoại của bạn",
+    "channel_both": "email và số điện thoại của bạn",
+    "otp_label": "Mã OTP",
+    "confirm": "Xác nhận",
+    "confirming": "Đang xác nhận...",
+    "cancel": "Huỷ",
+    "resend_otp": "Gửi lại mã OTP",
+    "resending_otp": "Đang gửi lại...",
+    "resend_in": "Gửi lại sau {{time}}"
   }
 }

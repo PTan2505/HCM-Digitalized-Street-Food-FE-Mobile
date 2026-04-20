@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState, type JSX } from 'react';
+import { ReactNode, useState, type JSX } from 'react';
 import {
   Controller,
   useFormContext,
@@ -35,6 +35,8 @@ interface CustomInputProps<T extends FieldValues> {
   autoFocus?: boolean;
   readonly?: boolean;
   type?: 'email' | 'phone' | 'password' | 'username' | 'name' | 'text';
+  labelBadge?: ReactNode;
+  rightElement?: ReactNode;
 }
 
 export const CustomInput = <T extends FieldValues>(
@@ -48,6 +50,8 @@ export const CustomInput = <T extends FieldValues>(
     type = 'text',
     keyboardType,
     readonly,
+    labelBadge,
+    rightElement,
   } = props;
   const [hidePassword, setHidePassword] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
@@ -69,23 +73,30 @@ export const CustomInput = <T extends FieldValues>(
       control={control}
       render={({ field, fieldState }) => (
         <View className="flex w-full flex-col gap-1">
-          <Text className="text-lg font-semibold text-[#616161]">
-            {label}
-            {required && <Text className="text-[#FE4763]"> *</Text>}
-          </Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-lg font-semibold text-[#616161]">
+              {label}
+              {required && <Text className="text-[#FE4763]"> *</Text>}
+            </Text>
+            {labelBadge}
+          </View>
 
           <View
-            className={
-              'flex-row items-center gap-3 border-b-2 pb-2 ' +
-              (fieldState.error
-                ? 'border-b-[#FE4763]'
-                : isFocused
-                  ? 'border-b-primary'
-                  : 'border-b-[#E5E5E5]')
-            }
+            className={`flex-row items-center gap-3 border-b-2 pb-1 
+              ${
+                fieldState.error
+                  ? 'border-b-[#FE4763]'
+                  : isFocused
+                    ? 'border-b-primary'
+                    : 'border-b-[#E5E5E5]'
+              } ${
+                readonly
+                  ? 'rounded-xl bg-gray-100 opacity-60'
+                  : 'bg-transparent'
+              } `}
           >
             {iconName && (
-              <View className="h-5 w-5 items-center justify-center">
+              <View className="h-6 w-6 items-center justify-center">
                 <MaterialCommunityIcons
                   name={iconName}
                   size={20} // Slightly increased size for visibility
@@ -110,9 +121,7 @@ export const CustomInput = <T extends FieldValues>(
               keyboardType={getKeyboardType()}
               textAlignVertical="center"
               autoFocus={props.autoFocus}
-              className={`flex-1 justify-center py-3 text-[#333333] ${
-                readonly ? 'bg-gray-100 opacity-60' : 'bg-transparent'
-              }`}
+              className={`flex-1 justify-center py-3 text-[#333333] `}
               editable={!readonly} // Control việc có cho gõ hay không
               selectTextOnFocus={!readonly}
             />
@@ -132,6 +141,7 @@ export const CustomInput = <T extends FieldValues>(
                 </View>
               </Pressable>
             )}
+            {rightElement}
           </View>
 
           {fieldState.error && (

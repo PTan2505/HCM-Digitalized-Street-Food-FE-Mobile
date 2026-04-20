@@ -328,6 +328,17 @@ export const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateUserVerificationStatus: (
+      state,
+      action: PayloadAction<{ channel: string }>
+    ) => {
+      if (state.value) {
+        if (action.payload.channel === 'email')
+          state.value.emailVerified = true;
+        if (action.payload.channel === 'phone')
+          state.value.phoneNumberVerified = true;
+      }
+    },
     updateMoneyBalance: (state, action: PayloadAction<number>) => {
       if (state.value) {
         state.value.moneyBalance = action.payload;
@@ -402,7 +413,12 @@ export const authSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { clearError, updateMoneyBalance, addPoints } = authSlice.actions;
+export const {
+  clearError,
+  updateMoneyBalance,
+  addPoints,
+  updateUserVerificationStatus,
+} = authSlice.actions;
 
 export default authSlice.reducer;
 

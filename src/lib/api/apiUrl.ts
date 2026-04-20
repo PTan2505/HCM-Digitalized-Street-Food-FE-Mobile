@@ -5,6 +5,7 @@ export const apiUrl = {
     phoneVerify: '/api/Auth/phone-verify',
     login: '/api/Auth/login',
     googleLogin: '/api/Auth/google-login',
+    contactVerification: '/api/Auth/contact-verification',
   },
   dietaryPreference: {
     getAll: '/api/DietaryPreference',
@@ -66,6 +67,7 @@ export const apiUrl = {
   },
   user: {
     profile: '/api/User/profile',
+    verifyOtp: '/api/User/profile/verify-otp',
     userSetup: {
       userinfo: '/api/UserSetup/userinfo-setup',
       dietary: '/api/UserSetup/dietary-setup',

@@ -8,8 +8,8 @@ interface HeaderProps {
   title: string;
   onBackPress?: () => void;
   secondaryAction?: {
-    label: string;
-    icon: JSX.Element;
+    label?: string;
+    icon?: JSX.Element;
     onPress: () => void;
   };
 }
