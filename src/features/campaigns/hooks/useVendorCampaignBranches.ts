@@ -41,9 +41,7 @@ export const useVendorCampaignBranches = (
 
       const items = result?.items ?? [];
 
-      const uniqueVendorIds = [
-        ...new Set(items.map((b) => b.vendorId)),
-      ];
+      const uniqueVendorIds = [...new Set(items.map((b) => b.vendorId))];
 
       const [vendorChecks, imageResults] = await Promise.all([
         Promise.all(
