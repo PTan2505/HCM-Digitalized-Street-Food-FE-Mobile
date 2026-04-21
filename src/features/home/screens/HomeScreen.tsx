@@ -93,6 +93,7 @@ export const HomeScreen = (): JSX.Element => {
   const {
     branches: vendorCampaignBranches,
     imageMap: vendorCampaignImageMap,
+    multiBranchVendorIds: campaignMultiBranchVendorIds,
     isLoading: vendorCampaignLoading,
   } = useVendorCampaignBranches(userCoords, permissionStatus);
   const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
@@ -341,7 +342,7 @@ export const HomeScreen = (): JSX.Element => {
       vendorCampaignBranches.map((b) => ({
         branchId: b.branchId,
         vendorId: b.vendorId,
-        vendorName: b.vendorName ?? b.name,
+        vendorName: b.vendorName ?? null,
         managerId: b.managerId ?? 0,
         name: b.name,
         phoneNumber: b.phoneNumber,
@@ -519,6 +520,9 @@ export const HomeScreen = (): JSX.Element => {
                         vouchers={
                           vendorCampaignVouchersByBranchId[left.branchId]
                         }
+                        isMultiBranch={campaignMultiBranchVendorIds.includes(
+                          left.vendorId ?? -1
+                        )}
                         onRatingUpdate={(avgRating, totalReviewCount) =>
                           handleRatingUpdate(
                             left.branchId,
@@ -537,6 +541,9 @@ export const HomeScreen = (): JSX.Element => {
                           vouchers={
                             vendorCampaignVouchersByBranchId[right.branchId]
                           }
+                          isMultiBranch={campaignMultiBranchVendorIds.includes(
+                            right.vendorId ?? -1
+                          )}
                           onRatingUpdate={(avgRating, totalReviewCount) =>
                             handleRatingUpdate(
                               right.branchId,
