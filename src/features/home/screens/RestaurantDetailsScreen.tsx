@@ -245,11 +245,8 @@ export const RestaurantDetailsScreen = ({
     branch.long,
     hasCompletedOrders
   );
-  const { branches: nearbyBranches } = useNearbyBranches(
-    branch.lat,
-    branch.long,
-    branch.branchId
-  );
+  const { branches: nearbyBranches, branchImageMap: nearbyBranchImageMap } =
+    useNearbyBranches(branch.lat, branch.long, branch.branchId);
 
   const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
 
@@ -622,7 +619,7 @@ export const RestaurantDetailsScreen = ({
                   key={b.branchId}
                   branch={b}
                   displayName={nearbyDisplayName}
-                  imageUri={b.dishes[0]?.imageUrl}
+                  imageUri={nearbyBranchImageMap[b.branchId]}
                   onPress={() =>
                     navigation.push('RestaurantDetails', {
                       branch: b,
