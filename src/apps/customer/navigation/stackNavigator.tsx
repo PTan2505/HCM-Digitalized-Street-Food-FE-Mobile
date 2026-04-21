@@ -1,3 +1,4 @@
+import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
 import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
@@ -51,7 +52,6 @@ import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { TierProgressScreen } from '@features/user/screens/TierProgressScreen';
 import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
-import { HomeBottomTabs } from './bottomTabNavigator';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
