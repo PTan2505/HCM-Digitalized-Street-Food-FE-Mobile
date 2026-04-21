@@ -1,5 +1,6 @@
-import { ManagerHomeScreen } from '@manager/screens/ManagerHomeScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
+import { ManagerOrderDetailScreen } from '@manager/screens/ManagerOrderDetailScreen';
+import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
 import { useManagerSelector } from '@manager-app/managerHooks';
 import { createStaticNavigation, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -14,7 +15,10 @@ const ManagerRootStack = createNativeStackNavigator({
       screen: AuthScreen,
     },
     ManagerHome: {
-      screen: ManagerHomeScreen,
+      screen: ManagerMainTabs,
+    },
+    ManagerOrderDetail: {
+      screen: ManagerOrderDetailScreen,
     },
   },
 });

@@ -85,4 +85,11 @@ export const queryKeys = {
     myProgress: (campaignId: string) =>
       ['quests', 'myProgress', campaignId] as const,
   },
+
+  managerOrders: {
+    all: ['managerOrders'] as const,
+    list: (status: number) => ['managerOrders', 'list', status] as const,
+    count: (status: number) => ['managerOrders', 'count', status] as const,
+    detail: (orderId: number) => ['managerOrders', 'detail', orderId] as const,
+  },
 } as const;

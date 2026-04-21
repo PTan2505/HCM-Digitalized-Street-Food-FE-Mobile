@@ -67,6 +67,7 @@ export const apiUrl = {
   },
   user: {
     profile: '/api/User/profile',
+    byId: (id: number): string => `/api/User/${id}`,
     verifyOtp: '/api/User/profile/verify-otp',
     userSetup: {
       userinfo: '/api/UserSetup/userinfo-setup',
@@ -92,6 +93,11 @@ export const apiUrl = {
     myOrders: '/api/Order/my-orders',
     pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
     cancel: (id: number): string => `/api/Order/${id}/cancel`,
+  },
+  managerOrder: {
+    list: '/api/Order/manager/orders',
+    decision: (id: number): string => `/api/order/vendor/orders/${id}/decision`,
+    complete: (id: number): string => `/api/order/vendor/orders/${id}/complete`,
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',

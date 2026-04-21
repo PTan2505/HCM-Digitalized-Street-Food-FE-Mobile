@@ -55,6 +55,13 @@ export class UserProfileApi {
     });
   }
 
+  async getUserById(id: number): Promise<User> {
+    const res = await this.apiClient.get<User>({
+      url: apiUrl.user.byId(id),
+    });
+    return res.data;
+  }
+
   async markDietarySetup(): Promise<void> {
     await this.apiClient.put<void, null>({
       url: apiUrl.user.userSetup.dietary,
