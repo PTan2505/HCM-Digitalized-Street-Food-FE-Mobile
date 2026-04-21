@@ -18,26 +18,34 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    axiosApi.branchApi
-      .getBranchById(branchId)
-      .then((detail) =>
-        Promise.all([
-          axiosApi.vendorApi.getVendorById(detail.vendorId),
-          axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
+    const load = async () => {
+      try {
+        const [detail, paginatedDishes] = await Promise.all([
+          axiosApi.branchApi.getBranchById(branchId),
           axiosApi.branchApi.getDishesByBranch(branchId, { pageSize: 100 }),
-          Promise.resolve(detail),
-        ])
-      )
-      .then(([vendor, vendorBranches, paginatedDishes, detail]) => {
-        const isMultiBranch = vendorBranches.totalCount > 1;
-        const displayName = isMultiBranch
-          ? `${vendor.name} - ${t('branch')} ${detail.name}`
-          : vendor.name;
+        ]);
+
+        let vendorName: string | null = null;
+        let displayName: string;
+
+        if (detail.vendorId != null) {
+          const [vendor, vendorBranches] = await Promise.all([
+            axiosApi.vendorApi.getVendorById(detail.vendorId),
+            axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
+          ]);
+          vendorName = vendor.name;
+          displayName =
+            vendorBranches.totalCount > 1
+              ? `${vendor.name} - ${t('branch')} ${detail.name}`
+              : vendor.name;
+        } else {
+          displayName = detail.name;
+        }
 
         const branch: ActiveBranch = {
           branchId: detail.branchId,
           vendorId: detail.vendorId,
-          vendorName: vendor.name,
+          vendorName,
           managerId: detail.managerId,
           name: detail.name,
           phoneNumber: detail.phoneNumber,
@@ -64,8 +72,12 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
         };
 
         navigation.replace('RestaurantDetails', { branch, displayName, tab });
-      })
-      .catch(() => setError(true));
+      } catch {
+        setError(true);
+      }
+    };
+
+    load();
   }, [branchId, navigation, t, tab]);
 
   if (error) {

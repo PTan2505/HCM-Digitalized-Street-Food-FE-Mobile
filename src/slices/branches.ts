@@ -80,7 +80,11 @@ export const fetchActiveBranches = createAppAsyncThunk(
       // For each unique vendorId in this page, check if the vendor has > 1 branch.
       // Simultaneously fetch the first image for every branch in the page.
       const uniqueVendorIds = [
-        ...new Set(paginatedBranches.items.map((b) => b.vendorId)),
+        ...new Set(
+          paginatedBranches.items
+            .map((b) => b.vendorId)
+            .filter((id): id is number => id != null)
+        ),
       ];
 
       const [vendorChecks, imageResults] = await Promise.all([
@@ -262,10 +266,14 @@ export const computeDisplayName = (
   isMultiBranch: boolean,
   branchLabel: string
 ): string => {
+  if (!branch.vendorId) return branch.name;
+  const vendorName = branch.vendorName?.length
+    ? branch.vendorName
+    : branch.name;
   if (isMultiBranch) {
-    return `${branch.vendorName ?? branch.name} - ${branchLabel} ${branch.name}`;
+    return `${vendorName} - ${branchLabel} ${branch.name}`;
   }
-  return branch.vendorName ?? branch.name;
+  return vendorName;
 };
 
 /**
@@ -282,5 +290,6 @@ export const selectBranchById = (
  */
 export const selectIsMultiBranchVendor = (
   state: RootState,
-  vendorId: number
-): boolean => state.branches.multiBranchVendorIds.includes(vendorId);
+  vendorId: number | null
+): boolean =>
+  vendorId != null && state.branches.multiBranchVendorIds.includes(vendorId);

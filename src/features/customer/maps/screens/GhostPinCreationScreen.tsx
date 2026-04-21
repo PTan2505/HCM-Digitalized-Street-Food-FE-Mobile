@@ -314,6 +314,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             rating: rating || 5,
             comment: feedback.trim() || null,
             tagIds: selectedTagIds,
+            userLat: lat,
+            userLong: long,
           });
 
           // 3. Upload images to the submitted feedback

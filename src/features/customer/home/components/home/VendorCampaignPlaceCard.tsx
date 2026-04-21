@@ -21,6 +21,7 @@ interface VendorCampaignPlaceCardProps {
   imageUri?: string;
   userCoords?: UserCoords | null;
   vouchers?: VoucherChip[];
+  isMultiBranch?: boolean;
   onRatingUpdate: (avgRating: number, totalReviewCount: number) => void;
 }
 
@@ -29,6 +30,7 @@ export const VendorCampaignPlaceCard = ({
   imageUri,
   userCoords,
   vouchers,
+  isMultiBranch: isMultiBranchProp,
   onRatingUpdate,
 }: VendorCampaignPlaceCardProps): JSX.Element => {
   const { t } = useTranslation();
@@ -44,9 +46,10 @@ export const VendorCampaignPlaceCard = ({
       state.branches.branches.find((b) => b.vendorId === branch.vendorId)
         ?.vendorName
   );
-  const isMultiBranch = useAppSelector((state) =>
+  const isMultiBranchFromRedux = useAppSelector((state) =>
     selectIsMultiBranchVendor(state, branch.vendorId)
   );
+  const isMultiBranch = isMultiBranchProp ?? isMultiBranchFromRedux;
 
   const displayName =
     displayNameFromId ??

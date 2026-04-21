@@ -74,14 +74,17 @@ export const fetchCartThunk = createAppAsyncThunk(
       let displayName: string | null = null;
       try {
         const branch = await axiosApi.branchApi.getBranchById(branchId);
-        const vendor = await axiosApi.vendorApi.getVendorById(branch.vendorId);
-        const vendorBranches = await axiosApi.branchApi.getBranchesByVendor(
-          branch.vendorId
-        );
-        if (vendorBranches.totalCount > 1) {
-          displayName = `${vendor.name} - ${t('branch')} ${branch.name}`;
+        if (branch.vendorId != null) {
+          const [vendor, vendorBranches] = await Promise.all([
+            axiosApi.vendorApi.getVendorById(branch.vendorId),
+            axiosApi.branchApi.getBranchesByVendor(branch.vendorId),
+          ]);
+          displayName =
+            vendorBranches.totalCount > 1
+              ? `${vendor.name} - ${t('branch')} ${branch.name}`
+              : vendor.name;
         } else {
-          displayName = vendor.name;
+          displayName = branch.name;
         }
       } catch {
         displayName = cart.branchName ?? null;
@@ -111,15 +114,18 @@ export const fetchMyCartsThunk = createAppAsyncThunk(
           .map(async (c) => {
             try {
               const branch = await axiosApi.branchApi.getBranchById(c.branchId);
-              const vendor = await axiosApi.vendorApi.getVendorById(
-                branch.vendorId
-              );
-              const vendorBranches =
-                await axiosApi.branchApi.getBranchesByVendor(branch.vendorId);
-              displayNames[c.branchId] =
-                vendorBranches.totalCount > 1
-                  ? `${vendor.name} - ${t('branch')} ${branch.name}`
-                  : vendor.name;
+              if (branch.vendorId != null) {
+                const [vendor, vendorBranches] = await Promise.all([
+                  axiosApi.vendorApi.getVendorById(branch.vendorId),
+                  axiosApi.branchApi.getBranchesByVendor(branch.vendorId),
+                ]);
+                displayNames[c.branchId] =
+                  vendorBranches.totalCount > 1
+                    ? `${vendor.name} - ${t('branch')} ${branch.name}`
+                    : vendor.name;
+              } else {
+                displayNames[c.branchId] = branch.name;
+              }
             } catch {
               displayNames[c.branchId] = c.branchName ?? '';
             }

@@ -35,6 +35,8 @@ export const queryKeys = {
     all: ['nearbyBranches'] as const,
     list: (lat: number, lng: number, excludeBranchId: number) =>
       ['nearbyBranches', lat, lng, excludeBranchId] as const,
+    thumbnail: (branchId: number) =>
+      ['nearbyBranches', 'thumbnail', branchId] as const,
   },
 
   feedback: {

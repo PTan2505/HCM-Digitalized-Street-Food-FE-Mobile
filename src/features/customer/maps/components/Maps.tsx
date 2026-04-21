@@ -172,7 +172,7 @@ const buildBranchGeoJSON = (
     },
     properties: {
       id: String(b.branchId),
-      name: b.vendorName ?? b.name,
+      name: b.vendorName?.length ? b.vendorName : b.name,
       priority: scoreToPriority(b.finalScore),
       rating: b.avgRating,
       isActive: b.isActive,
@@ -593,7 +593,7 @@ export const Maps = ({
         branchId: b.branchId,
         coordinate: [b.long, b.lat] as [number, number],
         priority: scoreToPriority(b.finalScore),
-        label: b.vendorName ?? b.name,
+        label: b.vendorName?.length ? b.vendorName : b.name,
         rating: b.avgRating,
         isVerified: b.isVerified,
         imageUrl: branchImageMap[b.branchId]?.[0],

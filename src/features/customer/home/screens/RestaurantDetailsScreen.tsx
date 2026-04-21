@@ -245,11 +245,8 @@ export const RestaurantDetailsScreen = ({
     branch.long,
     hasCompletedOrders
   );
-  const { branches: nearbyBranches } = useNearbyBranches(
-    branch.lat,
-    branch.long,
-    branch.branchId
-  );
+  const { branches: nearbyBranches, branchImageMap: nearbyBranchImageMap } =
+    useNearbyBranches(branch.lat, branch.long, branch.branchId);
 
   const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
 
@@ -472,7 +469,7 @@ export const RestaurantDetailsScreen = ({
       upVotes: f.upVotes,
       downVotes: f.downVotes,
       userVote: f.userVote,
-      vendorName: branch.vendorName,
+      vendorName: branch.vendorName ?? undefined,
       vendorReply: f.vendorReply
         ? {
             content: f.vendorReply.content,
@@ -609,7 +606,8 @@ export const RestaurantDetailsScreen = ({
         {activeTab === 'nearby' && (
           <View className="px-4 pb-4 pt-3">
             {nearbyBranches.map((b) => {
-              const isMultiBranch = multiBranchVendorIds.includes(b.vendorId);
+              const isMultiBranch =
+                b.vendorId != null && multiBranchVendorIds.includes(b.vendorId);
               const nearbyDisplayName = computeDisplayName(
                 b,
                 isMultiBranch,
@@ -621,7 +619,7 @@ export const RestaurantDetailsScreen = ({
                   key={b.branchId}
                   branch={b}
                   displayName={nearbyDisplayName}
-                  imageUri={b.dishes[0]?.imageUrl}
+                  imageUri={nearbyBranchImageMap[b.branchId]}
                   onPress={() =>
                     navigation.push('RestaurantDetails', {
                       branch: b,

@@ -135,18 +135,20 @@ export const NotificationScreen = (): JSX.Element => {
                 }
                 return axiosApi.branchApi
                   .getBranchById(feedback.branchId)
-                  .then((detail) =>
-                    Promise.all([
-                      axiosApi.vendorApi.getVendorById(detail.vendorId),
-                      axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
-                      Promise.resolve(detail),
-                    ])
-                  )
-                  .then(([vendor, vendorBranches, detail]) => {
-                    const isMultiBranch = vendorBranches.totalCount > 1;
-                    const displayName = isMultiBranch
-                      ? `${vendor.name} - ${t('branch')} ${detail.name}`
-                      : vendor.name;
+                  .then(async (detail) => {
+                    let displayName: string;
+                    if (detail.vendorId != null) {
+                      const [vendor, vendorBranches] = await Promise.all([
+                        axiosApi.vendorApi.getVendorById(detail.vendorId),
+                        axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
+                      ]);
+                      displayName =
+                        vendorBranches.totalCount > 1
+                          ? `${vendor.name} - ${t('branch')} ${detail.name}`
+                          : vendor.name;
+                    } else {
+                      displayName = detail.name;
+                    }
                     navigation.navigate('ReviewList', {
                       branchId: detail.branchId,
                       displayName,

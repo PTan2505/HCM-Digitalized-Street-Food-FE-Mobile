@@ -1,7 +1,8 @@
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 /**
  * Fetches nearby branches within 2 km, excluding the current branch.
@@ -19,7 +20,11 @@ export const useNearbyBranches = (
   lat: number,
   lng: number,
   excludeBranchId: number
-): { branches: ActiveBranch[]; isLoading: boolean } => {
+): {
+  branches: ActiveBranch[];
+  isLoading: boolean;
+  branchImageMap: Record<number, string>;
+} => {
   const { data: branches = [], isLoading } = useQuery({
     queryKey: queryKeys.nearbyBranches.list(lat, lng, excludeBranchId),
     queryFn: () =>
@@ -33,5 +38,25 @@ export const useNearbyBranches = (
     select: (items) => items.filter((b) => b.branchId !== excludeBranchId),
   });
 
-  return { branches, isLoading };
+  const imageQueries = useQueries({
+    queries: branches.map((b) => ({
+      queryKey: queryKeys.nearbyBranches.thumbnail(b.branchId),
+      queryFn: async (): Promise<string | null> => {
+        const res = await axiosApi.branchApi.getBranchImages(b.branchId, 1, 1);
+        return res.items[0]?.imageUrl ?? null;
+      },
+      staleTime: 5 * 60 * 1000,
+    })),
+  });
+
+  const branchImageMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    branches.forEach((b, i) => {
+      const url = imageQueries[i]?.data;
+      if (url) map[b.branchId] = url;
+    });
+    return map;
+  }, [branches, imageQueries]);
+
+  return { branches, isLoading, branchImageMap };
 };

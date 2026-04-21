@@ -521,7 +521,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   // ── Helper: get displayName for a branch ──
   const getDisplayName = useCallback(
     (branch: ActiveBranch) => {
-      const isMultiBranch = multiBranchVendorIds.includes(branch.vendorId);
+      const isMultiBranch =
+        branch.vendorId != null &&
+        multiBranchVendorIds.includes(branch.vendorId);
       return computeDisplayName(branch, isMultiBranch, t('branch'));
     },
     [multiBranchVendorIds, t]
