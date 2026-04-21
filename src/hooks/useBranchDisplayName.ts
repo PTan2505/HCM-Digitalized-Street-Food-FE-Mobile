@@ -8,8 +8,8 @@ import {
 } from '@slices/branches';
 
 interface BranchLike {
-  vendorId: number;
-  vendorName?: string;
+  vendorId: number | null;
+  vendorName?: string | null;
   name: string;
 }
 

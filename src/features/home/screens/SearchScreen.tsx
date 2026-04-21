@@ -175,6 +175,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const multiBranchVendorIds = useMemo(() => {
     const vendorCounts = new Map<number, number>();
     for (const stall of stalls) {
+      if (stall.vendorId == null) continue;
       vendorCounts.set(
         stall.vendorId,
         (vendorCounts.get(stall.vendorId) ?? 0) + 1
@@ -573,9 +574,9 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
               data={hasSearched ? stalls : []}
               keyExtractor={(item) => String(item.branchId)}
               renderItem={({ item }) => {
-                const isMultiBranch = multiBranchVendorIds.includes(
-                  item.vendorId
-                );
+                const isMultiBranch =
+                  item.vendorId != null &&
+                  multiBranchVendorIds.includes(item.vendorId);
                 const displayName = computeDisplayName(
                   item,
                   isMultiBranch,
