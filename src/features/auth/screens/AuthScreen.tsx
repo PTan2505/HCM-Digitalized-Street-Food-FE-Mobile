@@ -25,7 +25,10 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 export const AuthScreen = (): JSX.Element => {
   const { t } = useTranslation();
@@ -49,6 +52,7 @@ export const AuthScreen = (): JSX.Element => {
   const formTransition = useRef(new Animated.Value(0)).current;
   const [isSendedOTP, setIsSendedOTP] = useState(false);
   const phoneNumberRef = useRef('');
+  const inset = useSafeAreaInsets();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -179,7 +183,7 @@ export const AuthScreen = (): JSX.Element => {
               {
                 translateY: animatedValue.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [50, -150],
+                  outputRange: [inset.top, -150],
                 }),
               },
             ],

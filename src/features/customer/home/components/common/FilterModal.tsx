@@ -1,3 +1,4 @@
+import { AnimatedBackdrop } from '@components/AnimatedBackdrop';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,13 +25,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import {
-  default as Animated,
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
 import CategoryCard from './CategoryCard';
 
 interface FilterModalProps {
@@ -74,14 +69,6 @@ const FilterModal = ({
   const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backdropProgress.value,
-      [0, 1],
-      ['rgba(0,0,0,0)', 'rgba(0,0,0,0.5)']
-    ),
-  }));
 
   // Sync internal state with external activeFilters when modal opens
   useEffect(() => {
@@ -200,17 +187,12 @@ const FilterModal = ({
 
   return (
     <>
-      {backdropVisible && (
-        <>
-          <Animated.View
-            pointerEvents="none"
-            style={[StyleSheet.absoluteFill, backdropAnimatedStyle]}
-          />
-          {visible && (
-            <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-          )}
-        </>
-      )}
+      <AnimatedBackdrop
+        mounted={backdropVisible}
+        visible={visible}
+        onPress={onClose}
+        progress={backdropProgress}
+      />
 
       <Modal
         visible={visible}

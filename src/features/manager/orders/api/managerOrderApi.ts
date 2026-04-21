@@ -95,9 +95,9 @@ export class ManagerOrderApi {
     orderId: number,
     data: CompleteOrderRequest
   ): Promise<void> {
-    await this.apiClient.put<void, CompleteOrderRequest>({
+    await this.apiClient.put<void, null>({
       url: apiUrl.managerOrder.complete(orderId),
-      data,
+      params: data,
     });
   }
 }

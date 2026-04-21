@@ -3,10 +3,8 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
-import { ManagerDayOffScreen } from '@manager/day-off/ManagerDayOffScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/ManagerFeedbackScreen';
 import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
-import { ManagerScheduleScreen } from '@manager/schedule/ManagerScheduleScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -76,7 +74,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="ManagerSchedule"
         component={ManagerScheduleScreen}
         options={{
@@ -95,7 +93,7 @@ export const ManagerMainTabs = (): JSX.Element => {
             <FontAwesome6 name="calendar-xmark" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="ManagerAccount"
         component={ProfileScreen}

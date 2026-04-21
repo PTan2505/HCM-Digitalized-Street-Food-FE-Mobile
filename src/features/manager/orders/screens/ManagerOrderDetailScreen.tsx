@@ -1,3 +1,4 @@
+import { AnimatedBackdrop } from '@components/AnimatedBackdrop';
 import { CustomOTPInput } from '@components/CustomOTPInput';
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
@@ -17,16 +18,19 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
+  Keyboard,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import type { OtpInputRef } from 'react-native-otp-entry';
 import { ProgressStep, ProgressSteps } from 'react-native-progress-steps';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const formatCurrency = (amount: number): string =>
@@ -76,7 +80,13 @@ const CompletionModal = ({
   const { t } = useTranslation();
   const completeOrder = useCompleteManagerOrder();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const otpRef = useRef<OtpInputRef>(null);
+  const [backdropVisible, setBackdropVisible] = useState(visible);
+  const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const backdropProgress = useSharedValue(visible ? 1 : 0);
 
   const form = useForm<CompletionForm>({ defaultValues: { code: '' } });
   const code = form.watch('code');
@@ -104,70 +114,126 @@ const CompletionModal = ({
     }
   }, [isFilled, code, completeOrder, orderId, form, onSuccess, t]);
 
+  useEffect(() => {
+    if (visible) {
+      if (closeBackdropTimeoutRef.current) {
+        clearTimeout(closeBackdropTimeoutRef.current);
+        closeBackdropTimeoutRef.current = null;
+      }
+      setBackdropVisible(true);
+      backdropProgress.value = withTiming(1, { duration: 220 });
+      return;
+    }
+
+    backdropProgress.value = withTiming(0, { duration: 220 });
+    closeBackdropTimeoutRef.current = setTimeout(() => {
+      setBackdropVisible(false);
+      closeBackdropTimeoutRef.current = null;
+    }, 220);
+  }, [backdropProgress, visible]);
+
+  useEffect((): (() => void) => {
+    return (): void => {
+      if (closeBackdropTimeoutRef.current) {
+        clearTimeout(closeBackdropTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent =
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates?.height ?? 0);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return (): void => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!visible) setKeyboardHeight(0);
+  }, [visible]);
+
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={resetAndClose}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+    <>
+      <AnimatedBackdrop
+        mounted={backdropVisible}
+        visible={visible}
+        onPress={onClose}
+        progress={backdropProgress}
+      />
+      <Modal
+        visible={visible}
+        transparent
+        animationType="slide"
+        onRequestClose={resetAndClose}
       >
-        <TouchableOpacity
-          className="flex-1 bg-black/40"
-          activeOpacity={1}
-          onPress={resetAndClose}
-        />
-        <View className="rounded-t-3xl bg-white px-6 pb-10 pt-6">
-          <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-200" />
-
-          <Text className="title-md mb-1 text-center text-gray-900">
-            {t('manager_orders.mark_complete')}
-          </Text>
-          <Text className="mb-6 text-center text-sm font-normal text-gray-500">
-            {t('manager_orders.enter_completion_code')}
-          </Text>
-
-          <FormProvider {...form}>
-            <CustomOTPInput<CompletionForm>
-              ref={otpRef}
-              name="code"
-              label=""
-              numberOfDigits={6}
-            />
-          </FormProvider>
-
-          <TouchableOpacity
-            className={`mb-3 mt-6 items-center rounded-full py-4 ${isFilled && !isSubmitting ? 'bg-primary' : 'bg-gray-200'}`}
-            disabled={!isFilled || isSubmitting}
-            onPress={() => {
-              void handleSubmit();
-            }}
+        <Pressable style={StyleSheet.absoluteFill} onPress={resetAndClose} />
+        <View
+          style={[StyleSheet.absoluteFill, { justifyContent: 'flex-end' }]}
+          pointerEvents="box-none"
+        >
+          <View
+            className="rounded-t-3xl bg-white px-6 pt-6"
+            style={{ paddingBottom: 40 + keyboardHeight }}
           >
-            {isSubmitting ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text
-                className={`text-base font-bold ${isFilled ? 'text-white' : 'text-gray-400'}`}
-              >
-                {t('manager_orders.submit')}
-              </Text>
-            )}
-          </TouchableOpacity>
+            <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-200" />
 
-          <TouchableOpacity
-            className="items-center py-2"
-            onPress={resetAndClose}
-          >
-            <Text className="text-sm font-medium text-gray-400">
-              {t('manager_orders.cancel')}
+            <Text className="title-md mb-1 text-center text-gray-900">
+              {t('manager_orders.mark_complete')}
             </Text>
-          </TouchableOpacity>
+            <Text className="mb-6 text-center text-sm font-normal text-gray-500">
+              {t('manager_orders.enter_completion_code')}
+            </Text>
+
+            <FormProvider {...form}>
+              <CustomOTPInput<CompletionForm>
+                ref={otpRef}
+                name="code"
+                label=""
+                numberOfDigits={6}
+              />
+            </FormProvider>
+
+            <TouchableOpacity
+              className={`mb-3 mt-6 items-center rounded-full py-4 ${isFilled && !isSubmitting ? 'bg-primary' : 'bg-gray-200'}`}
+              disabled={!isFilled || isSubmitting}
+              onPress={() => {
+                void handleSubmit();
+              }}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text
+                  className={`text-base font-bold ${isFilled ? 'text-white' : 'text-gray-400'}`}
+                >
+                  {t('manager_orders.submit')}
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="items-center py-2"
+              onPress={resetAndClose}
+            >
+              <Text className="text-sm font-medium text-gray-400">
+                {t('manager_orders.cancel')}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </KeyboardAvoidingView>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 
@@ -452,7 +518,7 @@ export const ManagerOrderDetailScreen = (): React.JSX.Element => {
 
       {/* Bottom Action Bar */}
       {showActions && (
-        <View className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-gray-100 bg-white/95 px-4 py-4">
+        <View className="absolute bottom-0 left-0 right-0 flex-row gap-3 border-t border-gray-100 bg-white/95 px-4 pb-8 pt-4">
           {isPending && (
             <>
               <TouchableOpacity
