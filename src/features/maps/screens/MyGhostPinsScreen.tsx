@@ -3,9 +3,9 @@ import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { MyGhostPinBranch } from '@features/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -128,9 +128,11 @@ export const MyGhostPinsScreen = (): JSX.Element => {
     }
   }, []);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load])
+  );
 
   return (
     <SafeAreaView edges={['bottom']} className="flex-1 bg-gray-50">

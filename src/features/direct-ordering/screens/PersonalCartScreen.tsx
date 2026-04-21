@@ -102,13 +102,15 @@ export const PersonalCartScreen = ({
         setMenuDishes(dishRes.items);
         setMenuHasMore(dishRes.totalCount > 10);
 
-        const vendor = await axiosApi.vendorApi.getVendorById(
-          branchDetail.vendorId
-        );
+        const vendorName =
+          branchDetail.vendorId != null
+            ? (await axiosApi.vendorApi.getVendorById(branchDetail.vendorId))
+                .name
+            : null;
         const activeBranch: ActiveBranch = {
           branchId: branchDetail.branchId,
           vendorId: branchDetail.vendorId,
-          vendorName: vendor.name,
+          vendorName,
           managerId: branchDetail.managerId,
           name: branchDetail.name,
           phoneNumber: branchDetail.phoneNumber,

@@ -266,11 +266,14 @@ export const computeDisplayName = (
   isMultiBranch: boolean,
   branchLabel: string
 ): string => {
-  if (branch.vendorId == null) return branch.name;
+  if (!branch.vendorId) return branch.name;
+  const vendorName = branch.vendorName?.length
+    ? branch.vendorName
+    : branch.name;
   if (isMultiBranch) {
-    return `${branch.vendorName ?? branch.name} - ${branchLabel} ${branch.name}`;
+    return `${vendorName} - ${branchLabel} ${branch.name}`;
   }
-  return branch.vendorName ?? branch.name;
+  return vendorName;
 };
 
 /**

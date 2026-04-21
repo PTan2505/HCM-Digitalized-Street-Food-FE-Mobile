@@ -25,7 +25,7 @@ export interface Dish {
 
 export interface BranchDetail {
   branchId: number;
-  vendorId: number;
+  vendorId: number | null;
   managerId: number;
   name: string;
   phoneNumber: string;
