@@ -1,10 +1,11 @@
 import { store } from '@customer-app/store';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/customer/campaigns/api/generated';
-import { NotificationHandler } from '@features/customer/notifications/NotificationHandler';
+import { NotificationHandler } from '@features/notifications/NotificationHandler';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryClient } from '@lib/queryClient';
 import { queryKeys } from '@lib/queryKeys';
+import LottieSplashScreen from '@screens/LottieSplashScreen';
 import {
   loadUserFromStorage,
   selectUser,
@@ -13,10 +14,9 @@ import {
 import { getUserDietaryPreferences } from '@slices/dietary';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
-import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { Provider } from 'react-redux';
-import LottieSplashScreen from '@screens/LottieSplashScreen';
 
 const campaignApi = getLowcaAPIUnimplementedEndpoints();
 

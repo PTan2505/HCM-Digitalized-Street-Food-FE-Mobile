@@ -22,7 +22,7 @@ import { GhostPinCreationScreen } from '@features/customer/maps/screens/GhostPin
 import { LocationPickerScreen } from '@features/customer/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/customer/maps/screens/MapScreen';
 import { MyGhostPinsScreen } from '@features/customer/maps/screens/MyGhostPinsScreen';
-import { NotificationScreen } from '@features/customer/notifications/screens/NotificationScreen';
+import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
 import {
   createStaticNavigation,

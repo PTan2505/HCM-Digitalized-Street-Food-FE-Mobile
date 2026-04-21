@@ -1,7 +1,7 @@
-import type { NotificationDto } from '@features/customer/notifications/types/notification';
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
-import { axiosApi } from '@lib/api/apiInstance';
+import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch } from '@hooks/reduxHooks';
+import { axiosApi } from '@lib/api/apiInstance';
 import * as signalR from '@microsoft/signalr';
 import { addPoints, refreshUserBalanceThunk } from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';

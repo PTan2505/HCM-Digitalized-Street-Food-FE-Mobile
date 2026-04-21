@@ -1,11 +1,12 @@
 import { COLORS } from '@constants/colors';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
+import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
+import { useAppSelector } from '@hooks/reduxHooks';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
-import { ManagerFeedbackScreen } from '@manager/feedback/ManagerFeedbackScreen';
-import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { selectUnreadCount } from '@slices/notifications';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +14,7 @@ const Tab = createBottomTabNavigator();
 
 export const ManagerMainTabs = (): JSX.Element => {
   const { t } = useTranslation();
+  const unreadCount = useAppSelector(selectUnreadCount);
 
   return (
     <Tab.Navigator
@@ -54,7 +56,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="ManagerMenu"
         component={ManagerMenuScreen}
         options={{
@@ -73,7 +75,7 @@ export const ManagerMainTabs = (): JSX.Element => {
             <FontAwesome6 name="comments" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       {/* <Tab.Screen
         name="ManagerSchedule"
         component={ManagerScheduleScreen}
@@ -94,6 +96,17 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       /> */}
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationScreen}
+        options={{
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          title: t('manager_tabs.notifications'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="notifications" size={size} color={color} />
+          ),
+        }}
+      />
       <Tab.Screen
         name="ManagerAccount"
         component={ProfileScreen}

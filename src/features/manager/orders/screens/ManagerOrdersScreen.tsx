@@ -10,10 +10,11 @@ import {
   useManagerOrdersList,
   useManagerStatusCounts,
 } from '@features/manager/orders/hooks/useManagerOrders';
+import { useNewOrderNotification } from '@features/manager/orders/hooks/useNewOrderNotification';
 import { axiosApi } from '@lib/api/apiInstance';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -24,8 +25,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const POLL_INTERVAL = 30_000;
 
 const STATUS_TABS = [
   MANAGER_ORDER_STATUS.AwaitingVendorConfirmation,
@@ -160,20 +159,14 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
   } = useManagerOrdersList(activeStatus);
   const statusCounts = useManagerStatusCounts(STATUS_TABS);
 
-  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pendingRefresh = useManagerOrdersList(
+    MANAGER_ORDER_STATUS.AwaitingVendorConfirmation
+  ).refresh;
 
-  useFocusEffect(
-    useCallback((): (() => void) => {
-      pollTimerRef.current = setInterval(() => {
-        refresh();
-      }, POLL_INTERVAL);
-      return (): void => {
-        if (pollTimerRef.current) {
-          clearInterval(pollTimerRef.current);
-          pollTimerRef.current = null;
-        }
-      };
-    }, [refresh])
+  useNewOrderNotification(
+    useCallback((): void => {
+      pendingRefresh();
+    }, [pendingRefresh])
   );
 
   const handleTabChange = useCallback(

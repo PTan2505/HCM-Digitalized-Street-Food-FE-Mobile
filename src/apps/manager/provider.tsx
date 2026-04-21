@@ -1,16 +1,17 @@
-import { managerStore } from '@manager-app/store';
+import { NotificationHandler } from '@features/notifications/NotificationHandler';
+import { queryClient } from '@lib/queryClient';
 import {
   useManagerDispatch,
   useManagerSelector,
 } from '@manager-app/managerHooks';
+import { managerStore } from '@manager-app/store';
 import { useManagerRoleGate } from '@manager/auth/useManagerRoleGate';
 import { loadUserFromStorage } from '@slices/auth';
-import { queryClient } from '@lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { useEffect } from 'react';
-import { Provider } from 'react-redux';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { Provider } from 'react-redux';
 
 function ManagerAppInitializer({
   children,
@@ -28,7 +29,12 @@ function ManagerAppInitializer({
 
   useManagerRoleGate();
 
-  return <>{children}</>;
+  return (
+    <>
+      <NotificationHandler />
+      {children}
+    </>
+  );
 }
 
 export function ManagerAppProvider({

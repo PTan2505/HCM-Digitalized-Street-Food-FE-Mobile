@@ -14,10 +14,10 @@ import { StallSearchApi } from '@features/customer/home/api/stallSearchApi';
 import { TasteApi } from '@features/customer/home/api/tasteApi';
 import { VendorApi } from '@features/customer/home/api/vendorApi';
 import { GhostPinApi } from '@features/customer/maps/api/ghostPinApi';
-import { NotificationApi } from '@features/customer/notifications/api/notificationApi';
 import { QuestApi } from '@features/customer/quests/api/questApi';
 import { ManagerBranchApi } from '@features/manager/branch/managerBranchApi';
 import { ManagerOrderApi } from '@features/manager/orders/api/managerOrderApi';
+import { NotificationApi } from '@features/notifications/api/notificationApi';
 import { UserPaymentApi } from '@features/user/api/paymentApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 

@@ -1,7 +1,7 @@
-import { useNotificationNavigation } from '@features/customer/notifications/hooks/useNotificationNavigation';
-import { useNotifications } from '@features/customer/notifications/hooks/useNotifications';
-import { useNotificationSocket } from '@features/customer/notifications/hooks/useNotificationSocket';
 import { QuestRewardModal } from '@features/customer/quests/components/QuestRewardModal';
+import { useNotificationNavigation } from '@features/notifications/hooks/useNotificationNavigation';
+import { useNotifications } from '@features/notifications/hooks/useNotifications';
+import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { selectUser } from '@slices/auth';
