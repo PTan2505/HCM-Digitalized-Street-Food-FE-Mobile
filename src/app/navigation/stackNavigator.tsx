@@ -1,24 +1,23 @@
 import { HomeBottomTabs } from '@app/navigation/bottomTabNavigator';
+import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
 import { DirectCheckoutScreen } from '@features/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/direct-ordering/screens/OrderHistoryScreen';
 import { OrderStatusScreen } from '@features/direct-ordering/screens/OrderStatusScreen';
 import { PaymentQRScreen } from '@features/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/direct-ordering/screens/PersonalCartScreen';
-import type { UserVoucherApiDto } from '@features/campaigns/api/voucherApi';
-import type { Voucher } from '@slices/campaigns';
 import { VoucherSelectScreen } from '@features/direct-ordering/screens/VoucherSelectScreen';
-import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
-import { FavoritesScreen } from '@features/home/screens/FavoritesScreen';
-import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
 import type { VoucherChip } from '@features/home/components/common/PlaceCard';
+import { CurrentPickDetailsScreen } from '@features/home/screens/CurrentPickDetailsScreen';
+import { CurrentPicksScreen } from '@features/home/screens/CurrentPicksScreen';
+import { FavoritesScreen } from '@features/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/home/screens/ListBranchScreen';
+import { RestaurantDeepLinkScreen } from '@features/home/screens/RestaurantDeepLinkScreen';
 import { RestaurantDetailsScreen } from '@features/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/home/screens/RestaurantSwipeScreen';
-import { RestaurantDeepLinkScreen } from '@features/home/screens/RestaurantDeepLinkScreen';
 import { ReviewListScreen } from '@features/home/screens/ReviewListScreen';
-import { WriteReviewScreen } from '@features/home/screens/WriteReviewScreen';
 import { SearchScreen } from '@features/home/screens/SearchScreen';
+import { WriteReviewScreen } from '@features/home/screens/WriteReviewScreen';
 import { GhostPinCreationScreen } from '@features/maps/screens/GhostPinCreationScreen';
 import { LocationPickerScreen } from '@features/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/maps/screens/MapScreen';
@@ -30,18 +29,19 @@ import {
   StaticParamList,
   Theme,
 } from '@react-navigation/native';
-import { navigationRef } from '@utils/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
+import type { Voucher } from '@slices/campaigns';
+import { navigationRef } from '@utils/navigationRef';
 
+import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { CampaignListScreen } from '@features/campaigns/screens/CampaignListScreen';
 import { RestaurantCampaignDetailScreen } from '@features/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/campaigns/screens/SystemCampaignDetailScreen';
-import { VoucherHistoryScreen } from '@features/campaigns/screens/VoucherHistoryScreen';
 import { VoucherApplicableBranchesScreen } from '@features/campaigns/screens/VoucherApplicableBranchesScreen';
+import { VoucherHistoryScreen } from '@features/campaigns/screens/VoucherHistoryScreen';
 import { VoucherMarketplaceScreen } from '@features/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/campaigns/screens/VoucherWalletScreen';
-import { AuthScreen } from '@features/auth/screens/AuthScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch } from '@features/home/types/branch';
@@ -135,6 +135,9 @@ const RootStack = createNativeStackNavigator({
     },
     SetupUserInfo: {
       screen: EditUserInfoScreen,
+      params: {} as {
+        initialSetup?: boolean;
+      },
     },
     DietaryPreferences: {
       screen: DietaryPreferencesScreen,

@@ -33,7 +33,11 @@ const VerifiedBadge = (): JSX.Element => (
   <MaterialCommunityIcons name="check-circle" size={18} color="#4CAF50" />
 );
 
-const UserProfileForm = (): JSX.Element => {
+const UserProfileForm = ({
+  initialSetup,
+}: {
+  initialSetup?: boolean;
+}): JSX.Element => {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const navigation = useNavigation();
@@ -78,6 +82,9 @@ const UserProfileForm = (): JSX.Element => {
     try {
       await updateUserProfile(data);
       reset(data);
+      if (initialSetup) {
+        navigation.navigate('DietaryPreferences');
+      }
     } catch (error) {
       const err = error as APIErrorResponse;
       if (err.fieldErrors) {

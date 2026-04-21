@@ -48,8 +48,8 @@ export interface BranchDetail {
 
 export interface ActiveBranch {
   branchId: number;
-  vendorId: number;
-  vendorName: string;
+  vendorId: number | null;
+  vendorName: string | null;
   managerId: number;
   name: string;
   phoneNumber: string;

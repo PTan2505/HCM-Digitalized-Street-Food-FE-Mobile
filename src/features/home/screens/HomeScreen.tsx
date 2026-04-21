@@ -261,7 +261,7 @@ export const HomeScreen = (): JSX.Element => {
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
       if (!user?.userInfoSetup) {
-        navigation.replace('SetupUserInfo');
+        navigation.replace('SetupUserInfo', { initialSetup: true });
       } else if (user?.userInfoSetup && !user?.dietarySetup) {
         navigation.replace('DietaryPreferences');
       }
@@ -649,7 +649,9 @@ export const HomeScreen = (): JSX.Element => {
                 </View>
               );
             }
-            const isMultiBranch = multiBranchVendorIds.includes(item.vendorId);
+            const isMultiBranch =
+              item.vendorId != null &&
+              multiBranchVendorIds.includes(item.vendorId);
             const displayName = computeDisplayName(
               item,
               isMultiBranch,
