@@ -21,7 +21,7 @@ export const apiUrl = {
     byBranch: (branchId: number): string => `/api/Feedback/branch/${branchId}`,
     byRatingRange: (branchId: number): string =>
       `/api/Feedback/branch/${branchId}/rating-range`,
-    byUser: (userId: number): string => `/api/Feedback/user/${userId}`,
+    byUser: (userId: number): string => `/api/Feedback/customer/user/${userId}`,
     myFeedback: '/api/Feedback/my-feedback',
     // Stats
     averageRating: (branchId: number): string =>
@@ -101,15 +101,15 @@ export const apiUrl = {
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',
-    userTransfer: '/api/Payment/user/transfer',
+    userTransfer: '/api/Payment/customer/user/transfer',
   },
   notification: {
-    registerToken: '/api/notifications/register-token',
-    removeToken: '/api/notifications/remove-token',
+    registerToken: '/api/customer/notifications/register-token',
+    removeToken: '/api/customer/notifications/remove-token',
     list: '/api/notifications',
-    unreadCount: '/api/notifications/unread-count',
-    markRead: (id: number): string => `/api/notifications/${id}/read`,
-    markAllRead: '/api/notifications/read-all',
+    unreadCount: '/api/customer/notifications/unread-count',
+    markRead: (id: number): string => `/api/customer/notifications/${id}/read`,
+    markAllRead: '/api/customer/notifications/read-all',
   },
   voucher: {
     mine: '/api/vouchers/mine',

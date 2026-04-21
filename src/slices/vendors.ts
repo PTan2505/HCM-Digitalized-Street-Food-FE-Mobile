@@ -3,7 +3,7 @@ import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
 
-import type { Vendor } from '@features/home/types/vendor';
+import type { Vendor } from '@features/customer/home/types/vendor';
 
 export interface VendorsState {
   vendors: Vendor[];

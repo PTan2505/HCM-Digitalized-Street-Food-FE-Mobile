@@ -1,7 +1,7 @@
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import { ManagerOrderDetailScreen } from '@manager/screens/ManagerOrderDetailScreen';
-import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
+import { ManagerOrderDetailScreen } from '@features/manager/orders/screens/ManagerOrderDetailScreen';
 import { useManagerSelector } from '@manager-app/managerHooks';
+import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
 import { createStaticNavigation, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { navigationRef } from '@utils/navigationRef';

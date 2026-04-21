@@ -112,7 +112,12 @@ export default tseslint.config(
   },
   {
     // Orval-generated files — do not enforce return-type annotations on generated code
-    files: ['src/features/*/api/generated.ts', 'src/features/*/types/generated/*.ts'],
+    files: [
+      'src/features/*/api/generated.ts',
+      'src/features/*/types/generated/*.ts',
+      'src/features/*/*/api/generated.ts',
+      'src/features/*/*/types/generated/*.ts',
+    ],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },

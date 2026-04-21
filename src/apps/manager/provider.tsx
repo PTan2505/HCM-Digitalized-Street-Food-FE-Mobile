@@ -3,7 +3,7 @@ import {
   useManagerDispatch,
   useManagerSelector,
 } from '@manager-app/managerHooks';
-import { useManagerRoleGate } from '@manager/hooks/useManagerRoleGate';
+import { useManagerRoleGate } from '@manager/auth/useManagerRoleGate';
 import { loadUserFromStorage } from '@slices/auth';
 import { queryClient } from '@lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';

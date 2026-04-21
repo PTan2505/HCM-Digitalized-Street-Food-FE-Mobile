@@ -1,4 +1,4 @@
-import type { ManagerBranch } from '@manager/types/branch';
+import type { ManagerBranch } from '@manager/branch/branch.types';
 import { axiosApi } from '@lib/api/apiInstance';
 import {
   type PayloadAction,

@@ -3,7 +3,7 @@ import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
 
-import type { Taste } from '@features/home/types/taste';
+import type { Taste } from '@features/customer/home/types/taste';
 
 export interface TastesState {
   tastes: Taste[];

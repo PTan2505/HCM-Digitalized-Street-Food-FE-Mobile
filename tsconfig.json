@@ -34,8 +34,9 @@
       "@slices/*": ["slices/*"],
       "@constants/*": ["constants/*"],
       "@features/*": ["features/*"],
+      "@customer/*": ["features/customer/*"],
       "@auth/*": ["features/auth/*"],
-      "@user/*": ["features/user/*"],
+      "@user/*": ["features/customer/user/*"],
       "@manager/*": ["features/manager/*"]
     }
   },

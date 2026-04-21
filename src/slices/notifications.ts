@@ -1,6 +1,6 @@
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import type { NotificationDto } from '@features/notifications/types/notification';
+import type { NotificationDto } from '@features/customer/notifications/types/notification';
 import { createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '@customer-app/store';
 

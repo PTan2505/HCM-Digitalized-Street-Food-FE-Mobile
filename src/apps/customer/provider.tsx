@@ -1,6 +1,6 @@
 import { store } from '@customer-app/store';
-import { getLowcaAPIUnimplementedEndpoints } from '@features/campaigns/api/generated';
-import { NotificationHandler } from '@features/notifications/NotificationHandler';
+import { getLowcaAPIUnimplementedEndpoints } from '@features/customer/campaigns/api/generated';
+import { NotificationHandler } from '@features/customer/notifications/NotificationHandler';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryClient } from '@lib/queryClient';

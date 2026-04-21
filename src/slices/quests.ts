@@ -17,7 +17,7 @@ import type {
   PaginatedUserQuests,
   QuestTaskRewardItem,
   UserQuestProgress,
-} from '@features/quests/types/quest';
+} from '@features/customer/quests/types/quest';
 
 export interface PendingQuestReward {
   rewards: QuestTaskRewardItem[];

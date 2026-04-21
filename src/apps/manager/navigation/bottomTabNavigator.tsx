@@ -1,15 +1,15 @@
+import { COLORS } from '@constants/colors';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { ManagerAccountScreen } from '@manager/screens/ManagerAccountScreen';
-import { ManagerBranchScreen } from '@manager/screens/ManagerBranchScreen';
-import { ManagerDayOffScreen } from '@manager/screens/ManagerDayOffScreen';
-import { ManagerFeedbackScreen } from '@manager/screens/ManagerFeedbackScreen';
-import { ManagerMenuScreen } from '@manager/screens/ManagerMenuScreen';
-import { ManagerOrdersScreen } from '@manager/screens/ManagerOrdersScreen';
-import { ManagerScheduleScreen } from '@manager/screens/ManagerScheduleScreen';
+import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
+import { ManagerAccountScreen } from '@manager/account/ManagerAccountScreen';
+import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
+import { ManagerDayOffScreen } from '@manager/day-off/ManagerDayOffScreen';
+import { ManagerFeedbackScreen } from '@manager/feedback/ManagerFeedbackScreen';
+import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
+import { ManagerScheduleScreen } from '@manager/schedule/ManagerScheduleScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { COLORS } from '@constants/colors';
 
 const Tab = createBottomTabNavigator();
 
