@@ -437,7 +437,9 @@ export const ManagerOrderDetailScreen = (): React.JSX.Element => {
                 {t('manager_orders.payment_method')}
               </Text>
               <Text className="text-sm font-semibold text-gray-900">
-                {order.paymentMethod}
+                {order.paymentMethod === 'bank_transfer'
+                  ? t('manager_orders.bank_transfer')
+                  : t('manager_orders.cash')}
               </Text>
             </View>
           )}

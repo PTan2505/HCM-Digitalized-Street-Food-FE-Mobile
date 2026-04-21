@@ -280,6 +280,8 @@
     "discount": "Giảm giá",
     "note": "Ghi chú",
     "payment_method": "Thanh toán",
+    "bank_transfer": "Chuyển khoản",
+
     "table": "Bàn",
     "order_type": "Loại đơn",
     "mark_complete": "Hoàn thành đơn",
