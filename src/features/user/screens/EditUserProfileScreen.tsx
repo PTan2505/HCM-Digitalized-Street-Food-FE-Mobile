@@ -1,4 +1,4 @@
-import UserProfileForm from '@features/customer/user/components/userInfo/UserProfileForm';
+import UserProfileForm from '@features/user/components/userInfo/UserProfileForm';
 import React, { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

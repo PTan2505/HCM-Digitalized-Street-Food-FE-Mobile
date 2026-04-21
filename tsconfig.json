@@ -36,7 +36,7 @@
       "@features/*": ["features/*"],
       "@customer/*": ["features/customer/*"],
       "@auth/*": ["features/auth/*"],
-      "@user/*": ["features/customer/user/*"],
+      "@user/*": ["features/user/*"],
       "@manager/*": ["features/manager/*"]
     }
   },

@@ -1,6 +1,6 @@
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { ProfileActionCard } from '@features/customer/user/types/profileConfig';
+import { ProfileActionCard } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 

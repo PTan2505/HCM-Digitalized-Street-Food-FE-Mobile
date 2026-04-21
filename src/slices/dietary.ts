@@ -1,15 +1,15 @@
 import type { RootState } from '@customer-app/store';
-import { userLogout } from '@slices/auth';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
+import { userLogout } from '@slices/auth';
 
-import type { DietaryPreference } from '@features/customer/user/types/dietaryPreference';
+import type { DietaryPreference } from '@features/user/types/dietaryPreference';
 import type {
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
   UserDietary,
-} from '@features/customer/user/types/userDietary';
+} from '@features/user/types/userDietary';
 
 export interface DietaryState {
   dietaryPreferences: DietaryPreference[];

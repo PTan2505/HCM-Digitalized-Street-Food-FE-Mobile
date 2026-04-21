@@ -1,24 +1,23 @@
 import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
+import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
 import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/customer/direct-ordering/screens/OrderHistoryScreen';
 import { OrderStatusScreen } from '@features/customer/direct-ordering/screens/OrderStatusScreen';
 import { PaymentQRScreen } from '@features/customer/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/customer/direct-ordering/screens/PersonalCartScreen';
-import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
-import type { Voucher } from '@slices/campaigns';
 import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/VoucherSelectScreen';
-import { CurrentPickDetailsScreen } from '@features/customer/home/screens/CurrentPickDetailsScreen';
-import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
-import { CurrentPicksScreen } from '@features/customer/home/screens/CurrentPicksScreen';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
+import { CurrentPickDetailsScreen } from '@features/customer/home/screens/CurrentPickDetailsScreen';
+import { CurrentPicksScreen } from '@features/customer/home/screens/CurrentPicksScreen';
+import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/customer/home/screens/ListBranchScreen';
+import { RestaurantDeepLinkScreen } from '@features/customer/home/screens/RestaurantDeepLinkScreen';
 import { RestaurantDetailsScreen } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/customer/home/screens/RestaurantSwipeScreen';
-import { RestaurantDeepLinkScreen } from '@features/customer/home/screens/RestaurantDeepLinkScreen';
 import { ReviewListScreen } from '@features/customer/home/screens/ReviewListScreen';
-import { WriteReviewScreen } from '@features/customer/home/screens/WriteReviewScreen';
 import { SearchScreen } from '@features/customer/home/screens/SearchScreen';
+import { WriteReviewScreen } from '@features/customer/home/screens/WriteReviewScreen';
 import { GhostPinCreationScreen } from '@features/customer/maps/screens/GhostPinCreationScreen';
 import { LocationPickerScreen } from '@features/customer/maps/screens/LocationPickerScreen';
 import { MapScreen } from '@features/customer/maps/screens/MapScreen';
@@ -30,28 +29,29 @@ import {
   StaticParamList,
   Theme,
 } from '@react-navigation/native';
-import { navigationRef } from '@utils/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
+import type { Voucher } from '@slices/campaigns';
+import { navigationRef } from '@utils/navigationRef';
 
+import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { CampaignListScreen } from '@features/customer/campaigns/screens/CampaignListScreen';
 import { RestaurantCampaignDetailScreen } from '@features/customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/customer/campaigns/screens/SystemCampaignDetailScreen';
-import { VoucherHistoryScreen } from '@features/customer/campaigns/screens/VoucherHistoryScreen';
 import { VoucherApplicableBranchesScreen } from '@features/customer/campaigns/screens/VoucherApplicableBranchesScreen';
+import { VoucherHistoryScreen } from '@features/customer/campaigns/screens/VoucherHistoryScreen';
 import { VoucherMarketplaceScreen } from '@features/customer/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/customer/campaigns/screens/VoucherWalletScreen';
-import { AuthScreen } from '@features/auth/screens/AuthScreen';
-// import ProfileScreen from '@features/customer/user/screens/ProfileScreen';
+// import ProfileScreen from '@features/user/screens/ProfileScreen';
 import type { TabType } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { QuestDetailScreen } from '@features/customer/quests/screens/QuestDetailScreen';
 import { QuestListScreen } from '@features/customer/quests/screens/QuestListScreen';
-import { DietaryPreferencesScreen } from '@features/customer/user/screens/DietaryPreferencesScreen';
-import { EditUserInfoScreen } from '@features/customer/user/screens/EditUserProfileScreen';
-import { ProfileScreen } from '@features/customer/user/screens/ProfileScreen';
-import { TierProgressScreen } from '@features/customer/user/screens/TierProgressScreen';
-import { WithdrawScreen } from '@features/customer/user/screens/WithdrawScreen';
+import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
+import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
+import { ProfileScreen } from '@features/user/screens/ProfileScreen';
+import { TierProgressScreen } from '@features/user/screens/TierProgressScreen';
+import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',

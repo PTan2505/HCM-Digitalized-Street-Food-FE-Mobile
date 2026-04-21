@@ -1,6 +1,6 @@
 import { COLORS } from '@constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { DietaryPreference } from '@features/customer/user/types/dietaryPreference';
+import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 

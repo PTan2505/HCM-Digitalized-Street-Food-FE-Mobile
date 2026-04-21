@@ -1,7 +1,7 @@
 import { COLORS } from '@constants/colors';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
-import { ManagerAccountScreen } from '@manager/account/ManagerAccountScreen';
+import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
 import { ManagerDayOffScreen } from '@manager/day-off/ManagerDayOffScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/ManagerFeedbackScreen';
@@ -98,7 +98,7 @@ export const ManagerMainTabs = (): JSX.Element => {
       />
       <Tab.Screen
         name="ManagerAccount"
-        component={ManagerAccountScreen}
+        component={ProfileScreen}
         options={{
           title: t('manager_tabs.account'),
           tabBarIcon: ({ color, size }) => (

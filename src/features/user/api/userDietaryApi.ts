@@ -2,7 +2,7 @@ import {
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
   UserDietary,
-} from '@features/customer/user/types//userDietary';
+} from '@features/user/types//userDietary';
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 

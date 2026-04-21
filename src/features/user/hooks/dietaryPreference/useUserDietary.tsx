@@ -2,7 +2,7 @@ import type {
   CreateOrUpdateUserDietaryRequest,
   CreateOrUpdateUserDietaryResponse,
   UserDietary,
-} from '@features/customer/user/types/userDietary';
+} from '@features/user/types/userDietary';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { markDietarySetup, selectUser } from '@slices/auth';
 import {

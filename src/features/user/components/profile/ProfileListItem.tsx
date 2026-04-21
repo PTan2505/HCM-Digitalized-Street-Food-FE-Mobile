@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ProfileSectionItem } from '@features/customer/user/types/profileConfig';
+import { ProfileSectionItem } from '@features/user/types/profileConfig';
 import React, { JSX } from 'react';
 import { Pressable, Text, View } from 'react-native';
 

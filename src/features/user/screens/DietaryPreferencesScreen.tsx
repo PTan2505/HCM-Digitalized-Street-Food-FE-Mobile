@@ -1,8 +1,8 @@
 import { CustomButton } from '@components/CustomButton';
 import { COLORS } from '@constants/colors';
-import DietaryList from '@features/customer/user/components/dietaryPreferences/DietaryList';
-import useDietaryPreference from '@features/customer/user/hooks/dietaryPreference/useDietaryPreference';
-import useUserDietary from '@features/customer/user/hooks/dietaryPreference/useUserDietary';
+import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
+import useDietaryPreference from '@features/user/hooks/dietaryPreference/useDietaryPreference';
+import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import {

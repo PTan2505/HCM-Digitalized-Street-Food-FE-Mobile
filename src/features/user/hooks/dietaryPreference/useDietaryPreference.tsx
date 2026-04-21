@@ -1,4 +1,4 @@
-import type { DietaryPreference } from '@features/customer/user/types/dietaryPreference';
+import type { DietaryPreference } from '@features/user/types/dietaryPreference';
 import { useAppDispatch } from '@hooks/reduxHooks';
 import { getAllDietaryPreferences } from '@slices/dietary';
 import { useCallback } from 'react';

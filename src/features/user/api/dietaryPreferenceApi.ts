@@ -1,4 +1,4 @@
-import { DietaryPreference } from '@features/customer/user/types/dietaryPreference';
+import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 

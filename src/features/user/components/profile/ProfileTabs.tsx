@@ -1,4 +1,4 @@
-import { ProfileTab } from '@features/customer/user/types/profileConfig';
+import { ProfileTab } from '@features/user/types/profileConfig';
 import React, { JSX, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 

@@ -3,7 +3,7 @@ import profileIcon from '@assets/icons/profileIcon.svg';
 import { CustomBottomTabBar } from '@components/navigation/CustomBottomTabBar';
 import SvgIcon from '@components/SvgIcon';
 import { HomeScreen } from '@features/customer/home/screens/HomeScreen';
-import { ProfileScreen } from '@features/customer/user/screens/ProfileScreen';
+import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -16,13 +16,13 @@ import { VendorApi } from '@features/customer/home/api/vendorApi';
 import { GhostPinApi } from '@features/customer/maps/api/ghostPinApi';
 import { NotificationApi } from '@features/customer/notifications/api/notificationApi';
 import { QuestApi } from '@features/customer/quests/api/questApi';
-import { UserPaymentApi } from '@features/customer/user/api/paymentApi';
-import { UserProfileApi } from '@features/customer/user/api/profileApi';
 import { ManagerBranchApi } from '@features/manager/branch/managerBranchApi';
 import { ManagerOrderApi } from '@features/manager/orders/api/managerOrderApi';
+import { UserPaymentApi } from '@features/user/api/paymentApi';
+import { UserProfileApi } from '@features/user/api/profileApi';
 
-import { DietaryPreferenceApi } from '@features/customer/user/api/dietaryPreferenceApi';
-import { UserDietaryApi } from '@features/customer/user/api/userDietaryApi';
+import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
+import { UserDietaryApi } from '@features/user/api/userDietaryApi';
 import ApiClient from '@lib/api/apiClient';
 
 const axiosService = new AxiosApiService();

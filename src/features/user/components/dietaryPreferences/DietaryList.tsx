@@ -1,5 +1,5 @@
-import DietaryOption from '@features/customer/user/components/dietaryPreferences/DietaryOption';
-import { DietaryPreference } from '@features/customer/user/types/dietaryPreference';
+import DietaryOption from '@features/user/components/dietaryPreferences/DietaryOption';
+import { DietaryPreference } from '@features/user/types/dietaryPreference';
 import React, { JSX } from 'react';
 import { View } from 'react-native';
 
