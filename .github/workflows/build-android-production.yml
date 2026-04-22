@@ -45,6 +45,6 @@ jobs:
 
       - name: 🚀 Build Customer Android
         # 🔑 This env variable tells app.config.ts to use ID: fc2233e3-5c88-40b1-9ee2-e576aa043330
-        run: eas build --platform android --profile customer:production --non-interactive
+        run: bun x eas-cli build --platform android --profile customer:production --non-interactive
         env:
           APP_VARIANT: customer
