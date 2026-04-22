@@ -1,22 +1,45 @@
-name: Android manager production build
+name: Android Manager Production Build
 
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
     paths:
-      - 'android/**' # Trigger on Native Android changes
-      - 'src/**' # Trigger on Shared JS code
-      - 'components/**' # (Optional) If you have a components folder
-      - 'App.js' # Trigger on Entry file
-      - 'app.json' # Trigger on Config changes
-      - 'package.json' # Trigger on Dependency changes
-      - '!ios/**' # ⛔️ NEVER trigger on iOS changes
-      - '!**/*.md' # ⛔️ NEVER trigger on Markdown/Docs
+      - 'src/**'
+      - 'components/**'
+      - 'assets/**'
+      - 'app.config.ts'
+      - 'package.json'
+      - 'eas.json'
+      - 'android/**'
+      - '!ios/**'
+      - '!**/*.md'
 
 jobs:
-  build_android_manager:
-    name: Build Android manager production
-    type: build
-    params:
-      platform: android
-      profile: manager:production
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 🏗 Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-cache: true
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🚀 Build Manager Android
+        # We explicitly set APP_VARIANT here so app.config.ts picks the Manager Project ID
+        run: eas build --platform android --profile manager:production --non-interactive
+        env:
+          APP_VARIANT: manager
