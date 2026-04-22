@@ -4,42 +4,47 @@ on:
   workflow_dispatch:
   push:
     branches: ['main']
+    # 🎯 Only trigger if these change:
     paths:
       - 'src/**'
       - 'components/**'
       - 'assets/**'
       - 'app.config.ts'
       - 'package.json'
+      - 'bun.lockb' # 👈 Your Bun lockfile
       - 'eas.json'
       - 'android/**'
-      - '!ios/**'
-      - '!**/*.md'
+      - '!ios/**' # ⛔️ Ignore iOS changes for Android build
+      - '!**/*.md' # ⛔️ Ignore Docs
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # 🚀 April 2026: Force Node 24 to avoid the deprecation error you saw
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: 🏗 Checkout
         uses: actions/checkout@v4
 
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+      - name: 🏗 Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          cache: 'npm'
+          bun-version: latest
 
       - name: 🏗 Setup Expo
         uses: expo/expo-github-action@v8
         with:
           expo-version: latest
           eas-cache: true
+          packager: bun # 👈 Crucial: Tells Expo to use Bun
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: bun install
 
       - name: 🚀 Build Manager Android
-        # We explicitly set APP_VARIANT here so app.config.ts picks the Manager Project ID
+        # Explicitly passing the variant so app.config.ts switches IDs
         run: eas build --platform android --profile manager:production --non-interactive
         env:
           APP_VARIANT: manager
