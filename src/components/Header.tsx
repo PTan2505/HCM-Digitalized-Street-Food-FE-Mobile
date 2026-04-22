@@ -27,30 +27,37 @@ const Header = ({
       style={{ paddingTop: insets.top }}
     >
       <View className="h-10 flex-row items-center justify-between px-4">
-        {onBackPress && (
-          <TouchableOpacity
-            onPress={onBackPress}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="arrow-back" size={24} color="#111827" />
-          </TouchableOpacity>
-        )}
+        <View className="w-10 items-start justify-center">
+          {onBackPress ? (
+            <TouchableOpacity
+              onPress={onBackPress}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#111827" />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
         <View
           className="absolute left-0 right-0 items-center"
           pointerEvents="none"
         >
           <Text className="text-2xl font-bold text-gray-900">{title}</Text>
         </View>
-        {secondaryAction && (
-          <TouchableOpacity
-            className="flex-row items-center gap-3 rounded-full bg-gray-200 px-3 py-1"
-            onPress={secondaryAction.onPress}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text>{secondaryAction.label}</Text>
-            {secondaryAction.icon}
-          </TouchableOpacity>
-        )}
+        <View className="min-w-[40px] items-end justify-center">
+          {secondaryAction ? (
+            <TouchableOpacity
+              className="flex-row items-center gap-3 self-end rounded-full bg-gray-200 px-3 py-1"
+              onPress={secondaryAction.onPress}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Text>{secondaryAction.label}</Text>
+              {secondaryAction.icon}
+            </TouchableOpacity>
+          ) : (
+            <View className="w-10" />
+          )}
+        </View>
       </View>
     </View>
   );

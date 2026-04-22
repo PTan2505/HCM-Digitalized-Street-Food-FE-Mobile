@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { NotificationDto } from '@features/notifications/types/notification';
@@ -16,6 +17,7 @@ import {
   selectNotificationsStatus,
   selectUnreadCount,
 } from '@slices/notifications';
+import { isManagerApp } from '@utils/appVariant';
 import type { JSX } from 'react';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -213,27 +215,18 @@ export const NotificationScreen = (): JSX.Element => {
   );
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center justify-between border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#1F2937" />
-        </TouchableOpacity>
-        <Text className="text-lg font-bold text-gray-800">
-          {t('notification.title')}
-        </Text>
-        <TouchableOpacity
-          onPress={handleMarkAllRead}
-          disabled={unreadCount === 0}
-        >
-          <Text
-            className={`text-base font-medium ${unreadCount > 0 ? 'text-primary' : 'text-gray-300'}`}
-          >
-            {t('notification.mark_all_read')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
+      <Header
+        title={t('notification.title')}
+        onBackPress={
+          !isManagerApp ? (): void => navigation.goBack() : undefined
+        }
+        secondaryAction={{
+          label: t('notification.mark_all_read'),
+          onPress: handleMarkAllRead,
+        }}
+      />
       {/* Content */}
       {status === 'pending' ? (
         <View className="flex-1 items-center justify-center">

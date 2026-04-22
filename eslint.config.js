@@ -84,7 +84,7 @@ export default tseslint.config(
             // },
             {
               target: './src/features',
-              from: './src/app',
+              from: ['./src/apps/customer', './src/apps/manager'],
             },
             {
               target: [
@@ -93,8 +93,13 @@ export default tseslint.config(
                 './src/utils',
                 './src/config',
                 './src/constants',
+                './src/screens',
               ],
-              from: ['./src/features', './src/app'],
+              from: [
+                './src/features',
+                './src/apps/customer',
+                './src/apps/manager',
+              ],
             },
           ],
         },
@@ -107,7 +112,12 @@ export default tseslint.config(
   },
   {
     // Orval-generated files — do not enforce return-type annotations on generated code
-    files: ['src/features/*/api/generated.ts', 'src/features/*/types/generated/*.ts'],
+    files: [
+      'src/features/*/api/generated.ts',
+      'src/features/*/types/generated/*.ts',
+      'src/features/*/*/api/generated.ts',
+      'src/features/*/*/types/generated/*.ts',
+    ],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },

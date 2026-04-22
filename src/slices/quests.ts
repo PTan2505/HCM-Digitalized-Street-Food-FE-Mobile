@@ -1,4 +1,4 @@
-import type { RootState } from '@app/store';
+import type { RootState } from '@customer-app/store';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
@@ -17,7 +17,7 @@ import type {
   PaginatedUserQuests,
   QuestTaskRewardItem,
   UserQuestProgress,
-} from '@features/quests/types/quest';
+} from '@features/customer/quests/types/quest';
 
 export interface PendingQuestReward {
   rewards: QuestTaskRewardItem[];

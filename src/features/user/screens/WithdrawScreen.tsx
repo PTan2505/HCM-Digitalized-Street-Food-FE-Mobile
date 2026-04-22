@@ -1,3 +1,4 @@
+import { AnimatedBackdrop } from '@components/AnimatedBackdrop';
 import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,7 +36,6 @@ import {
 } from 'react-native-gesture-handler';
 import {
   default as Animated,
-  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -63,14 +63,6 @@ export const WithdrawScreen = (): JSX.Element => {
   const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-
-  const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backdropProgress.value,
-      [0, 1],
-      ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)']
-    ),
-  }));
 
   const sheetAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: sheetTranslateY.value }],
@@ -348,32 +340,17 @@ export const WithdrawScreen = (): JSX.Element => {
           </FormProvider>
         </ScrollView>
 
-        {bankBackdropVisible && (
-          <>
-            {/* Backdrop — animated independently from the sliding sheet */}
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  top: -insets.top,
-                  bottom: -insets.bottom,
-                },
-                backdropAnimatedStyle,
-              ]}
-            />
-            <Pressable
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  top: -insets.top,
-                  bottom: -insets.bottom,
-                },
-              ]}
-              onPress={closeBankPicker}
-            />
-          </>
-        )}
+        <AnimatedBackdrop
+          mounted={bankBackdropVisible}
+          visible={bankPickerVisible}
+          onPress={closeBankPicker}
+          progress={backdropProgress}
+          dimOpacity={0.45}
+          containerStyle={{
+            top: -insets.top,
+            bottom: -insets.bottom,
+          }}
+        />
 
         <Modal
           visible={bankPickerVisible}

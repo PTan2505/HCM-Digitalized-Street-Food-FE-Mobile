@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import type * as Notifications from 'expo-notifications';
-import { navigationRef } from '@utils/navigationRef';
 import type { NotificationData } from '@features/notifications/types/notification';
+import { navigationRef } from '@utils/navigationRef';
+import type * as Notifications from 'expo-notifications';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * Reacts to notification taps and navigates to the relevant screen

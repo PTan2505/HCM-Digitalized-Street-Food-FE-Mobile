@@ -1,10 +1,10 @@
-import { apiUrl } from '@lib/api/apiUrl';
-import type ApiClient from '@lib/api/apiClient';
 import type { ApiResponse } from '@custom-types/apiResponse';
 import type {
   NotificationListResponse,
   UnreadCountResponse,
 } from '@features/notifications/types/notification';
+import type ApiClient from '@lib/api/apiClient';
+import { apiUrl } from '@lib/api/apiUrl';
 
 export interface RegisterPushTokenRequest {
   expoPushToken: string;

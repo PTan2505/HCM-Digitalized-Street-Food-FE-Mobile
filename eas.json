@@ -4,22 +4,85 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "customer:development": {
+      "developmentClient": true,
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "NODE_ENV": "development",
+        "APP_VARIANT": "customer",
+        "GOOGLE_SERVICES_JSON": "google-services.json"
+      }
+    },
+    "customer:preview": {
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "customer",
+        "GOOGLE_SERVICES_JSON": "google-services.json"
+      }
+    },
+    "customer:production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "customer",
+        "GOOGLE_SERVICES_JSON": "google-services.json"
+      }
+    },
+    "manager:development": {
+      "developmentClient": true,
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "NODE_ENV": "development",
+        "APP_VARIANT": "manager",
+        "GOOGLE_SERVICES_JSON_MANAGER": "google-services-manager.json"
+      }
+    },
+    "manager:preview": {
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "manager",
+        "GOOGLE_SERVICES_JSON_MANAGER": "google-services-manager.json"
+      }
+    },
+    "manager:production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "manager",
+        "GOOGLE_SERVICES_JSON_MANAGER": "google-services-manager.json"
+      }
+    },
     "development": {
       "developmentClient": true,
       "ios": {
         "simulator": true
       },
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "APP_VARIANT": "customer"
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "customer"
+      }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "customer"
       }
     }
   },

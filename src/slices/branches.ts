@@ -1,9 +1,9 @@
-import type { RootState } from '@app/store';
+import type { RootState } from '@customer-app/store';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
 
-import type { ActiveBranch } from '@features/home/types/branch';
+import type { ActiveBranch } from '@features/customer/home/types/branch';
 
 export interface BranchesState {
   branches: ActiveBranch[];

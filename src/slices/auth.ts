@@ -1,4 +1,4 @@
-import type { RootState } from '@app/store';
+import type { RootState } from '@customer-app/store';
 import type { User } from '@custom-types/user';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';

@@ -1,4 +1,4 @@
-import type { RootState } from '@app/store';
+import type { RootState } from '@customer-app/store';
 import type {
   CartResponse,
   CheckoutCartRequest,
@@ -6,7 +6,7 @@ import type {
   OrderResponse,
   OrderStatus,
   PaginatedOrders,
-} from '@features/direct-ordering/api/cartApi';
+} from '@features/customer/direct-ordering/api/cartApi';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';

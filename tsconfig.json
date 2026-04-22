@@ -18,6 +18,11 @@
     "noUncheckedIndexedAccess": false,
     /* PATH ALIASES (Matches Web) */
     "paths": {
+      "@customer-app/*": ["./src/apps/customer/*"],
+      "@manager-app/*": ["./src/apps/manager/*"],
+      "@screens/*": ["./src/screens/*"],
+      "@customer/*": ["./src/features/customer/*"],
+      "@manager/*": ["./src/features/manager/*"],
       "@assets/*": ["./src/assets/*"],
       "@app/*": ["./src/app/*"],
       "@components/*": ["./src/components/*"],

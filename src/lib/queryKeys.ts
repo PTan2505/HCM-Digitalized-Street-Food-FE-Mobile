@@ -24,6 +24,7 @@ export const queryKeys = {
     all: ['branches'] as const,
     images: (branchId: number) => ['branches', 'images', branchId] as const,
     similar: (branchId: number) => ['branches', 'similar', branchId] as const,
+    allGhostPins: ['branches', 'allGhostPins'] as const,
   },
 
   workSchedule: {
@@ -86,5 +87,19 @@ export const queryKeys = {
       ['quests', 'campaign', campaignId] as const,
     myProgress: (campaignId: string) =>
       ['quests', 'myProgress', campaignId] as const,
+  },
+
+  managerOrders: {
+    all: ['managerOrders'] as const,
+    list: (status: number) => ['managerOrders', 'list', status] as const,
+    count: (status: number) => ['managerOrders', 'count', status] as const,
+    detail: (orderId: number) => ['managerOrders', 'detail', orderId] as const,
+  },
+
+  managerFeedback: {
+    all: ['managerFeedback'] as const,
+    list: (branchId: number) => ['managerFeedback', 'list', branchId] as const,
+    detail: (feedbackId: number) =>
+      ['managerFeedback', 'detail', feedbackId] as const,
   },
 } as const;
