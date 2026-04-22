@@ -86,8 +86,8 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
 
       <View className="mb-3 flex-row flex-wrap items-center gap-2">
         <View className="flex-row flex-wrap gap-3 ">
-          {restaurant.dietaryPreferenceNames.length > 0 &&
-            restaurant.dietaryPreferenceNames.map((name, index) => (
+          {(restaurant.dietaryPreferenceNames?.length ?? 0) > 0 &&
+            (restaurant.dietaryPreferenceNames ?? []).map((name, index) => (
               <View
                 key={index}
                 className="rounded-2xl bg-[#F1FAEA] px-2 py-0.5"
@@ -121,7 +121,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
             </TouchableOpacity>
           )}
         </View>
-        {schedules && schedules.length > 0 && (
+        {schedules && (schedules.length ?? 0) > 0 && (
           <Text
             className={`text-base font-semibold ${
               restaurant.isOpen ? 'text-[#00B14F]' : 'text-red-500'

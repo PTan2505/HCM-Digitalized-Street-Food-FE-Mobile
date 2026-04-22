@@ -113,4 +113,15 @@ export class BranchApi {
     });
     return res.data;
   }
+
+  async getAllGhostPins(
+    pageNumber = 1,
+    pageSize = 10
+  ): Promise<PaginatedBranches> {
+    const res = await this.apiClient.get<PaginatedBranches>({
+      url: apiUrl.branch.allGhostPins,
+      params: { pageNumber, pageSize },
+    });
+    return res.data;
+  }
 }

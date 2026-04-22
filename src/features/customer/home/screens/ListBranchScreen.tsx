@@ -120,7 +120,7 @@ export const ListBranchScreen = ({
   const { coords: userCoords } = useLocationPermission();
 
   // Use route items if provided (e.g. campaign branches), otherwise use Redux state with pagination
-  const branches: ActiveBranch[] = routeItems ?? reduxBranches;
+  const branches: ActiveBranch[] = routeItems ?? reduxBranches ?? [];
   const isPaginated = !routeItems;
 
   const isFetchingMoreRef = useRef(false);

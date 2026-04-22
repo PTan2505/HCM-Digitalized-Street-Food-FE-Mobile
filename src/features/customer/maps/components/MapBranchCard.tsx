@@ -99,9 +99,9 @@ export const MapBranchCard = ({
         )}
 
         {/* Dietary tags */}
-        {branch.dietaryPreferenceNames.length > 0 && (
+        {(branch.dietaryPreferenceNames?.length ?? 0) > 0 && (
           <View className="mt-1.5 flex-row flex-wrap gap-1">
-            {branch.dietaryPreferenceNames.slice(0, 2).map((name) => (
+            {(branch.dietaryPreferenceNames ?? []).slice(0, 2).map((name) => (
               <View
                 key={name}
                 className="rounded-full bg-[#E8F5E9] px-2 py-0.5"

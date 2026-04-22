@@ -1,5 +1,6 @@
 import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
+import { useGhostPins } from '@customer/home/hooks/useGhostPins';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
@@ -98,6 +99,11 @@ export const HomeScreen = (): JSX.Element => {
     isLoading: vendorCampaignLoading,
     refetch: refetchVendorCampaigns,
   } = useVendorCampaignBranches(userCoords, permissionStatus);
+  const {
+    branches: ghostPins,
+    isLoading: ghostPinsLoading,
+    refetch: refetchGhostPins,
+  } = useGhostPins();
   const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
@@ -371,6 +377,38 @@ export const HomeScreen = (): JSX.Element => {
       })),
     [vendorCampaignBranches]
   );
+  const ghostBranches = useMemo<ActiveBranch[]>(
+    () =>
+      ghostPins.map((b) => ({
+        branchId: b.branchId,
+        vendorId: b.vendorId,
+        vendorName: b.vendorName ?? null,
+        managerId: b.managerId ?? 0,
+        name: b.name,
+        phoneNumber: b.phoneNumber,
+        email: b.email,
+        addressDetail: b.addressDetail,
+        ward: b.ward,
+        city: b.city,
+        lat: b.lat,
+        long: b.long,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt ?? null,
+        isVerified: b.isVerified,
+        avgRating: b.avgRating,
+        totalReviewCount: b.totalReviewCount,
+        totalRatingSum: 0,
+        isActive: b.isActive,
+        isSubscribed: b.isSubscribed,
+        tierId: b.tierId,
+        tierName: b.tierName,
+        finalScore: b.finalScore,
+        distanceKm: b.distanceKm ?? null,
+        dietaryPreferenceNames: [],
+        dishes: [],
+      })),
+    [ghostPins]
+  );
 
   const onRefresh = useCallback(() => {
     if (isRefreshingRef.current) {
@@ -397,6 +435,7 @@ export const HomeScreen = (): JSX.Element => {
         ),
         refetchSystemCampaigns(),
         refetchVendorCampaigns(),
+        refetchGhostPins(),
       ]).finally(() => {
         isRefreshingRef.current = false;
         setRefreshing(false);
@@ -410,6 +449,7 @@ export const HomeScreen = (): JSX.Element => {
     userDietaryPreferences,
     refetchSystemCampaigns,
     refetchVendorCampaigns,
+    refetchGhostPins,
   ]);
 
   // useMemo prevents a new JSX reference on every render, which would cause
@@ -611,6 +651,118 @@ export const HomeScreen = (): JSX.Element => {
     ]
   );
 
+  const ListFooter = useMemo(
+    () => (
+      <>
+        {ghostPinsLoading ? (
+          <>
+            <View className="flex-row items-center gap-2 px-4 py-2">
+              <Title>{t('ghost_pins_title')}</Title>
+            </View>
+            <View className="px-4">
+              <PlaceCardRowSkeleton />
+            </View>
+          </>
+        ) : ghostBranches?.length > 0 ? (
+          <>
+            <TouchableOpacity
+              className="flex-row items-center gap-2 px-4 py-2"
+              activeOpacity={0.7}
+              onPress={() => {
+                try {
+                  navigation.navigate('ListBranch', {
+                    items: ghostBranches ?? [],
+                    title: t('ghost_pins_title'),
+                  });
+                } catch (err) {
+                  // Avoid hard crash in release/dev and surface the stack
+
+                  console.warn('Navigation to ListBranch failed', err);
+                  navigation.navigate('ListBranch', {
+                    items: [],
+                    title: t('ghost_pins_title'),
+                  });
+                }
+              }}
+            >
+              <Title>{t('ghost_pins_title')}</Title>
+              <Ionicons
+                name="chevron-forward-circle"
+                size={20}
+                color={COLORS.primaryGradientFrom}
+              />
+            </TouchableOpacity>
+            <View className="px-4">
+              {Array.from({
+                length: Math.ceil((ghostBranches?.length ?? 0) / 2),
+              }).map((_, rowIndex) => {
+                const left = (ghostBranches ?? [])[rowIndex * 2];
+                const right = (ghostBranches ?? [])[rowIndex * 2 + 1];
+                return (
+                  <View
+                    key={rowIndex}
+                    className="mb-3 flex-row justify-between"
+                  >
+                    <View className="w-[49%]">
+                      <VendorCampaignPlaceCard
+                        branch={left}
+                        imageUri={branchImageMap[left.branchId]?.[0]}
+                        userCoords={userCoords}
+                        vouchers={undefined}
+                        isMultiBranch={multiBranchVendorIds.includes(
+                          left.vendorId ?? -1
+                        )}
+                        onRatingUpdate={(avgRating, totalReviewCount) =>
+                          handleRatingUpdate(
+                            left.branchId,
+                            avgRating,
+                            totalReviewCount
+                          )
+                        }
+                      />
+                    </View>
+                    {right ? (
+                      <View className="w-[49%]">
+                        <VendorCampaignPlaceCard
+                          branch={right}
+                          imageUri={branchImageMap[right.branchId]?.[0]}
+                          userCoords={userCoords}
+                          vouchers={undefined}
+                          isMultiBranch={multiBranchVendorIds.includes(
+                            right.vendorId ?? -1
+                          )}
+                          onRatingUpdate={(avgRating, totalReviewCount) =>
+                            handleRatingUpdate(
+                              right.branchId,
+                              avgRating,
+                              totalReviewCount
+                            )
+                          }
+                        />
+                      </View>
+                    ) : (
+                      <View className="w-[49%]" />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        ) : null}
+      </>
+    ),
+    [
+      branchImageMap,
+      ghostBranches,
+      ghostPinsLoading,
+      handleRatingUpdate,
+      multiBranchVendorIds,
+      navigation,
+      t,
+      userCoords,
+    ]
+  );
+
   type ListItem = ActiveBranch | { _skeleton: true; id: number };
   const skeletonItems: ListItem[] = Array.from({ length: 6 }, (_, i) => ({
     _skeleton: true as const,
@@ -641,6 +793,7 @@ export const HomeScreen = (): JSX.Element => {
           numColumns={2}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={ListHeader}
+          ListFooterComponent={ListFooter}
           contentContainerStyle={{
             paddingBottom: 100,
             backgroundColor: 'white',

@@ -149,9 +149,9 @@ const SearchResultCard = ({
           </View>
 
           {/* Dietary chips */}
-          {branch.dietaryPreferenceNames.length > 0 && (
+          {(branch.dietaryPreferenceNames?.length ?? 0) > 0 && (
             <View className="mt-1.5 flex-row flex-wrap gap-1">
-              {branch.dietaryPreferenceNames.slice(0, 3).map((name) => (
+              {(branch.dietaryPreferenceNames ?? []).slice(0, 3).map((name) => (
                 <View
                   key={name}
                   className="rounded-full bg-orange-50 px-2 py-0.5"
@@ -180,7 +180,7 @@ const SearchResultCard = ({
           )}
         </TouchableOpacity>
 
-        {vouchers && vouchers.length > 0 && (
+        {(vouchers?.length ?? 0) > 0 && (
           <View
             onTouchStart={(e) => {
               touchStartX.current = e.nativeEvent.pageX;

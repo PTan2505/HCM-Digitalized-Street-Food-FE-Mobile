@@ -61,6 +61,7 @@ export const apiUrl = {
     images: (branchId: number): string => `/api/Branch/${branchId}/images`,
     similar: (branchId: number): string => `/api/Branch/${branchId}/similar`,
     myGhostPins: '/api/Branch/my-ghost-pin',
+    allGhostPins: '/api/Branch/all-ghost-pins',
   },
   userDietary: {
     userDietary: '/api/UserDietary/user',
