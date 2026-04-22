@@ -1,4 +1,5 @@
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
+import { ManagerFeedbackDetailScreen } from '@features/manager/feedback/screens/ManagerFeedbackDetailScreen';
 import { ManagerOrderDetailScreen } from '@features/manager/orders/screens/ManagerOrderDetailScreen';
 import { useManagerSelector } from '@manager-app/managerHooks';
 import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
@@ -19,6 +20,9 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     ManagerOrderDetail: {
       screen: ManagerOrderDetailScreen,
+    },
+    ManagerFeedbackDetail: {
+      screen: ManagerFeedbackDetailScreen,
     },
   },
 });

@@ -1,10 +1,12 @@
-import { useManagerSelector } from '@manager-app/managerHooks';
+import { selectNotifications } from '@slices/notifications';
 import { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 
 const NEW_ORDER_TYPE = 'NewOrder';
 
 export const useNewOrderNotification = (onNewOrder: () => void): void => {
-  const latest = useManagerSelector((state) => state.notifications.items[0]);
+  const items = useSelector(selectNotifications);
+  const latest = items[0];
   const lastIdRef = useRef<number | null>(null);
 
   useEffect(() => {

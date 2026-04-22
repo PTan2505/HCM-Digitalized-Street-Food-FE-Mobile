@@ -242,7 +242,8 @@
     "feedback": "Phản hồi",
     "schedule": "Lịch hoạt động",
     "day_off": "Ngày nghỉ",
-    "account": "Tài khoản"
+    "account": "Tài khoản",
+    "notifications": "Thông báo"
   },
   "manager_account": {
     "title": "Tài khoản",
@@ -281,7 +282,6 @@
     "note": "Ghi chú",
     "payment_method": "Thanh toán",
     "bank_transfer": "Chuyển khoản",
-
     "table": "Bàn",
     "order_type": "Loại đơn",
     "mark_complete": "Hoàn thành đơn",
@@ -293,7 +293,39 @@
     "step_complete": "Hoàn thành",
     "approving": "Đang xác nhận...",
     "rejecting": "Đang từ chối...",
-    "completing": "Đang hoàn thành..."
+    "completing": "Đang hoàn thành...",
+    "just_now": "Vừa xong"
+  },
+  "manager_feedback": {
+    "title": "Đánh giá",
+    "empty": "Chưa có đánh giá nào",
+    "empty_subtitle": "Khách hàng chưa để lại đánh giá cho chi nhánh này",
+    "reply": "Phản hồi",
+    "edit_reply": "Chỉnh sửa phản hồi",
+    "delete_reply": "Xoá phản hồi",
+    "replied": "Đã phản hồi",
+    "no_reply": "Chưa phản hồi",
+    "reply_placeholder": "Nhập phản hồi của bạn...",
+    "send": "Gửi",
+    "update": "Cập nhật",
+    "confirm_delete": "Xác nhận xoá",
+    "confirm_delete_message": "Bạn có chắc chắn muốn xoá phản hồi này?",
+    "cancel": "Huỷ",
+    "delete": "Xoá",
+    "reply_empty_error": "Phản hồi không được để trống",
+    "images": "Hình ảnh",
+    "no_images": "Không có hình ảnh",
+    "comment": "Bình luận",
+    "no_comment": "Không có bình luận",
+    "reviewed_on": "Đánh giá lúc",
+    "quick_apologize": "Xin lỗi vì sự cố",
+    "quick_thank_you": "Cảm ơn đánh giá của bạn",
+    "quick_contact_us": "Vui lòng liên hệ chúng tôi",
+    "avg_rating": "Điểm trung bình",
+    "total_reviews": "Tổng đánh giá",
+    "filter_all": "Tất cả",
+    "filter_needs_attention": "Cần chú ý",
+    "filter_unreplied": "Chưa phản hồi"
   },
   "auth": {
     "login_with_google": "Đăng nhập với Google",

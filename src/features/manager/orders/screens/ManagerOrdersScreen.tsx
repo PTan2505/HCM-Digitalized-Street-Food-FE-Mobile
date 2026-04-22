@@ -14,6 +14,7 @@ import { useNewOrderNotification } from '@features/manager/orders/hooks/useNewOr
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { TFunction } from 'i18next';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -35,10 +36,10 @@ const STATUS_TABS = [
 // Module-level cache to avoid re-fetching the same user across card re-renders
 const userNameCache = new Map<number, string>();
 
-const formatTimeAgo = (createdAt: string): string => {
+const formatTimeAgo = (createdAt: string, t: TFunction): string => {
   const diff = Date.now() - new Date(createdAt).getTime();
   const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return '< 1 min';
+  if (minutes < 1) return t('manager_orders.just_now');
   if (minutes < 60) return `${String(minutes)} min`;
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${String(hours)}h`;
@@ -120,7 +121,7 @@ const OrderCard = ({ order, onPress }: OrderCardProps): React.JSX.Element => {
             {formatCurrency(order.finalAmount)}
           </Text>
           <Text className="mt-0.5 text-xs text-gray-400">
-            {formatTimeAgo(order.createdAt)}
+            {formatTimeAgo(order.createdAt, t)}
           </Text>
         </View>
       </View>

@@ -16,6 +16,7 @@ import { VendorApi } from '@features/customer/home/api/vendorApi';
 import { GhostPinApi } from '@features/customer/maps/api/ghostPinApi';
 import { QuestApi } from '@features/customer/quests/api/questApi';
 import { ManagerBranchApi } from '@features/manager/branch/managerBranchApi';
+import { ManagerFeedbackApi } from '@features/manager/feedback/api/managerFeedbackApi';
 import { ManagerOrderApi } from '@features/manager/orders/api/managerOrderApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
 import { UserPaymentApi } from '@features/user/api/paymentApi';
@@ -50,4 +51,5 @@ export const axiosApi = {
   userPaymentApi: new UserPaymentApi(axiosClient),
   managerBranchApi: new ManagerBranchApi(axiosClient),
   managerOrderApi: new ManagerOrderApi(axiosClient),
+  managerFeedbackApi: new ManagerFeedbackApi(axiosClient),
 };

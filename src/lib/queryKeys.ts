@@ -94,4 +94,11 @@ export const queryKeys = {
     count: (status: number) => ['managerOrders', 'count', status] as const,
     detail: (orderId: number) => ['managerOrders', 'detail', orderId] as const,
   },
+
+  managerFeedback: {
+    all: ['managerFeedback'] as const,
+    list: (branchId: number) => ['managerFeedback', 'list', branchId] as const,
+    detail: (feedbackId: number) =>
+      ['managerFeedback', 'detail', feedbackId] as const,
+  },
 } as const;
