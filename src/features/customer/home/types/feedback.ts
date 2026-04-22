@@ -39,6 +39,7 @@ export interface Feedback {
   id: number;
   branchId?: number;
   user?: FeedbackUser;
+  orderId?: number;
   dishId?: number;
   dish?: FeedbackDish;
   rating: number;

@@ -345,7 +345,8 @@
     "resend_code": "Gửi lại mã",
     "confirm": "Xác nhận",
     "confirming": "Đang xác nhận...",
-    "manager_access_denied": "Tài khoản này không có quyền truy cập quản lý"
+    "manager_access_denied": "Tài khoản này không có quyền truy cập quản lý",
+    "phone_not_verified": "Số điện thoại chưa được xác thực"
   },
   "validation": {
     "required": "Trường này là bắt buộc!",

@@ -25,7 +25,6 @@ import {
   Alert,
   Image,
   ScrollView,
-  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
@@ -276,7 +275,6 @@ export const PersonalCartScreen = ({
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      <StatusBar barStyle="dark-content" />
       {/* Header */}
       <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
         <TouchableOpacity onPress={() => navigation.goBack()}>

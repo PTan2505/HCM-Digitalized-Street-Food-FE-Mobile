@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
-import {
-  View,
-  StatusBar,
-  ScrollView,
-  type ImageSourcePropType,
-} from 'react-native';
-import type { JSX } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import SortModal from '@features/customer/home/components/common/SortModal';
 import CurrentPickCard from '@features/customer/home/components/common/CurrentPickCard';
-import Header from '@features/customer/home/components/currentPickDetails/Header';
-import TitleSection from '@features/customer/home/components/currentPickDetails/TitleSection';
+import SortModal from '@features/customer/home/components/common/SortModal';
 import ActionButtons from '@features/customer/home/components/currentPickDetails/ActionButtons';
+import Header from '@features/customer/home/components/currentPickDetails/Header';
 import ListHeader from '@features/customer/home/components/currentPickDetails/ListHeader';
+import TitleSection from '@features/customer/home/components/currentPickDetails/TitleSection';
+import { useNavigation } from '@react-navigation/native';
+import type { JSX } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ScrollView, View, type ImageSourcePropType } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Location {
   id: string;
@@ -120,8 +115,6 @@ export const CurrentPickDetailsScreen = (): JSX.Element => {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" />
-
       <Header
         onBackPress={() => navigation.goBack()}
         onMenuPress={() => console.log('Menu pressed')}

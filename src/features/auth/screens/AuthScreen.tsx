@@ -20,11 +20,14 @@ import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Animated,
+  Platform,
   Pressable,
+  ScrollView,
   Text,
   View,
   useWindowDimensions,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -37,6 +40,7 @@ export const AuthScreen = (): JSX.Element => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { onGoogleLoginSubmit, onFacebookLoginSubmit } = useLogin();
+  const { bottom: bottomInset } = useSafeAreaInsets();
   const { height: screenHeight } = useWindowDimensions();
   // Scale layout values relative to a 844px reference height (iPhone 12 Pro)
   const scale = Math.min(screenHeight / 844, 1);
@@ -52,7 +56,6 @@ export const AuthScreen = (): JSX.Element => {
   const formTransition = useRef(new Animated.Value(0)).current;
   const [isSendedOTP, setIsSendedOTP] = useState(false);
   const phoneNumberRef = useRef('');
-  const inset = useSafeAreaInsets();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -126,204 +129,216 @@ export const AuthScreen = (): JSX.Element => {
     }).start();
   }, [isSendedOTP, formTransition]);
   return (
-    <SafeAreaView
-      className="flex-1 bg-white"
-      edges={['left', 'right', 'bottom']}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
     >
-      <View className="relative">
-        <Animated.View
-          style={{
-            transform: [
-              {
-                translateY: animatedValue.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, logoAnimateUp],
-                }),
-              },
-            ],
+      <SafeAreaView className="flex-1 bg-white" edges={['left', 'right']}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: bottomInset + 30,
           }}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+          showsVerticalScrollIndicator={false}
         >
-          <SvgIcon
-            width={150}
-            height={150}
-            icon={lowcaLogo}
-            style={{
-              marginTop: logoMarginTop,
-              alignSelf: 'center',
-            }}
-          />
-        </Animated.View>
-        <Animated.Image
-          source={authenticationBackground}
-          style={{
-            height: 'auto',
-            width: '100%',
-            aspectRatio: 393 / 627,
-            position: 'absolute',
-            zIndex: -1,
-            transform: [
-              {
-                translateY: animatedValue.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, imageAnimateUp],
-                }),
-              },
-            ],
-          }}
-          resizeMode="cover"
-        />
-      </View>
-
-      {!showPhoneLogin && (
-        <Animated.View
-          style={{
-            marginTop: buttonsMarginTop,
-            paddingHorizontal: 16,
-            transform: [
-              {
-                translateY: animatedValue.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [inset.top, -150],
-                }),
-              },
-            ],
-          }}
-        >
-          <View className="justify-center gap-4">
-            <View className="flex-row justify-center gap-10">
-              <Pressable
-                className={`relative w-full flex-row items-center justify-center gap-2 rounded-full border-[1px] bg-white p-4 active:opacity-50`}
-                onPress={handleGoogleLogin}
-                disabled={userStatus === 'pending'}
-              >
-                <SvgIcon
-                  width={20}
-                  icon={GoogleLogo}
-                  height={20}
-                  style={{ position: 'absolute', left: 12 }}
-                />
-                <Text className="font-semibold">
-                  {t('auth.login_with_google')}
-                </Text>
-              </Pressable>
-            </View>
-            <View className="flex-row justify-center gap-10">
-              <Pressable
-                className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-[#1877F2] p-4 active:opacity-50`}
-                onPress={handleFacebookLogin}
-                disabled={userStatus === 'pending'}
-              >
-                <SvgIcon
-                  width={24}
-                  icon={FaceBookLogo}
-                  height={24}
-                  style={{ position: 'absolute', left: 12 }}
-                />
-                <Text className="font-semibold text-white">
-                  {t('auth.login_with_facebook')}
-                </Text>
-              </Pressable>
-            </View>
-
-            <View className="flex-row justify-center gap-10">
-              <Pressable
-                className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-black p-4 active:opacity-50`}
-                onPress={handlePhoneLogin}
-                disabled={userStatus === 'pending'}
-              >
-                <FontAwesome6
-                  name="phone"
-                  size={20}
-                  color="white"
-                  style={{ position: 'absolute', left: 12 }}
-                />
-                <Text className="font-semibold text-white">
-                  {t('auth.login_with_phone')}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </Animated.View>
-      )}
-      {showPhoneLogin && (
-        <Animated.View
-          style={{
-            marginTop: phoneFormMarginTop,
-            opacity: animatedValue,
-            transform: [
-              {
-                translateY: animatedValue.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [phoneFormAnimateFrom, phoneFormAnimateTo],
-                }),
-              },
-            ],
-          }}
-        >
-          <View style={{ position: 'relative', width: '100%' }}>
+          <View className="relative">
             <Animated.View
               style={{
-                opacity: formTransition.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 0],
-                }),
                 transform: [
                   {
-                    translateX: formTransition.interpolate({
+                    translateY: animatedValue.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [0, -400],
+                      outputRange: [0, logoAnimateUp],
                     }),
                   },
                 ],
-                position: isSendedOTP ? 'absolute' : 'relative',
-                width: '100%',
               }}
-              pointerEvents={isSendedOTP ? 'none' : 'auto'}
             >
-              <LoginForm
-                setIsSendedOTP={setIsSendedOTP}
-                phoneNumberRef={phoneNumberRef}
-                onBack={() => {
-                  setShowPhoneLogin(false);
-                  Animated.timing(animatedValue, {
-                    toValue: 0,
-                    duration: 400,
-                    useNativeDriver: true,
-                  }).start();
+              <SvgIcon
+                width={150}
+                height={150}
+                icon={lowcaLogo}
+                style={{
+                  marginTop: logoMarginTop,
+                  alignSelf: 'center',
                 }}
               />
             </Animated.View>
-
-            <Animated.View
+            <Animated.Image
+              source={authenticationBackground}
               style={{
-                opacity: formTransition.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 1],
-                }),
+                height: 'auto',
+                width: '100%',
+                aspectRatio: 393 / 627,
+                position: 'absolute',
+                zIndex: -1,
                 transform: [
                   {
-                    translateX: formTransition.interpolate({
+                    translateY: animatedValue.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [400, 0],
+                      outputRange: [0, imageAnimateUp],
                     }),
                   },
                 ],
-                position: !isSendedOTP ? 'absolute' : 'relative',
-                width: '100%',
               }}
-              pointerEvents={!isSendedOTP ? 'none' : 'auto'}
-            >
-              <OTPForm
-                phoneNumber={phoneNumberRef.current}
-                shouldFocus={isSendedOTP}
-                onBack={() => {
-                  setIsSendedOTP(false);
-                }}
-              />
-            </Animated.View>
+              resizeMode="cover"
+            />
           </View>
-        </Animated.View>
-      )}
-    </SafeAreaView>
+
+          {!showPhoneLogin && (
+            <Animated.View
+              style={{
+                marginTop: buttonsMarginTop,
+                paddingHorizontal: 16,
+                transform: [
+                  {
+                    translateY: animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -150],
+                    }),
+                  },
+                ],
+              }}
+            >
+              <View className="justify-center gap-4">
+                <View className="flex-row justify-center gap-10">
+                  <Pressable
+                    className={`relative w-full flex-row items-center justify-center gap-2 rounded-full border-[1px] bg-white p-4 active:opacity-50`}
+                    onPress={handleGoogleLogin}
+                    disabled={userStatus === 'pending'}
+                  >
+                    <SvgIcon
+                      width={20}
+                      icon={GoogleLogo}
+                      height={20}
+                      style={{ position: 'absolute', left: 12 }}
+                    />
+                    <Text className="font-semibold">
+                      {t('auth.login_with_google')}
+                    </Text>
+                  </Pressable>
+                </View>
+                <View className="flex-row justify-center gap-10">
+                  <Pressable
+                    className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-[#1877F2] p-4 active:opacity-50`}
+                    onPress={handleFacebookLogin}
+                    disabled={userStatus === 'pending'}
+                  >
+                    <SvgIcon
+                      width={24}
+                      icon={FaceBookLogo}
+                      height={24}
+                      style={{ position: 'absolute', left: 12 }}
+                    />
+                    <Text className="font-semibold text-white">
+                      {t('auth.login_with_facebook')}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                <View className="flex-row justify-center gap-10">
+                  <Pressable
+                    className={`relative w-full flex-row items-center justify-center gap-2 rounded-full bg-black p-4 active:opacity-50`}
+                    onPress={handlePhoneLogin}
+                    disabled={userStatus === 'pending'}
+                  >
+                    <FontAwesome6
+                      name="phone"
+                      size={20}
+                      color="white"
+                      style={{ position: 'absolute', left: 12 }}
+                    />
+                    <Text className="font-semibold text-white">
+                      {t('auth.login_with_phone')}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Animated.View>
+          )}
+          {showPhoneLogin && (
+            <Animated.View
+              style={{
+                marginTop: phoneFormMarginTop,
+                opacity: animatedValue,
+                transform: [
+                  {
+                    translateY: animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [phoneFormAnimateFrom, phoneFormAnimateTo],
+                    }),
+                  },
+                ],
+              }}
+            >
+              <View style={{ position: 'relative', width: '100%' }}>
+                <Animated.View
+                  style={{
+                    opacity: formTransition.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1, 0],
+                    }),
+                    transform: [
+                      {
+                        translateX: formTransition.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -400],
+                        }),
+                      },
+                    ],
+                    position: isSendedOTP ? 'absolute' : 'relative',
+                    width: '100%',
+                  }}
+                  pointerEvents={isSendedOTP ? 'none' : 'auto'}
+                >
+                  <LoginForm
+                    setIsSendedOTP={setIsSendedOTP}
+                    phoneNumberRef={phoneNumberRef}
+                    onBack={() => {
+                      setShowPhoneLogin(false);
+                      Animated.timing(animatedValue, {
+                        toValue: 0,
+                        duration: 400,
+                        useNativeDriver: true,
+                      }).start();
+                    }}
+                  />
+                </Animated.View>
+
+                <Animated.View
+                  style={{
+                    opacity: formTransition.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                    transform: [
+                      {
+                        translateX: formTransition.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [400, 0],
+                        }),
+                      },
+                    ],
+                    position: !isSendedOTP ? 'absolute' : 'relative',
+                    width: '100%',
+                  }}
+                  pointerEvents={!isSendedOTP ? 'none' : 'auto'}
+                >
+                  <OTPForm
+                    phoneNumber={phoneNumberRef.current}
+                    shouldFocus={isSendedOTP}
+                    onBack={() => {
+                      setIsSendedOTP(false);
+                    }}
+                  />
+                </Animated.View>
+              </View>
+            </Animated.View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };

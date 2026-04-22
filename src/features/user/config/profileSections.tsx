@@ -181,15 +181,6 @@ export const getProfileSections = (
           onPress: (): void => navigation.navigate('DietaryPreferences'),
         },
         {
-          id: 'notifications',
-          icon: 'notifications-outline',
-          title: t('profile.notifications'),
-          rightIcon: 'chevron-forward',
-          onPress: (): void => {
-            // Navigate to notifications settings
-          },
-        },
-        {
           id: 'language',
           icon: 'language-outline',
           title: t('profile.language'),

@@ -8,7 +8,12 @@ import { useOrderStatus } from '@features/customer/direct-ordering/hooks/useOrde
 import { usePickupCode } from '@features/customer/direct-ordering/hooks/usePickupCode';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import { axiosApi } from '@lib/api/apiInstance';
+import {
+  StaticScreenProps,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import {
   checkoutThunk,
   selectCheckoutAccountName,
@@ -16,7 +21,9 @@ import {
   selectCheckoutBin,
   selectCheckoutOrderCode,
 } from '@slices/directOrdering';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { JSX } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -59,6 +66,31 @@ export const OrderStatusScreen = ({
   const navigation = useNavigation();
   const { order } = useOrderStatus(orderId);
   const { pickupCode } = usePickupCode(orderId, order?.status);
+  const queryClient = useQueryClient();
+
+  const orderReviewedQueryKey = ['feedback', 'order', orderId] as const;
+
+  const { data: isOrderReviewed = false } = useQuery({
+    queryKey: orderReviewedQueryKey,
+    queryFn: async (): Promise<boolean> => {
+      const result = await axiosApi.feedbackApi.getMyFeedback({
+        pageSize: 100,
+      });
+      return result.items.some((f) => f.orderId === orderId);
+    },
+    enabled: order?.status === ORDER_STATUS.Complete,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (order?.status === ORDER_STATUS.Complete) {
+        void queryClient.invalidateQueries({
+          queryKey: ['feedback', 'order', orderId],
+        });
+      }
+    }, [order?.status, queryClient, orderId])
+  );
   const displayName = useBranchDisplayName(order?.branchId ?? 0);
   const checkoutOrderCode = useAppSelector(selectCheckoutOrderCode);
   const checkoutBin = useAppSelector(selectCheckoutBin);
@@ -316,22 +348,31 @@ export const OrderStatusScreen = ({
           </View>
         )}
 
-        {/* Write Review — only shown for completed orders */}
+        {/* Write Review — only shown for completed, unreviewed orders */}
         {order.status === ORDER_STATUS.Complete && (
           <View className="px-4 pb-4">
-            <TouchableOpacity
-              onPress={(): void =>
-                navigation.navigate('WriteReview', {
-                  orderId: order.orderId,
-                  branchId: order.branchId,
-                })
-              }
-              className="items-center rounded-xl bg-primary py-4"
-            >
-              <Text className="text-base font-semibold text-white">
-                {t('review.write', 'Viết đánh giá')}
-              </Text>
-            </TouchableOpacity>
+            {isOrderReviewed ? (
+              <View className="flex-row items-center justify-center gap-2 rounded-xl border border-gray-200 py-4">
+                <Ionicons name="checkmark-circle" size={18} color="#6B7280" />
+                <Text className="text-base font-semibold text-gray-400">
+                  {t('review.already_reviewed', 'Đã đánh giá')}
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={(): void =>
+                  navigation.navigate('WriteReview', {
+                    orderId: order.orderId,
+                    branchId: order.branchId,
+                  })
+                }
+                className="items-center rounded-xl bg-primary py-4"
+              >
+                <Text className="text-base font-semibold text-white">
+                  {t('review.write', 'Viết đánh giá')}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </ScrollView>

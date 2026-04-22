@@ -15,8 +15,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ReviewCard from '@features/customer/home/components/restaurantDetails/ReviewCard';
+import { OrderResponse } from '@customer/direct-ordering/api/cartApi';
 import type { Review } from '@features/customer/home/components/restaurantDetails/ReviewCard';
+import ReviewCard from '@features/customer/home/components/restaurantDetails/ReviewCard';
 import { ReviewFormModal } from '@features/customer/home/components/ReviewFormModal';
 import { useBranchFeedback } from '@features/customer/home/hooks/useBranchFeedback';
 import { useCompletedOrdersForBranch } from '@features/customer/home/hooks/useCompletedOrdersForBranch';
@@ -36,7 +37,6 @@ import { useQueryClient } from '@tanstack/react-query';
 type ReviewListScreenProps = StaticScreenProps<{
   branchId: number;
   displayName: string;
-  ownFeedbackId?: number;
   branchLat: number;
   branchLong: number;
 }>;
@@ -66,6 +66,7 @@ export const ReviewListScreen = ({
 
   const [sortBy, setSortBy] = useState<ReviewSortBy>('default');
   const [showSortModal, setShowSortModal] = useState(false);
+  const [showOrderPickerModal, setShowOrderPickerModal] = useState(false);
 
   // Refetch reviews when screen regains focus (e.g. after notification navigation)
   const isFirstFocus = useRef(true);
@@ -84,25 +85,44 @@ export const ReviewListScreen = ({
   const [editingFeedback, setEditingFeedback] = useState<Feedback | undefined>(
     undefined
   );
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
-  // Fetch own feedback for editing
-  const { ownFeedback, setOwnFeedback } = useOwnBranchFeedback(branchId);
+  // Fetch all own feedbacks for this branch
+  const { ownFeedbacks, setOwnFeedbacks } = useOwnBranchFeedback(branchId);
 
   // Completed orders → order-based review path
-  const {
-    hasCompletedOrders,
-    firstOrderId,
-    isLoading: isOrdersLoading,
-  } = useCompletedOrdersForBranch(branchId);
+  const { completedOrders, isLoading: isOrdersLoading } =
+    useCompletedOrdersForBranch(branchId);
 
-  // Check if user can create a non-order review
+  // Orders that don't yet have a review
+  const reviewedOrderIds = useMemo(
+    () => new Set(ownFeedbacks.map((f) => f.orderId).filter(Boolean)),
+    [ownFeedbacks]
+  );
+
+  const completedButNotReviewedOrders = useMemo(
+    () =>
+      completedOrders.filter((order) => !reviewedOrderIds.has(order.orderId)),
+    [completedOrders, reviewedOrderIds]
+  );
+
+  const hasUnreviewedOrders = completedButNotReviewedOrders.length > 0;
+
+  // Check if user can create a non-order review.
+  // Pass hasUnreviewedOrders (not hasCompletedOrders) so that when all orders
+  // are already reviewed, the velocity check runs and shows the real reason.
   const {
     canReview,
     reason: reviewIneligibilityReason,
     isLoading: isEligibilityLoading,
     userLat,
     userLong,
-  } = useReviewEligibility(branchId, branchLat, branchLong, hasCompletedOrders);
+  } = useReviewEligibility(
+    branchId,
+    branchLat,
+    branchLong,
+    hasUnreviewedOrders
+  );
 
   // Fetch reviews with pagination
   const {
@@ -118,45 +138,83 @@ export const ReviewListScreen = ({
   } = useReviewList({
     branchId,
     sortBy,
-    ownFeedbackId: ownFeedback?.id,
+    ownFeedbackId: ownFeedbacks[0]?.id,
   });
 
   // For updating the branch feedback cache
   const { addFeedback, updateFeedback, removeFeedback } =
     useBranchFeedback(branchId);
 
+  const ownFeedbackIds = useMemo(
+    () => new Set(ownFeedbacks.map((f) => f.id)),
+    [ownFeedbacks]
+  );
+
   const handleSortChange = useCallback((newSort: ReviewSortBy) => {
     setSortBy(newSort);
     setShowSortModal(false);
   }, []);
 
-  const handleEditOwnReview = useCallback(() => {
-    if (ownFeedback) {
-      setEditingFeedback(ownFeedback);
-      setShowReviewModal(true);
-    }
-  }, [ownFeedback]);
+  const handleEditOwnReview = useCallback(
+    (feedbackId: number) => {
+      const feedback = ownFeedbacks.find((f) => f.id === feedbackId);
+      if (feedback) {
+        setEditingFeedback(feedback);
+        setSelectedOrderId(null);
+        setShowReviewModal(true);
+      }
+    },
+    [ownFeedbacks]
+  );
 
   const handleWriteReview = useCallback(() => {
     setEditingFeedback(undefined);
+    if (completedButNotReviewedOrders.length > 0) {
+      // Let user pick which order to review
+      setShowOrderPickerModal(true);
+    } else {
+      // Non-order review path
+      setSelectedOrderId(null);
+      setShowReviewModal(true);
+    }
+  }, [completedButNotReviewedOrders]);
+
+  const handleOrderSelected = useCallback((order: OrderResponse) => {
+    setShowOrderPickerModal(false);
+    setSelectedOrderId(order.orderId);
     setShowReviewModal(true);
   }, []);
 
   const handleReviewSuccess = useCallback(
     (feedback: Feedback, isEdit: boolean) => {
       setShowReviewModal(false);
+      setSelectedOrderId(null);
       if (isEdit) {
         updateFeedback(feedback);
+        setOwnFeedbacks(
+          ownFeedbacks.map((f) => (f.id === feedback.id ? feedback : f))
+        );
       } else {
         addFeedback(feedback);
+        setOwnFeedbacks([...ownFeedbacks, feedback]);
+        // Refresh unreviewed orders list
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.orders.completedByBranch(branchId),
+        });
       }
-      setOwnFeedback(feedback);
-      // Invalidate the review list cache to refetch with new data
       void queryClient.invalidateQueries({
         queryKey: queryKeys.feedback.list(branchId, sortBy),
       });
     },
-    [addFeedback, updateFeedback, setOwnFeedback, queryClient, branchId, sortBy]
+    [
+      addFeedback,
+      updateFeedback,
+      setOwnFeedbacks,
+      ownFeedbacks,
+      queryClient,
+      branchId,
+      sortBy,
+    ]
   );
 
   const handleDeleteReview = useCallback(
@@ -173,7 +231,13 @@ export const ReviewListScreen = ({
               try {
                 await deleteFeedback(feedbackId);
                 removeFeedback(feedbackId);
-                setOwnFeedback(undefined);
+                setOwnFeedbacks(
+                  ownFeedbacks.filter((f) => f.id !== feedbackId)
+                );
+                // Refresh orders so the deleted review's order becomes reviewable again
+                void queryClient.invalidateQueries({
+                  queryKey: queryKeys.orders.completedByBranch(branchId),
+                });
               } catch {
                 Alert.alert(
                   t('error_title', 'Lỗi'),
@@ -185,7 +249,15 @@ export const ReviewListScreen = ({
         ]
       );
     },
-    [deleteFeedback, removeFeedback, setOwnFeedback, t]
+    [
+      deleteFeedback,
+      removeFeedback,
+      setOwnFeedbacks,
+      ownFeedbacks,
+      queryClient,
+      branchId,
+      t,
+    ]
   );
 
   const handleVoteReview = useCallback(
@@ -211,8 +283,8 @@ export const ReviewListScreen = ({
         comment: item.comment ?? '',
         imageUris: item.images?.map((img) => img.url) ?? [],
         tags: item.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
-        isOwn: item.id === ownFeedback?.id,
-        editable: item.id === ownFeedback?.id,
+        isOwn: ownFeedbackIds.has(item.id),
+        editable: ownFeedbackIds.has(item.id),
         dishName: item.dish?.name,
         upVotes: item.upVotes,
         downVotes: item.downVotes,
@@ -226,7 +298,7 @@ export const ReviewListScreen = ({
             }
           : undefined,
       })),
-    [reviews, ownFeedback?.id, t, displayName]
+    [reviews, ownFeedbackIds, t, displayName]
   );
 
   const renderReviewItem = useCallback(
@@ -276,8 +348,7 @@ export const ReviewListScreen = ({
     [t]
   );
 
-  // Can write review when: has completed orders (order path) OR eligible non-order path
-  const canWriteReview = hasCompletedOrders || (!ownFeedback && canReview);
+  const canWriteReview = hasUnreviewedOrders || canReview;
 
   if (error) {
     return (
@@ -360,44 +431,40 @@ export const ReviewListScreen = ({
         />
       )}
 
-      {/* Write Review Button — visible for order path OR when no review yet */}
-      {(hasCompletedOrders || !ownFeedback) && (
-        <View className="absolute bottom-6 left-4 right-4">
-          <TouchableOpacity
-            onPress={handleWriteReview}
-            disabled={
-              !canWriteReview || isEligibilityLoading || isOrdersLoading
-            }
-            className={`items-center rounded-xl py-4 shadow-lg ${
-              canWriteReview && !isEligibilityLoading && !isOrdersLoading
-                ? 'bg-primary'
-                : 'bg-gray-200'
-            }`}
-          >
-            {isEligibilityLoading || isOrdersLoading ? (
-              <ActivityIndicator size="small" color={COLORS.primaryLight} />
-            ) : (
-              <Text
-                className={`text-base font-semibold ${
-                  canWriteReview ? 'text-white' : 'text-gray-400'
-                }`}
-              >
-                {t('review.write', 'Viết đánh giá')}
-              </Text>
-            )}
-          </TouchableOpacity>
-          {!canWriteReview &&
-            !isEligibilityLoading &&
-            !isOrdersLoading &&
-            reviewIneligibilityReason &&
-            reviewIneligibilityReason !== 'loading' && (
-              <Text className="mt-2 text-center text-sm text-gray-500">
-                {INELIGIBILITY_MESSAGES[reviewIneligibilityReason] ??
-                  reviewIneligibilityReason}
-              </Text>
-            )}
-        </View>
-      )}
+      {/* Write Review Button */}
+      <View className="absolute bottom-0 left-4 right-4 bg-white pb-6 pt-2">
+        <TouchableOpacity
+          onPress={handleWriteReview}
+          disabled={!canWriteReview || isEligibilityLoading || isOrdersLoading}
+          className={`items-center rounded-xl py-4 shadow-lg ${
+            canWriteReview && !isEligibilityLoading && !isOrdersLoading
+              ? 'bg-primary'
+              : 'bg-gray-200'
+          }`}
+        >
+          {isEligibilityLoading || isOrdersLoading ? (
+            <ActivityIndicator size="small" color={COLORS.primaryLight} />
+          ) : (
+            <Text
+              className={`text-base font-semibold ${
+                canWriteReview ? 'text-white' : 'text-gray-400'
+              }`}
+            >
+              {t('review.write', 'Viết đánh giá')}
+            </Text>
+          )}
+        </TouchableOpacity>
+        {!canWriteReview &&
+          !isEligibilityLoading &&
+          !isOrdersLoading &&
+          reviewIneligibilityReason &&
+          reviewIneligibilityReason !== 'loading' && (
+            <Text className="mt-2 text-center text-sm text-gray-500">
+              {INELIGIBILITY_MESSAGES[reviewIneligibilityReason] ??
+                reviewIneligibilityReason}
+            </Text>
+          )}
+      </View>
 
       {/* Sort Modal */}
       <Modal
@@ -407,25 +474,17 @@ export const ReviewListScreen = ({
         onRequestClose={(): void => setShowSortModal(false)}
       >
         <View className="flex-1">
-          {/* Backdrop */}
           <Pressable
             className="absolute inset-0 bg-black/50"
             onPress={(): void => setShowSortModal(false)}
           />
-
-          {/* Modal Content */}
           <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white pb-8 pt-4">
-            {/* Handle */}
             <View className="mb-4 items-center">
               <View className="h-1 w-12 rounded-full bg-gray-300" />
             </View>
-
-            {/* Title */}
             <Text className="mb-4 px-4 text-lg font-bold text-black">
               {t('actions.sort_by')}
             </Text>
-
-            {/* Options */}
             {SORT_OPTIONS.map((option) => (
               <TouchableOpacity
                 key={option}
@@ -454,17 +513,81 @@ export const ReviewListScreen = ({
         </View>
       </Modal>
 
+      {/* Order Picker Modal */}
+      <Modal
+        visible={showOrderPickerModal}
+        transparent
+        animationType="fade"
+        onRequestClose={(): void => setShowOrderPickerModal(false)}
+      >
+        <View className="flex-1">
+          <Pressable
+            className="absolute inset-0 bg-black/50"
+            onPress={(): void => setShowOrderPickerModal(false)}
+          />
+          <View className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white pb-8 pt-4">
+            <View className="mb-4 items-center">
+              <View className="h-1 w-12 rounded-full bg-gray-300" />
+            </View>
+            <Text className="mb-1 px-4 text-lg font-bold text-black">
+              {t('review.pick_order_title', 'Chọn đơn hàng để đánh giá')}
+            </Text>
+            <Text className="mb-4 px-4 text-sm text-gray-500">
+              {t(
+                'review.pick_order_subtitle',
+                'Mỗi đánh giá sẽ được gắn với một đơn hàng'
+              )}
+            </Text>
+            {completedButNotReviewedOrders.map((order) => (
+              <TouchableOpacity
+                key={order.orderId}
+                onPress={(): void => handleOrderSelected(order)}
+                className="flex-row items-center justify-between border-t border-gray-100 px-4 py-3.5"
+              >
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-gray-800">
+                    {t('review.order_number', 'Đơn #{{id}}', {
+                      id: order.orderId,
+                    })}
+                  </Text>
+                  <Text className="mt-0.5 text-xs text-gray-400">
+                    {new Date(order.createdAt).toLocaleDateString('vi-VN', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-sm font-medium text-gray-700">
+                    {order.finalAmount.toLocaleString('vi-VN')}đ
+                  </Text>
+                  <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
+
       {/* Review Form Modal */}
       <ReviewFormModal
         visible={showReviewModal}
         branchId={branchId}
         existingFeedback={editingFeedback}
         orderId={
-          editingFeedback == null && hasCompletedOrders ? firstOrderId : null
+          editingFeedback == null && selectedOrderId != null
+            ? selectedOrderId
+            : null
         }
         userLat={userLat}
         userLong={userLong}
-        onClose={(): void => setShowReviewModal(false)}
+        onClose={(): void => {
+          setShowReviewModal(false);
+          setSelectedOrderId(null);
+        }}
         onSuccess={handleReviewSuccess}
       />
     </SafeAreaView>

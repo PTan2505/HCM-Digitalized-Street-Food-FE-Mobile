@@ -89,12 +89,14 @@ export const HomeScreen = (): JSX.Element => {
     hasNextPage,
     isFetchingNextPage,
     isLoading: campaignsLoading,
+    refetch: refetchSystemCampaigns,
   } = useSystemCampaigns();
   const {
     branches: vendorCampaignBranches,
     imageMap: vendorCampaignImageMap,
     multiBranchVendorIds: campaignMultiBranchVendorIds,
     isLoading: vendorCampaignLoading,
+    refetch: refetchVendorCampaigns,
   } = useVendorCampaignBranches(userCoords, permissionStatus);
   const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
   const [refreshing, setRefreshing] = useState(false);
@@ -381,22 +383,34 @@ export const HomeScreen = (): JSX.Element => {
     setIsPulling(false);
 
     requestAnimationFrame(() => {
-      dispatch(
-        fetchActiveBranches({
-          page: 1,
-          lat: userCoords?.latitude,
-          lng: userCoords?.longitude,
-          distance: 5,
-          dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
-        })
-      ).finally(() => {
+      Promise.all([
+        dispatch(
+          fetchActiveBranches({
+            page: 1,
+            lat: userCoords?.latitude,
+            lng: userCoords?.longitude,
+            distance: 5,
+            dietaryIds: userDietaryPreferences.map(
+              (p) => p.dietaryPreferenceId
+            ),
+          })
+        ),
+        refetchSystemCampaigns(),
+        refetchVendorCampaigns(),
+      ]).finally(() => {
         isRefreshingRef.current = false;
         setRefreshing(false);
         isPullingRef.current = false;
         setIsPulling(false);
       });
     });
-  }, [dispatch, userCoords, userDietaryPreferences]);
+  }, [
+    dispatch,
+    userCoords,
+    userDietaryPreferences,
+    refetchSystemCampaigns,
+    refetchVendorCampaigns,
+  ]);
 
   // useMemo prevents a new JSX reference on every render, which would cause
   // FlatList to remount the header and re-trigger onEndReached in a loop.

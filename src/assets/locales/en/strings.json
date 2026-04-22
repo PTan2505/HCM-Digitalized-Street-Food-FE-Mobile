@@ -344,7 +344,8 @@
     "resend_code": "Resend code",
     "confirm": "Confirm",
     "confirming": "Confirming...",
-    "manager_access_denied": "This account does not have manager access"
+    "manager_access_denied": "This account does not have manager access",
+    "phone_not_verified": "Phone number not verified"
   },
   "validation": {
     "required": "This field is required!",

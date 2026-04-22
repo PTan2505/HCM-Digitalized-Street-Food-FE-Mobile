@@ -38,8 +38,6 @@ interface ReviewsTabProps {
   canReview: boolean;
   reviewIneligibilityReason: ReviewIneligibilityReason | null;
   isEligibilityLoading: boolean;
-  /** Set when the current user already has a non-order review for this branch */
-  ownFeedbackId?: number;
   /** True when user has at least one completed order — bypasses velocity check */
   hasCompletedOrders?: boolean;
   branchId: number;
@@ -47,7 +45,7 @@ interface ReviewsTabProps {
   branchLat: number;
   branchLong: number;
   onWriteReview: () => void;
-  onEditOwnReview: () => void;
+  onEditOwnReview: (feedbackId: number) => void;
   onDeleteReview: (feedbackId: number) => void;
   onVoteReview: (feedbackId: number, voteType: 'up' | 'down') => void;
 }
@@ -69,7 +67,6 @@ const ReviewsTab = ({
   canReview,
   reviewIneligibilityReason,
   isEligibilityLoading,
-  ownFeedbackId,
   hasCompletedOrders = false,
   branchId,
   displayName,
@@ -86,18 +83,11 @@ const ReviewsTab = ({
   const cart = useAppSelector(selectCart);
   const hasCart = (cart?.items.length ?? 0) > 0;
 
-  // Reorder reviews: own review first, then up to 4 others (max 5 total)
+  // Reorder reviews: own reviews first, then up to remaining others (max 5 total)
   const displayReviews = useMemo(() => {
-    const ownReview = reviews.find((r) => r.isOwn);
+    const ownReviews = reviews.filter((r) => r.isOwn);
     const otherReviews = reviews.filter((r) => !r.isOwn);
-
-    // If user has own review: [ownReview, ...first 4 others]
-    // Otherwise: first 5 reviews
-    const ordered = ownReview
-      ? [ownReview, ...otherReviews.slice(0, 4)]
-      : otherReviews.slice(0, 5);
-
-    return ordered;
+    return [...ownReviews, ...otherReviews].slice(0, 5);
   }, [reviews]);
 
   // Dynamic card width: full width if only 1 review, 78% if more than 1
@@ -139,7 +129,6 @@ const ReviewsTab = ({
                 navigation.navigate('ReviewList', {
                   branchId,
                   displayName,
-                  ownFeedbackId,
                   branchLat,
                   branchLong,
                 });
@@ -174,50 +163,42 @@ const ReviewsTab = ({
           </View>
         </View>
 
-        {/* Write / Edit Review */}
+        {/* Write Review */}
         <View className="mb-4">
-          {/* Show "Write review" when: user has a completed order (order path)
-              OR user has no review yet (non-order path) */}
-          {(hasCompletedOrders || !ownFeedbackId) && (
-            <>
-              {((): JSX.Element => {
-                const canWrite =
-                  hasCompletedOrders || (canReview && !ownFeedbackId);
-                const buttonEnabled = canWrite && !isEligibilityLoading;
-                return (
-                  <>
-                    <TouchableOpacity
-                      onPress={onWriteReview}
-                      disabled={!buttonEnabled}
-                      className={`items-center rounded-xl py-3 ${buttonEnabled ? 'bg-primary' : 'bg-gray-200'}`}
+          {((): JSX.Element => {
+            const canWrite = hasCompletedOrders || canReview;
+            const buttonEnabled = canWrite && !isEligibilityLoading;
+            return (
+              <>
+                <TouchableOpacity
+                  onPress={onWriteReview}
+                  disabled={!buttonEnabled}
+                  className={`items-center rounded-xl py-3 ${buttonEnabled ? 'bg-primary' : 'bg-gray-200'}`}
+                >
+                  {isEligibilityLoading ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={COLORS.primaryLight}
+                    />
+                  ) : (
+                    <Text
+                      className={`text-base font-semibold ${buttonEnabled ? 'text-white' : 'text-gray-400'}`}
                     >
-                      {isEligibilityLoading ? (
-                        <ActivityIndicator
-                          size="small"
-                          color={COLORS.primaryLight}
-                        />
-                      ) : (
-                        <Text
-                          className={`text-base font-semibold ${buttonEnabled ? 'text-white' : 'text-gray-400'}`}
-                        >
-                          Viết đánh giá
-                        </Text>
-                      )}
-                    </TouchableOpacity>
-                    {/* Show ineligibility reason only when both paths are blocked */}
-                    {!canWrite &&
-                      !isEligibilityLoading &&
-                      reviewIneligibilityReason &&
-                      reviewIneligibilityReason !== 'loading' && (
-                        <Text className="mt-1.5 text-center text-sm text-gray-500">
-                          {INELIGIBILITY_MESSAGES[reviewIneligibilityReason]}
-                        </Text>
-                      )}
-                  </>
-                );
-              })()}
-            </>
-          )}
+                      Viết đánh giá
+                    </Text>
+                  )}
+                </TouchableOpacity>
+                {!canWrite &&
+                  !isEligibilityLoading &&
+                  reviewIneligibilityReason &&
+                  reviewIneligibilityReason !== 'loading' && (
+                    <Text className="mt-1.5 text-center text-sm text-gray-500">
+                      {INELIGIBILITY_MESSAGES[reviewIneligibilityReason]}
+                    </Text>
+                  )}
+              </>
+            );
+          })()}
         </View>
       </View>
 
