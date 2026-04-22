@@ -45,6 +45,6 @@ jobs:
 
       - name: 🚀 Build Manager Android
         # Explicitly passing the variant so app.config.ts switches IDs
-        run: eas build --platform android --profile manager:production --non-interactive
+        run: bun x eas-cli build --platform android --profile manager:production --non-interactive
         env:
           APP_VARIANT: manager
