@@ -211,7 +211,7 @@ export const SystemCampaignDetailScreen = ({
                 description: null,
                 voucherType: voucher.type,
                 discountValue: voucher.discountValue,
-                minAmountRequired: null,
+                minAmountRequired: voucher.minAmountRequired,
                 maxDiscountValue: voucher.maxDiscountValue,
                 startDate: null,
                 endDate: null,

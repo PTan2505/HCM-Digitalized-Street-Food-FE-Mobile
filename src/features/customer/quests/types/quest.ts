@@ -88,6 +88,7 @@ export interface QuestVoucherDetail {
   type: string;
   discountValue: number;
   maxDiscountValue: number | null;
+  minAmountRequired: number | null;
   remain: number;
 }
 
