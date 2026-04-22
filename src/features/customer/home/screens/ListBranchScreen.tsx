@@ -56,8 +56,9 @@ const ListBranchItem = ({
   // Look up the real vendor name from Redux branches (same as VendorCampaignPlaceCard)
   const vendorNameFromRedux = useAppSelector(
     (state) =>
-      state.branches.branches.find((b) => b.vendorId === item.vendorId)
-        ?.vendorName
+      state.branches.branches.find(
+        (b: { vendorId: number | null }) => b.vendorId === item.vendorId
+      )?.vendorName
   );
   const isMultiBranchFromRedux = useAppSelector((state) =>
     selectIsMultiBranchVendor(state, item.vendorId)

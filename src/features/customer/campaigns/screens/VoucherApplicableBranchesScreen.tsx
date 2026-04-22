@@ -1,4 +1,5 @@
 import SearchBar from '@components/SearchBar';
+import { useLocationPermission } from '@customer/maps/hooks/useLocationPermission';
 import { Ionicons } from '@expo/vector-icons';
 import { ApplicableBranchGridItem } from '@features/customer/campaigns/components/ApplicableBranchGridItem';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
@@ -38,9 +39,10 @@ export const VoucherApplicableBranchesScreen = ({
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  // const { coords } = useLocationPermission();
+  const { coords } = useLocationPermission();
+
   const { branches, imageMap, isLoading, isError, refetch } =
-    useSystemCampaignBranches(voucher.campaignId);
+    useSystemCampaignBranches(voucher.campaignId, coords);
 
   const skeletonItems = Array.from({ length: 6 }, (_, i) => ({
     _skeleton: true as const,

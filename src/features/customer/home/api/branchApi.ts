@@ -32,6 +32,7 @@ export class BranchApi {
       Lat?: number;
       Long?: number;
       Distance?: number;
+      IsSubscribed?: boolean;
       DietaryIds?: number[];
       TasteIds?: number[];
       MinPrice?: number;
