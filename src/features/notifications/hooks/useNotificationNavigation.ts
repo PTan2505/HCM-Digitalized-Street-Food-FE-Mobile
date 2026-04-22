@@ -71,7 +71,6 @@ export const useNotificationNavigation = (
           navigationRef.navigate('ReviewList', {
             branchId: data.branchId,
             displayName: data.branchName ?? '',
-            ownFeedbackId: data.feedbackId,
             branchLat: 0,
             branchLong: 0,
           });

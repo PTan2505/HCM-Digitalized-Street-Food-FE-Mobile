@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StatusBar, type ImageSourcePropType } from 'react-native';
+import { ScrollView, type ImageSourcePropType } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,8 +52,6 @@ export const CurrentPicksScreen = (): JSX.Element => {
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaView className="flex-1 bg-white" edges={['left', 'right']}>
-        <StatusBar barStyle="dark-content" />
-
         <Header
           title={t('current_pick.title')}
           onBackPress={() => navigation.goBack()}

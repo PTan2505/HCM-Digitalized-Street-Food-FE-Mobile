@@ -3,26 +3,24 @@ import { axiosApi } from '@lib/api/apiInstance';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface OwnBranchFeedbackResult {
-  ownFeedback: Feedback | undefined;
+  ownFeedbacks: Feedback[];
   isLoading: boolean;
   refetch: () => void;
-  setOwnFeedback: (feedback: Feedback | undefined) => void;
+  setOwnFeedbacks: (feedbacks: Feedback[]) => void;
 }
 
 /**
- * Finds the current user's feedback for a specific branch by intersecting:
+ * Finds all feedback the current user has submitted for a specific branch by
+ * intersecting:
  *   - GET /Feedback/branch/{branchId}  → all feedback IDs for this branch
- *   - GET /Feedback/my-feedback        → all feedback IDs owned by the user
+ *   - GET /Feedback/my-feedback        → all feedback owned by the user
  *
- * The overlap gives us the user's review for this branch without needing
- * a branchId field in the FeedbackResponseDto.
+ * Returns every match so that multi-order reviews are all tracked locally.
  */
 export const useOwnBranchFeedback = (
   branchId: number
 ): OwnBranchFeedbackResult => {
-  const [ownFeedback, setOwnFeedback] = useState<Feedback | undefined>(
-    undefined
-  );
+  const [ownFeedbacks, setOwnFeedbacks] = useState<Feedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetch = useCallback(() => {
@@ -34,11 +32,11 @@ export const useOwnBranchFeedback = (
     ])
       .then(([branchResult, myResult]) => {
         const branchIds = new Set(branchResult.items.map((f) => f.id));
-        const found = myResult.items.find((f) => branchIds.has(f.id));
-        setOwnFeedback(found);
+        const found = myResult.items.filter((f) => branchIds.has(f.id));
+        setOwnFeedbacks(found);
       })
       .catch(() => {
-        setOwnFeedback(undefined);
+        setOwnFeedbacks([]);
       })
       .finally(() => setIsLoading(false));
   }, [branchId]);
@@ -47,17 +45,14 @@ export const useOwnBranchFeedback = (
     fetch();
   }, [fetch]);
 
-  const setOwnFeedbackManually = useCallback(
-    (feedback: Feedback | undefined) => {
-      setOwnFeedback(feedback);
-    },
-    []
-  );
+  const setOwnFeedbacksManually = useCallback((feedbacks: Feedback[]) => {
+    setOwnFeedbacks(feedbacks);
+  }, []);
 
   return {
-    ownFeedback,
+    ownFeedbacks,
     isLoading,
     refetch: fetch,
-    setOwnFeedback: setOwnFeedbackManually,
+    setOwnFeedbacks: setOwnFeedbacksManually,
   };
 };

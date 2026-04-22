@@ -24,7 +24,6 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
-  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -114,8 +113,6 @@ export const RestaurantSwipeScreen = ({
   return (
     <GestureHandlerRootView className="flex-1">
       <View className="flex-1 bg-gray-100">
-        <StatusBar barStyle="light-content" />
-
         <View className="absolute left-3 top-[60px] z-20">
           <TouchableOpacity
             className="h-10 w-10 items-center justify-center rounded-full bg-black/40"
