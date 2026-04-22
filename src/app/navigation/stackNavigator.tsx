@@ -109,7 +109,6 @@ const RootStack = createNativeStackNavigator({
       params: {} as {
         branchId: number;
         displayName: string;
-        ownFeedbackId?: number;
         branchLat: number;
         branchLong: number;
       },

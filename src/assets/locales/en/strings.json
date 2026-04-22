@@ -252,7 +252,8 @@
     "resend_code_after": "Resend code after",
     "resend_code": "Resend code",
     "confirm": "Confirm",
-    "confirming": "Confirming..."
+    "confirming": "Confirming...",
+    "phone_not_verified": "Phone number not verified"
   },
   "validation": {
     "required": "This field is required!",

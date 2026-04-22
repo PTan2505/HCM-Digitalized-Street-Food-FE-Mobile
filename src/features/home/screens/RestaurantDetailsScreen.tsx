@@ -226,12 +226,19 @@ export const RestaurantDetailsScreen = ({
     updateFeedback,
     removeFeedback,
   } = useBranchFeedback(branch.branchId);
-  const { ownFeedback, setOwnFeedback } = useOwnBranchFeedback(branch.branchId);
-  const {
-    hasCompletedOrders,
-    completedOrders,
-    isLoading: isOrdersLoading,
-  } = useCompletedOrdersForBranch(branch.branchId);
+  const { ownFeedbacks, setOwnFeedbacks } = useOwnBranchFeedback(
+    branch.branchId
+  );
+  const ownFeedbackIds = useMemo(
+    () => new Set(ownFeedbacks.map((f) => f.id)),
+    [ownFeedbacks]
+  );
+  const reviewedOrderIds = useMemo(
+    () => new Set(ownFeedbacks.map((f) => f.orderId).filter(Boolean)),
+    [ownFeedbacks]
+  );
+  const { completedOrders, isLoading: isOrdersLoading } =
+    useCompletedOrdersForBranch(branch.branchId);
   const {
     canReview,
     reason: reviewIneligibilityReason,
@@ -243,7 +250,10 @@ export const RestaurantDetailsScreen = ({
     branch.branchId,
     branch.lat,
     branch.long,
-    hasCompletedOrders
+    // Only bypass velocity check when there are still unreviewed orders.
+    // If all orders are already reviewed, run the check so canReviewWithoutOrder
+    // drives the button state correctly.
+    completedOrders.filter((o) => !reviewedOrderIds.has(o.orderId)).length > 0
   );
   const { branches: nearbyBranches, branchImageMap: nearbyBranchImageMap } =
     useNearbyBranches(branch.lat, branch.long, branch.branchId);
@@ -275,6 +285,11 @@ export const RestaurantDetailsScreen = ({
     };
   }, []);
 
+  const completedButNotReviewedOrders = useMemo(
+    () => completedOrders.filter((o) => !reviewedOrderIds.has(o.orderId)),
+    [completedOrders, reviewedOrderIds]
+  );
+
   const handleDeleteReview = useCallback(
     (feedbackId: number) => {
       const deletedFeedback = feedbacks.find((f) => f.id === feedbackId);
@@ -284,17 +299,18 @@ export const RestaurantDetailsScreen = ({
         .deleteFeedback(feedbackId)
         .then(() => {
           removeFeedback(feedbackId);
-          setOwnFeedback(undefined);
+          setOwnFeedbacks(ownFeedbacks.filter((f) => f.id !== feedbackId));
           refetchVelocity();
+          void queryClient.invalidateQueries({
+            queryKey: queryKeys.orders.completedByBranch(branch.branchId),
+          });
 
-          // Recalculate rating after deletion
           if (totalCount > 1) {
             const newCount = totalCount - 1;
             const newAvg =
               (averageRating * totalCount - deletedFeedback.rating) / newCount;
             onRatingUpdate(newAvg, newCount);
           } else {
-            // If this was the only review, reset to 0
             onRatingUpdate(0, 0);
           }
         })
@@ -305,24 +321,32 @@ export const RestaurantDetailsScreen = ({
     [
       feedbacks,
       removeFeedback,
-      setOwnFeedback,
+      setOwnFeedbacks,
+      ownFeedbacks,
       refetchVelocity,
+      queryClient,
+      branch.branchId,
       averageRating,
       totalCount,
       onRatingUpdate,
     ]
   );
 
-  const handleEditReview = useCallback(() => {
-    setEditingFeedback(ownFeedback);
-    setShowReviewModal(true);
-  }, [ownFeedback]);
+  const handleEditReview = useCallback(
+    (feedbackId: number) => {
+      const feedback = ownFeedbacks.find((f) => f.id === feedbackId);
+      if (feedback) {
+        setEditingFeedback(feedback);
+        setShowReviewModal(true);
+      }
+    },
+    [ownFeedbacks]
+  );
 
   const handleOpenWriteReview = (): void => {
     setEditingFeedback(undefined);
-    if (hasCompletedOrders && completedOrders.length > 0) {
-      // Pre-select newest order; show picker so user can choose
-      setSelectedOrderId(completedOrders[0].orderId);
+    if (completedButNotReviewedOrders.length > 0) {
+      setSelectedOrderId(completedButNotReviewedOrders[0].orderId);
       openOrderPicker();
     } else {
       setSelectedOrderId(null);
@@ -358,13 +382,19 @@ export const RestaurantDetailsScreen = ({
   const handleReviewSuccess = useCallback(
     (feedback: Feedback, isEdit: boolean) => {
       setShowReviewModal(false);
+      setSelectedOrderId(null);
       if (isEdit) {
         updateFeedback(feedback);
-        const oldRating = ownFeedback?.rating ?? feedback.rating;
+        const oldRating =
+          ownFeedbacks.find((f) => f.id === feedback.id)?.rating ??
+          feedback.rating;
         const newAvg =
           (averageRating * totalCount - oldRating + feedback.rating) /
           totalCount;
         onRatingUpdate(newAvg, totalCount);
+        setOwnFeedbacks(
+          ownFeedbacks.map((f) => (f.id === feedback.id ? feedback : f))
+        );
       } else {
         addFeedback(feedback);
         refetchVelocity();
@@ -372,17 +402,22 @@ export const RestaurantDetailsScreen = ({
         const newAvg =
           (averageRating * totalCount + feedback.rating) / newCount;
         onRatingUpdate(newAvg, newCount);
+        setOwnFeedbacks([...ownFeedbacks, feedback]);
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.orders.completedByBranch(branch.branchId),
+        });
       }
-      setOwnFeedback(feedback);
     },
     [
       addFeedback,
       updateFeedback,
-      setOwnFeedback,
+      setOwnFeedbacks,
+      ownFeedbacks,
       refetchVelocity,
+      queryClient,
+      branch.branchId,
       averageRating,
       totalCount,
-      ownFeedback,
       onRatingUpdate,
     ]
   );
@@ -463,7 +498,7 @@ export const RestaurantDetailsScreen = ({
       comment: f.comment ?? '',
       imageUris: f.images?.map((img) => img.url) ?? [],
       tags: f.tags?.map((tag) => ({ id: tag.id, name: tag.name })) ?? [],
-      isOwn: f.id === ownFeedback?.id,
+      isOwn: ownFeedbackIds.has(f.id),
       editable: !f.updatedAt,
       dishName: dishName,
       upVotes: f.upVotes,
@@ -587,11 +622,10 @@ export const RestaurantDetailsScreen = ({
             averageRating={averageRating}
             totalCount={totalCount}
             feedbackDetails={feedbackDetails}
-            canReview={canReview && ownFeedback == null}
+            canReview={canReview}
             reviewIneligibilityReason={reviewIneligibilityReason}
             isEligibilityLoading={isEligibilityLoading || isOrdersLoading}
-            ownFeedbackId={ownFeedback?.id}
-            hasCompletedOrders={hasCompletedOrders}
+            hasCompletedOrders={completedButNotReviewedOrders.length > 0}
             branchId={branch.branchId}
             displayName={displayName}
             branchLat={branch.lat}
@@ -679,7 +713,7 @@ export const RestaurantDetailsScreen = ({
               {t('review.pick_order', 'Chọn đơn hàng để đánh giá')}
             </Text>
 
-            {[...completedOrders]
+            {[...completedButNotReviewedOrders]
               .sort(
                 (a, b) =>
                   new Date(b.createdAt).getTime() -

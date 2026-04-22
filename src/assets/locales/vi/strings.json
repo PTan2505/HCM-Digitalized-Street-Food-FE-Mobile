@@ -252,7 +252,8 @@
     "resend_code_after": "Gửi lại mã sau",
     "resend_code": "Gửi lại mã",
     "confirm": "Xác nhận",
-    "confirming": "Đang xác nhận..."
+    "confirming": "Đang xác nhận...",
+    "phone_not_verified": "Số điện thoại chưa được xác thực"
   },
   "validation": {
     "required": "Trường này là bắt buộc!",

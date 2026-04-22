@@ -52,7 +52,7 @@ export interface Review {
 
 interface ReviewCardProps {
   review: Review;
-  onEdit?: () => void;
+  onEdit?: (feedbackId: number) => void;
   onDelete?: (feedbackId: number) => void;
   onVote?: (feedbackId: number, voteType: 'up' | 'down') => void;
 }
@@ -133,7 +133,7 @@ const ReviewCard = ({
 
   const handleEdit = (): void => {
     setShowMenu(false);
-    onEdit?.();
+    onEdit?.(review.feedbackId);
   };
 
   // Render star icons based on rating
@@ -460,6 +460,9 @@ const ReviewCard = ({
       {/* Vendor Reply */}
       {review.vendorReply ? (
         <View className="rounded-xl bg-gray-50 p-3">
+          <Text className="text-[10px] text-gray-400">
+            {new Date(review.vendorReply.createdAt).toLocaleDateString('vi-VN')}
+          </Text>
           <View className="mb-1.5 flex-row items-center gap-1.5">
             <Ionicons
               name="storefront-outline"
@@ -468,11 +471,6 @@ const ReviewCard = ({
             />
             <Text className="text-sm font-bold text-primary-light">
               {review.vendorName ?? review.vendorReply.repliedBy}
-            </Text>
-            <Text className="text-[10px] text-gray-400">
-              {new Date(review.vendorReply.createdAt).toLocaleDateString(
-                'vi-VN'
-              )}
             </Text>
           </View>
           <Text className="text-base leading-4 text-gray-600">

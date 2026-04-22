@@ -152,7 +152,6 @@ export const NotificationScreen = (): JSX.Element => {
                     navigation.navigate('ReviewList', {
                       branchId: detail.branchId,
                       displayName,
-                      ownFeedbackId: item.referenceId ?? undefined,
                       branchLat: detail.lat,
                       branchLong: detail.long,
                     });

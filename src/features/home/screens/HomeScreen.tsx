@@ -89,11 +89,14 @@ export const HomeScreen = (): JSX.Element => {
     hasNextPage,
     isFetchingNextPage,
     isLoading: campaignsLoading,
+    refetch: refetchSystemCampaigns,
   } = useSystemCampaigns();
   const {
     branches: vendorCampaignBranches,
     imageMap: vendorCampaignImageMap,
+    multiBranchVendorIds: campaignMultiBranchVendorIds,
     isLoading: vendorCampaignLoading,
+    refetch: refetchVendorCampaigns,
   } = useVendorCampaignBranches(userCoords, permissionStatus);
   const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
   const [refreshing, setRefreshing] = useState(false);
@@ -341,7 +344,7 @@ export const HomeScreen = (): JSX.Element => {
       vendorCampaignBranches.map((b) => ({
         branchId: b.branchId,
         vendorId: b.vendorId,
-        vendorName: b.vendorName ?? b.name,
+        vendorName: b.vendorName ?? null,
         managerId: b.managerId ?? 0,
         name: b.name,
         phoneNumber: b.phoneNumber,
@@ -380,22 +383,34 @@ export const HomeScreen = (): JSX.Element => {
     setIsPulling(false);
 
     requestAnimationFrame(() => {
-      dispatch(
-        fetchActiveBranches({
-          page: 1,
-          lat: userCoords?.latitude,
-          lng: userCoords?.longitude,
-          distance: 5,
-          dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
-        })
-      ).finally(() => {
+      Promise.all([
+        dispatch(
+          fetchActiveBranches({
+            page: 1,
+            lat: userCoords?.latitude,
+            lng: userCoords?.longitude,
+            distance: 5,
+            dietaryIds: userDietaryPreferences.map(
+              (p) => p.dietaryPreferenceId
+            ),
+          })
+        ),
+        refetchSystemCampaigns(),
+        refetchVendorCampaigns(),
+      ]).finally(() => {
         isRefreshingRef.current = false;
         setRefreshing(false);
         isPullingRef.current = false;
         setIsPulling(false);
       });
     });
-  }, [dispatch, userCoords, userDietaryPreferences]);
+  }, [
+    dispatch,
+    userCoords,
+    userDietaryPreferences,
+    refetchSystemCampaigns,
+    refetchVendorCampaigns,
+  ]);
 
   // useMemo prevents a new JSX reference on every render, which would cause
   // FlatList to remount the header and re-trigger onEndReached in a loop.
@@ -519,6 +534,9 @@ export const HomeScreen = (): JSX.Element => {
                         vouchers={
                           vendorCampaignVouchersByBranchId[left.branchId]
                         }
+                        isMultiBranch={campaignMultiBranchVendorIds.includes(
+                          left.vendorId ?? -1
+                        )}
                         onRatingUpdate={(avgRating, totalReviewCount) =>
                           handleRatingUpdate(
                             left.branchId,
@@ -537,6 +555,9 @@ export const HomeScreen = (): JSX.Element => {
                           vouchers={
                             vendorCampaignVouchersByBranchId[right.branchId]
                           }
+                          isMultiBranch={campaignMultiBranchVendorIds.includes(
+                            right.vendorId ?? -1
+                          )}
                           onRatingUpdate={(avgRating, totalReviewCount) =>
                             handleRatingUpdate(
                               right.branchId,
