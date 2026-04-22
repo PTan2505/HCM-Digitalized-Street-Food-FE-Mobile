@@ -25,6 +25,8 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     let cancelled = false;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    console.log('[QuestDebug][Socket] Connecting to hub:', HUB_URL);
+
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(HUB_URL, {
         accessTokenFactory: () => tokenManagement.getAccessToken(),
@@ -33,7 +35,12 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
+    connection.onclose((err) => console.log('[QuestDebug][Socket] Connection CLOSED', err));
+    connection.onreconnecting((err) => console.log('[QuestDebug][Socket] Reconnecting...', err));
+    connection.onreconnected((id) => console.log('[QuestDebug][Socket] Reconnected, connectionId:', id));
+
     connection.on('ReceiveNotification', (notification: NotificationDto) => {
+      console.log('[QuestDebug][Socket] ReceiveNotification fired:', JSON.stringify(notification));
       dispatch(receiveNotification(notification));
 
       if (
@@ -55,6 +62,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       const isQuestTaskCompleted =
         notification.type === 'QuestTaskCompleted' || notification.type === '3';
 
+      console.log('[QuestDebug] notification received:', JSON.stringify(notification));
+      console.log('[QuestDebug] isQuestTaskCompleted:', isQuestTaskCompleted, '| referenceId:', notification.referenceId);
+
       if (isQuestTaskCompleted && notification.referenceId) {
         const questTaskId = notification.referenceId;
 
@@ -64,6 +74,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         axiosApi.questApi
           .getQuestTaskById(questTaskId)
           .then((task) => {
+            console.log('[QuestDebug] getQuestTaskById result:', JSON.stringify(task));
+            console.log('[QuestDebug] task.rewards:', JSON.stringify(task.rewards));
+
             // POINTS — update user balance immediately (no need to wait)
             const pointsReward = task.rewards.find(
               (r) => r.rewardType === 'POINTS'
@@ -75,12 +88,17 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
             }
 
             if (task.rewards.length > 0) {
+              console.log('[QuestDebug] dispatching setPendingReward after 1s');
               setTimeout(() => {
                 dispatch(setPendingReward({ rewards: task.rewards }));
               }, 1000);
+            } else {
+              console.log('[QuestDebug] rewards array is EMPTY — modal will NOT show');
             }
           })
-          .catch(() => {});
+          .catch((err) => {
+            console.error('[QuestDebug] getQuestTaskById FAILED:', err);
+          });
 
         // Refresh quest list in background so screens stay up-to-date
         dispatch(fetchMyQuests({ isTierUp: false }));
@@ -101,9 +119,12 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
       if (cancelled) return;
       if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-      connection.start().catch(() => {
-        if (cancelled) return;
-        scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+      connection.start()
+        .then(() => console.log('[QuestDebug][Socket] Connected successfully'))
+        .catch((err) => {
+          console.error('[QuestDebug][Socket] Connection FAILED:', err);
+          if (cancelled) return;
+          scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
       });
     };
 

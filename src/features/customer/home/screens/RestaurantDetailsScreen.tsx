@@ -27,12 +27,12 @@ import type { BranchTier } from '@features/customer/reputation/types/generated';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   StaticScreenProps,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   computeDisplayName,
   selectMultiBranchVendorIds,
@@ -371,6 +371,11 @@ export const RestaurantDetailsScreen = ({
     })
       .then((result) => {
         if (result.action === Share.sharedAction) {
+          // Exclude clipboard copy on iOS — only count actual sends to an app
+          if (
+            result.activityType === 'com.apple.UIKit.activity.CopyToPasteboard'
+          )
+            return;
           axiosApi.questApi.shareStall(branch.branchId).catch(() => {});
         }
       })
