@@ -53,8 +53,7 @@ export const useManagerFeedbackList = (): ManagerFeedbackListResult => {
     enabled: (branchId ?? 0) > 0,
   });
 
-  const items: Feedback[] =
-    query.data?.pages.flatMap((p) => p.items) ?? [];
+  const items: Feedback[] = query.data?.pages.flatMap((p) => p.items) ?? [];
   const totalCount = query.data?.pages[0]?.totalCount ?? 0;
 
   return {
@@ -139,11 +138,7 @@ export const useDeleteReply = (): UseMutationResult<
 > => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      feedbackId,
-    }: {
-      feedbackId: number;
-    }): Promise<void> =>
+    mutationFn: ({ feedbackId }: { feedbackId: number }): Promise<void> =>
       axiosApi.managerFeedbackApi.deleteReply(feedbackId),
     onSuccess: (): void => {
       void queryClient.invalidateQueries({

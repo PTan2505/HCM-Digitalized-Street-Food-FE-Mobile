@@ -120,10 +120,7 @@ const ReviewSection = ({ feedback }: ReviewSectionProps): React.JSX.Element => {
       {(feedback.tags?.length ?? 0) > 0 && (
         <View className="mt-3 flex-row flex-wrap gap-2">
           {feedback.tags?.map((tag) => (
-            <View
-              key={tag.id}
-              className="rounded-full bg-green-100 px-3 py-1"
-            >
+            <View key={tag.id} className="rounded-full bg-green-100 px-3 py-1">
               <Text className="text-xs font-semibold text-green-800">
                 {tag.name}
               </Text>

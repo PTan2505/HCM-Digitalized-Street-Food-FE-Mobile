@@ -11,13 +11,15 @@
       },
       "env": {
         "NODE_ENV": "development",
-        "APP_VARIANT": "customer"
+        "APP_VARIANT": "customer",
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
     },
     "customer:preview": {
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "customer"
+        "APP_VARIANT": "customer",
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
     },
     "customer:production": {
@@ -26,7 +28,8 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_VARIANT": "customer"
+        "APP_VARIANT": "customer",
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
     },
     "manager:development": {
@@ -36,13 +39,15 @@
       },
       "env": {
         "NODE_ENV": "development",
-        "APP_VARIANT": "manager"
+        "APP_VARIANT": "manager",
+        "GOOGLE_SERVICES_JSON_MANAGER": "google-services-manager.json"
       }
     },
     "manager:preview": {
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "manager"
+        "APP_VARIANT": "manager",
+        "GOOGLE_SERVICES_JSON_MANAGER": "google-services-manager.json"
       }
     },
     "manager:production": {
@@ -51,7 +56,8 @@
         "buildType": "apk"
       },
       "env": {
-        "APP_VARIANT": "manager"
+        "APP_VARIANT": "manager",
+        "GOOGLE_SERVICES_JSON_MANAGER": "google-services-manager.json"
       }
     },
     "development": {
