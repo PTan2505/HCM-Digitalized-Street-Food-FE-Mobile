@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import { ProfileSection } from '../types/profileConfig';
 
 interface Navigation {
-  navigate: (screen: string) => void;
+  navigate: (screen: string, params?: Record<string, unknown>) => void;
 }
 
 export const getProfileSections = (
@@ -171,7 +171,8 @@ export const getProfileSections = (
           icon: 'person-outline',
           title: t('profile.edit_profile'),
           rightIcon: 'chevron-forward',
-          onPress: (): void => navigation.navigate('SetupUserInfo'),
+          onPress: (): void =>
+            navigation.navigate('SetupUserInfo', { initialSetup: false }),
         },
         {
           id: 'dietary',
