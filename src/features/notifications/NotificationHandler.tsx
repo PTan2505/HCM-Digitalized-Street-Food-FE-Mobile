@@ -1,15 +1,18 @@
+import { ROLES } from '@constants/roles';
 import { QuestRewardModal } from '@features/customer/quests/components/QuestRewardModal';
 import { useNotificationNavigation } from '@features/notifications/hooks/useNotificationNavigation';
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
+import { XPProgressToast } from '@features/xp/components/XPProgressToast';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { selectUser } from '@slices/auth';
+import { addPoints, addXP, selectUser } from '@slices/auth';
 import {
   clearPendingReward,
   selectPendingReward,
   setPendingReward,
 } from '@slices/quests';
+import { isManagerApp } from '@utils/appVariant';
 import type { JSX } from 'react';
 import { useEffect } from 'react';
 
@@ -23,7 +26,8 @@ import { useEffect } from 'react';
 export const NotificationHandler = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
-  const isAuthenticated = !!user;
+  const expectedRole = isManagerApp ? ROLES.MANAGER : ROLES.CUSTOMER;
+  const isAuthenticated = !!user && user.role === expectedRole;
   const pendingReward = useAppSelector(selectPendingReward);
 
   const { lastResponse, notification } = useNotifications(isAuthenticated);
@@ -43,11 +47,28 @@ export const NotificationHandler = (): JSX.Element => {
     const questTaskId = data.questTaskId as number | undefined;
     if (!questTaskId) return;
 
+    // Apply XP immediately so XP bar and tier badge update before modal opens
+    const xpEarned =
+      typeof data.xpEarned === 'number' ? data.xpEarned : undefined;
+    if (xpEarned && xpEarned > 0) {
+      dispatch(addXP(xpEarned));
+    }
+
     axiosApi.questApi
       .getQuestTaskById(questTaskId)
       .then((task) => {
-        if (task.rewards.length > 0) {
-          dispatch(setPendingReward({ rewards: task.rewards }));
+        // Backend serializes QuestRewardType enum as a number (POINTS=2)
+        // without JsonStringEnumConverter, so compare both forms.
+        const pointsReward = task.rewards.find(
+          (r) =>
+            r.rewardType === 'POINTS' ||
+            (r.rewardType as unknown as number) === 2
+        );
+        if (pointsReward) {
+          dispatch(addPoints(pointsReward.rewardValue * pointsReward.quantity));
+        }
+        if (task.rewards.length > 0 || xpEarned) {
+          dispatch(setPendingReward({ rewards: task.rewards, xpEarned }));
         }
       })
       .catch((err) => {
@@ -82,10 +103,14 @@ export const NotificationHandler = (): JSX.Element => {
   };
 
   return (
-    <QuestRewardModal
-      visible={pendingReward !== null}
-      rewards={pendingReward?.rewards ?? []}
-      onDismiss={handleDismiss}
-    />
+    <>
+      <XPProgressToast />
+      <QuestRewardModal
+        visible={pendingReward !== null}
+        rewards={pendingReward?.rewards ?? []}
+        xpEarned={pendingReward?.xpEarned}
+        onDismiss={handleDismiss}
+      />
+    </>
   );
 };

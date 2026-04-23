@@ -1,5 +1,5 @@
-import type { RootState } from '@customer-app/store';
 import type { User } from '@custom-types/user';
+import type { RootState } from '@customer-app/store';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import {
@@ -321,6 +321,16 @@ export const refreshUserPointsThunk = createAppAsyncThunk(
   }
 );
 
+// Mirrors the backend's AddXPAsync tier thresholds (GoldMinXP / DiamondMinXP defaults)
+const GOLD_MIN_XP = 3000;
+const DIAMOND_MIN_XP = 10000;
+
+const computeTierId = (xp: number): number => {
+  if (xp >= DIAMOND_MIN_XP) return 4; // Diamond
+  if (xp >= GOLD_MIN_XP) return 3; // Gold
+  return 2; // Silver
+};
+
 export const authSlice = createSlice({
   name: 'user',
   initialState,
@@ -347,6 +357,13 @@ export const authSlice = createSlice({
     addPoints: (state, action: PayloadAction<number>) => {
       if (state.value) {
         state.value.point = (state.value.point ?? 0) + action.payload;
+      }
+    },
+    addXP: (state, action: PayloadAction<number>) => {
+      if (state.value) {
+        const newXP = (state.value.xp ?? 0) + action.payload;
+        state.value.xp = newXP;
+        state.value.tierId = computeTierId(newXP);
       }
     },
   },
@@ -417,6 +434,7 @@ export const {
   clearError,
   updateMoneyBalance,
   addPoints,
+  addXP,
   updateUserVerificationStatus,
 } = authSlice.actions;
 
@@ -430,3 +448,9 @@ export const selectUserStatus = (
 ): 'idle' | 'pending' | 'succeeded' | 'failed' => state.user.status;
 
 export const selectAuthError = (state: RootState): unknown => state.user.error;
+
+export const selectUserXP = (state: RootState): number =>
+  state.user.value?.xp ?? 0;
+
+export const selectUserTierId = (state: RootState): number =>
+  state.user.value?.tierId ?? 2;

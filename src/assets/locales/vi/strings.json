@@ -347,6 +347,7 @@
     "confirm": "Xác nhận",
     "confirming": "Đang xác nhận...",
     "manager_access_denied": "Tài khoản này không có quyền truy cập quản lý",
+    "customer_access_denied": "Tài khoản này không có quyền truy cập khách hàng",
     "phone_not_verified": "Số điện thoại chưa được xác thực"
   },
   "validation": {

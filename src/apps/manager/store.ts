@@ -8,8 +8,10 @@ import directOrderingReducer from '@slices/directOrdering';
 import managerAuthReducer from '@slices/managerAuth';
 import notificationsReducer from '@slices/notifications';
 import questsReducer from '@slices/quests';
+import settingsReducer from '@slices/settings';
 import tastesReducer from '@slices/tastes';
 import vendorsReducer from '@slices/vendors';
+import xpToastReducer from '@slices/xpToast';
 
 const rootReducer = combineReducers({
   user: authReducer,
@@ -22,6 +24,8 @@ const rootReducer = combineReducers({
   campaigns: campaignsReducer,
   quests: questsReducer,
   managerAuth: managerAuthReducer,
+  settings: settingsReducer,
+  xpToast: xpToastReducer,
 });
 
 export const managerStore = configureStore({

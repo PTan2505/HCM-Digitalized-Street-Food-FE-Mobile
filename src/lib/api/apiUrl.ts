@@ -112,6 +112,9 @@ export const apiUrl = {
     markRead: (id: number): string => `/api/notifications/${id}/read`,
     markAllRead: '/api/notifications/read-all',
   },
+  setting: {
+    getAll: '/api/Setting',
+  },
   voucher: {
     mine: '/api/vouchers/mine',
     marketplace: '/api/vouchers/marketplace',
