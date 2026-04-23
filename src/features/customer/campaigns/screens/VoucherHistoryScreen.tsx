@@ -56,9 +56,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
   }, []);
 
   const usedVouchers = allVouchers.filter(isUsed);
-  const expiredVouchers = allVouchers.filter(
-    (v) => isExpired(v) && !isUsed(v)
-  );
+  const expiredVouchers = allVouchers.filter((v) => isExpired(v) && !isUsed(v));
 
   const displayedVouchers =
     activeTab === 'used' ? usedVouchers : expiredVouchers;
@@ -129,7 +127,9 @@ export const VoucherHistoryScreen = (): JSX.Element => {
                     })
                   : undefined
               }
-              expiresText={getExpiresAt(item)?.toLocaleDateString('vi-VN') ?? ''}
+              expiresText={
+                getExpiresAt(item)?.toLocaleDateString('vi-VN') ?? ''
+              }
               secondaryMetaText={
                 !item.isAvailable
                   ? t('campaign.voucher_not_available')
