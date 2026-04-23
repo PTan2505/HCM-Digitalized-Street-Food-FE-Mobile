@@ -434,6 +434,7 @@ export const HomeScreen = (): JSX.Element => {
           })
         ),
         refetchSystemCampaigns(),
+        dispatch(fetchUnreadCount()),
         refetchVendorCampaigns(),
         refetchGhostPins(),
       ]).finally(() => {

@@ -5,6 +5,7 @@ import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucher
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
+import { addXP, selectUserXP } from '@slices/auth';
 import {
   checkoutThunk,
   clearOrderError,
@@ -12,6 +13,8 @@ import {
   selectOrderError,
   selectOrderLoading,
 } from '@slices/directOrdering';
+import { selectOrderXP } from '@slices/settings';
+import { showXPToast } from '@slices/xpToast';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -66,6 +69,8 @@ export const DirectCheckoutScreen = ({
   const cart = useAppSelector(selectCart);
   const orderLoading = useAppSelector(selectOrderLoading);
   const orderError = useAppSelector(selectOrderError);
+  const currentXP = useAppSelector(selectUserXP);
+  const orderXP = useAppSelector(selectOrderXP);
   const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
@@ -157,6 +162,12 @@ export const DirectCheckoutScreen = ({
         })
       ).unwrap();
 
+      const newXP = currentXP + orderXP;
+      dispatch(addXP(orderXP));
+      dispatch(
+        showXPToast({ xpEarned: orderXP, previousXP: currentXP, newXP })
+      );
+
       navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
         totalAmount: result.order.finalAmount,
@@ -179,6 +190,8 @@ export const DirectCheckoutScreen = ({
     selectedVoucher?.voucherId,
     navigation,
     branchName,
+    currentXP,
+    orderXP,
   ]);
 
   return (

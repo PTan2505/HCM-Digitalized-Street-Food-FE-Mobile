@@ -11,8 +11,12 @@ import {
   searchAddress,
   type AutocompletePrediction,
 } from '@features/customer/maps/services/geocoding';
+import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
+import { addXP, selectUserXP } from '@slices/auth';
+import { selectGhostPinXP } from '@slices/settings';
+import { showXPToast } from '@slices/xpToast';
 import {
   compressImageForUpload,
   pickImagesFromLibrary,
@@ -41,6 +45,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const GhostPinCreationScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const currentXP = useAppSelector(selectUserXP);
+  const ghostPinXP = useAppSelector(selectGhostPinXP);
 
   const [name, setName] = useState('');
   const [addressQuery, setAddressQuery] = useState('');
@@ -343,6 +350,12 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           // Don't fail the entire creation if feedback submission fails
         }
       }
+
+      const newXP = currentXP + ghostPinXP;
+      dispatch(addXP(ghostPinXP));
+      dispatch(
+        showXPToast({ xpEarned: ghostPinXP, previousXP: currentXP, newXP })
+      );
 
       Alert.alert(
         t('ghost_pin_creation.alert.success_title'),

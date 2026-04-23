@@ -39,6 +39,7 @@ function normalizeRewardType(value: QuestRewardType | number): QuestRewardType {
 interface QuestRewardModalProps {
   visible: boolean;
   rewards: QuestTaskRewardItem[];
+  xpEarned?: number;
   onDismiss: () => void;
 }
 
@@ -179,6 +180,7 @@ const RewardRow = ({ reward }: RewardRowProps): JSX.Element => {
 export const QuestRewardModal = ({
   visible,
   rewards,
+  xpEarned,
   onDismiss,
 }: QuestRewardModalProps): JSX.Element => {
   const { t } = useTranslation();
@@ -283,6 +285,14 @@ export const QuestRewardModal = ({
             style={{ maxHeight: 180 }}
             showsVerticalScrollIndicator={false}
           >
+            {xpEarned && xpEarned > 0 && (
+              <View className="mb-2 flex-row items-center rounded-2xl bg-blue-50 px-4 py-2.5">
+                <Ionicons name="flash" size={20} color="#2563EB" />
+                <Text className="ml-2 text-base font-extrabold text-blue-700">
+                  +{xpEarned} XP
+                </Text>
+              </View>
+            )}
             {rewards.map((r) => (
               <RewardRow key={r.questTaskRewardId} reward={r} />
             ))}

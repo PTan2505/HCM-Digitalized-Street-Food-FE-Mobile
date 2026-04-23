@@ -9,6 +9,8 @@ import notificationsReducer from '@slices/notifications';
 import questsReducer from '@slices/quests';
 import tastesReducer from '@slices/tastes';
 import vendorsReducer from '@slices/vendors';
+import settingsReducer from '@slices/settings';
+import xpToastReducer from '@slices/xpToast';
 
 const rootReducer = combineReducers({
   user: authReducer,
@@ -20,6 +22,8 @@ const rootReducer = combineReducers({
   notifications: notificationsReducer,
   campaigns: campaignsReducer,
   quests: questsReducer,
+  settings: settingsReducer,
+  xpToast: xpToastReducer,
 });
 
 export const store = configureStore({
