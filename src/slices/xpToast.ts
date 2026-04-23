@@ -1,4 +1,4 @@
-import type { RootState } from '@app/store';
+import type { RootState } from '@customer-app/store';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface XPToastState {
