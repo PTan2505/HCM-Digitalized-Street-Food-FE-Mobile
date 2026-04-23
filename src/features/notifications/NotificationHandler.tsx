@@ -1,7 +1,8 @@
+import { ROLES } from '@constants/roles';
+import { QuestRewardModal } from '@features/customer/quests/components/QuestRewardModal';
 import { useNotificationNavigation } from '@features/notifications/hooks/useNotificationNavigation';
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
-import { QuestRewardModal } from '@features/quests/components/QuestRewardModal';
 import { XPProgressToast } from '@features/xp/components/XPProgressToast';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -11,6 +12,7 @@ import {
   selectPendingReward,
   setPendingReward,
 } from '@slices/quests';
+import { isManagerApp } from '@utils/appVariant';
 import type { JSX } from 'react';
 import { useEffect } from 'react';
 
@@ -24,21 +26,24 @@ import { useEffect } from 'react';
 export const NotificationHandler = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
-  const isAuthenticated = !!user;
+  const expectedRole = isManagerApp ? ROLES.MANAGER : ROLES.CUSTOMER;
+  const isAuthenticated = !!user && user.role === expectedRole;
   const pendingReward = useAppSelector(selectPendingReward);
 
-  const { lastResponse } = useNotifications(isAuthenticated);
+  const { lastResponse, notification } = useNotifications(isAuthenticated);
   useNotificationNavigation(lastResponse, isAuthenticated);
   useNotificationSocket(isAuthenticated);
 
-  // Handle tier-up quest complete notification: fetch task rewards and show modal
-  useEffect(() => {
-    if (!lastResponse) return;
-    const data = lastResponse.notification.request.content.data as Record<
-      string,
-      unknown
-    >;
-    if (data.type !== 'tier_up_quest_complete') return;
+  const handleQuestPushData = (
+    data: Record<string, unknown>,
+    source: string
+  ): void => {
+    if (
+      data.type !== 'tier_up_quest_complete' &&
+      data.type !== 'quest_task_complete'
+    ) {
+      return;
+    }
     const questTaskId = data.questTaskId as number | undefined;
     if (!questTaskId) return;
 
@@ -56,8 +61,32 @@ export const NotificationHandler = (): JSX.Element => {
           dispatch(setPendingReward({ rewards: task.rewards, xpEarned }));
         }
       })
-      .catch(() => {});
-  }, [lastResponse, dispatch]);
+      .catch((err) => {
+        console.error(
+          `[QuestDebug][Push:${source}] getQuestTaskById FAILED:`,
+          err
+        );
+      });
+  };
+
+  // Push arrived while app is in foreground (no tap required)
+  useEffect(() => {
+    if (!notification) return;
+    const data = notification.request.content.data as Record<string, unknown>;
+    handleQuestPushData(data, 'foreground');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notification]);
+
+  // Push tapped from background / notification tray
+  useEffect(() => {
+    if (!lastResponse) return;
+    const data = lastResponse.notification.request.content.data as Record<
+      string,
+      unknown
+    >;
+    handleQuestPushData(data, 'tap');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastResponse]);
 
   const handleDismiss = (): void => {
     dispatch(clearPendingReward());

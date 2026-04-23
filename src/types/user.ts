@@ -5,12 +5,13 @@ export interface User {
   firstName: string | null;
   lastName: string | null;
   avatarUrl?: string;
-  role: string;
+  role: number;
   point?: number;
   xp?: number;
   tierId?: number;
   createdAt?: string;
   emailVerified?: boolean;
+  phoneNumberVerified?: boolean;
   phoneNumber?: string | null;
   userInfoSetup?: boolean;
   dietarySetup?: boolean;

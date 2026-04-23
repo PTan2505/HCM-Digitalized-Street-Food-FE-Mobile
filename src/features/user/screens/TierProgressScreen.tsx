@@ -1,7 +1,7 @@
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
-import { QuestRewardBadge } from '@features/quests/components/QuestRewardBadge';
-import type { QuestTaskRewardItem } from '@features/quests/types/quest';
+import { QuestRewardBadge } from '@features/customer/quests/components/QuestRewardBadge';
+import type { QuestTaskRewardItem } from '@features/customer/quests/types/quest';
 import { XPProgressBar } from '@features/user/components/profile/XPProgressBar';
 import { useTierUpRewards } from '@features/user/hooks/profile/useTierUpRewards';
 import { useAppSelector } from '@hooks/reduxHooks';

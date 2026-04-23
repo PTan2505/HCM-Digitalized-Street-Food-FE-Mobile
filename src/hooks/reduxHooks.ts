@@ -1,5 +1,5 @@
 /* eslint-disable import/no-restricted-paths */
-import type { AppDispatch, RootState } from '@app/store';
+import type { AppDispatch, RootState } from '@customer-app/store';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 

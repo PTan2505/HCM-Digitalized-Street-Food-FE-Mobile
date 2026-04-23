@@ -4,8 +4,9 @@
 
 **Lowca** is a React Native (Expo) street food discovery app for Ho Chi Minh City. Users find nearby street food vendors via a map, swipe UI, and dietary preference filters.
 
+- **Audience:** This is the **customer/diner-facing** mobile app. Vendor and admin features are handled by a separate web dashboard. All screens, flows, and terminology in this codebase are from the customer's perspective.
 - **Platform:** iOS + Android via Expo (~54) with New Architecture (`newArchEnabled: true`)
-- **Language:** TypeScript ~5.9 (strict mode)
+- **Language:** TypeScript ~6.0 (strict mode)
 - **Package manager:** `bun`
 - **Bundle ID:** `com.hcmstreetfood.mobile`
 
@@ -159,6 +160,22 @@ export const myThunk = createAppAsyncThunk(
 );
 ```
 
+### React Query vs Redux — When to Use Each
+
+| Scenario | Use |
+|---|---|
+| Data fetched from an API (lists, details, paginated) | **React Query** (`useQuery`, `useInfiniteQuery`, `useMutation`) |
+| Data that multiple screens share from the same API | **React Query** (shared cache key) |
+| Auth session, user profile, global UI flags | **Redux** slice |
+| Cross-feature state that is NOT tied to a remote resource | **Redux** slice |
+
+**Rule**: If the data lives on the server, use React Query. If the state is client-only or auth-related, use Redux.
+
+- Register a `QueryClientProvider` in the feature app's provider (e.g., `src/apps/manager/provider.tsx`) using the shared `queryClient` from `src/lib/queryClient.ts`.
+- Add query keys to `src/lib/queryKeys.ts` under the domain namespace (e.g., `managerOrders.list(status)`).
+- Mutations should call `queryClient.invalidateQueries` on success to refresh affected lists.
+- Do **not** create a Redux slice for API-fetched data — use React Query hooks in `features/<domain>/hooks/`.
+
 ---
 
 ## Styling
@@ -224,6 +241,7 @@ All env vars are `EXPO_PUBLIC_*` (exposed to the JS bundle):
 | `EXPO_PUBLIC_GOOGLE_CLIENT_ID`     | Google Sign-In web/Android |
 | `EXPO_PUBLIC_OPENMAP_API_KEY`      | OpenMap Vietnam API key    |
 | `EXPO_PUBLIC_OPENMAP_VN_STYLE`     | MapLibre tile style URL    |
+| `EXPO_PUBLIC_WEB_URL`              | Vercel web domain (Android App Links deep links) |
 
 ---
 
@@ -248,12 +266,23 @@ All env vars are `EXPO_PUBLIC_*` (exposed to the JS bundle):
 ## Key Rules
 
 1. **Never import from `src/app` or cross-feature** — respect the feature-sliced import boundaries.
-2. **Always use typed Redux hooks** — `useAppDispatch` and `useAppSelector` from `@hooks/reduxHooks`.
-3. **Use `createAppAsyncThunk`** (not raw `createAsyncThunk`) for all async Redux actions.
-4. **Schemas are i18n factory functions** — always export `get<Name>Schema(t: TFunction)` from `features/<feature>/utils/`; never export a bare Zod object. Consume with `useMemo(() => getSchema(t), [t])`.
-5. **Use path aliases** — never use deep relative paths (`../../../`).
-6. **Prefer NativeWind** — use `className` for styling; fallback to `StyleSheet` only for dynamic/animated styles.
-7. **Screens are named exports** — `export const MyScreen = (): JSX.Element`.
-8. **No Expo Router** — this project uses React Navigation; do not suggest file-based routing patterns.
-9. **Bun is the package manager** — use `bun add` / `bun remove`, not `npm` or `yarn`.
-10. **SVGs are React components** — imported via `react-native-svg-transformer`; use `import Logo from '@assets/logos/logo.svg'`.
+2. **Reuse shared components first** — before building a new UI primitive, check `src/components/` (`@components/*`). It contains: `CustomButton`, `CustomInput`, `CustomOTPInput`, `FilterChipBar`, `Header`, `QuantityControl`, `SearchBar`, `SvgIcon`, `TabBar`, `TierBadge`. Use these instead of reimplementing equivalent UI. Only create a new component if none of the existing ones fit the use case.
+3. **Always use typed Redux hooks** — `useAppDispatch` and `useAppSelector` from `@hooks/reduxHooks`.
+4. **Use `createAppAsyncThunk`** (not raw `createAsyncThunk`) for all async Redux actions.
+5. **Schemas are i18n factory functions** — always export `get<Name>Schema(t: TFunction)` from `features/<feature>/utils/`; never export a bare Zod object. Consume with `useMemo(() => getSchema(t), [t])`.
+6. **Use path aliases** — never use deep relative paths (`../../../`).
+7. **Prefer NativeWind** — use `className` for styling; fallback to `StyleSheet` only for dynamic/animated styles.
+8. **Screens are named exports** — `export const MyScreen = (): JSX.Element`.
+9. **No Expo Router** — this project uses React Navigation; do not suggest file-based routing patterns.
+10. **Bun is the package manager** — use `bun add` / `bun remove`, not `npm` or `yarn`.
+11. **SVGs are React components** — imported via `react-native-svg-transformer`; use `import Logo from '@assets/logos/logo.svg'`.
+12. **Always run all checks after changes** — after every code change, run the following in order and fix all errors before considering the task done:
+    - `bun run type-check` — TypeScript (`tsc --noEmit`)
+    - `bun run lint` — ESLint
+    - `bun run format:check` — Prettier formatting
+    - `bun run check:bundle` — only when touching build config, navigation, or entry points (expensive)
+13. **Branch display name rules** — always apply the full resolution pipeline whenever computing a `displayName` for a branch:
+    1. **Resolve `vendorName` from Redux first** — the API can return `null` for `vendorName` on non-home endpoints (e.g. campaign branches). Look up the real vendor name from `state.branches.branches.find(b => b.vendorId === branch.vendorId)?.vendorName` and prefer it over whatever the item carries.
+    2. **Detect multi-branch with a heuristic fallback** — `isMultiBranch` = `selectIsMultiBranchVendor(state, vendorId)` (Redux) **OR** `!!vendorName && vendorName !== name`. The Redux flag only covers branches fetched by `fetchActiveBranches`; the name-diff heuristic catches campaign/nearby/similar branches that never enter the Redux list.
+    3. **Call `computeDisplayName(resolvedBranch, isMultiBranch, t('branch'))`** — never call it with the raw item when the vendor name might be stale/null.
+    4. **Per-item components for FlatList** — hooks cannot be called inside `renderItem`. Whenever a list item needs `useAppSelector` to resolve display name, extract a small component (e.g. `ListBranchItem`) that owns the hooks and renders the card. See `src/features/home/screens/ListBranchScreen.tsx` and `src/features/home/components/home/VendorCampaignPlaceCard.tsx` as reference implementations.

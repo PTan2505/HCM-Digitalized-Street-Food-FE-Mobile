@@ -1,8 +1,8 @@
+import type { RootState } from '@customer-app/store';
+import type { NotificationDto } from '@features/notifications/types/notification';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import type { NotificationDto } from '@features/notifications/types/notification';
 import { createSlice } from '@reduxjs/toolkit';
-import type { RootState } from '@app/store';
 
 interface NotificationsState {
   items: NotificationDto[];

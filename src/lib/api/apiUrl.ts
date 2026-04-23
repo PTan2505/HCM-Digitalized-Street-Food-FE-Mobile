@@ -5,6 +5,7 @@ export const apiUrl = {
     phoneVerify: '/api/Auth/phone-verify',
     login: '/api/Auth/login',
     googleLogin: '/api/Auth/google-login',
+    contactVerification: '/api/Auth/contact-verification',
   },
   dietaryPreference: {
     getAll: '/api/DietaryPreference',
@@ -60,12 +61,15 @@ export const apiUrl = {
     images: (branchId: number): string => `/api/Branch/${branchId}/images`,
     similar: (branchId: number): string => `/api/Branch/${branchId}/similar`,
     myGhostPins: '/api/Branch/my-ghost-pin',
+    allGhostPins: '/api/Branch/all-ghost-pins',
   },
   userDietary: {
     userDietary: '/api/UserDietary/user',
   },
   user: {
     profile: '/api/User/profile',
+    byId: (id: number): string => `/api/User/${id}`,
+    verifyOtp: '/api/User/profile/verify-otp',
     userSetup: {
       userinfo: '/api/UserSetup/userinfo-setup',
       dietary: '/api/UserSetup/dietary-setup',
@@ -90,6 +94,11 @@ export const apiUrl = {
     myOrders: '/api/Order/my-orders',
     pickupCode: (id: number): string => `/api/Order/${id}/pickup-code`,
     cancel: (id: number): string => `/api/Order/${id}/cancel`,
+  },
+  managerOrder: {
+    list: '/api/Order/manager/orders',
+    decision: (id: number): string => `/api/order/vendor/orders/${id}/decision`,
+    complete: (id: number): string => `/api/order/vendor/orders/${id}/complete`,
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',

@@ -149,7 +149,7 @@ export const ProfileScreen = (): JSX.Element => {
             </Text>
             <Pressable
               className="mt-1 flex-row items-center rounded-full bg-gray-100 px-3 py-1"
-              onPress={() => navigation.navigate('SetupUserInfo')}
+              onPress={() => navigation.navigate('SetupUserInfo', {})}
             >
               <Text className="mr-1 text-base text-gray-600">
                 {t('profile.view_profile', 'Xem hồ sơ')}

@@ -1,4 +1,4 @@
-import type { QuestTaskRewardItem } from '@features/quests/types/quest';
+import type { QuestTaskRewardItem } from '@features/customer/quests/types/quest';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useEffect, useState } from 'react';
 

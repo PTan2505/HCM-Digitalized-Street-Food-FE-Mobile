@@ -1,8 +1,8 @@
-import type { RootState } from '@app/store';
-import { userLogout } from '@slices/auth';
+import type { RootState } from '@customer-app/store';
 import { createAppAsyncThunk } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { createSlice } from '@reduxjs/toolkit';
+import { userLogout } from '@slices/auth';
 
 import type { DietaryPreference } from '@features/user/types/dietaryPreference';
 import type {

@@ -2,6 +2,7 @@ import type { LoginWithPhoneNumberRequest } from '@auth/types/login';
 import { getLoginWithPhoneNumberSchema } from '@auth/utils/loginFormSchema';
 import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
+import { APIErrorResponse } from '@custom-types/apiResponse';
 import { FontAwesome6 } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,7 +38,7 @@ export const LoginForm = ({
     resolver: zodResolver(schema),
   });
 
-  const { handleSubmit, control } = methods;
+  const { handleSubmit, control, setError } = methods;
 
   const watchedValue = useWatch({
     name: 'phoneNumber',
@@ -54,8 +55,17 @@ export const LoginForm = ({
       await onPhoneNumberLoginSubmit(data);
       console.log('API call successful, setting isSendedOTP to true');
       setIsSendedOTP(true);
-    } catch (error) {
+    } catch (error: unknown) {
+      const apiError = error as APIErrorResponse;
       console.error('Phone number login failed:', error);
+      if (apiError?.status === 404) {
+        setError('phoneNumber', { type: 'manual', message: apiError.message });
+      } else if (apiError?.status === 400) {
+        setError('phoneNumber', {
+          type: 'manual',
+          message: t('auth.phone_not_verified'),
+        });
+      }
       setIsSendedOTP(false);
     }
   };

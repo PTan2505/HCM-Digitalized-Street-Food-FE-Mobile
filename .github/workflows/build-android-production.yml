@@ -1,0 +1,50 @@
+name: Android Customer Production Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['main']
+    # 🎯 Trigger build only when relevant files change
+    paths:
+      - 'src/**'
+      - 'components/**'
+      - 'assets/**'
+      - 'app.config.ts'
+      - 'package.json'
+      - 'bun.lockb'
+      - 'eas.json'
+      - 'android/**'
+      - '!ios/**' # ⛔️ Ignore iOS changes for Android build
+      - '!**/*.md' # ⛔️ Ignore Docs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # 🚀 April 2026: Opt-in to Node 24 to clear the deprecation warning
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: 🏗 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 🏗 Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-cache: true
+          packager: bun # 👈 Ensures internal EAS operations use Bun
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: bun install
+
+      - name: 🚀 Build Customer Android
+        # 🔑 This env variable tells app.config.ts to use ID: fc2233e3-5c88-40b1-9ee2-e576aa043330
+        run: bun x eas-cli build --platform android --profile customer:production --non-interactive
+        env:
+          APP_VARIANT: customer

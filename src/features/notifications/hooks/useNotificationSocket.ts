@@ -1,7 +1,7 @@
+import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
 import type { NotificationDto } from '@features/notifications/types/notification';
-import { ORDER_STATUS } from '@features/direct-ordering/api/cartApi';
-import { axiosApi } from '@lib/api/apiInstance';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { axiosApi } from '@lib/api/apiInstance';
 import * as signalR from '@microsoft/signalr';
 import {
   addPoints,
@@ -37,6 +37,8 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     let cancelled = false;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    console.log('[QuestDebug][Socket] Connecting to hub:', HUB_URL);
+
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(HUB_URL, {
         accessTokenFactory: () => tokenManagement.getAccessToken(),
@@ -45,7 +47,21 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
+    connection.onclose((err) =>
+      console.log('[QuestDebug][Socket] Connection CLOSED', err)
+    );
+    connection.onreconnecting((err) =>
+      console.log('[QuestDebug][Socket] Reconnecting...', err)
+    );
+    connection.onreconnected((id) =>
+      console.log('[QuestDebug][Socket] Reconnected, connectionId:', id)
+    );
+
     connection.on('ReceiveNotification', (notification: NotificationDto) => {
+      console.log(
+        '[QuestDebug][Socket] ReceiveNotification fired:',
+        JSON.stringify(notification)
+      );
       dispatch(receiveNotification(notification));
 
       if (
@@ -119,7 +135,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
               }, 1000);
             }
           })
-          .catch(() => {});
+          .catch((err) => {
+            console.error('[QuestDebug] getQuestTaskById FAILED:', err);
+          });
 
         // Refresh quest list in background
         dispatch(fetchMyQuests({ isTierUp: isQuestCompleted }));
@@ -140,10 +158,14 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
     const connect = (nextRetryDelay = INITIAL_RETRY_DELAY_MS): void => {
       if (cancelled) return;
       if (connection.state !== signalR.HubConnectionState.Disconnected) return;
-      connection.start().catch(() => {
-        if (cancelled) return;
-        scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
-      });
+      connection
+        .start()
+        .then(() => console.log('[QuestDebug][Socket] Connected successfully'))
+        .catch((err) => {
+          console.error('[QuestDebug][Socket] Connection FAILED:', err);
+          if (cancelled) return;
+          scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
+        });
     };
 
     const disconnect = (): void => {
