@@ -31,7 +31,10 @@ export default function useLogin(): {
 
   function navigateAfterLogin(user: User): void {
     if (!isManagerApp) {
-      navigation.replace('Main');
+      if (user.role === ROLES.CUSTOMER) {
+        navigation.replace('Main');
+      }
+      // Non-customer in customer app: useCustomerRoleGate handles logout + alert
       return;
     }
     if (user.role === ROLES.MANAGER) {

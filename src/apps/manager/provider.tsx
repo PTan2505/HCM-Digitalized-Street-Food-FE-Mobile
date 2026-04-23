@@ -1,3 +1,4 @@
+import { useManagerRoleGate } from '@features/auth/hooks/useManagerRoleGate';
 import { NotificationHandler } from '@features/notifications/NotificationHandler';
 import { queryClient } from '@lib/queryClient';
 import {
@@ -5,7 +6,6 @@ import {
   useManagerSelector,
 } from '@manager-app/managerHooks';
 import { managerStore } from '@manager-app/store';
-import { useManagerRoleGate } from '@manager/auth/useManagerRoleGate';
 import { loadUserFromStorage } from '@slices/auth';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';

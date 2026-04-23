@@ -4,7 +4,9 @@ import { useNotifications } from '@features/notifications/hooks/useNotifications
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
+import { ROLES } from '@constants/roles';
 import { selectUser } from '@slices/auth';
+import { isManagerApp } from '@utils/appVariant';
 import {
   clearPendingReward,
   selectPendingReward,
@@ -23,7 +25,8 @@ import { useEffect } from 'react';
 export const NotificationHandler = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
-  const isAuthenticated = !!user;
+  const expectedRole = isManagerApp ? ROLES.MANAGER : ROLES.CUSTOMER;
+  const isAuthenticated = !!user && user.role === expectedRole;
   const pendingReward = useAppSelector(selectPendingReward);
 
   const { lastResponse, notification } = useNotifications(isAuthenticated);

@@ -346,6 +346,7 @@
     "confirm": "Confirm",
     "confirming": "Confirming...",
     "manager_access_denied": "This account does not have manager access",
+    "customer_access_denied": "This account does not have customer access",
     "phone_not_verified": "Phone number not verified"
   },
   "validation": {

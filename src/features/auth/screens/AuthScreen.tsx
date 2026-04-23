@@ -67,19 +67,20 @@ export const AuthScreen = (): JSX.Element => {
     });
   }, []);
 
-  // Navigate after auth state resolves
   useEffect(() => {
-    if (userStatus === 'succeeded' && user) {
-      if (!isManagerApp) {
+    if (userStatus !== 'succeeded' || !user) return;
+    if (!isManagerApp) {
+      if (user.role === ROLES.CUSTOMER) {
         navigation.replace('Main');
-        return;
       }
-      if (user.role === ROLES.MANAGER) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (navigation as any).replace('ManagerHome');
-      }
-      // Non-manager in manager app: useManagerRoleGate handles logout + alert
+      // Non-customer in customer app: useCustomerRoleGate handles logout + alert
+      return;
     }
+    if (user.role === ROLES.MANAGER) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (navigation as any).replace('ManagerHome');
+    }
+    // Non-manager in manager app: useManagerRoleGate handles logout + alert
   }, [user, userStatus, navigation]);
 
   const handleGoogleLogin = async (): Promise<void> => {
