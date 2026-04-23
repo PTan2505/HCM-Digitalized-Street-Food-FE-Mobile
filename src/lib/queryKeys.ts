@@ -102,4 +102,12 @@ export const queryKeys = {
     detail: (feedbackId: number) =>
       ['managerFeedback', 'detail', feedbackId] as const,
   },
+
+  managerDishes: {
+    all: ['managerDishes'] as const,
+    branchList: (branchId: number) =>
+      ['managerDishes', 'branch', branchId] as const,
+    vendorCatalog: (vendorId: number) =>
+      ['managerDishes', 'vendor', vendorId] as const,
+  },
 } as const;

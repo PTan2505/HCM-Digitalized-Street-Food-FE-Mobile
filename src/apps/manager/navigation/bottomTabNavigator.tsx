@@ -6,6 +6,7 @@ import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/screens/ManagerFeedbackScreen';
+import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { selectUnreadCount } from '@slices/notifications';
 import React, { JSX } from 'react';
@@ -57,7 +58,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="ManagerMenu"
         component={ManagerMenuScreen}
         options={{
@@ -66,7 +67,7 @@ export const ManagerMainTabs = (): JSX.Element => {
             <FontAwesome6 name="utensils" size={size} color={color} />
           ),
         }}
-      /> */}
+      />
       <Tab.Screen
         name="ManagerFeedback"
         component={ManagerFeedbackScreen}

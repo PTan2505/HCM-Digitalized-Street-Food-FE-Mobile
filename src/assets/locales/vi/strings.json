@@ -842,5 +842,26 @@
     "resend_otp": "Gửi lại mã OTP",
     "resending_otp": "Đang gửi lại...",
     "resend_in": "Gửi lại sau {{time}}"
+  },
+  "manager_menu": {
+    "title": "Thực đơn",
+    "tab_branch": "Thực đơn",
+    "tab_catalog": "Thêm món",
+    "empty_branch": "Chưa có món nào",
+    "empty_branch_subtitle": "Chuyển sang tab \"Thêm món\" để chọn món từ danh mục",
+    "empty_catalog": "Không có món ăn nào trong danh mục",
+    "sold_out": "Hết món",
+    "available": "Còn món",
+    "save": "Lưu thực đơn",
+    "saving": "Đang lưu...",
+    "select_hint": "Chọn món muốn bán tại chi nhánh",
+    "assigned_badge": "Đang bán",
+    "no_changes": "Không có thay đổi",
+    "error_save": "Lưu thực đơn thất bại",
+    "all_categories": "Tất cả",
+    "out": "Hết",
+    "no_results": "Không tìm thấy",
+    "no_results_subtitle": "Thử thay đổi từ khoá hoặc danh mục",
+    "search_placeholder": "Tìm món ăn..."
   }
 }

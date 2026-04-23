@@ -841,5 +841,26 @@
     "resend_otp": "Resend OTP",
     "resending_otp": "Resending...",
     "resend_in": "Resend in {{time}}"
+  },
+  "manager_menu": {
+    "title": "Menu",
+    "tab_branch": "Branch Menu",
+    "tab_catalog": "Add Dishes",
+    "empty_branch": "No dishes assigned",
+    "empty_branch_subtitle": "Go to \"Add Dishes\" tab to select dishes from the catalog",
+    "empty_catalog": "No dishes in the vendor catalog",
+    "sold_out": "Sold out",
+    "available": "Available",
+    "save": "Save Menu",
+    "saving": "Saving...",
+    "select_hint": "Select dishes to sell at this branch",
+    "assigned_badge": "On menu",
+    "no_changes": "No changes",
+    "error_save": "Failed to save menu",
+    "all_categories": "All",
+    "out": "Out",
+    "no_results": "No results found",
+    "no_results_subtitle": "Try changing the keyword or category",
+    "search_placeholder": "Search dishes..."
   }
 }

@@ -80,6 +80,9 @@ export const apiUrl = {
   },
   dish: {
     byBranch: (branchId: number): string => `/api/dishes/branch/${branchId}`,
+    byVendor: (vendorId: number): string => `/api/dishes/vendor/${vendorId}`,
+    availability: (dishId: number, branchId: number): string =>
+      `/api/dishes/${dishId}/branch/${branchId}/availability`,
   },
   cart: {
     my: '/api/Cart/my',

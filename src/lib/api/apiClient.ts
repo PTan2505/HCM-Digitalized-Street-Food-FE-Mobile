@@ -117,4 +117,13 @@ export default class ApiClient {
       method: 'DELETE',
     });
   }
+
+  deleteWithBody<TResponse, TRequest>(
+    requestConfig: AxiosRequestConfig<TRequest>
+  ): Promise<ApiResponse<TResponse>> {
+    return this.handleRequest<TResponse, TRequest>({
+      ...requestConfig,
+      method: 'DELETE',
+    });
+  }
 }
