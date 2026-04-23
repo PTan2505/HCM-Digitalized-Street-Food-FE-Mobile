@@ -22,7 +22,6 @@ export interface Voucher {
   maxDiscountValue: number | null;
   startDate: string | null;
   endDate: string | null;
-  expiredDate: string | null;
   isActive: boolean;
   campaignId: number | null;
   quantity: number;
@@ -61,8 +60,7 @@ const initialState: CampaignsState = {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-const getExpiresAt = (v: Voucher): Date =>
-  new Date(v.expiredDate ?? v.endDate ?? '9999-12-31');
+const getExpiresAt = (v: Voucher): Date => new Date(v.endDate ?? '9999-12-31');
 
 // ---------------------------------------------------------------------------
 // Thunk — fetch the authenticated user's vouchers from the server

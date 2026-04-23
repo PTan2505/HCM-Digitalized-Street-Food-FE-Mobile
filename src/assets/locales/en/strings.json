@@ -646,6 +646,7 @@
     "voucher_tab_system": "Lowca",
     "voucher_tab_vendor": "Restaurant",
     "history": "History",
+    "no_expiry": "No expiry date",
     "valid_until": "Valid until {{date}}",
     "starts_on": "Starts {{date}}",
     "voucher_not_available": "Already used",

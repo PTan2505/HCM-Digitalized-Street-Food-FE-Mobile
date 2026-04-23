@@ -34,11 +34,11 @@ const TABS: TabConfig[] = [
   { key: 'system', labelKey: 'voucher_wallet.voucher_tab_system' },
 ];
 
-const getExpiresAt = (voucher: Voucher): Date =>
-  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
+const getExpiresAt = (voucher: Voucher): Date | null =>
+  voucher.endDate ? new Date(voucher.endDate) : null;
 
 const isExpired = (voucher: Voucher): boolean =>
-  getExpiresAt(voucher) <= new Date();
+  getExpiresAt(voucher) !== null && getExpiresAt(voucher)! <= new Date();
 
 const isUsed = (voucher: Voucher): boolean => !voucher.isAvailable;
 
@@ -48,7 +48,10 @@ const isNotYetActive = (voucher: Voucher): boolean =>
 const isExpiringSoon = (voucher: Voucher): boolean => {
   const expiresAt = getExpiresAt(voucher);
   const now = new Date();
-  const hoursLeft = (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const hoursLeft =
+    expiresAt !== null
+      ? (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)
+      : Infinity;
   return hoursLeft > 0 && hoursLeft <= 24;
 };
 
@@ -189,7 +192,10 @@ export const VoucherWalletScreen = (): JSX.Element => {
                           })
                         : undefined
                     }
-                    expiresText={getExpiresAt(item).toLocaleDateString('vi-VN')}
+                    expiresText={
+                      getExpiresAt(item)?.toLocaleDateString('vi-VN') ??
+                      t('voucher_wallet.no_expiry')
+                    }
                     secondaryMetaText={
                       used
                         ? t('voucher_wallet.voucher_not_available')
@@ -261,7 +267,9 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     </Text>
                     <Text className="mt-0.5 text-base text-gray-400">
                       {t('voucher_wallet.valid_until', {
-                        date: getExpiresAt(item).toLocaleDateString('vi-VN'),
+                        date:
+                          getExpiresAt(item)?.toLocaleDateString('vi-VN') ??
+                          t('voucher_wallet.no_expiry'),
                       })}
                     </Text>
                     {item.minAmountRequired != null && (
