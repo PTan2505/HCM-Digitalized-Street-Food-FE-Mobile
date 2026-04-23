@@ -6,7 +6,7 @@ import { useNotificationSocket } from '@features/notifications/hooks/useNotifica
 import { XPProgressToast } from '@features/xp/components/XPProgressToast';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { addXP, selectUser } from '@slices/auth';
+import { addPoints, addXP, selectUser } from '@slices/auth';
 import {
   clearPendingReward,
   selectPendingReward,
@@ -57,6 +57,16 @@ export const NotificationHandler = (): JSX.Element => {
     axiosApi.questApi
       .getQuestTaskById(questTaskId)
       .then((task) => {
+        // Backend serializes QuestRewardType enum as a number (POINTS=2)
+        // without JsonStringEnumConverter, so compare both forms.
+        const pointsReward = task.rewards.find(
+          (r) =>
+            r.rewardType === 'POINTS' ||
+            (r.rewardType as unknown as number) === 2
+        );
+        if (pointsReward) {
+          dispatch(addPoints(pointsReward.rewardValue * pointsReward.quantity));
+        }
         if (task.rewards.length > 0 || xpEarned) {
           dispatch(setPendingReward({ rewards: task.rewards, xpEarned }));
         }

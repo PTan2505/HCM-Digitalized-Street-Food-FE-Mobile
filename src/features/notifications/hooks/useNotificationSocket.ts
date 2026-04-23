@@ -85,10 +85,8 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       const isQuestCompleted =
         notification.type === 'QuestCompleted' || notification.type === '4';
 
-      if (
-        (isQuestTaskCompleted || isQuestCompleted) &&
-        notification.referenceId
-      ) {
+      // QuestTaskCompleted (type=3): referenceId = questTaskId → fetch task, show modal
+      if (isQuestTaskCompleted && notification.referenceId) {
         const questTaskId = notification.referenceId;
         const previousXP = currentXPRef.current;
 
@@ -111,9 +109,13 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         axiosApi.questApi
           .getQuestTaskById(questTaskId)
           .then((task) => {
-            // Update points balance immediately
+            // Update points balance immediately.
+            // Backend serializes QuestRewardType enum as a number (POINTS=2)
+            // without JsonStringEnumConverter, so compare both forms.
             const pointsReward = task.rewards.find(
-              (r) => r.rewardType === 'POINTS'
+              (r) =>
+                r.rewardType === 'POINTS' ||
+                (r.rewardType as unknown as number) === 2
             );
             if (pointsReward) {
               dispatch(
@@ -121,9 +123,8 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
               );
             }
 
-            // Show reward modal — QuestCompleted always shows it; QuestTaskCompleted
-            // shows it only when there are rewards to display
-            const shouldShowModal = isQuestCompleted || task.rewards.length > 0;
+            const shouldShowModal =
+              task.rewards.length > 0 || (notification.xpEarned ?? 0) > 0;
             if (shouldShowModal) {
               setTimeout(() => {
                 dispatch(
@@ -139,8 +140,12 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
             console.error('[QuestDebug] getQuestTaskById FAILED:', err);
           });
 
-        // Refresh quest list in background
-        dispatch(fetchMyQuests({ isTierUp: isQuestCompleted }));
+        dispatch(fetchMyQuests({ isTierUp: false }));
+      }
+
+      // QuestCompleted (type=4): referenceId = questId, just refresh the quest list
+      if (isQuestCompleted) {
+        dispatch(fetchMyQuests({ isTierUp: true }));
       }
     });
 
