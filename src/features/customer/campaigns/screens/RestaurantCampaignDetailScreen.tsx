@@ -55,7 +55,6 @@ export const RestaurantCampaignDetailScreen = ({
       maxDiscountValue: null,
       startDate: null,
       endDate: campaign.expiresAt ?? null,
-      expiredDate: null,
       isActive: true,
       campaignId: campaign.campaignId ?? null,
       quantity: 1,

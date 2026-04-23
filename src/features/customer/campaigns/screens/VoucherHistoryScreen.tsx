@@ -1,11 +1,15 @@
 import Header from '@components/Header';
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import {
+  getExpiresAt,
+  isExpired,
+  isUsed,
+} from '@customer/campaigns/utils/voucher';
 import { Ionicons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
-import type { Voucher } from '@slices/campaigns';
 import {
   fetchMyVouchers,
   selectVouchers,
@@ -30,9 +34,6 @@ const TABS: { key: HistoryTab; labelKey: string }[] = [
   { key: 'expired', labelKey: 'campaign.expired' },
 ];
 
-const getExpiresAt = (voucher: Voucher): Date =>
-  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
-
 export const VoucherHistoryScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -54,9 +55,9 @@ export const VoucherHistoryScreen = (): JSX.Element => {
     setActiveTab(key);
   }, []);
 
-  const usedVouchers = allVouchers.filter((v) => !v.isAvailable);
+  const usedVouchers = allVouchers.filter(isUsed);
   const expiredVouchers = allVouchers.filter(
-    (v) => getExpiresAt(v) <= new Date() && v.isAvailable
+    (v) => isExpired(v) && !isUsed(v)
   );
 
   const displayedVouchers =
@@ -128,7 +129,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
                     })
                   : undefined
               }
-              expiresText={getExpiresAt(item).toLocaleDateString('vi-VN')}
+              expiresText={getExpiresAt(item)?.toLocaleDateString('vi-VN') ?? ''}
               secondaryMetaText={
                 !item.isAvailable
                   ? t('campaign.voucher_not_available')

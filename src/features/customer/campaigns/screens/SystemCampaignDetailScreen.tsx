@@ -215,7 +215,6 @@ export const SystemCampaignDetailScreen = ({
                 maxDiscountValue: voucher.maxDiscountValue,
                 startDate: null,
                 endDate: null,
-                expiredDate: null,
                 isActive: true,
                 campaignId: Number(campaignId),
                 quantity: item.quantity,

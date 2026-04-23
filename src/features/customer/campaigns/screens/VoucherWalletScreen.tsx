@@ -1,6 +1,13 @@
 import Header from '@components/Header';
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import {
+  getExpiresAt,
+  isExpired,
+  isExpiringSoon,
+  isNotYetActive,
+  isUsed,
+} from '@customer/campaigns/utils/voucher';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
 import {
@@ -33,27 +40,6 @@ const TABS: TabConfig[] = [
   { key: 'campaign', labelKey: 'voucher_wallet.voucher_tab_campaign' },
   { key: 'system', labelKey: 'voucher_wallet.voucher_tab_system' },
 ];
-
-const getExpiresAt = (voucher: Voucher): Date | null =>
-  voucher.endDate ? new Date(voucher.endDate) : null;
-
-const isExpired = (voucher: Voucher): boolean =>
-  getExpiresAt(voucher) !== null && getExpiresAt(voucher)! <= new Date();
-
-const isUsed = (voucher: Voucher): boolean => !voucher.isAvailable;
-
-const isNotYetActive = (voucher: Voucher): boolean =>
-  voucher.startDate != null && new Date(voucher.startDate) > new Date();
-
-const isExpiringSoon = (voucher: Voucher): boolean => {
-  const expiresAt = getExpiresAt(voucher);
-  const now = new Date();
-  const hoursLeft =
-    expiresAt !== null
-      ? (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)
-      : Infinity;
-  return hoursLeft > 0 && hoursLeft <= 24;
-};
 
 export const VoucherWalletScreen = (): JSX.Element => {
   const { t } = useTranslation();
