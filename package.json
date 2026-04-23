@@ -31,7 +31,9 @@
     "ios:device": "bun run prebuild:ios && expo run:ios --device",
     "manager:android": "bun run prebuild:manager:android && APP_VARIANT=manager expo run:android",
     "manager:ios": "bun run prebuild:manager:ios && APP_VARIANT=manager expo run:ios",
-    "manager:ios:device": "bun run prebuild:manager:ios && APP_VARIANT=manager expo run:ios --device"
+    "manager:ios:device": "bun run prebuild:manager:ios && APP_VARIANT=manager expo run:ios --device",
+    "build:prod:customer": "APP_VARIANT=customer bun run prebuild:android && APP_VARIANT=customer eas build --platform android --profile customer:production --local",
+    "build:prod:manager": "APP_VARIANT=manager bun run prebuild:manager:android && APP_VARIANT=manager eas build --platform android --profile manager:production --local"
   },
   "dependencies": {
     "@expo-google-fonts/nunito": "^0.4.2",
