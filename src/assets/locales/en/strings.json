@@ -862,5 +862,42 @@
     "no_results": "No results found",
     "no_results_subtitle": "Try changing the keyword or category",
     "search_placeholder": "Search dishes..."
+  },
+  "manager_schedule": {
+    "title": "Operating Hours",
+    "weekdays": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    },
+    "weekdays_short": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "open": "Open",
+    "closed": "Closed",
+    "weekend": "Weekend",
+    "no_shifts": "No shifts scheduled",
+    "add_slot": "Add Slot",
+    "edit_slot": "Edit Slot",
+    "open_time": "Open time",
+    "close_time": "Close time",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete_confirm_title": "Delete Schedule",
+    "delete_confirm_message": "Are you sure you want to delete this slot?",
+    "delete": "Delete",
+    "error_save": "Failed to save schedule",
+    "error_close_before_open": "Close time must be after open time",
+    "error_overlap": "This shift overlaps with an existing shift"
   }
 }

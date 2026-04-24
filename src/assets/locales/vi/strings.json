@@ -863,5 +863,42 @@
     "no_results": "Không tìm thấy",
     "no_results_subtitle": "Thử thay đổi từ khoá hoặc danh mục",
     "search_placeholder": "Tìm món ăn..."
+  },
+  "manager_schedule": {
+    "title": "Giờ hoạt động",
+    "weekdays": {
+      "mon": "Thứ Hai",
+      "tue": "Thứ Ba",
+      "wed": "Thứ Tư",
+      "thu": "Thứ Năm",
+      "fri": "Thứ Sáu",
+      "sat": "Thứ Bảy",
+      "sun": "Chủ Nhật"
+    },
+    "weekdays_short": {
+      "mon": "T2",
+      "tue": "T3",
+      "wed": "T4",
+      "thu": "T5",
+      "fri": "T6",
+      "sat": "T7",
+      "sun": "CN"
+    },
+    "open": "Mở cửa",
+    "closed": "Đóng cửa",
+    "weekend": "Cuối tuần",
+    "no_shifts": "Chưa có ca làm việc",
+    "add_slot": "Thêm ca",
+    "edit_slot": "Sửa ca",
+    "open_time": "Giờ mở cửa",
+    "close_time": "Giờ đóng cửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete_confirm_title": "Xóa ca làm việc",
+    "delete_confirm_message": "Bạn có chắc muốn xóa ca này không?",
+    "delete": "Xóa",
+    "error_save": "Không thể lưu ca làm việc",
+    "error_close_before_open": "Giờ đóng phải sau giờ mở",
+    "error_overlap": "Ca làm việc bị trùng với ca hiện có"
   }
 }

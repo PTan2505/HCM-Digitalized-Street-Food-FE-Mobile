@@ -7,6 +7,7 @@ import { useAppSelector } from '@hooks/reduxHooks';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/screens/ManagerFeedbackScreen';
 import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
+import { ManagerScheduleScreen } from '@manager/schedule/ManagerScheduleScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { selectUnreadCount } from '@slices/notifications';
 import React, { JSX } from 'react';
@@ -78,7 +79,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="ManagerSchedule"
         component={ManagerScheduleScreen}
         options={{
@@ -88,16 +89,6 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      <Tab.Screen
-        name="ManagerDayOff"
-        component={ManagerDayOffScreen}
-        options={{
-          title: t('manager_tabs.day_off'),
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name="calendar-xmark" size={size} color={color} />
-          ),
-        }}
-      /> */}
       <Tab.Screen
         name="Notifications"
         component={NotificationScreen}

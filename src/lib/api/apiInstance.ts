@@ -27,6 +27,7 @@ import { ManagerBranchApi } from '@manager/branch/managerBranchApi';
 import { ManagerFeedbackApi } from '@manager/feedback/api/managerFeedbackApi';
 import { ManagerDishApi } from '@manager/menu/api/managerDishApi';
 import { ManagerOrderApi } from '@manager/orders/api/managerOrderApi';
+import { ManagerScheduleApi } from '@manager/schedule/api/managerScheduleApi';
 
 const axiosService = new AxiosApiService();
 const axiosClient = new ApiClient(axiosService);
@@ -56,4 +57,5 @@ export const axiosApi = {
   managerOrderApi: new ManagerOrderApi(axiosClient),
   managerFeedbackApi: new ManagerFeedbackApi(axiosClient),
   managerDishApi: new ManagerDishApi(axiosClient),
+  managerScheduleApi: new ManagerScheduleApi(axiosClient),
 };

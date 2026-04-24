@@ -58,6 +58,7 @@ export const apiUrl = {
     byId: (id: number): string => `/api/Branch/${id}`,
     byVendor: '/api/Branch/vendor',
     workSchedules: (id: number): string => `/api/Branch/${id}/work-schedules`,
+    workScheduleById: (id: number): string => `/api/Branch/work-schedules/${id}`,
     images: (branchId: number): string => `/api/Branch/${branchId}/images`,
     similar: (branchId: number): string => `/api/Branch/${branchId}/similar`,
     myGhostPins: '/api/Branch/my-ghost-pin',
