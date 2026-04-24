@@ -1,15 +1,22 @@
-import { AnimatedBackdrop } from '@components/AnimatedBackdrop';
 import type { WorkSchedule } from '@manager/schedule/api/managerScheduleApi';
 import { TimeScrollPicker } from '@manager/schedule/components/TimeScrollPicker';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from 'react-native-reanimated';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const SHEET_TOP = SCREEN_HEIGHT * 0.2;
+const MODAL_HEIGHT = SCREEN_HEIGHT - SHEET_TOP;
+const CLOSE_THRESHOLD = MODAL_HEIGHT * 0.5;
+const SPRING = { damping: 20, stiffness: 200, mass: 0.8 } as const;
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
@@ -47,7 +54,7 @@ export const AddEditSlotModal = ({
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [resetKey, setResetKey] = useState(0);
-  const progress = useSharedValue(0);
+  const dragY = useSharedValue(MODAL_HEIGHT);
 
   const [openHour, setOpenHour] = useState(9);
   const [openMinute, setOpenMinute] = useState(0);
@@ -55,6 +62,7 @@ export const AddEditSlotModal = ({
   const [closeMinute, setCloseMinute] = useState(0);
   const [error, setError] = useState('');
 
+  // Slide down then unmount on close; prepare state and mount on open
   useEffect(() => {
     if (visible) {
       const [oh, om] = schedule ? parseTime(schedule.openTime) : [9, 0];
@@ -65,19 +73,43 @@ export const AddEditSlotModal = ({
       setCloseMinute(cm);
       setError('');
       setResetKey((k) => k + 1);
+      dragY.value = MODAL_HEIGHT; // start off-screen so slide-up plays
       setMounted(true);
-      progress.value = withTiming(1, { duration: 280 });
       return undefined;
     }
-    progress.value = withTiming(0, { duration: 220 });
-    const timer = setTimeout(() => setMounted(false), 220);
+    dragY.value = withSpring(MODAL_HEIGHT, SPRING);
+    const timer = setTimeout(() => setMounted(false), 400);
     return (): void => clearTimeout(timer);
-    // progress is a stable ref — safe to omit from deps
+    // dragY is a stable ref — safe to omit
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, schedule]);
 
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: interpolate(progress.value, [0, 1], [500, 0]) }],
+  // Slide up once the component is mounted and rendered off-screen
+  useEffect(() => {
+    if (mounted) dragY.value = withSpring(0, SPRING);
+    // dragY is a stable ref — safe to omit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
+
+  const panGesture = Gesture.Pan()
+    .runOnJS(true)
+    .onUpdate((e) => {
+      if (e.translationY > 0) dragY.value = e.translationY;
+    })
+    .onEnd((e) => {
+      if (e.translationY > CLOSE_THRESHOLD) {
+        onClose();
+      } else {
+        dragY.value = withSpring(0, SPRING);
+      }
+    });
+
+  const sheetAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: dragY.value }],
+  }));
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(dragY.value, [0, MODAL_HEIGHT], [1, 0], Extrapolation.CLAMP),
   }));
 
   const handleSave = useCallback(() => {
@@ -114,16 +146,36 @@ export const AddEditSlotModal = ({
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      <AnimatedBackdrop
-        mounted={mounted}
-        visible={visible}
-        onPress={onClose}
-        progress={progress}
-      />
-      <Animated.View style={[styles.sheet, sheetStyle]}>
-        <View className="rounded-t-2xl bg-white px-6 pb-8 pt-4">
-          <View className="mb-4 h-1 w-10 self-center rounded-full bg-gray-300" />
+      <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, backdropAnimatedStyle]}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      </Animated.View>
+      <Animated.View
+        style={[
+          {
+            position: 'absolute',
+            top: SHEET_TOP,
+            left: 0,
+            right: 0,
+            height: MODAL_HEIGHT,
+            backgroundColor: 'white',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -3 },
+            shadowOpacity: 0.1,
+            shadowRadius: 6,
+            elevation: 10,
+          },
+          sheetAnimatedStyle,
+        ]}
+      >
+        <GestureDetector gesture={panGesture}>
+          <Animated.View className="items-center pb-2 pt-3">
+            <View className="h-1 w-10 rounded-full bg-gray-300" />
+          </Animated.View>
+        </GestureDetector>
 
+        <View className="px-6 pb-8">
           <Text className="mb-5 text-base font-bold text-[#043620]">{title}</Text>
 
           <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#38644b]">
@@ -195,10 +247,7 @@ export const AddEditSlotModal = ({
 };
 
 const styles = StyleSheet.create({
-  sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
 });
