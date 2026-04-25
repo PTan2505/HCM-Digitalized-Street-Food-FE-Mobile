@@ -401,6 +401,7 @@
     "note_label": "Ghi chú",
     "total": "Tổng cộng",
     "items_count": "{{count}} món",
+    "cannot_order_when_closed": "Không thể đặt hàng khi quán đang đóng cửa",
     "stall_closed": "Đang đóng cửa",
     "stall_closed_notice": "Bạn chưa thể tạo đơn hàng nếu quán đang đóng cửa hoặc chưa cập nhật lịch làm việc.",
     "not_subscribed_notice": "Quán này hiện chưa đăng ký dịch vụ đặt món trực tuyến.",

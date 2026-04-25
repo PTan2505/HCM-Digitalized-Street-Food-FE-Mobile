@@ -400,6 +400,7 @@
     "note_label": "Note",
     "total": "Total",
     "items_count": "{{count}} items",
+    "cannot_order_when_closed": "Cannot place an order while the stall is closed",
     "stall_closed": "Stall Closed",
     "stall_closed_notice": "You cannot place an order while the stall is closed or has not updated its schedule.",
     "not_subscribed_notice": "This restaurant is not currently accepting online orders.",

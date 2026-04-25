@@ -790,8 +790,14 @@ export const RestaurantDetailsScreen = ({
             <Text className="mb-2 text-xl font-bold text-gray-700">
               {t('cart.title')}
             </Text>
+            {!isOpen && (
+              <Text className="mb-2 ml-2 text-sm text-red-500">
+                {t('cart.cannot_order_when_closed')}
+              </Text>
+            )}
           </View>
           <TouchableOpacity
+            disabled={!isOpen}
             onPress={() =>
               navigation.navigate('PersonalCart', {
                 branchId: branch.branchId,
@@ -799,7 +805,7 @@ export const RestaurantDetailsScreen = ({
                 isOpen,
               })
             }
-            className="flex-row items-center justify-between rounded-2xl bg-primary px-5 py-4"
+            className="flex-row items-center justify-between rounded-2xl bg-primary px-5 py-4 disabled:bg-gray-300"
           >
             <Text className="text-base font-bold text-white">
               {t('cart.items_count', { count: cart.items.length })}
