@@ -28,6 +28,8 @@
   "from": "From",
   "to": "To",
   "filter": "Filter",
+  "ward_label": "Ward / Commune",
+  "ward_placeholder": "Search ward...",
   "space": "Space",
   "dish_type": "Dish Type",
   "price_range": "Price Range",
@@ -60,7 +62,13 @@
     "retry": "Retry",
     "history_title": "Recent searches",
     "clear_history": "Clear all",
-    "address_history_title": "Recent addresses"
+    "address_history_title": "Recent addresses",
+    "moreLocations_one": "+{{count}} more location",
+    "moreLocations_other": "+{{count}} more locations",
+    "siblings": {
+      "title": "Other branches",
+      "empty": "No other locations found"
+    }
   },
   "map": {
     "search_address_placeholder": "Search address...",

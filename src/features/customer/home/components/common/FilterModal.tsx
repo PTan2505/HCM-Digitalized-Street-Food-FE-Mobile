@@ -1,5 +1,6 @@
 import { AnimatedBackdrop } from '@components/AnimatedBackdrop';
 import { COLORS } from '@constants/colors';
+import { WARDS } from '@constants/wards';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
@@ -21,6 +22,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -59,6 +61,8 @@ const FilterModal = ({
   const [amenities, setAmenities] = useState<string[]>([]);
   const [tasteTags, setTasteTags] = useState<string[]>([]);
   const [dietaryTags, setDietaryTags] = useState<string[]>([]);
+  const [wards, setWards] = useState<string[]>([]);
+  const [wardQuery, setWardQuery] = useState<string>('');
   const { categories } = useCategories();
   const tastes = useAppSelector(selectTastes);
   const tastesStatus = useAppSelector(selectTastesStatus);
@@ -84,6 +88,8 @@ const FilterModal = ({
       setAmenities(initialFilters.amenities);
       setTasteTags(initialFilters.tasteTags);
       setDietaryTags(initialFilters.dietaryTags);
+      setWards(initialFilters.wards ?? []);
+      setWardQuery('');
     } else {
       setSpaceTypes([]);
       setCategoryIds([]);
@@ -95,6 +101,8 @@ const FilterModal = ({
       setAmenities([]);
       setTasteTags([]);
       setDietaryTags([]);
+      setWards([]);
+      setWardQuery('');
     }
   }, [visible, initialFilters]);
 
@@ -157,6 +165,8 @@ const FilterModal = ({
     setTasteTags([]);
     // Restore to user's profile dietary prefs, not empty
     setDietaryTags([]);
+    setWards([]);
+    setWardQuery('');
   };
 
   const handleApply = (): void => {
@@ -171,6 +181,7 @@ const FilterModal = ({
       amenities,
       tasteTags,
       dietaryTags,
+      wards,
     });
     onClose();
   };
@@ -452,6 +463,100 @@ const FilterModal = ({
                   <Text className="text-sm text-gray-400">3M</Text>
                   <Text className="text-sm text-gray-400">4M</Text>
                   <Text className="text-sm text-gray-400">5M+</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Ward */}
+            {showSection('ward') && (
+              <View className="border-b border-gray-100 px-6 py-5">
+                <Text className="mb-3 text-base font-semibold text-gray-900">
+                  {t('ward_label')}
+                </Text>
+
+                {/* Selected ward chips */}
+                {wards.length > 0 && (
+                  <View className="mb-3 flex-row flex-wrap gap-2">
+                    {wards.map((w) => (
+                      <TouchableOpacity
+                        key={w}
+                        onPress={() => setWards(wards.filter((v) => v !== w))}
+                        className="flex-row items-center rounded-full bg-primary-dark px-3 py-1.5"
+                      >
+                        <Text className="mr-1 text-sm font-semibold text-white">
+                          {w}
+                        </Text>
+                        <Ionicons name="close" size={13} color="#fff" />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
+                {/* Search input */}
+                <View className="flex-row items-center rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
+                  <Ionicons name="search-outline" size={16} color="#9CA3AF" />
+                  <TextInput
+                    value={wardQuery}
+                    onChangeText={setWardQuery}
+                    placeholder={t('ward_placeholder')}
+                    placeholderTextColor="#9CA3AF"
+                    className="ml-2 flex-1 text-sm text-gray-800"
+                  />
+                  {wardQuery !== '' && (
+                    <TouchableOpacity
+                      onPress={() => setWardQuery('')}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="close-circle" size={16} color="#9CA3AF" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {/* Checkbox list */}
+                <View className="mt-1 max-h-[200px] overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+                  <ScrollView
+                    nestedScrollEnabled
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    {WARDS.filter(
+                      (w) =>
+                        wardQuery.trim() === '' ||
+                        w.toLowerCase().includes(wardQuery.trim().toLowerCase())
+                    ).map((w) => {
+                      const checked = wards.includes(w);
+                      return (
+                        <TouchableOpacity
+                          key={w}
+                          onPress={() =>
+                            setWards(
+                              checked
+                                ? wards.filter((v) => v !== w)
+                                : [...wards, w]
+                            )
+                          }
+                          className="flex-row items-center border-b border-gray-50 px-4 py-3"
+                        >
+                          <View
+                            className={`mr-3 h-5 w-5 items-center justify-center rounded border-2 ${
+                              checked
+                                ? 'border-primary-dark bg-primary-dark'
+                                : 'border-gray-300 bg-white'
+                            }`}
+                          >
+                            {checked && (
+                              <Ionicons
+                                name="checkmark"
+                                size={12}
+                                color="#fff"
+                              />
+                            )}
+                          </View>
+                          <Text className="text-sm text-gray-800">{w}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
                 </View>
               </View>
             )}

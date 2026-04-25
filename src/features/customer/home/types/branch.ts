@@ -21,6 +21,12 @@ export interface Dish {
   isSoldOut: boolean;
   categoryName?: string;
   tasteNames: string[];
+  /** Dish relevance score from keyword matching */
+  score?: number;
+  /** True when dish is in vendor's top-5 best sellers */
+  isBestSeller?: boolean;
+  /** True when vendor has explicitly flagged this as a signature dish */
+  isSignature?: boolean;
 }
 
 export interface BranchDetail {
@@ -77,6 +83,12 @@ export interface ActiveBranch {
   dishes: Dish[];
   /** Optional tier from GET /api/Branch/:id/tier — not included in search response */
   tier?: VendorTier;
+  /** Ranking score from DisplayName bucket (100/80/50–70/0) — set by search only */
+  displayNameScore?: number;
+  /** Best dish score for this branch — set by search only */
+  dishScore?: number;
+  /** Other branches of the same vendor, closest first — set by search only */
+  otherBranches?: ActiveBranch[];
 }
 
 export interface PaginatedBranches {

@@ -38,6 +38,7 @@ export class BranchApi {
       MinPrice?: number;
       MaxPrice?: number;
       CategoryIds?: number[];
+      Wards?: string[];
     }
   ): Promise<PaginatedBranches> {
     const res = await this.apiClient.get<PaginatedBranches>({

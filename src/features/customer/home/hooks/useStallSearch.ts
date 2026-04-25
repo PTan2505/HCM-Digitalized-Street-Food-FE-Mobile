@@ -3,6 +3,17 @@ import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { StallSearchParams } from '@features/customer/home/types/stall';
 import { useCallback, useState } from 'react';
 
+const MAX_SIBLING_PREFETCH = 3;
+
+async function fetchBranchImage(
+  branchId: number
+): Promise<{ branchId: number; imageUrl: string | null }> {
+  return axiosApi.branchApi
+    .getBranchImages(branchId, 1, 1)
+    .then((res) => ({ branchId, imageUrl: res.items[0]?.imageUrl ?? null }))
+    .catch(() => ({ branchId, imageUrl: null }));
+}
+
 export const useStallSearch = (): {
   stalls: ActiveBranch[];
   imageMap: Record<number, string>;
@@ -23,16 +34,22 @@ export const useStallSearch = (): {
       const result = await axiosApi.stallSearchApi.searchStalls(params);
       setStalls(result);
 
+      // Fetch images for each primary branch + first 3 siblings
+      const branchIdsToFetch: number[] = [];
+      for (const branch of result) {
+        branchIdsToFetch.push(branch.branchId);
+        const siblings = branch.otherBranches ?? [];
+        for (
+          let i = 0;
+          i < Math.min(siblings.length, MAX_SIBLING_PREFETCH);
+          i++
+        ) {
+          branchIdsToFetch.push(siblings[i].branchId);
+        }
+      }
+
       const imageResults = await Promise.all(
-        result.map((branch) =>
-          axiosApi.branchApi
-            .getBranchImages(branch.branchId, 1, 1)
-            .then((res) => ({
-              branchId: branch.branchId,
-              imageUrl: res.items[0]?.imageUrl ?? null,
-            }))
-            .catch(() => ({ branchId: branch.branchId, imageUrl: null }))
-        )
+        branchIdsToFetch.map(fetchBranchImage)
       );
       const map: Record<number, string> = {};
       for (const { branchId, imageUrl } of imageResults) {

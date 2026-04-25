@@ -177,12 +177,33 @@ const MenuTab = ({
       <View key={dish.dishId} className="mb-4 flex-row">
         <Image
           source={{ uri: dish.imageUrl ?? PLACEHOLDER_IMAGE }}
-          className="mr-3 h-[100px] w-[100px] rounded-lg bg-gray-100"
+          resizeMode="cover"
+          className="mr-3 h-[100px] w-[100px] overflow-hidden rounded-lg bg-gray-100"
         />
         <View className="flex-1 justify-between">
           <Text className="mb-1 text-base font-semibold text-black">
             {dish.name}
           </Text>
+          {(dish.isSignature === true || dish.isBestSeller === true) && (
+            <View className="mb-1 flex-row flex-wrap gap-1">
+              {dish.isSignature && (
+                <View className="flex-row items-center gap-0.5 rounded-full bg-amber-400 px-2 py-0.5">
+                  <Text className="text-[10px]">⭐</Text>
+                  <Text className="text-[10px] font-bold text-white">
+                    Đặc trưng
+                  </Text>
+                </View>
+              )}
+              {dish.isBestSeller && (
+                <View className="flex-row items-center gap-0.5 rounded-full bg-orange-500 px-2 py-0.5">
+                  <Text className="text-[10px]">🔥</Text>
+                  <Text className="text-[10px] font-bold text-white">
+                    Bán chạy
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
           <Text
             className="text-[13px] leading-[18px] text-gray-400"
             numberOfLines={2}

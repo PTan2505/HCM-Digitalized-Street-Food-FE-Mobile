@@ -123,6 +123,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     hasParking: false,
     openNow: false,
     amenities: [],
+    wards: [],
   });
 
   // Address history (separate storage key from SearchScreen's keyword history)

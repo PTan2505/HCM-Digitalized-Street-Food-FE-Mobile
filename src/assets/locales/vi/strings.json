@@ -28,6 +28,8 @@
   "from": "Từ",
   "to": "đến",
   "filter": "Bộ lọc",
+  "ward_label": "Phường / Xã",
+  "ward_placeholder": "Tìm phường, xã...",
   "space": "Không gian",
   "dish_type": "Loại món",
   "price_range": "Khoảng giá",
@@ -60,7 +62,13 @@
     "retry": "Thử lại",
     "history_title": "Tìm kiếm gần đây",
     "clear_history": "Xóa tất cả",
-    "address_history_title": "Địa chỉ tìm kiếm gần đây"
+    "address_history_title": "Địa chỉ tìm kiếm gần đây",
+    "moreLocations_one": "+{{count}} chi nhánh khác",
+    "moreLocations_other": "+{{count}} chi nhánh khác",
+    "siblings": {
+      "title": "Các chi nhánh khác",
+      "empty": "Không tìm thấy chi nhánh khác"
+    }
   },
   "map": {
     "search_address_placeholder": "Tìm địa chỉ...",

@@ -3,12 +3,14 @@ import SearchBar from '@components/SearchBar';
 import { COLORS } from '@constants/colors';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { BranchSiblingsSheet } from '@features/customer/home/components/common/BranchSiblingsSheet';
 import FilterModal from '@features/customer/home/components/common/FilterModal';
 import SearchResultCard from '@features/customer/home/components/common/SearchResultCard';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import { useDishKeywords } from '@features/customer/home/hooks/useDishKeywords';
 import { useSearchHistory } from '@features/customer/home/hooks/useSearchHistory';
 import { useStallSearch } from '@features/customer/home/hooks/useStallSearch';
+import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
@@ -33,6 +35,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, {
+  type SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type SearchScreenProps = StaticScreenProps<{
@@ -111,26 +121,97 @@ const SuggestionPanel = ({
   </View>
 );
 
-const SearchResultSkeleton = (): JSX.Element => (
-  <View className="mx-1 mb-4 rounded-2xl border border-gray-200 bg-white p-3">
-    <View className="flex-row items-center gap-3">
-      <View className="h-10 w-10 rounded-full bg-gray-100" />
-      <View className="flex-1">
-        <View className="h-4 w-2/3 rounded bg-gray-100" />
-        <View className="mt-2 h-3 w-1/2 rounded bg-gray-100" />
-        <View className="mt-2 h-3 w-1/3 rounded bg-gray-100" />
+const SkeletonBox = ({
+  width,
+  height,
+  opacity,
+  className: cls,
+}: {
+  width?: number | `${number}%`;
+  height: number;
+  opacity: SharedValue<number>;
+  className?: string;
+}): JSX.Element => {
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  return (
+    <Animated.View
+      style={[
+        { width, height, borderRadius: 6, backgroundColor: '#E5E7EB' },
+        style,
+      ]}
+      className={cls}
+    />
+  );
+};
+
+const SearchResultSkeleton = ({
+  opacity,
+}: {
+  opacity: SharedValue<number>;
+}): JSX.Element => (
+  <View className="mb-3 overflow-hidden rounded-[16px] border border-[#ededed] bg-white">
+    {/* Top row */}
+    <View className="flex-row">
+      {/* Image placeholder */}
+      <SkeletonBox width={120} height={130} opacity={opacity} />
+
+      {/* Info column */}
+      <View className="flex-1 gap-2 px-3 py-2.5">
+        <SkeletonBox width="70%" height={14} opacity={opacity} />
+        <SkeletonBox width="50%" height={12} opacity={opacity} />
+        <SkeletonBox width="80%" height={11} opacity={opacity} />
+        <SkeletonBox
+          width={48}
+          height={20}
+          opacity={opacity}
+          className="rounded-full"
+        />
       </View>
+    </View>
+
+    {/* Dish tile row */}
+    <View className="flex-row gap-2.5 border-t border-[#f0f0f0] px-3 pb-3 pt-2.5">
+      {[0, 1, 2].map((i) => (
+        <View key={i} className="gap-1.5">
+          <SkeletonBox
+            width={96}
+            height={80}
+            opacity={opacity}
+            className="rounded-xl"
+          />
+          <SkeletonBox width={60} height={11} opacity={opacity} />
+          <SkeletonBox width={80} height={11} opacity={opacity} />
+        </View>
+      ))}
     </View>
   </View>
 );
 
-const SearchSkeletonList = (): JSX.Element => (
-  <View className="pb-4">
-    {Array.from({ length: 10 }).map((_, idx) => (
-      <SearchResultSkeleton key={`search-skeleton-${idx}`} />
-    ))}
-  </View>
-);
+const SearchSkeletonList = (): JSX.Element => {
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.4, { duration: 700 }),
+        withTiming(1, { duration: 700 })
+      ),
+      -1,
+      false
+    );
+  }, [opacity]);
+
+  return (
+    <View className="pb-4 pt-4">
+      {Array.from({ length: 4 }).map((_, idx) => (
+        <SearchResultSkeleton
+          key={`search-skeleton-${idx}`}
+          opacity={opacity}
+        />
+      ))}
+    </View>
+  );
+};
 
 export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { t } = useTranslation();
@@ -221,6 +302,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         CategoryIds: filters?.categoryIds
           .map(Number)
           .filter((n) => !isNaN(n) && n > 0),
+        Wards: filters?.wards?.length ? filters.wards : undefined,
       });
     },
     [coords, search]
@@ -292,7 +374,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
       updated.categoryIds.length > 0 ||
       updated.minPrice > DEFAULT_MIN_PRICE ||
       updated.maxPrice < DEFAULT_MAX_PRICE ||
-      updated.distance !== DEFAULT_DISTANCE;
+      updated.distance !== DEFAULT_DISTANCE ||
+      (updated.wards?.length ?? 0) > 0;
     if (!hasActive) {
       setActiveFilters(null);
       if (!keyword.trim()) {
@@ -313,6 +396,22 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     [dispatch]
   );
 
+  const [siblingsSheetBranch, setSiblingsSheetBranch] =
+    useState<ActiveBranch | null>(null);
+
+  const navigateToBranch = useCallback(
+    (branch: ActiveBranch, displayName: string) => {
+      navigation.navigate('RestaurantDetails', {
+        branch,
+        displayName,
+        onRatingUpdateId: registerCallback((avgRating, totalReviewCount) =>
+          handleRatingUpdate(branch.branchId, avgRating, totalReviewCount)
+        ),
+      });
+    },
+    [navigation, handleRatingUpdate]
+  );
+
   const showHistory =
     !hasSearched &&
     !keyword.trim() &&
@@ -320,10 +419,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     history.length > 0;
 
   const renderEmptyOrError = (): JSX.Element => {
-    if (hasSearched && isLoading) {
-      return <SearchSkeletonList />;
-    }
-
     if (!hasSearched) return <View />;
 
     if (error) {
@@ -370,7 +465,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
       activeFilters.categoryIds.length > 0 ||
       activeFilters.minPrice > DEFAULT_MIN_PRICE ||
       activeFilters.maxPrice < DEFAULT_MAX_PRICE ||
-      activeFilters.distance !== DEFAULT_DISTANCE);
+      activeFilters.distance !== DEFAULT_DISTANCE ||
+      (activeFilters.wards?.length ?? 0) > 0);
 
   useEffect(() => {
     if (!selectedCategoryId) return;
@@ -386,6 +482,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
       amenities: [],
       tasteTags: [],
       dietaryTags: [],
+      wards: [],
     };
 
     setActiveFilters(categoryFilter);
@@ -528,6 +625,15 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
                     },
                   ]
                 : []),
+              ...(activeFilters.wards ?? []).map((w) => ({
+                key: `ward-${w}`,
+                label: w,
+                onRemove: () =>
+                  handleRemoveFilter((f) => ({
+                    ...f,
+                    wards: (f.wards ?? []).filter((v) => v !== w),
+                  })),
+              })),
             ]}
             renderItem={({ item }) => (
               <FilterChip label={item.label} onRemove={item.onRemove} />
@@ -569,14 +675,22 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
               query={keyword.trim()}
               onSelect={handleKeywordSelect}
             />
+          ) : isLoading && hasSearched ? (
+            <SearchSkeletonList />
           ) : (
             <FlatList
               data={hasSearched ? stalls : []}
-              keyExtractor={(item) => String(item.branchId)}
+              keyExtractor={(item) =>
+                item.vendorId != null
+                  ? `v-${item.vendorId}`
+                  : `b-${item.branchId}`
+              }
               renderItem={({ item }) => {
+                const hasSiblings = (item.otherBranches?.length ?? 0) > 0;
                 const isMultiBranch =
-                  item.vendorId != null &&
-                  multiBranchVendorIds.includes(item.vendorId);
+                  hasSiblings ||
+                  (item.vendorId != null &&
+                    multiBranchVendorIds.includes(item.vendorId));
                 const displayName = computeDisplayName(
                   item,
                   isMultiBranch,
@@ -590,19 +704,11 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
                       branchImageMap[item.branchId]?.[0]
                     }
                     displayName={displayName}
-                    onPress={() =>
-                      navigation.navigate('RestaurantDetails', {
-                        branch: item,
-                        displayName,
-                        onRatingUpdateId: registerCallback(
-                          (avgRating, totalReviewCount) =>
-                            handleRatingUpdate(
-                              item.branchId,
-                              avgRating,
-                              totalReviewCount
-                            )
-                        ),
-                      })
+                    onPress={() => navigateToBranch(item, displayName)}
+                    onSiblingsPress={
+                      hasSiblings
+                        ? (): void => setSiblingsSheetBranch(item)
+                        : undefined
                     }
                   />
                 );
@@ -624,6 +730,18 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
         onApply={handleFilterApply}
         initialFilters={activeFilters}
         initialSection={filterSection}
+      />
+
+      <BranchSiblingsSheet
+        visible={siblingsSheetBranch !== null}
+        vendorName={siblingsSheetBranch?.vendorName ?? ''}
+        siblings={siblingsSheetBranch?.otherBranches ?? []}
+        imageMap={searchImageMap}
+        onClose={() => setSiblingsSheetBranch(null)}
+        onSelectBranch={(sibling) => {
+          const displayName = computeDisplayName(sibling, false, t('branch'));
+          navigateToBranch(sibling, displayName);
+        }}
       />
     </SafeAreaView>
   );

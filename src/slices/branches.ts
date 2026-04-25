@@ -47,6 +47,7 @@ export const fetchActiveBranches = createAppAsyncThunk(
       minPrice,
       maxPrice,
       CategoryIds,
+      wards,
     }: {
       page?: number;
       pageSize?: number;
@@ -58,6 +59,7 @@ export const fetchActiveBranches = createAppAsyncThunk(
       minPrice?: number;
       maxPrice?: number;
       CategoryIds?: number[];
+      wards?: string[];
     },
     { rejectWithValue }
   ) => {
@@ -74,6 +76,7 @@ export const fetchActiveBranches = createAppAsyncThunk(
           MinPrice: minPrice,
           MaxPrice: maxPrice,
           CategoryIds: CategoryIds,
+          Wards: wards?.length ? wards : undefined,
         }
       );
 
