@@ -5,24 +5,16 @@ import branchesReducer from '@slices/branches';
 import campaignsReducer from '@slices/campaigns';
 import dietaryReducer from '@slices/dietary';
 import directOrderingReducer from '@slices/directOrdering';
-import notificationsReducer from '@slices/notifications';
 import questsReducer from '@slices/quests';
-import tastesReducer from '@slices/tastes';
-import vendorsReducer from '@slices/vendors';
-import settingsReducer from '@slices/settings';
 import xpToastReducer from '@slices/xpToast';
 
 const rootReducer = combineReducers({
   user: authReducer,
   dietary: dietaryReducer,
-  vendors: vendorsReducer,
   branches: branchesReducer,
-  tastes: tastesReducer,
   directOrdering: directOrderingReducer,
-  notifications: notificationsReducer,
   campaigns: campaignsReducer,
   quests: questsReducer,
-  settings: settingsReducer,
   xpToast: xpToastReducer,
 });
 

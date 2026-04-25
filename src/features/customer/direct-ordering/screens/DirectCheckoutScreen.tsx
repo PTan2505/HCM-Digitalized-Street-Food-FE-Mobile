@@ -13,7 +13,7 @@ import {
   selectOrderError,
   selectOrderLoading,
 } from '@slices/directOrdering';
-import { selectOrderXP } from '@slices/settings';
+import { useOrderXP } from '@features/customer/home/hooks/useSettings';
 import { showXPToast } from '@slices/xpToast';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -70,7 +70,7 @@ export const DirectCheckoutScreen = ({
   const orderLoading = useAppSelector(selectOrderLoading);
   const orderError = useAppSelector(selectOrderError);
   const currentXP = useAppSelector(selectUserXP);
-  const orderXP = useAppSelector(selectOrderXP);
+  const orderXP = useOrderXP();
   const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
   const [isTakeAway, setIsTakeAway] = useState(true);
 

@@ -10,9 +10,10 @@ import {
   selectUserXP,
 } from '@slices/auth';
 import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
-import { receiveNotification } from '@slices/notifications';
 import { fetchMyQuests, setPendingReward } from '@slices/quests';
 import { showXPToast } from '@slices/xpToast';
+import { queryClient } from '@lib/queryClient';
+import { queryKeys } from '@lib/queryKeys';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -62,7 +63,7 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         '[QuestDebug][Socket] ReceiveNotification fired:',
         JSON.stringify(notification)
       );
-      dispatch(receiveNotification(notification));
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
 
       if (
         notification.type === 'OrderStatusUpdate' &&

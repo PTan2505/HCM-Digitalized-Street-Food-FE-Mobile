@@ -4,14 +4,9 @@ import { WARDS } from '@constants/wards';
 import type { FilterSection, FilterState } from '@custom-types/filter';
 import { Ionicons } from '@expo/vector-icons';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useTastes } from '@features/customer/home/hooks/useTastes';
+import { useDietaryPreferenceQuery } from '@features/user/hooks/dietaryPreference/useDietaryPreferenceQuery';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import {
-  getAllDietaryPreferences,
-  selectDietaryPreferences,
-  selectDietaryState,
-} from '@slices/dietary';
-import { fetchTastes, selectTastes, selectTastesStatus } from '@slices/tastes';
 import type { JSX } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +43,6 @@ const FilterModal = ({
   const { t } = useTranslation();
   const { width: screenWidth } = useWindowDimensions();
   const sliderWidth = screenWidth - 48; // px-6 = 24px each side
-  const dispatch = useAppDispatch();
   const showSection = (section: FilterSection): boolean =>
     !initialSection || initialSection === section;
   const [spaceTypes, setSpaceTypes] = useState<string[]>([]);
@@ -64,10 +58,8 @@ const FilterModal = ({
   const [wards, setWards] = useState<string[]>([]);
   const [wardQuery, setWardQuery] = useState<string>('');
   const { categories } = useCategories();
-  const tastes = useAppSelector(selectTastes);
-  const tastesStatus = useAppSelector(selectTastesStatus);
-  const dietaryPreferences = useAppSelector(selectDietaryPreferences);
-  const dietaryStatus = useAppSelector(selectDietaryState);
+  const { tastes } = useTastes();
+  const { dietaryPreferences } = useDietaryPreferenceQuery();
   const [backdropVisible, setBackdropVisible] = useState(visible);
   const backdropProgress = useSharedValue(visible ? 1 : 0);
   const closeBackdropTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -105,15 +97,6 @@ const FilterModal = ({
       setWardQuery('');
     }
   }, [visible, initialFilters]);
-
-  useEffect(() => {
-    if (tastesStatus === 'idle') {
-      dispatch(fetchTastes());
-    }
-    if (dietaryPreferences.length === 0 && dietaryStatus !== 'pending') {
-      dispatch(getAllDietaryPreferences());
-    }
-  }, [dispatch, tastesStatus, dietaryStatus, dietaryPreferences.length]);
 
   useEffect(() => {
     if (visible) {

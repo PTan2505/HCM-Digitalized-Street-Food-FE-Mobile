@@ -10,6 +10,7 @@ import { useCategories } from '@features/customer/home/hooks/useCategories';
 import { useDishKeywords } from '@features/customer/home/hooks/useDishKeywords';
 import { useSearchHistory } from '@features/customer/home/hooks/useSearchHistory';
 import { useStallSearch } from '@features/customer/home/hooks/useStallSearch';
+import { useTastes } from '@features/customer/home/hooks/useTastes';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
@@ -20,8 +21,7 @@ import {
   selectMultiBranchVendorIds,
   updateBranchRating,
 } from '@slices/branches';
-import { selectDietaryPreferences } from '@slices/dietary';
-import { selectTastes } from '@slices/tastes';
+import { useDietaryPreferenceQuery } from '@features/user/hooks/dietaryPreference/useDietaryPreferenceQuery';
 import { registerCallback } from '@utils/callbackRegistry';
 import { normalizeForMatch } from '@utils/normalizeText';
 import type { JSX } from 'react';
@@ -228,8 +228,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const dispatch = useAppDispatch();
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const reduxMultiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
-  const dietaryPreferences = useAppSelector(selectDietaryPreferences);
-  const tastes = useAppSelector(selectTastes);
+  const { dietaryPreferences } = useDietaryPreferenceQuery();
+  const { tastes } = useTastes();
   const { categories } = useCategories();
   const { history, addToHistory, removeFromHistory, clearHistory } =
     useSearchHistory();

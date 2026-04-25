@@ -5,11 +5,9 @@ import type {
 } from '@features/user/types/userDietary';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { markDietarySetup, selectUser } from '@slices/auth';
-import {
-  createOrUpdateUserDietaryPreferences,
-  getUserDietaryPreferences,
-} from '@slices/dietary';
 import { useCallback } from 'react';
+import { useUpdateUserDietary } from './useUpdateUserDietary';
+import { useUserDietaryQuery } from './useUserDietaryQuery';
 
 export default function useUserDietary(): {
   onGetUserDietaryPreferences: () => Promise<UserDietary[]>;
@@ -19,32 +17,23 @@ export default function useUserDietary(): {
 } {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const { userDietaryPreferences } = useUserDietaryQuery();
+  const { mutateAsync } = useUpdateUserDietary();
 
-  const onGetUserDietaryPreferences = useCallback(async (): Promise<
-    UserDietary[]
-  > => {
-    const response = await dispatch(getUserDietaryPreferences()).unwrap();
-    return response;
-  }, [dispatch]);
+  const onGetUserDietaryPreferences = useCallback(async (): Promise<UserDietary[]> => {
+    return userDietaryPreferences;
+  }, [userDietaryPreferences]);
 
   const onCreateOrUpdateUserDietaryPreferences = useCallback(
-    async (
-      data: CreateOrUpdateUserDietaryRequest
-    ): Promise<CreateOrUpdateUserDietaryResponse> => {
-      const response = await dispatch(
-        createOrUpdateUserDietaryPreferences(data)
-      ).unwrap();
+    async (data: CreateOrUpdateUserDietaryRequest): Promise<CreateOrUpdateUserDietaryResponse> => {
+      const response = await mutateAsync(data);
       if (!user?.dietarySetup) {
-        console.log('a');
         await dispatch(markDietarySetup());
       }
       return response;
     },
-    [dispatch, user]
+    [dispatch, mutateAsync, user]
   );
 
-  return {
-    onGetUserDietaryPreferences,
-    onCreateOrUpdateUserDietaryPreferences,
-  };
+  return { onGetUserDietaryPreferences, onCreateOrUpdateUserDietaryPreferences };
 }

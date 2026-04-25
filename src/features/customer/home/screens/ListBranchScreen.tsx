@@ -18,7 +18,7 @@ import {
   selectIsMultiBranchVendor,
   updateBranchRating,
 } from '@slices/branches';
-import { selectUserDietaryPreferences } from '@slices/dietary';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { registerCallback } from '@utils/callbackRegistry';
 import type { JSX } from 'react';
 import { useCallback, useRef } from 'react';
@@ -116,7 +116,7 @@ export const ListBranchScreen = ({
   const branchesHasNext = useAppSelector(selectBranchesHasNext);
   const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
   const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+  const { userDietaryPreferences } = useUserDietaryQuery();
   const { coords: userCoords } = useLocationPermission();
 
   // Use route items if provided (e.g. campaign branches), otherwise use Redux state with pagination

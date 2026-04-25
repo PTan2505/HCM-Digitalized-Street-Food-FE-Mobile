@@ -2,24 +2,15 @@ import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { NotificationDto } from '@features/notifications/types/notification';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useMarkNotificationRead } from '@features/notifications/hooks/useMarkNotificationRead';
+import { useNotificationList } from '@features/notifications/hooks/useNotificationList';
+import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  fetchNotifications,
-  markAllNotificationsRead,
-  markNotificationRead,
-  selectNotifications,
-  selectNotificationsHasMore,
-  selectNotificationsLoadingMore,
-  selectNotificationsPage,
-  selectNotificationsStatus,
-  selectUnreadCount,
-} from '@slices/notifications';
 import { isManagerApp } from '@utils/appVariant';
 import type { JSX } from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -29,8 +20,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const PAGE_SIZE = 20;
 
 const formatTimeAgo = (
   dateString: string,
@@ -69,38 +58,27 @@ const getNotificationIcon = (
 
 export const NotificationScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-  const notifications = useAppSelector(selectNotifications);
-  const status = useAppSelector(selectNotificationsStatus);
-  const hasMore = useAppSelector(selectNotificationsHasMore);
-  const page = useAppSelector(selectNotificationsPage);
-  const loadingMore = useAppSelector(selectNotificationsLoadingMore);
-  const unreadCount = useAppSelector(selectUnreadCount);
-
-  useEffect(() => {
-    void dispatch(fetchNotifications({ page: 1, pageSize: PAGE_SIZE }));
-  }, [dispatch]);
+  const { notifications, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage, refetch } =
+    useNotificationList();
+  const { unreadCount } = useUnreadNotificationCount();
+  const { markRead, markAllRead } = useMarkNotificationRead();
 
   const handleLoadMore = useCallback(() => {
-    if (!hasMore || loadingMore) return;
-    void dispatch(fetchNotifications({ page: page + 1, pageSize: PAGE_SIZE }));
-  }, [dispatch, hasMore, loadingMore, page]);
-
-  const handleRefresh = useCallback(() => {
-    void dispatch(fetchNotifications({ page: 1, pageSize: PAGE_SIZE }));
-  }, [dispatch]);
+    if (!hasNextPage || isFetchingNextPage) return;
+    fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const handleMarkAllRead = useCallback(() => {
     if (unreadCount === 0) return;
-    void dispatch(markAllNotificationsRead());
-  }, [dispatch, unreadCount]);
+    markAllRead();
+  }, [markAllRead, unreadCount]);
 
   const handleNotificationPress = useCallback(
     (item: NotificationDto) => {
       if (!item.isRead) {
-        void dispatch(markNotificationRead(item.notificationId));
+        markRead(item.notificationId);
       }
 
       if (item.referenceId) {
@@ -113,7 +91,6 @@ export const NotificationScreen = (): JSX.Element => {
             });
             break;
           case 'QuestTaskCompleted':
-            // referenceId is questTaskId — resolve to questId first
             void axiosApi.questApi
               .getQuestTaskById(item.referenceId)
               .then((task) => {
@@ -125,16 +102,10 @@ export const NotificationScreen = (): JSX.Element => {
             navigation.navigate('QuestDetail', { questId: item.referenceId });
             break;
           case 'VendorReply':
-            // referenceId is feedbackId — fetch feedback → branch → vendor for full data
             void axiosApi.feedbackApi
               .getFeedback(item.referenceId)
               .then((feedback) => {
-                if (!feedback.branchId) {
-                  console.warn(
-                    '[NotificationScreen] feedback.branchId is missing'
-                  );
-                  return;
-                }
+                if (!feedback.branchId) return;
                 return axiosApi.branchApi
                   .getBranchById(feedback.branchId)
                   .then(async (detail) => {
@@ -160,10 +131,7 @@ export const NotificationScreen = (): JSX.Element => {
                   });
               })
               .catch((err: unknown) => {
-                console.warn(
-                  '[NotificationScreen] VendorReply fetch failed:',
-                  err
-                );
+                console.warn('[NotificationScreen] VendorReply fetch failed:', err);
               });
             break;
           default:
@@ -171,7 +139,7 @@ export const NotificationScreen = (): JSX.Element => {
         }
       }
     },
-    [dispatch, navigation, t]
+    [markRead, navigation, t]
   );
 
   const renderItem = useCallback(
@@ -216,7 +184,6 @@ export const NotificationScreen = (): JSX.Element => {
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
-      {/* Header */}
       <Header
         title={t('notification.title')}
         onBackPress={
@@ -227,8 +194,7 @@ export const NotificationScreen = (): JSX.Element => {
           onPress: handleMarkAllRead,
         }}
       />
-      {/* Content */}
-      {status === 'pending' ? (
+      {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -240,7 +206,7 @@ export const NotificationScreen = (): JSX.Element => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           refreshing={false}
-          onRefresh={handleRefresh}
+          onRefresh={refetch}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center px-6 py-20">
               <Ionicons
@@ -254,7 +220,7 @@ export const NotificationScreen = (): JSX.Element => {
             </View>
           }
           ListFooterComponent={
-            loadingMore ? (
+            isFetchingNextPage ? (
               <View className="items-center py-4">
                 <ActivityIndicator color={COLORS.primary} />
               </View>

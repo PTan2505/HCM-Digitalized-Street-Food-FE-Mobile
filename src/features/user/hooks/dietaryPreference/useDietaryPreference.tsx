@@ -1,21 +1,14 @@
 import type { DietaryPreference } from '@features/user/types/dietaryPreference';
-import { useAppDispatch } from '@hooks/reduxHooks';
-import { getAllDietaryPreferences } from '@slices/dietary';
-import { useCallback } from 'react';
+import { useDietaryPreferenceQuery } from './useDietaryPreferenceQuery';
 
 export default function useDietaryPreference(): {
   onGetAllDietaryPreferences: () => Promise<DietaryPreference[]>;
 } {
-  const dispatch = useAppDispatch();
+  const { dietaryPreferences } = useDietaryPreferenceQuery();
 
-  const onGetAllDietaryPreferences = useCallback(async (): Promise<
-    DietaryPreference[]
-  > => {
-    const response = await dispatch(getAllDietaryPreferences()).unwrap();
-    return response;
-  }, [dispatch]);
-
-  return {
-    onGetAllDietaryPreferences,
+  const onGetAllDietaryPreferences = async (): Promise<DietaryPreference[]> => {
+    return dietaryPreferences;
   };
+
+  return { onGetAllDietaryPreferences };
 }

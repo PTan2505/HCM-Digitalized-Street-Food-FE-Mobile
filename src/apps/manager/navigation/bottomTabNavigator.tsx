@@ -3,13 +3,12 @@ import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
 import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/screens/ManagerFeedbackScreen';
 import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
 import { ManagerScheduleScreen } from '@manager/schedule/ManagerScheduleScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { selectUnreadCount } from '@slices/notifications';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,7 +16,7 @@ const Tab = createBottomTabNavigator();
 
 export const ManagerMainTabs = (): JSX.Element => {
   const { t } = useTranslation();
-  const unreadCount = useAppSelector(selectUnreadCount);
+  const { unreadCount } = useUnreadNotificationCount();
 
   return (
     <Tab.Navigator

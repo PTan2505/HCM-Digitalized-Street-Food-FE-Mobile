@@ -22,15 +22,11 @@ import {
   selectMultiBranchVendorIds,
   updateBranchRating,
 } from '@slices/branches';
-import {
-  selectDietaryState,
-  selectUserDietaryPreferences,
-} from '@slices/dietary';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import {
   fetchMyCartsThunk,
   selectTotalCartsWithItems,
 } from '@slices/directOrdering';
-import { fetchUnreadCount } from '@slices/notifications';
 import { registerCallback } from '@utils/callbackRegistry';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -81,8 +77,7 @@ export const HomeScreen = (): JSX.Element => {
   const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const branchImageMap = useAppSelector(selectBranchImageMap);
   const branchesStatus = useAppSelector(selectBranchesStatus);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
-  const dietaryStatus = useAppSelector(selectDietaryState);
+  const { userDietaryPreferences, isLoading: isDietaryLoading } = useUserDietaryQuery();
   const { coords: userCoords, permissionStatus } = useLocationPermission();
   const {
     systemCampaigns,
@@ -199,12 +194,7 @@ export const HomeScreen = (): JSX.Element => {
     // If the user completed dietary setup, wait until prefs are loaded.
     // This prevents dispatching a fetch without DietaryIds that could complete
     // *after* the dietary-enriched fetch and overwrite the result.
-    if (
-      user?.dietarySetup &&
-      dietaryStatus !== 'succeeded' &&
-      dietaryStatus !== 'failed'
-    )
-      return;
+    if (user?.dietarySetup && isDietaryLoading) return;
     if (hasFetchedRef.current) return;
 
     hasFetchedRef.current = true;
@@ -225,7 +215,7 @@ export const HomeScreen = (): JSX.Element => {
     permissionStatus,
     userCoords,
     user?.dietarySetup,
-    dietaryStatus,
+    isDietaryLoading,
     userDietaryPreferences,
     dispatch,
   ]);
@@ -239,12 +229,7 @@ export const HomeScreen = (): JSX.Element => {
     if (permissionStatus !== Location.PermissionStatus.GRANTED) return;
     if (!userCoords) return;
     if (branchesStatus === 'pending') return;
-    if (
-      user?.dietarySetup &&
-      dietaryStatus !== 'succeeded' &&
-      dietaryStatus !== 'failed'
-    )
-      return;
+    if (user?.dietarySetup && isDietaryLoading) return;
 
     hasUpgradedToCoordsRef.current = true;
     const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
@@ -262,7 +247,7 @@ export const HomeScreen = (): JSX.Element => {
     permissionStatus,
     userCoords,
     user?.dietarySetup,
-    dietaryStatus,
+    isDietaryLoading,
     userDietaryPreferences,
     dispatch,
   ]);
@@ -303,10 +288,6 @@ export const HomeScreen = (): JSX.Element => {
       );
     }, [dispatch, userCoords, userDietaryPreferences])
   );
-
-  useEffect(() => {
-    void dispatch(fetchUnreadCount());
-  }, [dispatch]);
 
   useFocusEffect(
     useCallback(() => {
@@ -434,7 +415,6 @@ export const HomeScreen = (): JSX.Element => {
           })
         ),
         refetchSystemCampaigns(),
-        dispatch(fetchUnreadCount()),
         refetchVendorCampaigns(),
         refetchGhostPins(),
       ]).finally(() => {
