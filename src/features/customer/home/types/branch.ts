@@ -197,3 +197,12 @@ export interface PaginatedBranchImages {
   hasNext: boolean;
   items: BranchImage[];
 }
+
+export interface DayOff {
+  dayOffId: number;
+  branchId: number;
+  /** ISO 8601 UTC datetime */
+  startDate: string;
+  /** ISO 8601 UTC datetime */
+  endDate: string;
+}

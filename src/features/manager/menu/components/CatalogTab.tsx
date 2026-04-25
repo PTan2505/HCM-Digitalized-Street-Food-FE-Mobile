@@ -21,8 +21,11 @@ export const CatalogTab = (): JSX.Element => {
   const { t } = useTranslation();
   const { items, isLoading, isLoadingMore, hasNext, loadMore } =
     useVendorDishCatalog();
-  const { assignedIdSet, isLoading: isBranchLoading, isRefreshing: isBranchRefreshing } =
-    useManagerBranchDishList();
+  const {
+    assignedIdSet,
+    isLoading: isBranchLoading,
+    isRefreshing: isBranchRefreshing,
+  } = useManagerBranchDishList();
   const assignDishes = useAssignDishes();
   const unassignDishes = useUnassignDishes();
   const [search, setSearch] = useState('');

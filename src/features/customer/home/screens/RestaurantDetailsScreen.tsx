@@ -215,7 +215,7 @@ export const RestaurantDetailsScreen = ({
 
   const { isFavorite, toggleFavorite } = useFavoriteBranches();
 
-  const { isOpen, schedules } = useWorkSchedule(branch.branchId);
+  const { isOpen, schedules, dayOffs } = useWorkSchedule(branch.branchId);
   const { dishes } = useBranchDishes(branch.branchId);
   const {
     feedbacks,
@@ -482,6 +482,7 @@ export const RestaurantDetailsScreen = ({
       .join(', '),
     isOpen,
     schedules,
+    dayOffs,
     tier: branchTier?.tier as VendorTier | undefined,
     isTierPaused: branchTier?.isBombingShieldActive,
   };

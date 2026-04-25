@@ -5,8 +5,12 @@ import { z } from 'zod';
 export const getScheduleSchema = (t: TFunction) =>
   z
     .object({
-      openTime: z.string().regex(/^\d{2}:\d{2}$/, t('manager_schedule.open_time')),
-      closeTime: z.string().regex(/^\d{2}:\d{2}$/, t('manager_schedule.close_time')),
+      openTime: z
+        .string()
+        .regex(/^\d{2}:\d{2}$/, t('manager_schedule.open_time')),
+      closeTime: z
+        .string()
+        .regex(/^\d{2}:\d{2}$/, t('manager_schedule.close_time')),
     })
     .refine((data) => data.closeTime > data.openTime, {
       message: t('manager_schedule.error_close_before_open'),

@@ -3,7 +3,14 @@ import { TimeScrollPicker } from '@manager/schedule/components/TimeScrollPicker'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -109,7 +116,12 @@ export const AddEditSlotModal = ({
   }));
 
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(dragY.value, [0, MODAL_HEIGHT], [1, 0], Extrapolation.CLAMP),
+    opacity: interpolate(
+      dragY.value,
+      [0, MODAL_HEIGHT],
+      [1, 0],
+      Extrapolation.CLAMP
+    ),
   }));
 
   const handleSave = useCallback(() => {
@@ -138,7 +150,16 @@ export const AddEditSlotModal = ({
 
     setError('');
     onSave(openTime, closeTime);
-  }, [openHour, openMinute, closeHour, closeMinute, existingSlots, schedule, onSave, t]);
+  }, [
+    openHour,
+    openMinute,
+    closeHour,
+    closeMinute,
+    existingSlots,
+    schedule,
+    onSave,
+    t,
+  ]);
 
   const title = `${schedule ? t('manager_schedule.edit_slot') : t('manager_schedule.add_slot')} · ${weekdayLabel}`;
 
@@ -146,7 +167,13 @@ export const AddEditSlotModal = ({
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, backdropAnimatedStyle]}>
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          styles.backdrop,
+          backdropAnimatedStyle,
+        ]}
+      >
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
       </Animated.View>
       <Animated.View
@@ -176,7 +203,9 @@ export const AddEditSlotModal = ({
         </GestureDetector>
 
         <View className="px-6 pb-8">
-          <Text className="mb-5 text-base font-bold text-[#043620]">{title}</Text>
+          <Text className="mb-5 text-base font-bold text-[#043620]">
+            {title}
+          </Text>
 
           <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#38644b]">
             {t('manager_schedule.open_time')}
@@ -217,7 +246,9 @@ export const AddEditSlotModal = ({
           </View>
 
           {error ? (
-            <Text className="mb-2 text-center text-xs text-[#b02500]">{error}</Text>
+            <Text className="mb-2 text-center text-xs text-[#b02500]">
+              {error}
+            </Text>
           ) : (
             <View className="mb-2" style={{ height: 16 }} />
           )}

@@ -6,6 +6,12 @@ export interface ScheduleEntry {
   closeTime: string;
 }
 
+/** Minimal shape for day-off entries — structurally compatible with DayOff from branch.ts */
+export interface DayOffEntry {
+  startDate: string;
+  endDate: string;
+}
+
 /**
  * Returns the schedule entry for the current weekday, or null if the branch
  * is closed on that day (i.e. no entry exists for it).
@@ -56,13 +62,43 @@ const toMinutes = (time: string): number => {
 };
 
 /**
+ * Returns true if the given time falls within any day-off period.
+ */
+export const isInDayOff = (
+  dayOffs: DayOffEntry[],
+  now: Date = new Date()
+): boolean => {
+  return dayOffs.some((d) => {
+    const start = new Date(d.startDate);
+    const end = new Date(d.endDate);
+    return now >= start && now <= end;
+  });
+};
+
+/** Formats a day-off ISO string as local time for display. */
+export const formatDayOffDate = (iso: string): string => {
+  const d = new Date(iso);
+  return d.toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+/**
  * Returns true if the branch is currently open based on its work schedules
  * and the given time (defaults to now).
+ * Day-offs take precedence: if the current time is within any day-off, returns false.
  */
 export const isOpenNow = (
   schedules: ScheduleEntry[],
+  dayOffs: DayOffEntry[] = [],
   now: Date = new Date()
 ): boolean => {
+  if (isInDayOff(dayOffs, now)) return false;
+
   const schedule = getTodaySchedule(schedules, now);
   if (!schedule) return false;
 

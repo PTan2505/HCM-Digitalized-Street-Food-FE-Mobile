@@ -3,6 +3,7 @@ import { apiUrl } from '@lib/api/apiUrl';
 
 import type {
   BranchDetail,
+  DayOff,
   PaginatedBranchImages,
   PaginatedBranches,
   PaginatedDishes,
@@ -64,6 +65,13 @@ export class BranchApi {
   async getWorkSchedules(branchId: number): Promise<WorkSchedule[]> {
     const res = await this.apiClient.get<WorkSchedule[]>({
       url: apiUrl.branch.workSchedules(branchId),
+    });
+    return res.data;
+  }
+
+  async getDayOffs(branchId: number): Promise<DayOff[]> {
+    const res = await this.apiClient.get<DayOff[]>({
+      url: apiUrl.branch.dayOffs(branchId),
     });
     return res.data;
   }

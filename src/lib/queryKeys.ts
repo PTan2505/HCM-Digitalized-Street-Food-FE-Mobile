@@ -32,6 +32,11 @@ export const queryKeys = {
     detail: (branchId: number) => ['workSchedule', branchId] as const,
   },
 
+  dayOffs: {
+    all: ['dayOffs'] as const,
+    branch: (branchId: number) => ['dayOffs', 'branch', branchId] as const,
+  },
+
   nearbyBranches: {
     all: ['nearbyBranches'] as const,
     list: (lat: number, lng: number, excludeBranchId: number) =>
