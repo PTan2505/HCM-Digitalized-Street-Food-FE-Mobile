@@ -25,6 +25,7 @@ import { UserDietaryApi } from '@features/user/api/userDietaryApi';
 import ApiClient from '@lib/api/apiClient';
 import { SettingsApi } from '@lib/api/settingsApi';
 import { ManagerBranchApi } from '@manager/branch/managerBranchApi';
+import { ManagerDayOffApi } from '@manager/day-off/api/managerDayOffApi';
 import { ManagerFeedbackApi } from '@manager/feedback/api/managerFeedbackApi';
 import { ManagerDishApi } from '@manager/menu/api/managerDishApi';
 import { ManagerOrderApi } from '@manager/orders/api/managerOrderApi';
@@ -60,4 +61,5 @@ export const axiosApi = {
   managerFeedbackApi: new ManagerFeedbackApi(axiosClient),
   managerDishApi: new ManagerDishApi(axiosClient),
   managerScheduleApi: new ManagerScheduleApi(axiosClient),
+  managerDayOffApi: new ManagerDayOffApi(axiosClient),
 };

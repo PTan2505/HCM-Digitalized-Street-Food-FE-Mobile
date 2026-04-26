@@ -1,6 +1,8 @@
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ManagerFeedbackDetailScreen } from '@features/manager/feedback/screens/ManagerFeedbackDetailScreen';
 import { ManagerOrderDetailScreen } from '@features/manager/orders/screens/ManagerOrderDetailScreen';
+import { EditBranchScreen } from '@manager/branch/screens/EditBranchScreen';
+import { AddDayOffScreen } from '@manager/day-off/screens/AddDayOffScreen';
 import { useManagerSelector } from '@manager-app/managerHooks';
 import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
 import { createStaticNavigation, Theme } from '@react-navigation/native';
@@ -23,6 +25,12 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     ManagerFeedbackDetail: {
       screen: ManagerFeedbackDetailScreen,
+    },
+    ManagerEditBranch: {
+      screen: EditBranchScreen,
+    },
+    ManagerAddDayOff: {
+      screen: AddDayOffScreen,
     },
   },
 });

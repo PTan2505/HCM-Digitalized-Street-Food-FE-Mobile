@@ -130,6 +130,17 @@ export const queryKeys = {
     list: (branchId: number) => ['managerSchedule', 'list', branchId] as const,
   },
 
+  managerBranch: {
+    all: ['managerBranch'] as const,
+    detail: (branchId: number) =>
+      ['managerBranch', 'detail', branchId] as const,
+  },
+
+  managerDayOff: {
+    all: ['managerDayOff'] as const,
+    list: (branchId: number) => ['managerDayOff', 'list', branchId] as const,
+  },
+
   managerDishes: {
     all: ['managerDishes'] as const,
     branchList: (branchId: number) =>

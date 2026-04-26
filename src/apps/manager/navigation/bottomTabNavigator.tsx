@@ -5,6 +5,7 @@ import { NotificationScreen } from '@features/notifications/screens/Notification
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
+import { ManagerDayOffScreen } from '@manager/day-off/ManagerDayOffScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/screens/ManagerFeedbackScreen';
 import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
 import { ManagerScheduleScreen } from '@manager/schedule/ManagerScheduleScreen';
@@ -85,6 +86,16 @@ export const ManagerMainTabs = (): JSX.Element => {
           title: t('manager_tabs.schedule'),
           tabBarIcon: ({ color, size }) => (
             <FontAwesome6 name="calendar-days" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ManagerDayOff"
+        component={ManagerDayOffScreen}
+        options={{
+          title: t('manager_tabs.day_off'),
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome6 name="calendar-xmark" size={size} color={color} />
           ),
         }}
       />
