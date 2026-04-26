@@ -22,6 +22,18 @@ export const queryKeys = {
 
   branches: {
     all: ['branches'] as const,
+    list: (filters: {
+      lat?: number;
+      lng?: number;
+      distance?: number;
+      dietaryIds?: number[];
+      tasteIds?: number[];
+      minPrice?: number;
+      maxPrice?: number;
+      categoryIds?: number[];
+      wards?: string[];
+    }) => ['branches', 'list', filters] as const,
+    detail: (branchId: number) => ['branches', 'detail', branchId] as const,
     images: (branchId: number) => ['branches', 'images', branchId] as const,
     similar: (branchId: number) => ['branches', 'similar', branchId] as const,
     allGhostPins: ['branches', 'allGhostPins'] as const,
@@ -59,12 +71,17 @@ export const queryKeys = {
 
   orders: {
     all: ['orders'] as const,
+    detail: (orderId: number) => ['orders', 'detail', orderId] as const,
+    history: (status?: string | null) =>
+      ['orders', 'history', status ?? 'all'] as const,
     completedByBranch: (branchId: number) =>
       ['orders', 'completed', 'branch', branchId] as const,
   },
 
   cart: {
     all: ['cart'] as const,
+    byBranch: (branchId: number) => ['cart', 'branch', branchId] as const,
+    my: ['cart', 'my'] as const,
   },
 
   dishes: {
@@ -119,5 +136,36 @@ export const queryKeys = {
       ['managerDishes', 'branch', branchId] as const,
     vendorCatalog: (vendorId: number) =>
       ['managerDishes', 'vendor', vendorId] as const,
+  },
+
+  tastes: {
+    all: ['tastes'] as const,
+  },
+
+  settings: {
+    all: ['settings'] as const,
+  },
+
+  vendors: {
+    all: ['vendors'] as const,
+    list: (page: number, pageSize: number) =>
+      ['vendors', 'list', page, pageSize] as const,
+  },
+
+  notifications: {
+    all: ['notifications'] as const,
+    list: (pageSize: number) => ['notifications', 'list', pageSize] as const,
+    unreadCount: ['notifications', 'unreadCount'] as const,
+  },
+
+  dietary: {
+    all: ['dietary'] as const,
+    preferences: ['dietary', 'preferences'] as const,
+    userPreferences: ['dietary', 'userPreferences'] as const,
+  },
+
+  vouchers: {
+    all: ['vouchers'] as const,
+    myVouchers: ['vouchers', 'my'] as const,
   },
 } as const;

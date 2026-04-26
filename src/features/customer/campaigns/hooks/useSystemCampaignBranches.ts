@@ -1,9 +1,8 @@
 import type { VendorCampaignBranch } from '@features/customer/campaigns/types/generated';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { axiosApi } from '@lib/api/apiInstance';
 import { orvalMutator } from '@lib/api/orvalMutator';
-import { selectUserDietaryPreferences } from '@slices/dietary';
 import { useQuery } from '@tanstack/react-query';
 
 interface SystemCampaignBranchesParams {
@@ -75,7 +74,7 @@ export const useSystemCampaignBranches = (
 } => {
   const lat = coords?.latitude ?? null;
   const lng = coords?.longitude ?? null;
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+  const { userDietaryPreferences } = useUserDietaryQuery();
   const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
 
   const { data, isLoading, isError, refetch } = useQuery({

@@ -1,9 +1,8 @@
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import type { ReviewIneligibilityReason } from '@features/customer/home/hooks/useReviewEligibility';
-import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
-import { selectCart } from '@slices/directOrdering';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +79,7 @@ const ReviewsTab = ({
   const { t } = useTranslation();
   const navigation = useNavigation();
   const progress = useSharedValue<number>(0);
-  const cart = useAppSelector(selectCart);
+  const { cart } = useCartQuery(branchId);
   const hasCart = (cart?.items.length ?? 0) > 0;
 
   // Reorder reviews: own reviews first, then up to remaining others (max 5 total)

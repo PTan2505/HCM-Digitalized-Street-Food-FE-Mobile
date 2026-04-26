@@ -1,22 +1,17 @@
-import { QueryClient } from '@tanstack/react-query';
+import { focusManager, QueryClient } from '@tanstack/react-query';
+import { AppState } from 'react-native';
 
-/**
- * Central QueryClient instance for TanStack React Query.
- *
- * Default settings:
- * - staleTime (5 min): Data is considered "fresh" for 5 minutes.
- *   During this window, navigating back to a screen shows cached data
- *   WITHOUT making a new API call. After 5 minutes, the next access
- *   triggers a background refetch (the cached data still shows instantly).
- *
- * - gcTime (10 min): Unused cache entries are garbage-collected after 10 min.
- *   "Unused" means no component is currently subscribed to that query.
- *
- * - retry: 1 — retry failed requests once before showing an error.
- *
- * - refetchOnWindowFocus: true (default) — when the app comes back to
- *   foreground, stale queries are silently refetched so data stays current.
- */
+// Wire React Native's AppState to React Query's focusManager so that
+// refetchOnWindowFocus: true actually refetches stale queries when the app
+// returns to the foreground (the browser visibilitychange event doesn't exist
+// in React Native, so without this hookup the setting would be a no-op).
+focusManager.setEventListener((handleFocus) => {
+  const subscription = AppState.addEventListener('change', (state) => {
+    handleFocus(state === 'active');
+  });
+  return () => subscription.remove();
+});
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

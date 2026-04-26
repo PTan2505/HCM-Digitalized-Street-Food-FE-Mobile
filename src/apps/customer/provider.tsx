@@ -7,13 +7,7 @@ import { axiosApi } from '@lib/api/apiInstance';
 import { queryClient } from '@lib/queryClient';
 import { queryKeys } from '@lib/queryKeys';
 import LottieSplashScreen from '@screens/LottieSplashScreen';
-import {
-  loadUserFromStorage,
-  selectUser,
-  selectUserStatus,
-} from '@slices/auth';
-import { getUserDietaryPreferences } from '@slices/dietary';
-import { fetchSettings } from '@slices/settings';
+import { loadUserFromStorage, selectUserStatus } from '@slices/auth';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -29,9 +23,6 @@ function AppInitializer({
 }): React.JSX.Element {
   const dispatch = useAppDispatch();
   const userStatus = useAppSelector(selectUserStatus);
-  const user = useAppSelector(selectUser);
-  const hasFetchedDietaryRef = useRef(false);
-
   useCustomerRoleGate();
 
   useEffect(() => {
@@ -39,25 +30,6 @@ function AppInitializer({
       dispatch(loadUserFromStorage());
     }
   }, [dispatch, userStatus]);
-
-  // Reset the fetch guard when the user logs out so the next user's
-  // dietary preferences are fetched fresh on login.
-  useEffect(() => {
-    if (!user) {
-      hasFetchedDietaryRef.current = false;
-    }
-  }, [user]);
-
-  // Load user's dietary preferences once — guarded by ref because the auth
-  // slice's global isPending/isFulfilled matchers flip userStatus on every
-  // thunk dispatch, which would re-trigger this effect without the guard.
-  useEffect(() => {
-    if (userStatus === 'succeeded' && user && !hasFetchedDietaryRef.current) {
-      hasFetchedDietaryRef.current = true;
-      void dispatch(getUserDietaryPreferences());
-      void dispatch(fetchSettings());
-    }
-  }, [dispatch, userStatus, user]);
 
   return (
     <>

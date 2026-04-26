@@ -1,15 +1,9 @@
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
+import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  fetchMyCartsThunk,
-  selectCarts,
-  selectCartsDisplayNames,
-  selectCartsLoading,
-} from '@slices/directOrdering';
 import type { JSX } from 'react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,18 +18,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const MyCartsScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-  const carts = useAppSelector(selectCarts);
-  const cartsDisplayNames = useAppSelector(selectCartsDisplayNames);
-  const cartsLoading = useAppSelector(selectCartsLoading);
-
-  useFocusEffect(
-    useCallback(() => {
-      void dispatch(fetchMyCartsThunk());
-    }, [dispatch])
-  );
+  const {
+    carts,
+    displayNames: cartsDisplayNames,
+    isLoading: cartsLoading,
+  } = useMyCartsQuery();
 
   const cartsWithItems = carts.filter((c) => c.items.length > 0);
 

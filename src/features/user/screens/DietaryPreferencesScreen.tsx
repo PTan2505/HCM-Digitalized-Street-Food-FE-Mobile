@@ -1,15 +1,10 @@
 import { CustomButton } from '@components/CustomButton';
 import { COLORS } from '@constants/colors';
 import DietaryList from '@features/user/components/dietaryPreferences/DietaryList';
-import useDietaryPreference from '@features/user/hooks/dietaryPreference/useDietaryPreference';
 import useUserDietary from '@features/user/hooks/dietaryPreference/useUserDietary';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useDietaryPreferenceQuery } from '@features/user/hooks/dietaryPreference/useDietaryPreferenceQuery';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { useNavigation } from '@react-navigation/native';
-import {
-  selectDietaryPreferences,
-  selectDietaryState,
-  selectUserDietaryPreferences,
-} from '@slices/dietary';
 import React, { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
@@ -18,11 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const DietaryPreferencesScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
-  const dietaryStatus = useAppSelector(selectDietaryState);
-  const dietaryOptions = useAppSelector(selectDietaryPreferences);
-  const isSubmitting = dietaryStatus === 'pending';
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
-  const { onGetAllDietaryPreferences } = useDietaryPreference();
+  const { dietaryPreferences, isLoading } = useDietaryPreferenceQuery();
+  const { userDietaryPreferences } = useUserDietaryQuery();
   const { onCreateOrUpdateUserDietaryPreferences } = useUserDietary();
   const navigation = useNavigation();
 
@@ -30,8 +22,7 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
     setSelectedOptions(
       userDietaryPreferences.map((pref) => pref.dietaryPreferenceId)
     );
-    onGetAllDietaryPreferences();
-  }, [onGetAllDietaryPreferences, userDietaryPreferences]);
+  }, [userDietaryPreferences]);
 
   const handleSubmit = async (): Promise<void> => {
     try {
@@ -44,7 +35,6 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
       navigation.navigate('Main');
     } catch (error) {
       console.error(error);
-
       Alert.alert(
         t('dietary.error_title') ?? 'Error',
         t('dietary.error_message') ?? 'Failed to update dietary preferences'
@@ -62,13 +52,13 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
           {t('dietary.preferences_description')}
         </Text>
 
-        {dietaryStatus === 'pending' ? (
+        {isLoading ? (
           <View className="flex-1 items-center justify-center py-20">
             <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         ) : (
           <DietaryList
-            dietaryOptions={dietaryOptions}
+            dietaryOptions={dietaryPreferences}
             setFocusOptionId={() => {}}
             selectedOptions={selectedOptions}
             setSelectedOptions={setSelectedOptions}
@@ -77,31 +67,11 @@ export const DietaryPreferencesScreen = (): JSX.Element => {
       </ScrollView>
 
       <View className="px-4 pb-4">
-        {/* AI Disclaimer */}
-        {/* <Pressable
-          className="mb-6 mt-6 flex-row items-start"
-          onPress={() => setAiDisclaimerChecked(!aiDisclaimerChecked)}
-        >
-          <View
-            className={`mr-3 mt-0.5 h-5 w-5 items-center justify-center rounded border-2 ${
-              aiDisclaimerChecked
-                ? 'border-primary bg-primary'
-                : 'border-gray-300 bg-white'
-            }`}
-          >
-            {aiDisclaimerChecked && (
-              <MaterialCommunityIcons name="check" size={14} color="white" />
-            )}
-          </View>
-          <Text className="flex-1 text-base leading-5 text-gray-600">
-            {t('dietary.ai_disclaimer')}
-          </Text>
-        </Pressable> */}
         <CustomButton
           onPress={handleSubmit}
           text={t('dietary.save')}
           loadingText={t('dietary.saving')}
-          isLoading={isSubmitting}
+          isLoading={false}
           disabled={selectedOptions.length === 0}
         />
       </View>

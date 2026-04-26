@@ -8,15 +8,10 @@ import {
 } from '@customer/campaigns/utils/voucher';
 import { Ionicons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useMyVouchersQuery } from '@features/customer/campaigns/hooks/useMyVouchersQuery';
 import { useNavigation } from '@react-navigation/native';
-import {
-  fetchMyVouchers,
-  selectVouchers,
-  selectVouchersLoading,
-} from '@slices/campaigns';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -37,19 +32,13 @@ const TABS: { key: HistoryTab; labelKey: string }[] = [
 export const VoucherHistoryScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const dispatch = useAppDispatch();
-  const allVouchers = useAppSelector(selectVouchers);
-  const isLoading = useAppSelector(selectVouchersLoading);
+  const {
+    vouchers: allVouchers,
+    isLoading,
+    refetch: handleRefresh,
+  } = useMyVouchersQuery();
 
   const [activeTab, setActiveTab] = useState<HistoryTab>('used');
-
-  useEffect(() => {
-    void dispatch(fetchMyVouchers());
-  }, [dispatch]);
-
-  const handleRefresh = useCallback(() => {
-    void dispatch(fetchMyVouchers());
-  }, [dispatch]);
 
   const handleTabChange = useCallback((key: HistoryTab) => {
     setActiveTab(key);

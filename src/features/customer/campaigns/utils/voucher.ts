@@ -1,4 +1,4 @@
-import { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 
 export const getExpiresAt = (voucher: Voucher): Date | null =>
   voucher.endDate ? new Date(voucher.endDate) : null;

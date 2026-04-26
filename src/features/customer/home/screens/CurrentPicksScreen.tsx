@@ -68,7 +68,7 @@ export const CurrentPicksScreen = (): JSX.Element => {
               hours={pick.hours}
               minutes={pick.minutes}
               image={pick.image}
-              onPress={() => navigation.navigate('CurrentPickDetails')}
+              onPress={() => console.log('View details', pick.id)}
               onEdit={(id) => console.log('Edit', id)}
               onDelete={(id) => console.log('Delete', id)}
               onShare={() => console.log('Share', pick.id)}

@@ -11,11 +11,11 @@ import {
   searchAddress,
   type AutocompletePrediction,
 } from '@features/customer/maps/services/geocoding';
+import { useGhostPinXP } from '@features/customer/home/hooks/useSettings';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
 import { addXP, selectUserXP } from '@slices/auth';
-import { selectGhostPinXP } from '@slices/settings';
 import { showXPToast } from '@slices/xpToast';
 import {
   compressImageForUpload,
@@ -47,7 +47,7 @@ export const GhostPinCreationScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const currentXP = useAppSelector(selectUserXP);
-  const ghostPinXP = useAppSelector(selectGhostPinXP);
+  const ghostPinXP = useGhostPinXP();
 
   const [name, setName] = useState('');
   const [addressQuery, setAddressQuery] = useState('');

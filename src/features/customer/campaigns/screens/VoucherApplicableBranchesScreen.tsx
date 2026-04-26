@@ -7,7 +7,7 @@ import { TicketVoucherCard } from '@features/customer/campaigns/components/Ticke
 import { useSystemCampaignBranches } from '@features/customer/campaigns/hooks/useSystemCampaignBranches';
 import { PlaceCardSkeleton } from '@features/customer/home/components/common/HomeSkeleton';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import type { JSX } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

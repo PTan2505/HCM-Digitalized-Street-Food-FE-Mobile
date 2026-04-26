@@ -3,20 +3,16 @@ import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
 import { usePaymentSocket } from '@features/customer/direct-ordering/hooks/usePaymentSocket';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useCancelOrderMutation } from '@features/customer/direct-ordering/hooks/useCancelOrderMutation';
+import { useConfirmPaymentMutation } from '@features/customer/direct-ordering/hooks/useConfirmPaymentMutation';
+import { useOrderQuery } from '@features/customer/direct-ordering/hooks/useOrderQuery';
+import { queryKeys } from '@lib/queryKeys';
 import {
   CommonActions,
   StaticScreenProps,
   useNavigation,
 } from '@react-navigation/native';
-import {
-  cancelOrderThunk,
-  clearCart,
-  confirmPaymentThunk,
-  fetchCartThunk,
-  selectActiveOrder,
-  selectCheckoutOrderCode,
-} from '@slices/directOrdering';
+import { useQueryClient } from '@tanstack/react-query';
 import * as Sharing from 'expo-sharing';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -35,6 +31,8 @@ import ViewShot from 'react-native-view-shot';
 
 type PaymentQRScreenProps = StaticScreenProps<{
   orderId: number;
+  branchId: number;
+  orderCode?: number | null;
   totalAmount: number;
   branchName: string;
   bin?: string | null;
@@ -45,23 +43,31 @@ type PaymentQRScreenProps = StaticScreenProps<{
 export const PaymentQRScreen = ({
   route,
 }: PaymentQRScreenProps): JSX.Element => {
-  const { orderId, totalAmount, branchName, bin, accountNumber, accountName } =
-    route.params;
+  const {
+    orderId,
+    branchId,
+    orderCode,
+    totalAmount,
+    branchName,
+    bin,
+    accountNumber,
+    accountName,
+  } = route.params;
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation = useNavigation();
-  const orderCode = useAppSelector(selectCheckoutOrderCode);
-  const activeOrder = useAppSelector(selectActiveOrder);
-  const { paymentStatus } = usePaymentSocket(orderCode);
-  const orderCodeRef = useRef(orderCode);
-  const branchIdRef = useRef(activeOrder?.branchId ?? 0);
+  const queryClient = useQueryClient();
+  const { order: activeOrder } = useOrderQuery(orderId);
+  const { cancelOrder } = useCancelOrderMutation();
+  const { confirmPayment } = useConfirmPaymentMutation();
+  const { paymentStatus } = usePaymentSocket(orderCode ?? null);
+  const orderCodeRef = useRef(orderCode ?? null);
   const screenShotRef = useRef<ViewShot>(null);
   const cancelledRef = useRef(false);
   const [sharing, setSharing] = useState(false);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    orderCodeRef.current = orderCode;
+    orderCodeRef.current = orderCode ?? null;
   }, [orderCode]);
 
   useEffect(() => {
@@ -124,22 +130,28 @@ export const PaymentQRScreen = ({
     });
   }, [navigation, orderId, branchName]);
 
+  const invalidateCart = useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.cart.byBranch(branchId),
+    });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.cart.my });
+  }, [queryClient, branchId]);
+
   // Fallback: if SignalR missed the event while app was backgrounded,
   // manually confirm payment status when user returns to the app.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState !== 'active' || !orderCodeRef.current) return;
-      dispatch(confirmPaymentThunk({ orderCode: orderCodeRef.current }))
-        .unwrap()
+      confirmPayment({ orderCode: orderCodeRef.current })
         .then((result) => {
           if (result.paymentStatus === 'PAID') {
-            dispatch(clearCart());
+            invalidateCart();
             navigateToOrderStatusAfterPayment();
           } else if (
             result.paymentStatus === 'CANCELLED' ||
             result.paymentStatus === 'EXPIRED'
           ) {
-            dispatch(fetchCartThunk(branchIdRef.current));
+            invalidateCart();
             Alert.alert(t('auth.error'), t('checkout.payment_failed'));
           }
         })
@@ -149,17 +161,17 @@ export const PaymentQRScreen = ({
     return (): void => {
       subscription.remove();
     };
-  }, [dispatch, navigateToOrderStatusAfterPayment, t]);
+  }, [confirmPayment, invalidateCart, navigateToOrderStatusAfterPayment, t]);
 
   useEffect(() => {
     if (paymentStatus === 'PAID') {
-      dispatch(clearCart());
+      invalidateCart();
       navigateToOrderStatusAfterPayment();
     } else if (paymentStatus === 'CANCELLED' || paymentStatus === 'EXPIRED') {
-      dispatch(fetchCartThunk(branchIdRef.current));
+      invalidateCart();
       Alert.alert(t('auth.error'), t('checkout.payment_failed'));
     }
-  }, [paymentStatus, dispatch, navigateToOrderStatusAfterPayment, t]);
+  }, [paymentStatus, invalidateCart, navigateToOrderStatusAfterPayment, t]);
 
   const handleShare = useCallback(async () => {
     if (!screenShotRef.current?.capture) return;
@@ -187,12 +199,11 @@ export const PaymentQRScreen = ({
     return navigation.addListener('beforeRemove', () => {
       if (cancelledRef.current) return;
       cancelledRef.current = true;
-      dispatch(cancelOrderThunk(orderId))
-        .unwrap()
-        .then(() => dispatch(fetchCartThunk(branchIdRef.current)))
+      cancelOrder(orderId)
+        .then(() => invalidateCart())
         .catch(() => {});
     });
-  }, [navigation, dispatch, orderId]);
+  }, [navigation, cancelOrder, orderId, invalidateCart]);
 
   const handleBack = useCallback(() => {
     if (cancelledRef.current) {
@@ -200,16 +211,15 @@ export const PaymentQRScreen = ({
       return;
     }
     cancelledRef.current = true;
-    dispatch(cancelOrderThunk(orderId))
-      .unwrap()
+    cancelOrder(orderId)
       .then(() => {
-        dispatch(fetchCartThunk(branchIdRef.current));
+        invalidateCart();
         navigation.goBack();
       })
       .catch(() => {
         navigation.goBack();
       });
-  }, [dispatch, navigation, orderId]);
+  }, [cancelOrder, navigation, orderId, invalidateCart]);
 
   const handleViewOrder = useCallback(() => {
     navigation.navigate('OrderStatus', { orderId, branchName });

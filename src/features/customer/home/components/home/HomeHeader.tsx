@@ -1,15 +1,14 @@
 import lowcaLogo from '@assets/logos/lowcaLogo.svg';
 import SvgIcon from '@components/SvgIcon';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
 import { useNavigation } from '@react-navigation/native';
-import { selectUnreadCount } from '@slices/notifications';
 import type { JSX } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 const HomeHeader = (): JSX.Element => {
   const navigation = useNavigation();
-  const unreadCount = useAppSelector(selectUnreadCount);
+  const { unreadCount } = useUnreadNotificationCount();
 
   return (
     <View className="flex-row items-center justify-between px-4">

@@ -1,12 +1,11 @@
-import { selectNotifications } from '@slices/notifications';
+import { useNotificationList } from '@features/notifications/hooks/useNotificationList';
 import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
 
 const NEW_ORDER_TYPE = 'NewOrder';
 
 export const useNewOrderNotification = (onNewOrder: () => void): void => {
-  const items = useSelector(selectNotifications);
-  const latest = items[0];
+  const { notifications } = useNotificationList();
+  const latest = notifications[0];
   const lastIdRef = useRef<number | null>(null);
 
   useEffect(() => {
