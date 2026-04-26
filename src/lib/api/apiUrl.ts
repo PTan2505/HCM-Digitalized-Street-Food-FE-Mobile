@@ -71,6 +71,7 @@ export const apiUrl = {
   },
   user: {
     profile: '/api/User/profile',
+    avatar: '/api/User/profile/avatar',
     byId: (id: number): string => `/api/User/${id}`,
     verifyOtp: '/api/User/profile/verify-otp',
     userSetup: {
