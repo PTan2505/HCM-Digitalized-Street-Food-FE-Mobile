@@ -2,17 +2,12 @@ import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
+import { useCheckoutMutation } from '@features/customer/direct-ordering/hooks/useCheckoutMutation';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { addXP, selectUserXP } from '@slices/auth';
-import {
-  checkoutThunk,
-  clearOrderError,
-  selectCart,
-  selectOrderError,
-  selectOrderLoading,
-} from '@slices/directOrdering';
 import { useOrderXP } from '@features/customer/home/hooks/useSettings';
 import { showXPToast } from '@slices/xpToast';
 import type { JSX } from 'react';
@@ -66,9 +61,13 @@ export const DirectCheckoutScreen = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
-  const cart = useAppSelector(selectCart);
-  const orderLoading = useAppSelector(selectOrderLoading);
-  const orderError = useAppSelector(selectOrderError);
+  const { cart } = useCartQuery(branchId);
+  const {
+    checkout,
+    isLoading: orderLoading,
+    error: checkoutError,
+  } = useCheckoutMutation();
+  const orderError = checkoutError?.message ?? null;
   const currentXP = useAppSelector(selectUserXP);
   const orderXP = useOrderXP();
   const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
@@ -106,12 +105,6 @@ export const DirectCheckoutScreen = ({
     );
     setSelectedVoucher(best);
   }, [vouchers, cart]);
-
-  useEffect(() => {
-    return (): void => {
-      dispatch(clearOrderError());
-    };
-  }, [dispatch]);
 
   useEffect(() => {
     if (orderError) {
@@ -152,15 +145,13 @@ export const DirectCheckoutScreen = ({
     }
 
     try {
-      const result = await dispatch(
-        checkoutThunk({
-          branchId: branchId,
-          paymentMethod: selectedMethod,
-          isTakeAway,
-          note: note ?? null,
-          voucherId: selectedVoucher?.voucherId ?? null,
-        })
-      ).unwrap();
+      const result = await checkout({
+        branchId,
+        paymentMethod: selectedMethod,
+        isTakeAway,
+        note: note ?? null,
+        voucherId: selectedVoucher?.voucherId ?? null,
+      });
 
       const newXP = currentXP + orderXP;
       dispatch(addXP(orderXP));
@@ -170,6 +161,8 @@ export const DirectCheckoutScreen = ({
 
       navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
+        branchId,
+        orderCode: result.payment.orderCode,
         totalAmount: result.order.finalAmount,
         branchName,
         bin: result.payment.bin,
@@ -177,12 +170,12 @@ export const DirectCheckoutScreen = ({
         accountName: result.payment.accountName,
       });
     } catch {
-      // Error is handled by the slice / useEffect above
+      // Error surfaced via orderError / useEffect above
     }
   }, [
     cart,
     t,
-    dispatch,
+    checkout,
     branchId,
     selectedMethod,
     isTakeAway,
@@ -192,6 +185,7 @@ export const DirectCheckoutScreen = ({
     branchName,
     currentXP,
     orderXP,
+    dispatch,
   ]);
 
   return (

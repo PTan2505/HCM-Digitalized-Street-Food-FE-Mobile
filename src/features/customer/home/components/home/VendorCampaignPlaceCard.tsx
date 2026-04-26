@@ -4,12 +4,7 @@ import {
 } from '@features/customer/home/components/common/PlaceCard';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';
-import { useAppSelector } from '@hooks/reduxHooks';
-import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
-import {
-  computeDisplayName,
-  selectIsMultiBranchVendor,
-} from '@slices/branches';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { registerCallback } from '@utils/callbackRegistry';
@@ -38,26 +33,11 @@ export const VendorCampaignPlaceCard = ({
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   // Primary: look up by branchId in Redux (has real vendorName if branch is in active list)
-  const displayNameFromId = useBranchDisplayName(branch.branchId);
+  const isMultiBranch =
+    isMultiBranchProp ??
+    !!(branch.vendorName && branch.vendorName !== branch.name);
 
-  // Fallback: find vendorName by vendorId from any Redux branch of the same vendor
-  const vendorNameFromRedux = useAppSelector(
-    (state) =>
-      state.branches.branches.find((b) => b.vendorId === branch.vendorId)
-        ?.vendorName
-  );
-  const isMultiBranchFromRedux = useAppSelector((state) =>
-    selectIsMultiBranchVendor(state, branch.vendorId)
-  );
-  const isMultiBranch = isMultiBranchProp ?? isMultiBranchFromRedux;
-
-  const displayName =
-    displayNameFromId ??
-    computeDisplayName(
-      { ...branch, vendorName: vendorNameFromRedux ?? branch.vendorName },
-      isMultiBranch,
-      t('branch')
-    );
+  const displayName = computeDisplayName(branch, isMultiBranch, t('branch'));
 
   return (
     <PlaceCard

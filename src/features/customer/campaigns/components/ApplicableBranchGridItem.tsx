@@ -1,13 +1,9 @@
 import type { VendorCampaignBranch } from '@features/customer/campaigns/types/generated';
 import { PlaceCard } from '@features/customer/home/components/common/PlaceCard';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
-import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  computeDisplayName,
-  selectIsMultiBranchVendor,
-} from '@slices/branches';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import type { JSX } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -54,27 +50,12 @@ export const ApplicableBranchGridItem = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
-  const vendorNameFromRedux = useAppSelector(
-    (state) =>
-      state.branches.branches.find((b) => b.vendorId === branch.vendorId)
-        ?.vendorName
+  const isMultiBranch = !!(
+    branch.vendorName && branch.vendorName !== branch.name
   );
-  const isMultiBranchFromRedux = useAppSelector((state) =>
-    selectIsMultiBranchVendor(state, branch.vendorId)
-  );
-
-  const isMultiBranch =
-    isMultiBranchFromRedux ||
-    (!!branch.vendorName && branch.vendorName !== branch.name);
-
   const activeBranch = useMemo(() => toActiveBranch(branch), [branch]);
-
-  const resolvedBranch = vendorNameFromRedux
-    ? { ...activeBranch, vendorName: vendorNameFromRedux }
-    : activeBranch;
-
   const displayName = computeDisplayName(
-    resolvedBranch,
+    activeBranch,
     isMultiBranch,
     t('branch')
   );

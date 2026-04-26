@@ -1,4 +1,7 @@
-import type { PaginatedVendors, Vendor } from '@features/customer/home/types/vendor';
+import type {
+  PaginatedVendors,
+  Vendor,
+} from '@features/customer/home/types/vendor';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -32,5 +35,12 @@ export const useVendors = (): {
 
   const vendors = data?.pages.flatMap((page) => page.items) ?? [];
 
-  return { vendors, fetchNextPage, hasNextPage, isLoading, isError, isFetchingNextPage };
+  return {
+    vendors,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isError,
+    isFetchingNextPage,
+  };
 };

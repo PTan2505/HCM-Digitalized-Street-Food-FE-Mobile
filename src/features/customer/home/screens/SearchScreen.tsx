@@ -13,14 +13,8 @@ import { useStallSearch } from '@features/customer/home/hooks/useStallSearch';
 import { useTastes } from '@features/customer/home/hooks/useTastes';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import {
-  computeDisplayName,
-  selectBranchImageMap,
-  selectMultiBranchVendorIds,
-  updateBranchRating,
-} from '@slices/branches';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { useDietaryPreferenceQuery } from '@features/user/hooks/dietaryPreference/useDietaryPreferenceQuery';
 import { registerCallback } from '@utils/callbackRegistry';
 import { normalizeForMatch } from '@utils/normalizeText';
@@ -225,9 +219,6 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(Boolean(autoFocus));
   const navigation = useNavigation();
-  const dispatch = useAppDispatch();
-  const branchImageMap = useAppSelector(selectBranchImageMap);
-  const reduxMultiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
   const { dietaryPreferences } = useDietaryPreferenceQuery();
   const { tastes } = useTastes();
   const { categories } = useCategories();
@@ -265,8 +256,8 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     const fromSearch = Array.from(vendorCounts.entries())
       .filter(([, count]) => count > 1)
       .map(([vendorId]) => vendorId);
-    return [...new Set([...reduxMultiBranchVendorIds, ...fromSearch])];
-  }, [stalls, reduxMultiBranchVendorIds]);
+    return fromSearch;
+  }, [stalls]);
 
   const triggerSearch = useCallback(
     (kw: string, filters: FilterState | null) => {
@@ -390,10 +381,10 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   };
 
   const handleRatingUpdate = useCallback(
-    (branchId: number, avgRating: number, totalReviewCount: number) => {
-      dispatch(updateBranchRating({ branchId, avgRating, totalReviewCount }));
+    (_branchId: number, _avgRating: number, _totalReviewCount: number) => {
+      // Search results are transient — no global store to update.
     },
-    [dispatch]
+    []
   );
 
   const [siblingsSheetBranch, setSiblingsSheetBranch] =
@@ -699,10 +690,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
                 return (
                   <SearchResultCard
                     branch={item}
-                    imageUri={
-                      searchImageMap[item.branchId] ??
-                      branchImageMap[item.branchId]?.[0]
-                    }
+                    imageUri={searchImageMap[item.branchId]}
                     displayName={displayName}
                     onPress={() => navigateToBranch(item, displayName)}
                     onSiblingsPress={

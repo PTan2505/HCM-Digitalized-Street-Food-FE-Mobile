@@ -6,8 +6,8 @@ export default function useDietaryPreference(): {
 } {
   const { dietaryPreferences } = useDietaryPreferenceQuery();
 
-  const onGetAllDietaryPreferences = async (): Promise<DietaryPreference[]> => {
-    return dietaryPreferences;
+  const onGetAllDietaryPreferences = (): Promise<DietaryPreference[]> => {
+    return Promise.resolve(dietaryPreferences);
   };
 
   return { onGetAllDietaryPreferences };

@@ -8,7 +8,11 @@ export const useDietaryPreferenceQuery = (): {
   isLoading: boolean;
   isError: boolean;
 } => {
-  const { data: dietaryPreferences = [], isLoading, isError } = useQuery({
+  const {
+    data: dietaryPreferences = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: queryKeys.dietary.preferences,
     queryFn: () => axiosApi.dietaryPreferenceApi.getAllDietaryPreferences(),
     staleTime: 60 * 60 * 1000,

@@ -6,7 +6,7 @@ import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystem
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';

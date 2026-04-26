@@ -7,7 +7,9 @@ import { queryKeys } from '@lib/queryKeys';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useUpdateUserDietary = (): {
-  mutateAsync: (data: CreateOrUpdateUserDietaryRequest) => Promise<CreateOrUpdateUserDietaryResponse>;
+  mutateAsync: (
+    data: CreateOrUpdateUserDietaryRequest
+  ) => Promise<CreateOrUpdateUserDietaryResponse>;
   isPending: boolean;
   isError: boolean;
 } => {
@@ -17,7 +19,9 @@ export const useUpdateUserDietary = (): {
     mutationFn: (data: CreateOrUpdateUserDietaryRequest) =>
       axiosApi.userDietaryApi.createOrUpdateUserDietaryPreferences(data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.dietary.userPreferences });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.dietary.userPreferences,
+      });
     },
   });
 

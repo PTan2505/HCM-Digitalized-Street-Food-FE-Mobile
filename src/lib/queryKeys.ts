@@ -33,6 +33,7 @@ export const queryKeys = {
       categoryIds?: number[];
       wards?: string[];
     }) => ['branches', 'list', filters] as const,
+    detail: (branchId: number) => ['branches', 'detail', branchId] as const,
     images: (branchId: number) => ['branches', 'images', branchId] as const,
     similar: (branchId: number) => ['branches', 'similar', branchId] as const,
     allGhostPins: ['branches', 'allGhostPins'] as const,
@@ -70,12 +71,17 @@ export const queryKeys = {
 
   orders: {
     all: ['orders'] as const,
+    detail: (orderId: number) => ['orders', 'detail', orderId] as const,
+    history: (status?: string | null) =>
+      ['orders', 'history', status ?? 'all'] as const,
     completedByBranch: (branchId: number) =>
       ['orders', 'completed', 'branch', branchId] as const,
   },
 
   cart: {
     all: ['cart'] as const,
+    byBranch: (branchId: number) => ['cart', 'branch', branchId] as const,
+    my: ['cart', 'my'] as const,
   },
 
   dishes: {

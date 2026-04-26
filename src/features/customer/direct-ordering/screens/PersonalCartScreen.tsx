@@ -4,19 +4,10 @@ import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import type { ActiveBranch, Dish } from '@features/customer/home/types/branch';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useCartMutations } from '@features/customer/direct-ordering/hooks/useCartMutations';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import {
-  addCartItemThunk,
-  clearCartThunk,
-  fetchCartThunk,
-  removeCartItemThunk,
-  selectCart,
-  selectCartDisplayName,
-  selectCartLoading,
-  updateCartItemThunk,
-} from '@slices/directOrdering';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,11 +37,14 @@ export const PersonalCartScreen = ({
 }: PersonalCartScreenProps): JSX.Element => {
   const { branchId, branchName = '', isOpen = true } = route.params ?? {};
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation = useNavigation();
-  const cart = useAppSelector(selectCart);
-  const cartDisplayName = useAppSelector(selectCartDisplayName);
-  const cartLoading = useAppSelector(selectCartLoading);
+  const { cart, isLoading: cartLoading } = useCartQuery(branchId);
+  const {
+    addItem,
+    updateItem,
+    removeItem,
+    clearCart: clearCartMutation,
+  } = useCartMutations();
   const [note, setNote] = useState('');
   const [menuDishes, setMenuDishes] = useState<Dish[]>([]);
   const [menuLoading, setMenuLoading] = useState(false);
@@ -83,10 +77,6 @@ export const PersonalCartScreen = ({
       cart.items.some((item) => item.dishId === id)
     );
   }, [cart]);
-
-  useEffect(() => {
-    dispatch(fetchCartThunk(branchId));
-  }, [dispatch, branchId]);
 
   useEffect(() => {
     if (!cart?.branchId) return;
@@ -148,18 +138,12 @@ export const PersonalCartScreen = ({
       const cartBranchId = cart?.branchId ?? branchId;
       const newQty = currentQty + delta;
       if (newQty <= 0) {
-        dispatch(removeCartItemThunk({ dishId, branchId: cartBranchId }));
+        void removeItem({ dishId, branchId: cartBranchId });
       } else {
-        dispatch(
-          updateCartItemThunk({
-            dishId,
-            quantity: newQty,
-            branchId: cartBranchId,
-          })
-        );
+        void updateItem({ dishId, quantity: newQty, branchId: cartBranchId });
       }
     },
-    [dispatch, cart?.branchId, branchId]
+    [removeItem, updateItem, cart?.branchId, branchId]
   );
 
   const handleClearCart = useCallback(() => {
@@ -169,21 +153,21 @@ export const PersonalCartScreen = ({
         text: t('dietary.confirm'),
         style: 'destructive',
         onPress: (): void => {
-          dispatch(clearCartThunk(cart?.branchId ?? branchId)).then(() => {
+          void clearCartMutation(cart?.branchId ?? branchId).then(() => {
             navigation.goBack();
           });
         },
       },
     ]);
-  }, [dispatch, navigation, t, cart?.branchId, branchId]);
+  }, [clearCartMutation, navigation, t, cart?.branchId, branchId]);
 
   const handlePlaceOrder = useCallback(() => {
     navigation.navigate('DirectCheckout', {
       branchId: cart?.branchId ?? branchId,
-      branchName: cartDisplayName ?? branchName,
+      branchName,
       note,
     });
-  }, [navigation, cartDisplayName, branchName, note, cart?.branchId, branchId]);
+  }, [navigation, branchName, note, cart?.branchId, branchId]);
 
   const getCartQuantity = useCallback(
     (dishId: number): number => {
@@ -208,30 +192,24 @@ export const PersonalCartScreen = ({
 
       const cartBranchId = cart?.branchId ?? branchId;
       if (serverQty === 0) {
-        dispatch(
-          addCartItemThunk({
-            branchId: cartBranchId,
-            dishId: dish.dishId,
-            quantity: newQty,
-            displayName: cartDisplayName ?? branchName,
-          })
-        );
+        void addItem({
+          branchId: cartBranchId,
+          dishId: dish.dishId,
+          quantity: newQty,
+        });
       } else {
-        dispatch(
-          updateCartItemThunk({
-            dishId: dish.dishId,
-            quantity: newQty,
-            branchId: cartBranchId,
-          })
-        );
+        void updateItem({
+          dishId: dish.dishId,
+          quantity: newQty,
+          branchId: cartBranchId,
+        });
       }
     },
     [
-      dispatch,
+      addItem,
+      updateItem,
       cart?.branchId,
       branchId,
-      cartDisplayName,
-      branchName,
       getCartQuantity,
       getServerQuantity,
     ]
@@ -246,20 +224,23 @@ export const PersonalCartScreen = ({
 
       const cartBranchId = cart?.branchId ?? branchId;
       if (serverQty <= 1) {
-        dispatch(
-          removeCartItemThunk({ dishId: dish.dishId, branchId: cartBranchId })
-        );
+        void removeItem({ dishId: dish.dishId, branchId: cartBranchId });
       } else {
-        dispatch(
-          updateCartItemThunk({
-            dishId: dish.dishId,
-            quantity: newQty,
-            branchId: cartBranchId,
-          })
-        );
+        void updateItem({
+          dishId: dish.dishId,
+          quantity: newQty,
+          branchId: cartBranchId,
+        });
       }
     },
-    [dispatch, branchId, cart?.branchId, getCartQuantity, getServerQuantity]
+    [
+      removeItem,
+      updateItem,
+      branchId,
+      cart?.branchId,
+      getCartQuantity,
+      getServerQuantity,
+    ]
   );
 
   const menuCategories = [
@@ -286,13 +267,13 @@ export const PersonalCartScreen = ({
             onPress={() =>
               navigation.navigate('RestaurantDetails', {
                 branch: menuBranch as ActiveBranch,
-                displayName: cartDisplayName ?? branchName,
+                displayName: branchName,
                 tab: 'menu' as const,
               })
             }
           >
             <Text className="ml-3 text-lg font-bold text-black">
-              {cartDisplayName ?? branchName}
+              {branchName}
               <Ionicons name="chevron-forward" size={16} color="#333" />
             </Text>
           </TouchableOpacity>
@@ -393,7 +374,7 @@ export const PersonalCartScreen = ({
                       onPress={() =>
                         navigation.navigate('RestaurantDetails', {
                           branch: menuBranch,
-                          displayName: cartDisplayName ?? branchName,
+                          displayName: branchName,
                           tab: 'menu' as const,
                         })
                       }

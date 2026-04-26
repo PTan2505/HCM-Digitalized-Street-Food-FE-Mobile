@@ -16,7 +16,7 @@ import {
 } from '@features/customer/campaigns/hooks/useVoucherWallet';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -109,7 +109,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
           <Text className="mt-3 text-center text-base text-gray-400">
-            {error}
+            {error?.message ?? String(error)}
           </Text>
           <TouchableOpacity
             onPress={handleRefresh}

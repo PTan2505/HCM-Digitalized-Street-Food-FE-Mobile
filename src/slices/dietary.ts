@@ -1,9 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { userLogout } from '@slices/auth';
 
-export interface DietaryState {
-  // placeholder — dietary data is now fetched via React Query
-}
+export type DietaryState = Record<string, never>;
 
 const initialState: DietaryState = {};
 

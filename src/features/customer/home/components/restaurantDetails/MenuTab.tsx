@@ -1,16 +1,10 @@
 import { QuantityControl } from '@components/QuantityControl';
 import TabBar from '@components/TabBar';
 import { Ionicons } from '@expo/vector-icons';
+import { useCartMutations } from '@features/customer/direct-ordering/hooks/useCartMutations';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { useBranchDishes } from '@features/customer/home/hooks/useBranchDishes';
 import type { Dish } from '@features/customer/home/types/branch';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import {
-  addCartItemThunk,
-  clearCartThunk,
-  removeCartItemThunk,
-  selectCart,
-  updateCartItemThunk,
-} from '@slices/directOrdering';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,19 +17,17 @@ interface MenuTabProps {
   branchId: number;
   isOpen: boolean;
   isSubscribed: boolean;
-  displayName: string;
 }
 
 const MenuTab = ({
   branchId,
   isOpen,
   isSubscribed,
-  displayName,
 }: MenuTabProps): JSX.Element => {
   const { dishes } = useBranchDishes(branchId);
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const cart = useAppSelector(selectCart);
+  const { cart } = useCartQuery(branchId);
+  const { addItem, updateItem, removeItem, clearCart } = useCartMutations();
   const hasCart = (cart?.items.length ?? 0) > 0;
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
@@ -99,25 +91,12 @@ const MenuTab = ({
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
       if (serverQty === 0) {
-        dispatch(
-          addCartItemThunk({
-            branchId,
-            dishId: dish.dishId,
-            quantity: newQty,
-            displayName,
-          })
-        );
+        void addItem({ branchId, dishId: dish.dishId, quantity: newQty });
       } else {
-        dispatch(
-          updateCartItemThunk({
-            dishId: dish.dishId,
-            quantity: newQty,
-            branchId,
-          })
-        );
+        void updateItem({ dishId: dish.dishId, quantity: newQty, branchId });
       }
     },
-    [dispatch, branchId, displayName, getCartQuantity, getServerQuantity]
+    [addItem, updateItem, branchId, getCartQuantity, getServerQuantity]
   );
 
   const handleAdd = useCallback(
@@ -133,9 +112,7 @@ const MenuTab = ({
             text: t('cart.replace_confirm'),
             style: 'destructive',
             onPress: async (): Promise<void> => {
-              await dispatch(
-                clearCartThunk(cart.branchId ?? branchId)
-              ).unwrap();
+              await clearCart(cart.branchId ?? branchId);
               addOrIncrement(dish);
             },
           },
@@ -144,7 +121,7 @@ const MenuTab = ({
       }
       addOrIncrement(dish);
     },
-    [cart, branchId, t, dispatch, addOrIncrement, isSubscribed]
+    [cart, branchId, t, clearCart, addOrIncrement, isSubscribed]
   );
 
   const handleDecrement = useCallback(
@@ -155,18 +132,12 @@ const MenuTab = ({
       setOptimisticQty((prev) => ({ ...prev, [dish.dishId]: newQty }));
 
       if (serverQty <= 1) {
-        dispatch(removeCartItemThunk({ dishId: dish.dishId, branchId }));
+        void removeItem({ dishId: dish.dishId, branchId });
       } else {
-        dispatch(
-          updateCartItemThunk({
-            dishId: dish.dishId,
-            quantity: newQty,
-            branchId,
-          })
-        );
+        void updateItem({ dishId: dish.dishId, quantity: newQty, branchId });
       }
     },
-    [dispatch, branchId, getCartQuantity, getServerQuantity]
+    [removeItem, updateItem, branchId, getCartQuantity, getServerQuantity]
   );
 
   const renderDish = (dish: Dish): JSX.Element => {

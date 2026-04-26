@@ -20,12 +20,16 @@ export default function useUserDietary(): {
   const { userDietaryPreferences } = useUserDietaryQuery();
   const { mutateAsync } = useUpdateUserDietary();
 
-  const onGetUserDietaryPreferences = useCallback(async (): Promise<UserDietary[]> => {
-    return userDietaryPreferences;
+  const onGetUserDietaryPreferences = useCallback((): Promise<
+    UserDietary[]
+  > => {
+    return Promise.resolve(userDietaryPreferences);
   }, [userDietaryPreferences]);
 
   const onCreateOrUpdateUserDietaryPreferences = useCallback(
-    async (data: CreateOrUpdateUserDietaryRequest): Promise<CreateOrUpdateUserDietaryResponse> => {
+    async (
+      data: CreateOrUpdateUserDietaryRequest
+    ): Promise<CreateOrUpdateUserDietaryResponse> => {
       const response = await mutateAsync(data);
       if (!user?.dietarySetup) {
         await dispatch(markDietarySetup());
@@ -35,5 +39,8 @@ export default function useUserDietary(): {
     [dispatch, mutateAsync, user]
   );
 
-  return { onGetUserDietaryPreferences, onCreateOrUpdateUserDietaryPreferences };
+  return {
+    onGetUserDietaryPreferences,
+    onCreateOrUpdateUserDietaryPreferences,
+  };
 }

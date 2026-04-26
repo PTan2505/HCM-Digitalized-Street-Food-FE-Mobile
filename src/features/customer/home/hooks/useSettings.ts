@@ -17,9 +17,14 @@ export const useSettings = (): {
   isLoading: boolean;
   isError: boolean;
 } => {
-  const { data: settings = {}, isLoading, isError } = useQuery({
+  const {
+    data: settings = {},
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: queryKeys.settings.all,
-    queryFn: async () => parseSettingsMap(await axiosApi.settingsApi.getSettings()),
+    queryFn: async () =>
+      parseSettingsMap(await axiosApi.settingsApi.getSettings()),
     staleTime: 10 * 60 * 1000,
   });
 

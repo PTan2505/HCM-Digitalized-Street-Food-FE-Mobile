@@ -8,7 +8,11 @@ export const useTastes = (): {
   isLoading: boolean;
   isError: boolean;
 } => {
-  const { data: tastes = [], isLoading, isError } = useQuery({
+  const {
+    data: tastes = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: queryKeys.tastes.all,
     queryFn: () => axiosApi.tasteApi.getTastes(),
     staleTime: 60 * 60 * 1000,

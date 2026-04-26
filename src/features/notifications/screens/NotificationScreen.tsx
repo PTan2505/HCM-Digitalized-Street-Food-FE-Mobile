@@ -60,8 +60,14 @@ export const NotificationScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
-  const { notifications, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage, refetch } =
-    useNotificationList();
+  const {
+    notifications,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+    refetch,
+  } = useNotificationList();
   const { unreadCount } = useUnreadNotificationCount();
   const { markRead, markAllRead } = useMarkNotificationRead();
 
@@ -131,7 +137,10 @@ export const NotificationScreen = (): JSX.Element => {
                   });
               })
               .catch((err: unknown) => {
-                console.warn('[NotificationScreen] VendorReply fetch failed:', err);
+                console.warn(
+                  '[NotificationScreen] VendorReply fetch failed:',
+                  err
+                );
               });
             break;
           default:

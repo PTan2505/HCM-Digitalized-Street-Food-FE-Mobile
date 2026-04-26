@@ -9,8 +9,7 @@ import {
   refreshUserBalanceThunk,
   selectUserXP,
 } from '@slices/auth';
-import { syncOrderToHistoryFromNotificationThunk } from '@slices/directOrdering';
-import { fetchMyQuests, setPendingReward } from '@slices/quests';
+import { setPendingReward } from '@slices/quests';
 import { showXPToast } from '@slices/xpToast';
 import { queryClient } from '@lib/queryClient';
 import { queryKeys } from '@lib/queryKeys';
@@ -63,18 +62,19 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
         '[QuestDebug][Socket] ReceiveNotification fired:',
         JSON.stringify(notification)
       );
-      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.all,
+      });
 
       if (
         notification.type === 'OrderStatusUpdate' &&
         notification.referenceId
       ) {
-        dispatch(
-          syncOrderToHistoryFromNotificationThunk(notification.referenceId)
-        )
-          .unwrap()
+        void queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+        axiosApi.orderApi
+          .getOrderById(notification.referenceId)
           .then((order) => {
-            if (order.status === ORDER_STATUS.Cancelled) {
+            if (order.data.status === ORDER_STATUS.Cancelled) {
               dispatch(refreshUserBalanceThunk());
             }
           })
@@ -141,12 +141,12 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
             console.error('[QuestDebug] getQuestTaskById FAILED:', err);
           });
 
-        dispatch(fetchMyQuests({ isTierUp: false }));
+        void queryClient.invalidateQueries({ queryKey: queryKeys.quests.my() });
       }
 
       // QuestCompleted (type=4): referenceId = questId, just refresh the quest list
       if (isQuestCompleted) {
-        dispatch(fetchMyQuests({ isTierUp: true }));
+        void queryClient.invalidateQueries({ queryKey: queryKeys.quests.my() });
       }
     });
 

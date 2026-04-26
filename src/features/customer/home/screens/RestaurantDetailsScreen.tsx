@@ -24,7 +24,7 @@ import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { Feedback } from '@features/customer/home/types/feedback';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/customer/reputation/api/generated';
 import type { BranchTier } from '@features/customer/reputation/types/generated';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import {
@@ -33,15 +33,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  computeDisplayName,
-  selectMultiBranchVendorIds,
-} from '@slices/branches';
-import {
-  fetchCartThunk,
-  selectCart,
-  selectCartDisplayName,
-} from '@slices/directOrdering';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { useQueryClient } from '@tanstack/react-query';
 import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
 import { getPriceRange } from '@utils/priceUtils';
@@ -148,10 +140,7 @@ export const RestaurantDetailsScreen = ({
     [t]
   );
 
-  const dispatch = useAppDispatch();
-  const cart = useAppSelector(selectCart);
-  const cartDisplayName = useAppSelector(selectCartDisplayName);
-  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
+  const { cart } = useCartQuery(branch.branchId);
   const queryClient = useQueryClient();
 
   // Refetch feedback when screen regains focus (e.g. after notification → ReviewList → goBack)
@@ -259,12 +248,6 @@ export const RestaurantDetailsScreen = ({
     useNearbyBranches(branch.lat, branch.long, branch.branchId);
 
   const { imageUrls: branchImageUrls } = useBranchImages(branch.branchId);
-
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(fetchCartThunk(branch.branchId));
-    }, [dispatch, branch.branchId])
-  );
 
   useEffect(() => {
     const { getBranchTier } = getLowcaAPIUnimplementedEndpoints();
@@ -521,7 +504,7 @@ export const RestaurantDetailsScreen = ({
     };
   });
 
-  const cartBranchDisplayName = cartDisplayName ?? cart?.branchName ?? '';
+  const cartBranchDisplayName = displayName;
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
@@ -618,7 +601,6 @@ export const RestaurantDetailsScreen = ({
             branchId={branch.branchId}
             isOpen={isOpen}
             isSubscribed={branch.isSubscribed}
-            displayName={displayName}
           />
         )}
 
@@ -646,8 +628,7 @@ export const RestaurantDetailsScreen = ({
         {activeTab === 'nearby' && (
           <View className="px-4 pb-4 pt-3">
             {nearbyBranches.map((b) => {
-              const isMultiBranch =
-                b.vendorId != null && multiBranchVendorIds.includes(b.vendorId);
+              const isMultiBranch = !!(b.vendorName && b.vendorName !== b.name);
               const nearbyDisplayName = computeDisplayName(
                 b,
                 isMultiBranch,

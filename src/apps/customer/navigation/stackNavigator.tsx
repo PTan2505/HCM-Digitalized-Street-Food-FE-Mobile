@@ -30,7 +30,7 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
@@ -188,6 +188,8 @@ const RootStack = createNativeStackNavigator({
       screen: PaymentQRScreen,
       params: {} as {
         orderId: number;
+        branchId: number;
+        orderCode?: number | null;
         qrCode: string;
         totalAmount: number;
         branchName: string;

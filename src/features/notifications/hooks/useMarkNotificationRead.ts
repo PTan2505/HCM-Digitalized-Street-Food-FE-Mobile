@@ -9,7 +9,9 @@ export const useMarkNotificationRead = (): {
   const queryClient = useQueryClient();
 
   const invalidate = (): void => {
-    void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.notifications.all,
+    });
   };
 
   const { mutate: markRead } = useMutation({

@@ -42,5 +42,12 @@ export const useNotificationList = (): {
 
   const notifications = data?.pages.flatMap((page) => page.items) ?? [];
 
-  return { notifications, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage, refetch };
+  return {
+    notifications,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+    refetch,
+  };
 };
