@@ -4,11 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
 import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { useCheckoutMutation } from '@features/customer/direct-ordering/hooks/useCheckoutMutation';
+import { useOrderXP } from '@features/customer/home/hooks/useSettings';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { addXP, selectUserXP } from '@slices/auth';
-import { useOrderXP } from '@features/customer/home/hooks/useSettings';
+import {
+  addXP,
+  selectUser,
+  selectUserXP,
+  updateMoneyBalance,
+} from '@slices/auth';
 import { showXPToast } from '@slices/xpToast';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -27,7 +32,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const PAYMENT_METHODS: {
   key: string;
   icon: keyof typeof Ionicons.glyphMap;
-}[] = [{ key: 'bank_transfer', icon: 'business-outline' }];
+}[] = [
+  { key: 'QR Code', icon: 'qr-code' },
+  { key: 'Lowca Wallet', icon: 'wallet-outline' },
+];
 
 type DirectCheckoutScreenProps = StaticScreenProps<{
   branchId: number;
@@ -69,8 +77,11 @@ export const DirectCheckoutScreen = ({
   } = useCheckoutMutation();
   const orderError = checkoutError?.message ?? null;
   const currentXP = useAppSelector(selectUserXP);
+  const moneyBalance = useAppSelector(
+    (state) => selectUser(state)?.moneyBalance ?? 0
+  );
   const orderXP = useOrderXP();
-  const [selectedMethod, setSelectedMethod] = useState('bank_transfer');
+  const [selectedMethod, setSelectedMethod] = useState('QR Code');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
   const [vouchers, setVouchers] = useState<UserVoucherApiDto[]>([]);
@@ -124,9 +135,8 @@ export const DirectCheckoutScreen = ({
 
   const getPaymentLabel = (key: string): string => {
     const labels: Record<string, string> = {
-      wallet: t('checkout.wallet'),
-      bank_transfer: t('checkout.bank_transfer'),
-      viet_qr: t('checkout.viet_qr'),
+      'Lowca Wallet': t('checkout.wallet'),
+      'QR Code': t('checkout.bank_transfer'),
     };
     return labels[key] ?? key;
   };
@@ -144,6 +154,11 @@ export const DirectCheckoutScreen = ({
       return;
     }
 
+    if (selectedMethod === 'Lowca Wallet' && moneyBalance < finalAmount) {
+      Alert.alert(t('auth.error'), t('checkout.insufficient_balance'));
+      return;
+    }
+
     try {
       const result = await checkout({
         branchId,
@@ -158,6 +173,15 @@ export const DirectCheckoutScreen = ({
       dispatch(
         showXPToast({ xpEarned: orderXP, previousXP: currentXP, newXP })
       );
+
+      if (selectedMethod === 'Lowca Wallet') {
+        dispatch(updateMoneyBalance(moneyBalance - finalAmount));
+        navigation.navigate('OrderStatus', {
+          orderId: result.order.orderId,
+          branchName,
+        });
+        return;
+      }
 
       navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
@@ -186,6 +210,8 @@ export const DirectCheckoutScreen = ({
     currentXP,
     orderXP,
     dispatch,
+    moneyBalance,
+    finalAmount,
   ]);
 
   return (
@@ -336,41 +362,65 @@ export const DirectCheckoutScreen = ({
           <Text className="mb-3 text-base font-bold text-black">
             {t('checkout.payment_method')}
           </Text>
-          {PAYMENT_METHODS.map((method) => (
-            <TouchableOpacity
-              key={method.key}
-              onPress={() => setSelectedMethod(method.key)}
-              className={`mb-2 flex-row items-center rounded-xl border px-4 py-3.5 ${
-                selectedMethod === method.key
-                  ? 'border-primary bg-[#f4fce3]'
-                  : 'border-gray-200'
-              }`}
-            >
-              <Ionicons
-                name={method.icon}
-                size={22}
-                color={
-                  selectedMethod === method.key ? COLORS.primaryLight : '#999'
-                }
-              />
-              <Text
-                className={`ml-3 flex-1 text-base font-semibold ${
-                  selectedMethod === method.key
-                    ? 'text-primary-light'
-                    : 'text-black'
+          {PAYMENT_METHODS.map((method) => {
+            const isWalletInsufficient =
+              method.key === 'Lowca Wallet' && moneyBalance < finalAmount;
+            return (
+              <TouchableOpacity
+                key={method.key}
+                onPress={() => setSelectedMethod(method.key)}
+                disabled={isWalletInsufficient}
+                className={`mb-2 min-h-20 flex-row items-center rounded-xl border px-4 py-3.5 ${
+                  isWalletInsufficient
+                    ? 'border-gray-100 bg-gray-50 opacity-90'
+                    : selectedMethod === method.key
+                      ? 'border-primary bg-[#f4fce3]'
+                      : 'border-gray-200'
                 }`}
               >
-                {getPaymentLabel(method.key)}
-              </Text>
-              {selectedMethod === method.key && (
                 <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color={COLORS.primaryLight}
+                  name={method.icon}
+                  size={22}
+                  color={
+                    isWalletInsufficient
+                      ? '#ccc'
+                      : selectedMethod === method.key
+                        ? COLORS.primaryLight
+                        : '#999'
+                  }
                 />
-              )}
-            </TouchableOpacity>
-          ))}
+                <View className="ml-3 flex-1">
+                  <Text
+                    className={`text-base font-semibold ${
+                      isWalletInsufficient
+                        ? 'text-gray-300'
+                        : selectedMethod === method.key
+                          ? 'text-primary-light'
+                          : 'text-black'
+                    }`}
+                  >
+                    {getPaymentLabel(method.key)}
+                  </Text>
+                  {method.key === 'Lowca Wallet' && (
+                    <Text
+                      className={`text-xs ${
+                        isWalletInsufficient ? 'text-red-400' : 'text-gray-400'
+                      }`}
+                    >
+                      {`${t('withdraw.available_balance')}: ${moneyBalance.toLocaleString('vi-VN')}₫`}
+                    </Text>
+                  )}
+                </View>
+                {selectedMethod === method.key && (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={20}
+                    color={COLORS.primaryLight}
+                  />
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
 
