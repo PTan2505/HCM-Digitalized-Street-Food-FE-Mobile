@@ -1,5 +1,6 @@
 import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/customer/direct-ordering/screens/OrderHistoryScreen';
@@ -8,7 +9,6 @@ import { PaymentQRScreen } from '@features/customer/direct-ordering/screens/Paym
 import { PersonalCartScreen } from '@features/customer/direct-ordering/screens/PersonalCartScreen';
 import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/VoucherSelectScreen';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
-import { CurrentPicksScreen } from '@features/customer/home/screens/CurrentPicksScreen';
 import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/customer/home/screens/ListBranchScreen';
 import { RestaurantDeepLinkScreen } from '@features/customer/home/screens/RestaurantDeepLinkScreen';
@@ -30,7 +30,6 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
-import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
@@ -111,10 +110,6 @@ const RootStack = createNativeStackNavigator({
         branchLat: number;
         branchLong: number;
       },
-    },
-    CurrentPicks: {
-      screen: CurrentPicksScreen,
-      linking: 'current-picks',
     },
     ListBranch: {
       screen: ListBranchScreen,
