@@ -16,6 +16,7 @@ import { GhostPinApi } from '@customer/maps/api/ghostPinApi';
 import { QuestApi } from '@customer/quests/api/questApi';
 import { LoginApi } from '@features/auth/api/loginApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
+import { BadgeApi } from '@features/user/api/badgeApi';
 import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserPaymentApi } from '@features/user/api/paymentApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
@@ -35,6 +36,7 @@ const axiosClient = new ApiClient(axiosService);
 export const axiosApi = {
   loginApi: new LoginApi(axiosClient),
   userProfileApi: new UserProfileApi(axiosClient),
+  badgeApi: new BadgeApi(axiosClient),
   dietaryPreferenceApi: new DietaryPreferenceApi(axiosClient),
   userDietaryApi: new UserDietaryApi(axiosClient),
   categoryApi: new CategoryApi(axiosClient),

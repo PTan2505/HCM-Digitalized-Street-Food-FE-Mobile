@@ -69,6 +69,11 @@ export const apiUrl = {
   userDietary: {
     userDietary: '/api/UserDietary/user',
   },
+  badge: {
+    user: '/api/Badge/user',
+    select: (badgeId: number): string => `/api/Badge/user/select/${badgeId}`,
+    clearSelect: '/api/Badge/user/select',
+  },
   user: {
     profile: '/api/User/profile',
     avatar: '/api/User/profile/avatar',

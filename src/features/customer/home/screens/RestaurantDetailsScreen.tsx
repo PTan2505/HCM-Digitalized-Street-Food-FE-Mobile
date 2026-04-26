@@ -478,6 +478,13 @@ export const RestaurantDetailsScreen = ({
       feedbackId: f.id,
       userName: f.user?.name ?? '',
       avatar: f.user?.avatar,
+      selectedBadge:
+        f.user?.selectedBadgeName && f.user?.selectedBadgeIconUrl
+          ? {
+              name: f.user.selectedBadgeName,
+              iconUrl: f.user.selectedBadgeIconUrl,
+            }
+          : undefined,
       date: createdAt.toLocaleDateString('vi-VN'),
       time: createdAt.toLocaleTimeString('vi-VN', {
         hour: '2-digit',

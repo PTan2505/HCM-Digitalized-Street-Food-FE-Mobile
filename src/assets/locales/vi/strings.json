@@ -741,6 +741,20 @@
       "collect": "Nhận thưởng"
     }
   },
+  "badge": {
+    "title": "Huy hiệu của tôi",
+    "earned": "Đã nhận",
+    "earned_on": "Nhận ngày {{date}}",
+    "earned_count": "Đã nhận {{count}}/{{total}} huy hiệu",
+    "empty_title": "Chưa có huy hiệu nào",
+    "empty_hint": "Hoàn thành thử thách để nhận huy hiệu",
+    "load_error": "Không thể tải huy hiệu. Vui lòng thử lại.",
+    "displaying": "Đang hiển thị",
+    "tap_to_display": "Chọn huy hiệu để hiển thị cạnh tên của bạn",
+    "deselect_title": "Bỏ hiển thị huy hiệu",
+    "deselect_confirm": "Bạn có chắc muốn bỏ huy hiệu này khỏi tên không?",
+    "deselect": "Bỏ hiển thị"
+  },
   "withdraw": {
     "title": "Rút tiền",
     "available_balance": "Số dư khả dụng",

@@ -168,4 +168,9 @@ export const queryKeys = {
     all: ['vouchers'] as const,
     myVouchers: ['vouchers', 'my'] as const,
   },
+
+  badges: {
+    all: ['badges'] as const,
+    user: ['badges', 'user'] as const,
+  },
 } as const;

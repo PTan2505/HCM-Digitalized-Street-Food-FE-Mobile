@@ -740,6 +740,20 @@
       "collect": "Collect Reward"
     }
   },
+  "badge": {
+    "title": "My Badges",
+    "earned": "Earned",
+    "earned_on": "Earned on {{date}}",
+    "earned_count": "{{count}}/{{total}} badges earned",
+    "empty_title": "No badges yet",
+    "empty_hint": "Complete challenges to earn badges",
+    "load_error": "Could not load badges. Please try again.",
+    "displaying": "Displaying",
+    "tap_to_display": "Tap a badge to show it next to your name",
+    "deselect_title": "Remove badge display",
+    "deselect_confirm": "Remove this badge from your name?",
+    "deselect": "Remove"
+  },
   "withdraw": {
     "title": "Withdraw",
     "available_balance": "Available balance",

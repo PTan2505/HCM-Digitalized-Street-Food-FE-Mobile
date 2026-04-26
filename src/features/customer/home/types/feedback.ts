@@ -4,6 +4,8 @@ export interface FeedbackUser {
   id: number;
   name: string;
   avatar?: string;
+  selectedBadgeName?: string;
+  selectedBadgeIconUrl?: string;
 }
 
 export interface FeedbackDish {

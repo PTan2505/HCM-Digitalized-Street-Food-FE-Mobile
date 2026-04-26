@@ -17,6 +17,8 @@ import {
   View,
 } from 'react-native';
 
+const BADGE_SIZE = 16;
+
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CLOSE_THRESHOLD = 100;
 
@@ -30,6 +32,10 @@ export interface Review {
   feedbackId: number;
   userName: string;
   avatar?: string;
+  selectedBadge?: {
+    name: string;
+    iconUrl: string;
+  };
   date: string;
   time: string;
   rating: number;
@@ -202,7 +208,7 @@ const ReviewCard = ({
         </View>
 
         <View className="flex-1">
-          <View className="flex-row items-center gap-1.5">
+          <View className="flex-row flex-wrap items-center gap-1.5">
             <Text
               className="text-[15px] font-semibold text-black"
               numberOfLines={1}
@@ -212,6 +218,18 @@ const ReviewCard = ({
             {review.isOwn && (
               <View className="rounded-full bg-primary px-1.5 py-0.5">
                 <Text className="text-[10px] font-bold text-white">Bạn</Text>
+              </View>
+            )}
+            {review.selectedBadge && (
+              <View className="flex-row items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5">
+                <Image
+                  source={{ uri: review.selectedBadge.iconUrl }}
+                  style={{ width: BADGE_SIZE, height: BADGE_SIZE }}
+                  className="rounded-full"
+                />
+                <Text className="text-[10px] font-semibold text-primary-dark">
+                  {review.selectedBadge.name}
+                </Text>
               </View>
             )}
           </View>

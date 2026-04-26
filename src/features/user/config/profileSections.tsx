@@ -175,6 +175,13 @@ export const getProfileSections = (
             navigation.navigate('SetupUserInfo', { initialSetup: false }),
         },
         {
+          id: 'badge',
+          icon: 'medal-outline',
+          title: t('badge.title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('BadgeList'),
+        },
+        {
           id: 'dietary',
           icon: 'nutrition-outline',
           title: t('profile.dietary_preferences'),

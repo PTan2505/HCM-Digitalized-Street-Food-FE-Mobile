@@ -45,6 +45,7 @@ import type { TabType } from '@features/customer/home/screens/RestaurantDetailsS
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { QuestDetailScreen } from '@features/customer/quests/screens/QuestDetailScreen';
 import { QuestListScreen } from '@features/customer/quests/screens/QuestListScreen';
+import { BadgeListScreen } from '@features/user/screens/BadgeListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
@@ -258,6 +259,9 @@ const RootStack = createNativeStackNavigator({
     },
     Withdraw: {
       screen: WithdrawScreen,
+    },
+    BadgeList: {
+      screen: BadgeListScreen,
     },
   },
 });
