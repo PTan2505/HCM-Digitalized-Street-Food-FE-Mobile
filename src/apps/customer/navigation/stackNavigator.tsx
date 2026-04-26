@@ -48,6 +48,7 @@ import { QuestListScreen } from '@features/customer/quests/screens/QuestListScre
 import { BadgeListScreen } from '@features/user/screens/BadgeListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
+import { PaymentHistoryScreen } from '@features/user/screens/PaymentHistoryScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { TierProgressScreen } from '@features/user/screens/TierProgressScreen';
 import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
@@ -262,6 +263,10 @@ const RootStack = createNativeStackNavigator({
     },
     BadgeList: {
       screen: BadgeListScreen,
+    },
+    PaymentHistory: {
+      screen: PaymentHistoryScreen,
+      linking: 'payment-history',
     },
   },
 });

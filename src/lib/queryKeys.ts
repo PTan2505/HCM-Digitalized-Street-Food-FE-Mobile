@@ -173,4 +173,8 @@ export const queryKeys = {
     all: ['badges'] as const,
     user: ['badges', 'user'] as const,
   },
+
+  paymentHistory: {
+    all: ['paymentHistory'] as const,
+  },
 } as const;

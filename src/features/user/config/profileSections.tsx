@@ -95,6 +95,13 @@ export const getProfileSections = (
           rightIcon: 'chevron-forward',
           onPress: (): void => navigation.navigate('OrderHistory'),
         },
+        {
+          id: 'payment-history',
+          icon: 'receipt-outline',
+          title: t('profile.payment_history'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('PaymentHistory'),
+        },
 
         {
           id: 'ghost-pins',

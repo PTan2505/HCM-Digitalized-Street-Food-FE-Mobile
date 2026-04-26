@@ -233,7 +233,8 @@
     "xp_remaining": "Còn {{xp}} XP",
     "tier_silver_desc": "Hạng khởi đầu dành cho mọi thành viên",
     "tier_gold_desc": "Mở khóa ưu đãi đặc biệt dành cho hạng Vàng",
-    "tier_diamond_desc": "Hưởng đặc quyền cao nhất dành cho hạng Kim Cương"
+    "tier_diamond_desc": "Hưởng đặc quyền cao nhất dành cho hạng Kim Cương",
+    "payment_history": "Lịch sử giao dịch"
   },
   "favorites": {
     "title": "Quán yêu thích",
@@ -923,5 +924,27 @@
     "error_save": "Không thể lưu ca làm việc",
     "error_close_before_open": "Giờ đóng phải sau giờ mở",
     "error_overlap": "Ca làm việc bị trùng với ca hiện có"
+  },
+  "payment_history": {
+    "title": "Lịch sử giao dịch",
+    "status_paid": "Đã thanh toán",
+    "status_pending": "Đang xử lý",
+    "status_cancelled": "Đã hủy",
+    "status_failed": "Thất bại",
+    "method_qr": "QR Code",
+    "method_wallet": "Ví Lowca",
+    "method_payout": "Rút tiền",
+    "view_order": "Xem đơn hàng",
+    "transaction_code": "Mã giao dịch",
+    "paid_at": "Thanh toán lúc",
+    "amount": "Số tiền",
+    "method_wallet_refund": "Hoàn tiền ví Lowca",
+    "tab_money_in": "Tiền vào",
+    "tab_money_out": "Tiền ra",
+    "desc_wallet_payment": "Thanh toán đơn hàng #{{orderId}}",
+    "desc_wallet_refund": "Hoàn tiền đơn hàng #{{orderId}}",
+    "desc_payout": "Rút tiền về tài khoản",
+    "empty_money_in": "Chưa có giao dịch tiền vào",
+    "empty_money_out": "Chưa có giao dịch tiền ra"
   }
 }

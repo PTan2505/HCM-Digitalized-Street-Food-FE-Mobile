@@ -233,7 +233,8 @@
     "xp_remaining": "{xp} XP remaining",
     "tier_silver_desc": "Starting tier for all members",
     "tier_gold_desc": "Unlock special perks for Gold members",
-    "tier_diamond_desc": "Enjoy the highest privileges as a Diamond member"
+    "tier_diamond_desc": "Enjoy the highest privileges as a Diamond member",
+    "payment_history": "Transaction History"
   },
   "favorites": {
     "title": "Favourites",
@@ -922,5 +923,27 @@
     "error_save": "Failed to save schedule",
     "error_close_before_open": "Close time must be after open time",
     "error_overlap": "This shift overlaps with an existing shift"
+  },
+  "payment_history": {
+    "title": "Transaction History",
+    "status_paid": "Paid",
+    "status_pending": "Pending",
+    "status_cancelled": "Cancelled",
+    "status_failed": "Failed",
+    "method_qr": "QR Code",
+    "method_wallet": "Lowca Wallet",
+    "method_payout": "Withdrawal",
+    "view_order": "View Order",
+    "transaction_code": "Transaction Code",
+    "paid_at": "Paid at",
+    "amount": "Amount",
+    "method_wallet_refund": "Lowca Wallet Refund",
+    "tab_money_in": "Money In",
+    "tab_money_out": "Money Out",
+    "desc_wallet_payment": "Order payment #{{orderId}}",
+    "desc_wallet_refund": "Refund for order #{{orderId}}",
+    "desc_payout": "Withdrawal to bank account",
+    "empty_money_in": "No incoming transactions yet",
+    "empty_money_out": "No outgoing transactions yet"
   }
 }

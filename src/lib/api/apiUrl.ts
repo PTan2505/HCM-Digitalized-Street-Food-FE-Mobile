@@ -115,6 +115,7 @@ export const apiUrl = {
   payment: {
     orderConfirm: '/api/Payment/order/confirm',
     userTransfer: '/api/Payment/user/transfer',
+    history: '/api/Payment/history',
   },
   notification: {
     registerToken: '/api/notifications/register-token',

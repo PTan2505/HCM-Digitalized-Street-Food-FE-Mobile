@@ -1,6 +1,10 @@
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
-import type { WithdrawRequest, WithdrawResponse } from '@user/types/payment';
+import type {
+  PaymentTransaction,
+  WithdrawRequest,
+  WithdrawResponse,
+} from '@user/types/payment';
 import type { ApiResponse } from '@custom-types/apiResponse';
 
 export class UserPaymentApi {
@@ -16,6 +20,12 @@ export class UserPaymentApi {
     return this.apiClient.post<WithdrawResponse, WithdrawRequest>({
       url: apiUrl.payment.userTransfer,
       data,
+    });
+  }
+
+  async getPaymentHistory(): Promise<ApiResponse<PaymentTransaction[]>> {
+    return this.apiClient.get<PaymentTransaction[]>({
+      url: apiUrl.payment.history,
     });
   }
 }
