@@ -9,9 +9,9 @@ import type {
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
 import { useOrderHistoryQuery } from '@features/customer/direct-ordering/hooks/useOrderHistoryQuery';
 import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -144,8 +144,19 @@ export const OrderHistoryScreen = (): JSX.Element => {
   const selectedStatusParam: OrderStatus | null =
     selectedStatus === 'all' ? null : selectedStatus;
 
-  const { orders, isLoading, hasNext, loadMore } =
+  const { orders, isLoading, hasNext, loadMore, refetch } =
     useOrderHistoryQuery(selectedStatusParam);
+
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      void refetch();
+    }, [refetch])
+  );
 
   const statusTabs = useMemo(
     () => [
