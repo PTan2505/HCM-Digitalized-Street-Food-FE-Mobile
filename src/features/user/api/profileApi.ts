@@ -62,6 +62,15 @@ export class UserProfileApi {
     return res.data;
   }
 
+  async uploadAvatar(formData: FormData): Promise<User> {
+    const res = await this.apiClient.post<User, FormData>({
+      url: apiUrl.user.avatar,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  }
+
   async markDietarySetup(): Promise<void> {
     await this.apiClient.put<void, null>({
       url: apiUrl.user.userSetup.dietary,

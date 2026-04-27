@@ -20,6 +20,7 @@ import { JSX, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -43,7 +44,7 @@ const UserProfileForm = ({
   const navigation = useNavigation();
   const isFirstScreen = !navigation.canGoBack();
   const { updateUserProfile } = useProfile();
-  const { avatarUri, pickAvatar } = useAvatarPicker();
+  const { avatarUri, isUploading, pickAvatar } = useAvatarPicker();
   const { onLogout } = useLogin();
   const {
     isStarting,
@@ -127,7 +128,11 @@ const UserProfileForm = ({
         />
         <ScrollView className="flex-1">
           <View className="items-center py-6">
-            <Pressable className="relative" onPress={pickAvatar}>
+            <Pressable
+              className="relative"
+              onPress={pickAvatar}
+              disabled={isUploading}
+            >
               <Image
                 source={
                   avatarUri
@@ -138,9 +143,15 @@ const UserProfileForm = ({
                 }
                 className="h-[128] w-[128] rounded-[64] border-[2px] border-primary shadow-2xl"
               />
-              <View className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-primary">
-                <FontAwesome name="pencil" size={16} color="black" />
-              </View>
+              {isUploading ? (
+                <View className="absolute inset-0 h-[128] w-[128] items-center justify-center rounded-[64] bg-black/40">
+                  <ActivityIndicator color="white" />
+                </View>
+              ) : (
+                <View className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-primary">
+                  <FontAwesome name="pencil" size={16} color="black" />
+                </View>
+              )}
             </Pressable>
           </View>
 

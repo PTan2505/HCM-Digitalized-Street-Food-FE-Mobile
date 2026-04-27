@@ -1,27 +1,22 @@
-import { useAppSelector } from '@hooks/reduxHooks';
-import { selectQuests, type QuestProgress } from '@slices/campaigns';
 import { useMemo } from 'react';
 
+export interface QuestProgress {
+  campaignId: string;
+  questDescription: string;
+  currentProgress: number;
+  targetProgress: number;
+  isCompleted: boolean;
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const useQuestProgress = (campaignId?: string) => {
-  const quests = useAppSelector(selectQuests);
+export const useQuestProgress = (_campaignId?: string) => {
+  const quests: QuestProgress[] = [];
 
-  const campaignQuest = useMemo(
-    () =>
-      campaignId
-        ? (quests.find((q) => q.campaignId === campaignId) ?? null)
-        : null,
-    [quests, campaignId]
-  );
-
-  const activeQuests = useMemo(
-    () => quests.filter((q) => !q.isCompleted),
-    [quests]
-  );
-
+  const campaignQuest = useMemo(() => null, []);
+  const activeQuests = useMemo(() => quests.filter((q) => !q.isCompleted), []);
   const completedQuests = useMemo(
     () => quests.filter((q) => q.isCompleted),
-    [quests]
+    []
   );
 
   const getProgressPercentage = (quest: QuestProgress): number => {

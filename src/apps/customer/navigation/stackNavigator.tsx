@@ -1,5 +1,6 @@
 import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/customer/direct-ordering/screens/OrderHistoryScreen';
@@ -8,8 +9,6 @@ import { PaymentQRScreen } from '@features/customer/direct-ordering/screens/Paym
 import { PersonalCartScreen } from '@features/customer/direct-ordering/screens/PersonalCartScreen';
 import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/VoucherSelectScreen';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
-import { CurrentPickDetailsScreen } from '@features/customer/home/screens/CurrentPickDetailsScreen';
-import { CurrentPicksScreen } from '@features/customer/home/screens/CurrentPicksScreen';
 import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/customer/home/screens/ListBranchScreen';
 import { RestaurantDeepLinkScreen } from '@features/customer/home/screens/RestaurantDeepLinkScreen';
@@ -31,7 +30,6 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
-import type { Voucher } from '@slices/campaigns';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
@@ -47,8 +45,10 @@ import type { TabType } from '@features/customer/home/screens/RestaurantDetailsS
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { QuestDetailScreen } from '@features/customer/quests/screens/QuestDetailScreen';
 import { QuestListScreen } from '@features/customer/quests/screens/QuestListScreen';
+import { BadgeListScreen } from '@features/user/screens/BadgeListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
+import { PaymentHistoryScreen } from '@features/user/screens/PaymentHistoryScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
 import { TierProgressScreen } from '@features/user/screens/TierProgressScreen';
 import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
@@ -113,10 +113,6 @@ const RootStack = createNativeStackNavigator({
         branchLong: number;
       },
     },
-    CurrentPicks: {
-      screen: CurrentPicksScreen,
-      linking: 'current-picks',
-    },
     ListBranch: {
       screen: ListBranchScreen,
       params: {} as {
@@ -124,9 +120,6 @@ const RootStack = createNativeStackNavigator({
         title?: string;
         vouchersByBranchId?: Record<number, VoucherChip[]>;
       },
-    },
-    CurrentPickDetails: {
-      screen: CurrentPickDetailsScreen,
     },
     Favorites: {
       screen: FavoritesScreen,
@@ -192,6 +185,8 @@ const RootStack = createNativeStackNavigator({
       screen: PaymentQRScreen,
       params: {} as {
         orderId: number;
+        branchId: number;
+        orderCode?: number | null;
         qrCode: string;
         totalAmount: number;
         branchName: string;
@@ -265,6 +260,13 @@ const RootStack = createNativeStackNavigator({
     },
     Withdraw: {
       screen: WithdrawScreen,
+    },
+    BadgeList: {
+      screen: BadgeListScreen,
+    },
+    PaymentHistory: {
+      screen: PaymentHistoryScreen,
+      linking: 'payment-history',
     },
   },
 });

@@ -13,6 +13,7 @@ import {
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 setGlobalStyles();
 
@@ -30,9 +31,11 @@ export default function ManagerApp(): ReactNode {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ManagerAppProvider>
-        <ManagerNavigation theme={ManagerCustomTheme} />
-      </ManagerAppProvider>
+      <SafeAreaProvider>
+        <ManagerAppProvider>
+          <ManagerNavigation theme={ManagerCustomTheme} />
+        </ManagerAppProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

@@ -273,6 +273,19 @@ export const updateProfile = createAppAsyncThunk(
   }
 );
 
+export const uploadAvatar = createAppAsyncThunk(
+  'user/uploadAvatar',
+  async (formData: FormData, { rejectWithValue }) => {
+    try {
+      await axiosApi.userProfileApi.uploadAvatar(formData);
+      const user = await axiosApi.userProfileApi.getUserProfile();
+      return user;
+    } catch (error) {
+      return rejectWithValue(serializeError(error));
+    }
+  }
+);
+
 export const markUserInfoSetup = createAppAsyncThunk(
   'user/markUserInfoSetup',
   async (_, { rejectWithValue }) => {
@@ -383,6 +396,9 @@ export const authSlice = createSlice({
         state.value = action.payload;
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
+        state.value = action.payload;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.value = action.payload;
       })
       .addCase(markUserInfoSetup.fulfilled, (state) => {

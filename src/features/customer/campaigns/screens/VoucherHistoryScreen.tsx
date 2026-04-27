@@ -1,18 +1,17 @@
 import Header from '@components/Header';
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import {
+  getExpiresAt,
+  isExpired,
+  isUsed,
+} from '@customer/campaigns/utils/voucher';
 import { Ionicons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useMyVouchersQuery } from '@features/customer/campaigns/hooks/useMyVouchersQuery';
 import { useNavigation } from '@react-navigation/native';
-import type { Voucher } from '@slices/campaigns';
-import {
-  fetchMyVouchers,
-  selectVouchers,
-  selectVouchersLoading,
-} from '@slices/campaigns';
 import type { JSX } from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -30,34 +29,23 @@ const TABS: { key: HistoryTab; labelKey: string }[] = [
   { key: 'expired', labelKey: 'campaign.expired' },
 ];
 
-const getExpiresAt = (voucher: Voucher): Date =>
-  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
-
 export const VoucherHistoryScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const dispatch = useAppDispatch();
-  const allVouchers = useAppSelector(selectVouchers);
-  const isLoading = useAppSelector(selectVouchersLoading);
+  const {
+    vouchers: allVouchers,
+    isLoading,
+    refetch: handleRefresh,
+  } = useMyVouchersQuery();
 
   const [activeTab, setActiveTab] = useState<HistoryTab>('used');
-
-  useEffect(() => {
-    void dispatch(fetchMyVouchers());
-  }, [dispatch]);
-
-  const handleRefresh = useCallback(() => {
-    void dispatch(fetchMyVouchers());
-  }, [dispatch]);
 
   const handleTabChange = useCallback((key: HistoryTab) => {
     setActiveTab(key);
   }, []);
 
-  const usedVouchers = allVouchers.filter((v) => !v.isAvailable);
-  const expiredVouchers = allVouchers.filter(
-    (v) => getExpiresAt(v) <= new Date() && v.isAvailable
-  );
+  const usedVouchers = allVouchers.filter(isUsed);
+  const expiredVouchers = allVouchers.filter((v) => isExpired(v) && !isUsed(v));
 
   const displayedVouchers =
     activeTab === 'used' ? usedVouchers : expiredVouchers;
@@ -128,7 +116,9 @@ export const VoucherHistoryScreen = (): JSX.Element => {
                     })
                   : undefined
               }
-              expiresText={getExpiresAt(item).toLocaleDateString('vi-VN')}
+              expiresText={
+                getExpiresAt(item)?.toLocaleDateString('vi-VN') ?? ''
+              }
               secondaryMetaText={
                 !item.isAvailable
                   ? t('campaign.voucher_not_available')

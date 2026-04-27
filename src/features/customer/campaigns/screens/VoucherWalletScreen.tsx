@@ -1,6 +1,13 @@
 import Header from '@components/Header';
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import {
+  getExpiresAt,
+  isExpired,
+  isExpiringSoon,
+  isNotYetActive,
+  isUsed,
+} from '@customer/campaigns/utils/voucher';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
 import {
@@ -9,7 +16,7 @@ import {
 } from '@features/customer/campaigns/hooks/useVoucherWallet';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,24 +40,6 @@ const TABS: TabConfig[] = [
   { key: 'campaign', labelKey: 'voucher_wallet.voucher_tab_campaign' },
   { key: 'system', labelKey: 'voucher_wallet.voucher_tab_system' },
 ];
-
-const getExpiresAt = (voucher: Voucher): Date =>
-  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
-
-const isExpired = (voucher: Voucher): boolean =>
-  getExpiresAt(voucher) <= new Date();
-
-const isUsed = (voucher: Voucher): boolean => !voucher.isAvailable;
-
-const isNotYetActive = (voucher: Voucher): boolean =>
-  voucher.startDate != null && new Date(voucher.startDate) > new Date();
-
-const isExpiringSoon = (voucher: Voucher): boolean => {
-  const expiresAt = getExpiresAt(voucher);
-  const now = new Date();
-  const hoursLeft = (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60);
-  return hoursLeft > 0 && hoursLeft <= 24;
-};
 
 export const VoucherWalletScreen = (): JSX.Element => {
   const { t } = useTranslation();
@@ -120,7 +109,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
           <Text className="mt-3 text-center text-base text-gray-400">
-            {error}
+            {error?.message ?? String(error)}
           </Text>
           <TouchableOpacity
             onPress={handleRefresh}
@@ -189,7 +178,10 @@ export const VoucherWalletScreen = (): JSX.Element => {
                           })
                         : undefined
                     }
-                    expiresText={getExpiresAt(item).toLocaleDateString('vi-VN')}
+                    expiresText={
+                      getExpiresAt(item)?.toLocaleDateString('vi-VN') ??
+                      t('voucher_wallet.no_expiry')
+                    }
                     secondaryMetaText={
                       used
                         ? t('voucher_wallet.voucher_not_available')
@@ -261,7 +253,9 @@ export const VoucherWalletScreen = (): JSX.Element => {
                     </Text>
                     <Text className="mt-0.5 text-base text-gray-400">
                       {t('voucher_wallet.valid_until', {
-                        date: getExpiresAt(item).toLocaleDateString('vi-VN'),
+                        date:
+                          getExpiresAt(item)?.toLocaleDateString('vi-VN') ??
+                          t('voucher_wallet.no_expiry'),
                       })}
                     </Text>
                     {item.minAmountRequired != null && (

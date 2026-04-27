@@ -7,16 +7,11 @@ import type {
   OrderStatus,
 } from '@features/customer/direct-ordering/api/cartApi';
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useOrderHistoryQuery } from '@features/customer/direct-ordering/hooks/useOrderHistoryQuery';
 import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import {
-  fetchOrderHistoryThunk,
-  selectOrderHistoryByStatus,
-  selectOrderHistoryLoading,
-} from '@slices/directOrdering';
 import type { JSX } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -143,16 +138,24 @@ const OrderHistoryItem = ({
 
 export const OrderHistoryScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation = useNavigation();
-  const isLoading = useAppSelector(selectOrderHistoryLoading);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatusTab>('all');
 
   const selectedStatusParam: OrderStatus | null =
     selectedStatus === 'all' ? null : selectedStatus;
 
-  const orderHistory = useAppSelector((state) =>
-    selectOrderHistoryByStatus(state, selectedStatusParam)
+  const { orders, isLoading, hasNext, loadMore, refetch } =
+    useOrderHistoryQuery(selectedStatusParam);
+
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      void refetch();
+    }, [refetch])
   );
 
   const statusTabs = useMemo(
@@ -184,37 +187,11 @@ export const OrderHistoryScreen = (): JSX.Element => {
     [t]
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      if (orderHistory) {
-        return;
-      }
-
-      dispatch(
-        fetchOrderHistoryThunk({
-          pageNumber: 1,
-          pageSize: 20,
-          status: selectedStatusParam,
-        })
-      );
-    }, [dispatch, orderHistory, selectedStatusParam])
-  );
-
   const handleLoadMore = useCallback(() => {
-    if (
-      orderHistory?.hasNext &&
-      !isLoading &&
-      (orderHistory.items?.length ?? 0) > 0
-    ) {
-      dispatch(
-        fetchOrderHistoryThunk({
-          pageNumber: orderHistory.currentPage + 1,
-          pageSize: orderHistory.pageSize,
-          status: selectedStatusParam,
-        })
-      );
+    if (hasNext && !isLoading) {
+      loadMore();
     }
-  }, [dispatch, orderHistory, isLoading, selectedStatusParam]);
+  }, [hasNext, isLoading, loadMore]);
 
   const handleOrderPress = useCallback(
     (order: OrderResponse) => {
@@ -248,7 +225,7 @@ export const OrderHistoryScreen = (): JSX.Element => {
       />
 
       <FlatList
-        data={orderHistory?.items ?? []}
+        data={orders}
         keyExtractor={(item) => String(item.orderId)}
         renderItem={renderOrder}
         onEndReached={handleLoadMore}
@@ -274,7 +251,7 @@ export const OrderHistoryScreen = (): JSX.Element => {
           )
         }
         ListFooterComponent={
-          isLoading && orderHistory ? (
+          isLoading && orders.length > 0 ? (
             <View className="py-4">
               <ActivityIndicator color={COLORS.primary} />
             </View>

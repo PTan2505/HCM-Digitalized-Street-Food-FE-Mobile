@@ -95,6 +95,13 @@ export const getProfileSections = (
           rightIcon: 'chevron-forward',
           onPress: (): void => navigation.navigate('OrderHistory'),
         },
+        {
+          id: 'payment-history',
+          icon: 'receipt-outline',
+          title: t('profile.payment_history'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('PaymentHistory'),
+        },
 
         {
           id: 'ghost-pins',
@@ -173,6 +180,13 @@ export const getProfileSections = (
           rightIcon: 'chevron-forward',
           onPress: (): void =>
             navigation.navigate('SetupUserInfo', { initialSetup: false }),
+        },
+        {
+          id: 'badge',
+          icon: 'medal-outline',
+          title: t('badge.title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('BadgeList'),
         },
         {
           id: 'dietary',

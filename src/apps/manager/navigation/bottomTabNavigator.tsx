@@ -3,11 +3,12 @@ import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
 import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
-import { useAppSelector } from '@hooks/reduxHooks';
+import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
 import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/screens/ManagerFeedbackScreen';
+import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
+import { ManagerScheduleScreen } from '@manager/schedule/ManagerScheduleScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { selectUnreadCount } from '@slices/notifications';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,7 +16,7 @@ const Tab = createBottomTabNavigator();
 
 export const ManagerMainTabs = (): JSX.Element => {
   const { t } = useTranslation();
-  const unreadCount = useAppSelector(selectUnreadCount);
+  const { unreadCount } = useUnreadNotificationCount();
 
   return (
     <Tab.Navigator
@@ -57,7 +58,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="ManagerMenu"
         component={ManagerMenuScreen}
         options={{
@@ -66,7 +67,7 @@ export const ManagerMainTabs = (): JSX.Element => {
             <FontAwesome6 name="utensils" size={size} color={color} />
           ),
         }}
-      /> */}
+      />
       <Tab.Screen
         name="ManagerFeedback"
         component={ManagerFeedbackScreen}
@@ -77,7 +78,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      {/* <Tab.Screen
+      <Tab.Screen
         name="ManagerSchedule"
         component={ManagerScheduleScreen}
         options={{
@@ -87,16 +88,6 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      <Tab.Screen
-        name="ManagerDayOff"
-        component={ManagerDayOffScreen}
-        options={{
-          title: t('manager_tabs.day_off'),
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome6 name="calendar-xmark" size={size} color={color} />
-          ),
-        }}
-      /> */}
       <Tab.Screen
         name="Notifications"
         component={NotificationScreen}

@@ -9,28 +9,14 @@ import BannerCarousel from '@features/customer/home/components/home/BannerCarous
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
+import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
+import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useAppSelector } from '@hooks/reduxHooks';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
-import {
-  computeDisplayName,
-  fetchActiveBranches,
-  selectBranchImageMap,
-  selectBranches,
-  selectBranchesStatus,
-  selectMultiBranchVendorIds,
-  updateBranchRating,
-} from '@slices/branches';
-import {
-  selectDietaryState,
-  selectUserDietaryPreferences,
-} from '@slices/dietary';
-import {
-  fetchMyCartsThunk,
-  selectTotalCartsWithItems,
-} from '@slices/directOrdering';
-import { fetchUnreadCount } from '@slices/notifications';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { registerCallback } from '@utils/callbackRegistry';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -73,17 +59,38 @@ const STICKY_FADE_RANGE_PX = 40;
 export const HomeScreen = (): JSX.Element => {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const userStatus = useAppSelector(selectUserStatus);
   const { categories, isLoading: categoriesLoading } = useCategories();
-  const branches = useAppSelector(selectBranches);
-  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
-  const branchImageMap = useAppSelector(selectBranchImageMap);
-  const branchesStatus = useAppSelector(selectBranchesStatus);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
-  const dietaryStatus = useAppSelector(selectDietaryState);
+  const { userDietaryPreferences, isLoading: isDietaryLoading } =
+    useUserDietaryQuery();
   const { coords: userCoords, permissionStatus } = useLocationPermission();
+  const branchFetchEnabled =
+    permissionStatus !== Location.PermissionStatus.UNDETERMINED &&
+    !(user?.dietarySetup && isDietaryLoading);
+  const branchFilters = useMemo(
+    () => ({
+      lat: userCoords?.latitude,
+      lng: userCoords?.longitude,
+      distance: userCoords ? 5 : undefined,
+      dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      userCoords?.latitude,
+      userCoords?.longitude,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      userDietaryPreferences.map((p) => p.dietaryPreferenceId).join(','),
+    ]
+  );
+  const {
+    branches,
+    multiBranchVendorIds,
+    branchImageMap,
+    status: branchesStatus,
+    refetch: refetchBranches,
+    updateBranchRating: updateBranchRatingFn,
+  } = useActiveBranchesQuery(branchFilters, branchFetchEnabled);
   const {
     systemCampaigns,
     fetchNextPage,
@@ -104,7 +111,10 @@ export const HomeScreen = (): JSX.Element => {
     isLoading: ghostPinsLoading,
     refetch: refetchGhostPins,
   } = useGhostPins();
-  const totalCartsWithItems = useAppSelector(selectTotalCartsWithItems);
+  const { carts: myCartsData } = useMyCartsQuery();
+  const totalCartsWithItems = myCartsData.filter(
+    (c) => c.items.length > 0
+  ).length;
   const [refreshing, setRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -182,91 +192,6 @@ export const HomeScreen = (): JSX.Element => {
     [scrollY, handleScroll]
   );
 
-  // Single ref: flips true once the initial page-1 fetch has been dispatched.
-  // We never fire a fetch until dietary status is settled so that FETCH-A
-  // (no dietary) can never race against and overwrite FETCH-B (with dietary).
-  const hasFetchedRef = useRef(false);
-  const fetchedWithoutCoordsRef = useRef(false);
-  const hasUpgradedToCoordsRef = useRef(false);
-
-  useEffect(() => {
-    if (branchesStatus !== 'idle') return;
-    // Wait for location permission to settle before fetching.
-    // UNDETERMINED: dialog not yet answered.
-    // For GRANTED with missing coords, proceed without coordinates to avoid
-    // getting stuck when Android location providers fail.
-    if (permissionStatus === Location.PermissionStatus.UNDETERMINED) return;
-    // If the user completed dietary setup, wait until prefs are loaded.
-    // This prevents dispatching a fetch without DietaryIds that could complete
-    // *after* the dietary-enriched fetch and overwrite the result.
-    if (
-      user?.dietarySetup &&
-      dietaryStatus !== 'succeeded' &&
-      dietaryStatus !== 'failed'
-    )
-      return;
-    if (hasFetchedRef.current) return;
-
-    hasFetchedRef.current = true;
-    fetchedWithoutCoordsRef.current = userCoords === null;
-    hasUpgradedToCoordsRef.current = userCoords !== null;
-    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
-    void dispatch(
-      fetchActiveBranches({
-        page: 1,
-        lat: userCoords?.latitude,
-        lng: userCoords?.longitude,
-        distance: userCoords ? 5 : undefined,
-        dietaryIds,
-      })
-    );
-  }, [
-    branchesStatus,
-    permissionStatus,
-    userCoords,
-    user?.dietarySetup,
-    dietaryStatus,
-    userDietaryPreferences,
-    dispatch,
-  ]);
-
-  // If the first fetch had no location (e.g. permission just granted and coords
-  // arrived a moment later), run one upgrade fetch with lat/lng.
-  useEffect(() => {
-    if (!hasFetchedRef.current) return;
-    if (hasUpgradedToCoordsRef.current) return;
-    if (!fetchedWithoutCoordsRef.current) return;
-    if (permissionStatus !== Location.PermissionStatus.GRANTED) return;
-    if (!userCoords) return;
-    if (branchesStatus === 'pending') return;
-    if (
-      user?.dietarySetup &&
-      dietaryStatus !== 'succeeded' &&
-      dietaryStatus !== 'failed'
-    )
-      return;
-
-    hasUpgradedToCoordsRef.current = true;
-    const dietaryIds = userDietaryPreferences.map((p) => p.dietaryPreferenceId);
-    void dispatch(
-      fetchActiveBranches({
-        page: 1,
-        lat: userCoords.latitude,
-        lng: userCoords.longitude,
-        distance: 5,
-        dietaryIds,
-      })
-    );
-  }, [
-    branchesStatus,
-    permissionStatus,
-    userCoords,
-    user?.dietarySetup,
-    dietaryStatus,
-    userDietaryPreferences,
-    dispatch,
-  ]);
-
   useEffect(() => {
     if (userStatus === 'succeeded' && user) {
       if (!user?.userInfoSetup) {
@@ -277,9 +202,8 @@ export const HomeScreen = (): JSX.Element => {
     }
   }, [user, userStatus, navigation]);
 
-  // Re-fetch home branches when screen regains focus (e.g. coming back from
-  // MapScreen which may have overwritten the shared Redux branches state with
-  // branches for a different location).
+  // Re-fetch home branches when screen regains focus (MapScreen uses its own
+  // query key so it no longer overwrites this data, but a refetch keeps it fresh).
   const isFirstFocus = useRef(true);
   useFocusEffect(
     useCallback(() => {
@@ -287,31 +211,10 @@ export const HomeScreen = (): JSX.Element => {
         isFirstFocus.current = false;
         return;
       }
-      // Only re-fetch if the initial load already happened
-      if (!hasFetchedRef.current) return;
-      const dietaryIds = userDietaryPreferences.map(
-        (p) => p.dietaryPreferenceId
-      );
-      void dispatch(
-        fetchActiveBranches({
-          page: 1,
-          lat: userCoords?.latitude,
-          lng: userCoords?.longitude,
-          distance: userCoords ? 5 : undefined,
-          dietaryIds,
-        })
-      );
-    }, [dispatch, userCoords, userDietaryPreferences])
-  );
-
-  useEffect(() => {
-    void dispatch(fetchUnreadCount());
-  }, [dispatch]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void dispatch(fetchMyCartsThunk());
-    }, [dispatch])
+      if (branchFetchEnabled) {
+        refetchBranches();
+      }
+    }, [branchFetchEnabled, refetchBranches])
   );
 
   const handleCampaignPress = useCallback(
@@ -325,12 +228,11 @@ export const HomeScreen = (): JSX.Element => {
     [navigation]
   );
 
-  // Callback to update branch rating in Redux when navigating back from detail screens
   const handleRatingUpdate = useCallback(
     (branchId: number, avgRating: number, totalReviewCount: number) => {
-      dispatch(updateBranchRating({ branchId, avgRating, totalReviewCount }));
+      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
     },
-    [dispatch]
+    [updateBranchRatingFn]
   );
 
   const vendorCampaignVouchersByBranchId = useMemo(() => {
@@ -421,33 +323,21 @@ export const HomeScreen = (): JSX.Element => {
     setIsPulling(false);
 
     requestAnimationFrame(() => {
-      Promise.all([
-        dispatch(
-          fetchActiveBranches({
-            page: 1,
-            lat: userCoords?.latitude,
-            lng: userCoords?.longitude,
-            distance: 5,
-            dietaryIds: userDietaryPreferences.map(
-              (p) => p.dietaryPreferenceId
-            ),
-          })
-        ),
-        refetchSystemCampaigns(),
-        dispatch(fetchUnreadCount()),
-        refetchVendorCampaigns(),
-        refetchGhostPins(),
-      ]).finally(() => {
+      const done = (): void => {
         isRefreshingRef.current = false;
         setRefreshing(false);
         isPullingRef.current = false;
         setIsPulling(false);
-      });
+      };
+      void Promise.all([
+        refetchBranches(),
+        refetchSystemCampaigns(),
+        refetchVendorCampaigns(),
+        refetchGhostPins(),
+      ] as Promise<unknown>[]).finally(done);
     });
   }, [
-    dispatch,
-    userCoords,
-    userDietaryPreferences,
+    refetchBranches,
     refetchSystemCampaigns,
     refetchVendorCampaigns,
     refetchGhostPins,
@@ -864,18 +754,7 @@ export const HomeScreen = (): JSX.Element => {
                   {t('search.error')}
                 </Text>
                 <TouchableOpacity
-                  onPress={() =>
-                    dispatch(
-                      fetchActiveBranches({
-                        page: 1,
-                        lat: userCoords?.latitude,
-                        lng: userCoords?.longitude,
-                        dietaryIds: userDietaryPreferences.map(
-                          (p) => p.dietaryPreferenceId
-                        ),
-                      })
-                    )
-                  }
+                  onPress={refetchBranches}
                   className="mt-4 rounded-full bg-primary-dark px-6 py-2"
                 >
                   <Text className="text-base font-semibold text-white">

@@ -1,9 +1,9 @@
 import { ROLES } from '@constants/roles';
 import { QuestRewardModal } from '@features/customer/quests/components/QuestRewardModal';
+import { XPProgressToast } from '@features/notifications/components/XPProgressToast';
 import { useNotificationNavigation } from '@features/notifications/hooks/useNotificationNavigation';
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
-import { XPProgressToast } from '@features/xp/components/XPProgressToast';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { addPoints, addXP, selectUser } from '@slices/auth';

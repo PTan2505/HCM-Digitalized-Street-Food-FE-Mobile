@@ -3,7 +3,7 @@ import { useRestaurantCampaigns } from '@features/customer/campaigns/hooks/useRe
 import { useVoucherWallet } from '@features/customer/campaigns/hooks/useVoucherWallet';
 import type { DiscountType } from '@features/customer/campaigns/types/generated';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +55,6 @@ export const RestaurantCampaignDetailScreen = ({
       maxDiscountValue: null,
       startDate: null,
       endDate: campaign.expiresAt ?? null,
-      expiredDate: null,
       isActive: true,
       campaignId: campaign.campaignId ?? null,
       quantity: 1,

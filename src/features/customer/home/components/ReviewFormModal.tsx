@@ -5,10 +5,10 @@ import type {
   SubmitFeedbackRequest,
   UpdateFeedbackRequest,
 } from '@features/customer/home/types/feedback';
+import { useFeedbackXP } from '@features/customer/home/hooks/useSettings';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { addXP, selectUserXP } from '@slices/auth';
-import { selectFeedbackXP } from '@slices/settings';
 import { showXPToast } from '@slices/xpToast';
 import type { PickedImage } from '@utils/imagePicker';
 import {
@@ -74,7 +74,7 @@ export const ReviewFormModal = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const currentXP = useAppSelector(selectUserXP);
-  const feedbackXP = useAppSelector(selectFeedbackXP);
+  const feedbackXP = useFeedbackXP();
 
   const [rating, setRating] = useState(existingFeedback?.rating ?? 0);
   const [comment, setComment] = useState(existingFeedback?.comment ?? '');

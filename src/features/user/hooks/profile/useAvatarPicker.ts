@@ -2,13 +2,46 @@ import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useAppDispatch } from '@hooks/reduxHooks';
+import { uploadAvatar } from '@slices/auth';
 
 export const useAvatarPicker = (): {
   avatarUri: string | null;
+  isUploading: boolean;
   pickAvatar: () => void;
 } => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const uploadImage = useCallback(
+    async (asset: ImagePicker.ImagePickerAsset): Promise<void> => {
+      setAvatarUri(asset.uri);
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append('image', {
+          uri: asset.uri,
+          type: asset.mimeType ?? 'image/jpeg',
+          name: asset.fileName ?? 'avatar.jpg',
+        } as unknown as Blob);
+        await dispatch(uploadAvatar(formData)).unwrap();
+      } catch {
+        Alert.alert(
+          t('edit_profile.avatar_upload_failed_title', 'Lỗi'),
+          t(
+            'edit_profile.avatar_upload_failed_message',
+            'Không thể tải ảnh lên. Vui lòng thử lại.'
+          )
+        );
+        setAvatarUri(null);
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    [dispatch, t]
+  );
 
   const openCamera = useCallback(async (): Promise<void> => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -28,9 +61,9 @@ export const useAvatarPicker = (): {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setAvatarUri(result.assets[0].uri);
+      await uploadImage(result.assets[0]);
     }
-  }, [t]);
+  }, [t, uploadImage]);
 
   const openGallery = useCallback(async (): Promise<void> => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -50,9 +83,9 @@ export const useAvatarPicker = (): {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setAvatarUri(result.assets[0].uri);
+      await uploadImage(result.assets[0]);
     }
-  }, [t]);
+  }, [t, uploadImage]);
 
   const pickAvatar = useCallback((): void => {
     Alert.alert(
@@ -66,5 +99,5 @@ export const useAvatarPicker = (): {
     );
   }, [t, openCamera, openGallery]);
 
-  return { avatarUri, pickAvatar };
+  return { avatarUri, isUploading, pickAvatar };
 };

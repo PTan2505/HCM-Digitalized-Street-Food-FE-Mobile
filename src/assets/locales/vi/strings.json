@@ -28,6 +28,8 @@
   "from": "Từ",
   "to": "đến",
   "filter": "Bộ lọc",
+  "ward_label": "Phường / Xã",
+  "ward_placeholder": "Tìm phường, xã...",
   "space": "Không gian",
   "dish_type": "Loại món",
   "price_range": "Khoảng giá",
@@ -60,7 +62,13 @@
     "retry": "Thử lại",
     "history_title": "Tìm kiếm gần đây",
     "clear_history": "Xóa tất cả",
-    "address_history_title": "Địa chỉ tìm kiếm gần đây"
+    "address_history_title": "Địa chỉ tìm kiếm gần đây",
+    "moreLocations_one": "+{{count}} chi nhánh khác",
+    "moreLocations_other": "+{{count}} chi nhánh khác",
+    "siblings": {
+      "title": "Các chi nhánh khác",
+      "empty": "Không tìm thấy chi nhánh khác"
+    }
   },
   "map": {
     "search_address_placeholder": "Tìm địa chỉ...",
@@ -225,7 +233,8 @@
     "xp_remaining": "Còn {{xp}} XP",
     "tier_silver_desc": "Hạng khởi đầu dành cho mọi thành viên",
     "tier_gold_desc": "Mở khóa ưu đãi đặc biệt dành cho hạng Vàng",
-    "tier_diamond_desc": "Hưởng đặc quyền cao nhất dành cho hạng Kim Cương"
+    "tier_diamond_desc": "Hưởng đặc quyền cao nhất dành cho hạng Kim Cương",
+    "payment_history": "Lịch sử giao dịch"
   },
   "favorites": {
     "title": "Quán yêu thích",
@@ -393,6 +402,7 @@
     "note_label": "Ghi chú",
     "total": "Tổng cộng",
     "items_count": "{{count}} món",
+    "cannot_order_when_closed": "Không thể đặt hàng khi quán đang đóng cửa",
     "stall_closed": "Đang đóng cửa",
     "stall_closed_notice": "Bạn chưa thể tạo đơn hàng nếu quán đang đóng cửa hoặc chưa cập nhật lịch làm việc.",
     "not_subscribed_notice": "Quán này hiện chưa đăng ký dịch vụ đặt món trực tuyến.",
@@ -643,6 +653,7 @@
     "expired": "Hết hạn",
     "expiring_soon": "Sắp hết hạn",
     "voucher_tab_all": "Tất cả",
+    "no_expiry": "Không giới hạn thời gian",
     "voucher_tab_campaign": "Chiến dịch",
     "voucher_tab_system": "Lowca",
     "voucher_tab_vendor": "Quán ăn",
@@ -730,6 +741,20 @@
       "subtitle": "Hoàn thành nhiệm vụ thật tuyệt vời. Phần thưởng đã được thêm vào tài khoản của bạn.",
       "collect": "Nhận thưởng"
     }
+  },
+  "badge": {
+    "title": "Huy hiệu của tôi",
+    "earned": "Đã nhận",
+    "earned_on": "Nhận ngày {{date}}",
+    "earned_count": "Đã nhận {{count}}/{{total}} huy hiệu",
+    "empty_title": "Chưa có huy hiệu nào",
+    "empty_hint": "Hoàn thành thử thách để nhận huy hiệu",
+    "load_error": "Không thể tải huy hiệu. Vui lòng thử lại.",
+    "displaying": "Đang hiển thị",
+    "tap_to_display": "Chọn huy hiệu để hiển thị cạnh tên của bạn",
+    "deselect_title": "Bỏ hiển thị huy hiệu",
+    "deselect_confirm": "Bạn có chắc muốn bỏ huy hiệu này khỏi tên không?",
+    "deselect": "Bỏ hiển thị"
   },
   "withdraw": {
     "title": "Rút tiền",
@@ -841,5 +866,85 @@
     "resend_otp": "Gửi lại mã OTP",
     "resending_otp": "Đang gửi lại...",
     "resend_in": "Gửi lại sau {{time}}"
+  },
+  "manager_menu": {
+    "title": "Thực đơn",
+    "tab_branch": "Thực đơn",
+    "tab_catalog": "Thêm món",
+    "empty_branch": "Chưa có món nào",
+    "empty_branch_subtitle": "Chuyển sang tab \"Thêm món\" để chọn món từ danh mục",
+    "empty_catalog": "Không có món ăn nào trong danh mục",
+    "sold_out": "Hết món",
+    "available": "Còn món",
+    "save": "Lưu thực đơn",
+    "saving": "Đang lưu...",
+    "select_hint": "Chọn món muốn bán tại chi nhánh",
+    "assigned_badge": "Đang bán",
+    "no_changes": "Không có thay đổi",
+    "error_save": "Lưu thực đơn thất bại",
+    "all_categories": "Tất cả",
+    "out": "Hết",
+    "no_results": "Không tìm thấy",
+    "no_results_subtitle": "Thử thay đổi từ khoá hoặc danh mục",
+    "search_placeholder": "Tìm món ăn..."
+  },
+  "manager_schedule": {
+    "title": "Giờ hoạt động",
+    "weekdays": {
+      "mon": "Thứ Hai",
+      "tue": "Thứ Ba",
+      "wed": "Thứ Tư",
+      "thu": "Thứ Năm",
+      "fri": "Thứ Sáu",
+      "sat": "Thứ Bảy",
+      "sun": "Chủ Nhật"
+    },
+    "weekdays_short": {
+      "mon": "T2",
+      "tue": "T3",
+      "wed": "T4",
+      "thu": "T5",
+      "fri": "T6",
+      "sat": "T7",
+      "sun": "CN"
+    },
+    "open": "Mở cửa",
+    "closed": "Đóng cửa",
+    "weekend": "Cuối tuần",
+    "no_shifts": "Chưa có ca làm việc",
+    "add_slot": "Thêm ca",
+    "edit_slot": "Sửa ca",
+    "open_time": "Giờ mở cửa",
+    "close_time": "Giờ đóng cửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete_confirm_title": "Xóa ca làm việc",
+    "delete_confirm_message": "Bạn có chắc muốn xóa ca này không?",
+    "delete": "Xóa",
+    "error_save": "Không thể lưu ca làm việc",
+    "error_close_before_open": "Giờ đóng phải sau giờ mở",
+    "error_overlap": "Ca làm việc bị trùng với ca hiện có"
+  },
+  "payment_history": {
+    "title": "Lịch sử giao dịch",
+    "status_paid": "Đã thanh toán",
+    "status_pending": "Đang xử lý",
+    "status_cancelled": "Đã hủy",
+    "status_failed": "Thất bại",
+    "method_qr": "QR Code",
+    "method_wallet": "Ví Lowca",
+    "method_payout": "Rút tiền",
+    "view_order": "Xem đơn hàng",
+    "transaction_code": "Mã giao dịch",
+    "paid_at": "Thanh toán lúc",
+    "amount": "Số tiền",
+    "method_wallet_refund": "Hoàn tiền ví Lowca",
+    "tab_money_in": "Tiền vào",
+    "tab_money_out": "Tiền ra",
+    "desc_wallet_payment": "Thanh toán đơn hàng #{{orderId}}",
+    "desc_wallet_refund": "Hoàn tiền đơn hàng #{{orderId}}",
+    "desc_payout": "Rút tiền về tài khoản",
+    "empty_money_in": "Chưa có giao dịch tiền vào",
+    "empty_money_out": "Chưa có giao dịch tiền ra"
   }
 }

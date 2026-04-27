@@ -19,23 +19,15 @@ import {
   reverseGeocode,
   searchAddress,
 } from '@features/customer/maps/services/geocoding';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { type CameraRef } from '@maplibre/maplibre-react-native';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  computeDisplayName,
-  fetchActiveBranches,
-  selectBranchImageMap,
-  selectBranches,
-  selectBranchesStatus,
-  selectMultiBranchVendorIds,
-  updateBranchRating,
-} from '@slices/branches';
+import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { registerCallback } from '@utils/callbackRegistry';
 import * as Location from 'expo-location';
 import type { JSX } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -75,7 +67,6 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   const { initialBranch } = route.params ?? {};
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
@@ -98,12 +89,6 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     ? ([coords.longitude, coords.latitude] as [number, number])
     : null;
 
-  // Branch data from Redux
-  const branches = useAppSelector(selectBranches);
-  const branchImageMap = useAppSelector(selectBranchImageMap);
-  const branchesStatus = useAppSelector(selectBranchesStatus);
-  const multiBranchVendorIds = useAppSelector(selectMultiBranchVendorIds);
-
   // Ghost pins
   const [ghostPins] = useState<GhostPinResponse[]>([]);
 
@@ -123,7 +108,46 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     hasParking: false,
     openNow: false,
     amenities: [],
+    wards: [],
   });
+
+  const branchFilters = useMemo(
+    () =>
+      mapCenter
+        ? {
+            lat: mapCenter.lat,
+            lng: mapCenter.lng,
+            distance: activeFilters.distance ?? 5,
+            dietaryIds: activeFilters.dietaryTags
+              ?.map(Number)
+              .filter((n) => !isNaN(n) && n > 0),
+            tasteIds: activeFilters.tasteTags
+              ?.map(Number)
+              .filter((n) => !isNaN(n) && n > 0),
+            minPrice:
+              activeFilters.minPrice !== undefined && activeFilters.minPrice > 0
+                ? activeFilters.minPrice
+                : undefined,
+            maxPrice:
+              activeFilters.maxPrice !== undefined &&
+              activeFilters.maxPrice < 5000000
+                ? activeFilters.maxPrice
+                : undefined,
+            categoryIds: activeFilters.categoryIds
+              ?.map(Number)
+              .filter((n) => !isNaN(n) && n > 0),
+          }
+        : {},
+    [mapCenter, activeFilters]
+  );
+
+  const {
+    branches,
+    branchImageMap,
+    multiBranchVendorIds,
+    status: branchesStatus,
+    updateBranchRating: updateBranchRatingFn,
+  } = useActiveBranchesQuery(branchFilters, !!mapCenter);
 
   // Address history (separate storage key from SearchScreen's keyword history)
   const { history: addressHistory, addToHistory: addToAddressHistory } =
@@ -151,11 +175,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   // Ref so the onMapIdle callback always reads the latest value without re-creating
   const isPickingLocationRef = useRef(false);
-  // Ref so handleSearchAroundUser always reads the freshest coords/filters
+  // Ref so handleSearchAroundUser always reads the freshest coords
   const coordsRef = useRef(coords);
   coordsRef.current = coords;
-  const activeFiltersRef = useRef(activeFilters);
-  activeFiltersRef.current = activeFilters;
 
   // ── Bottom sheet snap points ──
   // Positions are translateY values from the top of the sheet's natural position.
@@ -229,49 +251,15 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   }));
 
   // ── Fetch branches for a given center ──
-  const fetchBranchesForLocation = useCallback(
-    (lat: number, lng: number, filters?: FilterState | null) => {
-      setMapCenter({ lat, lng });
-      void dispatch(
-        fetchActiveBranches({
-          page: 1,
-          lat,
-          lng,
-          distance: filters?.distance ?? 5,
-          dietaryIds: filters?.dietaryTags
-            ?.map(Number)
-            .filter((n) => !isNaN(n) && n > 0),
-          tasteIds: filters?.tasteTags
-            ?.map(Number)
-            .filter((n) => !isNaN(n) && n > 0),
-          minPrice:
-            filters?.minPrice !== undefined && filters.minPrice > 0
-              ? filters.minPrice
-              : undefined,
-          maxPrice:
-            filters?.maxPrice !== undefined && filters.maxPrice < 5000000
-              ? filters.maxPrice
-              : undefined,
-          CategoryIds: filters?.categoryIds
-            ?.map(Number)
-            .filter((n) => !isNaN(n) && n > 0),
-        })
-      );
-    },
-    [dispatch]
-  );
+  const fetchBranchesForLocation = useCallback((lat: number, lng: number) => {
+    setMapCenter({ lat, lng });
+  }, []);
 
   // ── Filter apply handler ──
-  const handleFilterApply = useCallback(
-    (filters: FilterState) => {
-      setActiveFilters(filters);
-      setFilterModalVisible(false);
-      if (mapCenter) {
-        fetchBranchesForLocation(mapCenter.lat, mapCenter.lng, filters);
-      }
-    },
-    [mapCenter, fetchBranchesForLocation]
-  );
+  const handleFilterApply = useCallback((filters: FilterState) => {
+    setActiveFilters(filters);
+    setFilterModalVisible(false);
+  }, []);
 
   // ── Initial fetch when coords become available ──
   const hasFetchedRef = useRef(false);
@@ -282,8 +270,8 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       : coords;
     if (!center) return;
     hasFetchedRef.current = true;
-    fetchBranchesForLocation(center.latitude, center.longitude);
-  }, [coords, initialBranch, fetchBranchesForLocation]);
+    setMapCenter({ lat: center.latitude, lng: center.longitude });
+  }, [coords, initialBranch]);
 
   // ── Search address autocomplete (debounced) ──
   const handleSearchTextChange = useCallback(
@@ -352,14 +340,13 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
     setSearchText(pickingAddress);
     if (pickingAddress) addToAddressHistory(pickingAddress);
     setSearchCenterCoord([center.lng, center.lat]);
-    fetchBranchesForLocation(center.lat, center.lng, activeFilters);
+    fetchBranchesForLocation(center.lat, center.lng);
     setPickingAddress('');
   }, [
     mapCenter,
     pickingAddress,
     addToAddressHistory,
     fetchBranchesForLocation,
-    activeFilters,
   ]);
 
   // ── Pick on map: cancel ──
@@ -434,11 +421,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
       }
     }, 32);
 
-    fetchBranchesForLocation(
-      currentCoords.latitude,
-      currentCoords.longitude,
-      activeFiltersRef.current
-    );
+    fetchBranchesForLocation(currentCoords.latitude, currentCoords.longitude);
   }, [fetchBranchesForLocation]);
 
   // ── Select a prediction → move camera & fetch branches ──
@@ -632,9 +615,9 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   // ── Rating update callback ──
   const handleRatingUpdate = useCallback(
     (branchId: number, avgRating: number, totalReviewCount: number) => {
-      dispatch(updateBranchRating({ branchId, avgRating, totalReviewCount }));
+      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
     },
-    [dispatch]
+    [updateBranchRatingFn]
   );
 
   // ── Navigate to RestaurantDetails from DetailCard ──
@@ -987,11 +970,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
               <TouchableOpacity
                 onPress={() => {
                   if (mapCenter) {
-                    fetchBranchesForLocation(
-                      mapCenter.lat,
-                      mapCenter.lng,
-                      activeFilters
-                    );
+                    fetchBranchesForLocation(mapCenter.lat, mapCenter.lng);
                   }
                 }}
                 className="mt-4 rounded-full bg-primary-dark px-6 py-2"

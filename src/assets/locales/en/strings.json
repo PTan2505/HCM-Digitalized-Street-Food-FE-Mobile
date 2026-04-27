@@ -28,6 +28,8 @@
   "from": "From",
   "to": "To",
   "filter": "Filter",
+  "ward_label": "Ward / Commune",
+  "ward_placeholder": "Search ward...",
   "space": "Space",
   "dish_type": "Dish Type",
   "price_range": "Price Range",
@@ -60,7 +62,13 @@
     "retry": "Retry",
     "history_title": "Recent searches",
     "clear_history": "Clear all",
-    "address_history_title": "Recent addresses"
+    "address_history_title": "Recent addresses",
+    "moreLocations_one": "+{{count}} more location",
+    "moreLocations_other": "+{{count}} more locations",
+    "siblings": {
+      "title": "Other branches",
+      "empty": "No other locations found"
+    }
   },
   "map": {
     "search_address_placeholder": "Search address...",
@@ -225,7 +233,8 @@
     "xp_remaining": "{xp} XP remaining",
     "tier_silver_desc": "Starting tier for all members",
     "tier_gold_desc": "Unlock special perks for Gold members",
-    "tier_diamond_desc": "Enjoy the highest privileges as a Diamond member"
+    "tier_diamond_desc": "Enjoy the highest privileges as a Diamond member",
+    "payment_history": "Transaction History"
   },
   "favorites": {
     "title": "Favourites",
@@ -392,6 +401,7 @@
     "note_label": "Note",
     "total": "Total",
     "items_count": "{{count}} items",
+    "cannot_order_when_closed": "Cannot place an order while the stall is closed",
     "stall_closed": "Stall Closed",
     "stall_closed_notice": "You cannot place an order while the stall is closed or has not updated its schedule.",
     "not_subscribed_notice": "This restaurant is not currently accepting online orders.",
@@ -646,6 +656,7 @@
     "voucher_tab_system": "Lowca",
     "voucher_tab_vendor": "Restaurant",
     "history": "History",
+    "no_expiry": "No expiry date",
     "valid_until": "Valid until {{date}}",
     "starts_on": "Starts {{date}}",
     "voucher_not_available": "Already used",
@@ -729,6 +740,20 @@
       "subtitle": "Great job completing the task. Your reward has been added to your account.",
       "collect": "Collect Reward"
     }
+  },
+  "badge": {
+    "title": "My Badges",
+    "earned": "Earned",
+    "earned_on": "Earned on {{date}}",
+    "earned_count": "{{count}}/{{total}} badges earned",
+    "empty_title": "No badges yet",
+    "empty_hint": "Complete challenges to earn badges",
+    "load_error": "Could not load badges. Please try again.",
+    "displaying": "Displaying",
+    "tap_to_display": "Tap a badge to show it next to your name",
+    "deselect_title": "Remove badge display",
+    "deselect_confirm": "Remove this badge from your name?",
+    "deselect": "Remove"
   },
   "withdraw": {
     "title": "Withdraw",
@@ -840,5 +865,85 @@
     "resend_otp": "Resend OTP",
     "resending_otp": "Resending...",
     "resend_in": "Resend in {{time}}"
+  },
+  "manager_menu": {
+    "title": "Menu",
+    "tab_branch": "Branch Menu",
+    "tab_catalog": "Add Dishes",
+    "empty_branch": "No dishes assigned",
+    "empty_branch_subtitle": "Go to \"Add Dishes\" tab to select dishes from the catalog",
+    "empty_catalog": "No dishes in the vendor catalog",
+    "sold_out": "Sold out",
+    "available": "Available",
+    "save": "Save Menu",
+    "saving": "Saving...",
+    "select_hint": "Select dishes to sell at this branch",
+    "assigned_badge": "On menu",
+    "no_changes": "No changes",
+    "error_save": "Failed to save menu",
+    "all_categories": "All",
+    "out": "Out",
+    "no_results": "No results found",
+    "no_results_subtitle": "Try changing the keyword or category",
+    "search_placeholder": "Search dishes..."
+  },
+  "manager_schedule": {
+    "title": "Operating Hours",
+    "weekdays": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    },
+    "weekdays_short": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "open": "Open",
+    "closed": "Closed",
+    "weekend": "Weekend",
+    "no_shifts": "No shifts scheduled",
+    "add_slot": "Add Slot",
+    "edit_slot": "Edit Slot",
+    "open_time": "Open time",
+    "close_time": "Close time",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete_confirm_title": "Delete Schedule",
+    "delete_confirm_message": "Are you sure you want to delete this slot?",
+    "delete": "Delete",
+    "error_save": "Failed to save schedule",
+    "error_close_before_open": "Close time must be after open time",
+    "error_overlap": "This shift overlaps with an existing shift"
+  },
+  "payment_history": {
+    "title": "Transaction History",
+    "status_paid": "Paid",
+    "status_pending": "Pending",
+    "status_cancelled": "Cancelled",
+    "status_failed": "Failed",
+    "method_qr": "QR Code",
+    "method_wallet": "Lowca Wallet",
+    "method_payout": "Withdrawal",
+    "view_order": "View Order",
+    "transaction_code": "Transaction Code",
+    "paid_at": "Paid at",
+    "amount": "Amount",
+    "method_wallet_refund": "Lowca Wallet Refund",
+    "tab_money_in": "Money In",
+    "tab_money_out": "Money Out",
+    "desc_wallet_payment": "Order payment #{{orderId}}",
+    "desc_wallet_refund": "Refund for order #{{orderId}}",
+    "desc_payout": "Withdrawal to bank account",
+    "empty_money_in": "No incoming transactions yet",
+    "empty_money_out": "No outgoing transactions yet"
   }
 }

@@ -1,31 +1,34 @@
 import { AxiosApiService } from '@config/axiosApiService';
-import { LoginApi } from '@features/auth/api/loginApi';
-import { VoucherApi } from '@features/customer/campaigns/api/voucherApi';
+import { VoucherApi } from '@customer/campaigns/api/voucherApi';
 import {
   CartApi,
   OrderApi,
   PaymentApi,
-} from '@features/customer/direct-ordering/api/cartApi';
-import { BranchApi } from '@features/customer/home/api/branchApi';
-import { CategoryApi } from '@features/customer/home/api/categoryApi';
-import { FeedbackApi } from '@features/customer/home/api/feedbackApi';
-import { FeedbackTagApi } from '@features/customer/home/api/feedbackTagApi';
-import { StallSearchApi } from '@features/customer/home/api/stallSearchApi';
-import { TasteApi } from '@features/customer/home/api/tasteApi';
-import { VendorApi } from '@features/customer/home/api/vendorApi';
-import { GhostPinApi } from '@features/customer/maps/api/ghostPinApi';
-import { QuestApi } from '@features/customer/quests/api/questApi';
-import { ManagerBranchApi } from '@features/manager/branch/managerBranchApi';
-import { ManagerFeedbackApi } from '@features/manager/feedback/api/managerFeedbackApi';
-import { ManagerOrderApi } from '@features/manager/orders/api/managerOrderApi';
+} from '@customer/direct-ordering/api/cartApi';
+import { BranchApi } from '@customer/home/api/branchApi';
+import { CategoryApi } from '@customer/home/api/categoryApi';
+import { FeedbackApi } from '@customer/home/api/feedbackApi';
+import { FeedbackTagApi } from '@customer/home/api/feedbackTagApi';
+import { StallSearchApi } from '@customer/home/api/stallSearchApi';
+import { TasteApi } from '@customer/home/api/tasteApi';
+import { VendorApi } from '@customer/home/api/vendorApi';
+import { GhostPinApi } from '@customer/maps/api/ghostPinApi';
+import { QuestApi } from '@customer/quests/api/questApi';
+import { LoginApi } from '@features/auth/api/loginApi';
 import { NotificationApi } from '@features/notifications/api/notificationApi';
+import { BadgeApi } from '@features/user/api/badgeApi';
+import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserPaymentApi } from '@features/user/api/paymentApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
-
-import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserDietaryApi } from '@features/user/api/userDietaryApi';
+
 import ApiClient from '@lib/api/apiClient';
 import { SettingsApi } from '@lib/api/settingsApi';
+import { ManagerBranchApi } from '@manager/branch/managerBranchApi';
+import { ManagerFeedbackApi } from '@manager/feedback/api/managerFeedbackApi';
+import { ManagerDishApi } from '@manager/menu/api/managerDishApi';
+import { ManagerOrderApi } from '@manager/orders/api/managerOrderApi';
+import { ManagerScheduleApi } from '@manager/schedule/api/managerScheduleApi';
 
 const axiosService = new AxiosApiService();
 const axiosClient = new ApiClient(axiosService);
@@ -33,6 +36,7 @@ const axiosClient = new ApiClient(axiosService);
 export const axiosApi = {
   loginApi: new LoginApi(axiosClient),
   userProfileApi: new UserProfileApi(axiosClient),
+  badgeApi: new BadgeApi(axiosClient),
   dietaryPreferenceApi: new DietaryPreferenceApi(axiosClient),
   userDietaryApi: new UserDietaryApi(axiosClient),
   categoryApi: new CategoryApi(axiosClient),
@@ -54,4 +58,6 @@ export const axiosApi = {
   managerBranchApi: new ManagerBranchApi(axiosClient),
   managerOrderApi: new ManagerOrderApi(axiosClient),
   managerFeedbackApi: new ManagerFeedbackApi(axiosClient),
+  managerDishApi: new ManagerDishApi(axiosClient),
+  managerScheduleApi: new ManagerScheduleApi(axiosClient),
 };

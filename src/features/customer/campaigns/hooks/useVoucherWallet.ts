@@ -1,40 +1,26 @@
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
-import {
-  addVoucher,
-  fetchMyVouchers,
-  selectActiveVouchers,
-  selectCampaignVouchers,
-  selectSystemVouchers,
-  selectVouchersError,
-  selectVouchersLoading,
-  type Voucher,
-} from '@slices/campaigns';
-import { useCallback, useEffect } from 'react';
+import { useMyVouchersQuery } from '@features/customer/campaigns/hooks/useMyVouchersQuery';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
+import { useCallback } from 'react';
 
 export type VoucherTab = 'all' | 'campaign' | 'system' | 'restaurant';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const useVoucherWallet = () => {
-  const dispatch = useAppDispatch();
-  const activeVouchers = useAppSelector(selectActiveVouchers);
-  const campaignVouchers = useAppSelector(selectCampaignVouchers);
-  const systemVouchers = useAppSelector(selectSystemVouchers);
-  const isLoading = useAppSelector(selectVouchersLoading);
-  const error = useAppSelector(selectVouchersError);
-
-  useEffect(() => {
-    void dispatch(fetchMyVouchers());
-  }, [dispatch]);
-
-  const handleRefresh = useCallback(() => {
-    void dispatch(fetchMyVouchers());
-  }, [dispatch]);
+  const {
+    activeVouchers,
+    campaignVouchers,
+    systemVouchers,
+    isLoading,
+    error,
+    refetch: handleRefresh,
+    invalidate,
+  } = useMyVouchersQuery();
 
   const handleClaimVoucher = useCallback(
-    (voucher: Voucher) => {
-      dispatch(addVoucher(voucher));
+    (_voucher: Voucher) => {
+      invalidate();
     },
-    [dispatch]
+    [invalidate]
   );
 
   const getDisplayedVouchers = useCallback(

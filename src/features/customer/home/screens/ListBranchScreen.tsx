@@ -4,24 +4,14 @@ import type { VoucherChip } from '@features/customer/home/components/common/Plac
 import SearchResultCard from '@features/customer/home/components/common/SearchResultCard';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  computeDisplayName,
-  fetchActiveBranches,
-  selectBranchImageMap,
-  selectBranches,
-  selectBranchesCurrentPage,
-  selectBranchesHasNext,
-  selectBranchesLoadingMore,
-  selectIsMultiBranchVendor,
-  updateBranchRating,
-} from '@slices/branches';
-import { selectUserDietaryPreferences } from '@slices/dietary';
+import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { computeDisplayName } from '@utils/computeDisplayName';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { registerCallback } from '@utils/callbackRegistry';
 import type { JSX } from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -53,32 +43,8 @@ const ListBranchItem = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
-  // Look up the real vendor name from Redux branches (same as VendorCampaignPlaceCard)
-  const vendorNameFromRedux = useAppSelector(
-    (state) =>
-      state.branches.branches.find(
-        (b: { vendorId: number | null }) => b.vendorId === item.vendorId
-      )?.vendorName
-  );
-  const isMultiBranchFromRedux = useAppSelector((state) =>
-    selectIsMultiBranchVendor(state, item.vendorId)
-  );
-
-  // Heuristic fallback: if vendorName differs from name, it's a multi-branch vendor
-  const isMultiBranch =
-    isMultiBranchFromRedux ||
-    (!!item.vendorName && item.vendorName !== item.name);
-
-  // Prefer the Redux vendor name to correct null fallbacks set at build time
-  const resolvedItem = vendorNameFromRedux
-    ? { ...item, vendorName: vendorNameFromRedux }
-    : item;
-
-  const displayName = computeDisplayName(
-    resolvedItem,
-    isMultiBranch,
-    t('branch')
-  );
+  const isMultiBranch = !!(item.vendorName && item.vendorName !== item.name);
+  const displayName = computeDisplayName(item, isMultiBranch, t('branch'));
 
   return (
     <SearchResultCard
@@ -103,7 +69,6 @@ export const ListBranchScreen = ({
   route,
 }: ListBranchScreenProps): JSX.Element => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
@@ -111,52 +76,49 @@ export const ListBranchScreen = ({
   const routeTitle = route.params?.title;
   const vouchersByBranchId = route.params?.vouchersByBranchId;
 
-  const reduxBranches = useAppSelector(selectBranches);
-  const branchImageMap = useAppSelector(selectBranchImageMap);
-  const branchesHasNext = useAppSelector(selectBranchesHasNext);
-  const branchesLoadingMore = useAppSelector(selectBranchesLoadingMore);
-  const branchesCurrentPage = useAppSelector(selectBranchesCurrentPage);
-  const userDietaryPreferences = useAppSelector(selectUserDietaryPreferences);
+  const { userDietaryPreferences } = useUserDietaryQuery();
   const { coords: userCoords } = useLocationPermission();
 
-  // Use route items if provided (e.g. campaign branches), otherwise use Redux state with pagination
-  const branches: ActiveBranch[] = routeItems ?? reduxBranches ?? [];
+  const branchFilters = useMemo(
+    () => ({
+      lat: userCoords?.latitude,
+      lng: userCoords?.longitude,
+      distance: userCoords ? 5 : undefined,
+      dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      userCoords?.latitude,
+      userCoords?.longitude,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      userDietaryPreferences.map((p) => p.dietaryPreferenceId).join(','),
+    ]
+  );
+
   const isPaginated = !routeItems;
 
-  const isFetchingMoreRef = useRef(false);
+  const {
+    branches: paginatedBranches,
+    branchImageMap,
+    hasNext: branchesHasNext,
+    loadingMore: branchesLoadingMore,
+    fetchNextPage,
+    updateBranchRating: updateBranchRatingFn,
+  } = useActiveBranchesQuery(branchFilters, isPaginated);
+
+  const branches: ActiveBranch[] = routeItems ?? paginatedBranches;
 
   const handleLoadMore = useCallback(() => {
     if (!isPaginated) return;
-    if (isFetchingMoreRef.current) return;
     if (!branchesHasNext) return;
-
-    isFetchingMoreRef.current = true;
-
-    dispatch(
-      fetchActiveBranches({
-        page: branchesCurrentPage + 1,
-        lat: userCoords?.latitude,
-        lng: userCoords?.longitude,
-        distance: userCoords ? 5 : undefined,
-        dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
-      })
-    ).finally(() => {
-      isFetchingMoreRef.current = false;
-    });
-  }, [
-    isPaginated,
-    branchesHasNext,
-    branchesCurrentPage,
-    dispatch,
-    userCoords,
-    userDietaryPreferences,
-  ]);
+    fetchNextPage();
+  }, [isPaginated, branchesHasNext, fetchNextPage]);
 
   const handleRatingUpdate = useCallback(
     (branchId: number, avgRating: number, totalReviewCount: number) => {
-      dispatch(updateBranchRating({ branchId, avgRating, totalReviewCount }));
+      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
     },
-    [dispatch]
+    [updateBranchRatingFn]
   );
 
   return (

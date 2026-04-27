@@ -36,18 +36,18 @@ export const QuestListScreen = (): JSX.Element => {
 
   useEffect(() => {
     if (activeTab === 'discover') {
-      loadPublicQuests(1, 10, true);
+      loadPublicQuests();
     } else {
-      loadMyQuests(undefined, false);
+      loadMyQuests();
     }
   }, [activeTab, loadPublicQuests, loadMyQuests]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     if (activeTab === 'discover') {
-      loadPublicQuests(1, 10, true);
+      loadPublicQuests();
     } else {
-      loadMyQuests(undefined, false);
+      loadMyQuests();
     }
     setTimeout(() => setRefreshing(false), 500);
   }, [activeTab, loadPublicQuests, loadMyQuests]);

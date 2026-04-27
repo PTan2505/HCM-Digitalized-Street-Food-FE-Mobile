@@ -3,7 +3,8 @@ export type FilterSection =
   | 'priceRange'
   | 'distance'
   | 'dietary'
-  | 'taste';
+  | 'taste'
+  | 'ward';
 
 export interface FilterState {
   spaceTypes: string[];
@@ -16,4 +17,5 @@ export interface FilterState {
   amenities: string[];
   tasteTags: string[];
   dietaryTags: string[];
+  wards: string[];
 }

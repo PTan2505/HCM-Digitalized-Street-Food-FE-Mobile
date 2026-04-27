@@ -1,3 +1,29 @@
+export type PaymentMethod = 'QR Code' | 'Lowca Wallet' | 'PAYOS_PAYOUT';
+
+export type PaymentTransactionStatus =
+  | 'PAID'
+  | 'PENDING'
+  | 'CANCELLED'
+  | 'FAILED';
+
+export interface PaymentTransaction {
+  id: number;
+  userId: number;
+  userName: string;
+  userEmail: string;
+  amount: number;
+  description: string;
+  status: PaymentTransactionStatus;
+  createdAt: string;
+  paidAt: string | null;
+  transactionCode: string;
+  orderId: number | null;
+  branchId: number | null;
+  branchCampaignId: number | null;
+  paymentMethod: PaymentMethod;
+  checkoutUrl: string | null;
+}
+
 export interface WithdrawRequest {
   amount: number;
   description: string;

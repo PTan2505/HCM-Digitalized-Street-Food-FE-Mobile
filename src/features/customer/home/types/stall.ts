@@ -16,6 +16,12 @@ export interface SearchBranchResult {
   isVerified: boolean;
   isActive: boolean;
   isSubscribed: boolean;
+  /** Ranking score from DisplayName bucket (100/80/50–70/0) */
+  displayNameScore?: number;
+  /** Best dish score for this branch */
+  dishScore?: number;
+  /** Other branches of the same vendor, closest first */
+  otherBranches?: SearchBranchResult[];
   dishes: {
     dishId: number;
     name: string;
@@ -24,6 +30,12 @@ export interface SearchBranchResult {
     imageUrl?: string;
     isSoldOut: boolean;
     categoryName?: string;
+    /** Dish relevance score from keyword matching */
+    score?: number;
+    /** True when dish is in vendor's top-5 best sellers */
+    isBestSeller?: boolean;
+    /** True when vendor has explicitly flagged this as a signature dish */
+    isSignature?: boolean;
   }[];
 }
 
@@ -57,6 +69,8 @@ export interface StallSearchParams {
   MaxPrice?: number;
   /** Numeric category IDs from /api/categories */
   CategoryIds?: number[];
+  /** Ward names to filter by (OR logic) */
+  Wards?: string[];
 }
 
 /** Retained for Maps feature — wired to mock data until map API is confirmed */

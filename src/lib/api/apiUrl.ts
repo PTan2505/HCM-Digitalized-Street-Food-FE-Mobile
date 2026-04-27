@@ -58,6 +58,9 @@ export const apiUrl = {
     byId: (id: number): string => `/api/Branch/${id}`,
     byVendor: '/api/Branch/vendor',
     workSchedules: (id: number): string => `/api/Branch/${id}/work-schedules`,
+    workScheduleById: (id: number): string =>
+      `/api/Branch/work-schedules/${id}`,
+    dayOffs: (id: number): string => `/api/Branch/${id}/day-offs`,
     images: (branchId: number): string => `/api/Branch/${branchId}/images`,
     similar: (branchId: number): string => `/api/Branch/${branchId}/similar`,
     myGhostPins: '/api/Branch/my-ghost-pin',
@@ -66,8 +69,14 @@ export const apiUrl = {
   userDietary: {
     userDietary: '/api/UserDietary/user',
   },
+  badge: {
+    user: '/api/Badge/user',
+    select: (badgeId: number): string => `/api/Badge/user/select/${badgeId}`,
+    clearSelect: '/api/Badge/user/select',
+  },
   user: {
     profile: '/api/User/profile',
+    avatar: '/api/User/profile/avatar',
     byId: (id: number): string => `/api/User/${id}`,
     verifyOtp: '/api/User/profile/verify-otp',
     userSetup: {
@@ -80,6 +89,9 @@ export const apiUrl = {
   },
   dish: {
     byBranch: (branchId: number): string => `/api/dishes/branch/${branchId}`,
+    byVendor: (vendorId: number): string => `/api/dishes/vendor/${vendorId}`,
+    availability: (dishId: number, branchId: number): string =>
+      `/api/dishes/${dishId}/branch/${branchId}/availability`,
   },
   cart: {
     my: '/api/Cart/my',
@@ -103,6 +115,7 @@ export const apiUrl = {
   payment: {
     orderConfirm: '/api/Payment/order/confirm',
     userTransfer: '/api/Payment/user/transfer',
+    history: '/api/Payment/history',
   },
   notification: {
     registerToken: '/api/notifications/register-token',

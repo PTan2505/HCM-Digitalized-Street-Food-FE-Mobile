@@ -79,6 +79,10 @@ export const selectManagerBranchId = (state: {
   managerAuth: ManagerAuthState;
 }): number | null => state.managerAuth.branchId;
 
+export const selectManagerVendorId = (state: {
+  managerAuth: ManagerAuthState;
+}): number | null => state.managerAuth.branch?.vendorId ?? null;
+
 export const selectManagerIsLoading = (state: {
   managerAuth: ManagerAuthState;
 }): boolean => state.managerAuth.isLoading;

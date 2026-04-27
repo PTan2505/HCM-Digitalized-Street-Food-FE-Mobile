@@ -4,9 +4,9 @@ import {
   ORDER_STATUS,
   type OrderStatus,
 } from '@features/customer/direct-ordering/api/cartApi';
+import { useCheckoutMutation } from '@features/customer/direct-ordering/hooks/useCheckoutMutation';
 import { useOrderStatus } from '@features/customer/direct-ordering/hooks/useOrderStatus';
 import { usePickupCode } from '@features/customer/direct-ordering/hooks/usePickupCode';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { axiosApi } from '@lib/api/apiInstance';
 import {
@@ -14,13 +14,6 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import {
-  checkoutThunk,
-  selectCheckoutAccountName,
-  selectCheckoutAccountNumber,
-  selectCheckoutBin,
-  selectCheckoutOrderCode,
-} from '@slices/directOrdering';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { JSX } from 'react';
 import { useCallback } from 'react';
@@ -62,10 +55,10 @@ export const OrderStatusScreen = ({
 }: OrderStatusScreenProps): JSX.Element => {
   const { orderId } = route.params;
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const navigation = useNavigation();
   const { order } = useOrderStatus(orderId);
   const { pickupCode } = usePickupCode(orderId, order?.status);
+  const { checkout } = useCheckoutMutation();
   const queryClient = useQueryClient();
 
   const orderReviewedQueryKey = ['feedback', 'order', orderId] as const;
@@ -92,10 +85,6 @@ export const OrderStatusScreen = ({
     }, [order?.status, queryClient, orderId])
   );
   const displayName = useBranchDisplayName(order?.branchId ?? 0);
-  const checkoutOrderCode = useAppSelector(selectCheckoutOrderCode);
-  const checkoutBin = useAppSelector(selectCheckoutBin);
-  const checkoutAccountNumber = useAppSelector(selectCheckoutAccountNumber);
-  const checkoutAccountName = useAppSelector(selectCheckoutAccountName);
 
   const getStepIndex = (): number => {
     if (!order) return 0;
@@ -124,32 +113,14 @@ export const OrderStatusScreen = ({
       return;
     }
 
-    if (
-      checkoutOrderCode != null &&
-      checkoutBin != null &&
-      checkoutAccountNumber != null
-    ) {
-      navigation.navigate('PaymentQR', {
-        orderId: order.orderId,
-        totalAmount: order.finalAmount,
-        branchName: displayName ?? order.branchName,
-        bin: checkoutBin,
-        accountNumber: checkoutAccountNumber,
-        accountName: checkoutAccountName,
-      });
-      return;
-    }
-
     try {
-      const result = await dispatch(
-        checkoutThunk({
-          branchId: order.branchId,
-          paymentMethod: order.paymentMethod ?? 'bank_transfer',
-          isTakeAway: order.isTakeAway,
-          note: null,
-          voucherId: null,
-        })
-      ).unwrap();
+      const result = await checkout({
+        branchId: order.branchId,
+        paymentMethod: order.paymentMethod ?? 'bank_transfer',
+        isTakeAway: order.isTakeAway,
+        note: null,
+        voucherId: null,
+      });
 
       if (!result.payment.bin || !result.payment.accountNumber) {
         Alert.alert(t('auth.error'), t('checkout.payment_qr_unavailable'));
@@ -158,6 +129,8 @@ export const OrderStatusScreen = ({
 
       navigation.navigate('PaymentQR', {
         orderId: result.order.orderId,
+        branchId: order.branchId,
+        orderCode: result.payment.orderCode,
         totalAmount: result.order.finalAmount,
         branchName: displayName ?? order.branchName,
         bin: result.payment.bin,

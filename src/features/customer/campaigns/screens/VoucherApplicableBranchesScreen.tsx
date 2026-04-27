@@ -1,4 +1,5 @@
 import SearchBar from '@components/SearchBar';
+import { getExpiresAt } from '@customer/campaigns/utils/voucher';
 import { useLocationPermission } from '@customer/maps/hooks/useLocationPermission';
 import { Ionicons } from '@expo/vector-icons';
 import { ApplicableBranchGridItem } from '@features/customer/campaigns/components/ApplicableBranchGridItem';
@@ -6,7 +7,7 @@ import { TicketVoucherCard } from '@features/customer/campaigns/components/Ticke
 import { useSystemCampaignBranches } from '@features/customer/campaigns/hooks/useSystemCampaignBranches';
 import { PlaceCardSkeleton } from '@features/customer/home/components/common/HomeSkeleton';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import type { Voucher } from '@slices/campaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import type { JSX } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,12 +20,6 @@ import {
 type VoucherApplicableBranchesScreenProps = StaticScreenProps<{
   voucher: Voucher;
 }>;
-
-// ---------------------------------------------------------------------------
-// Voucher → TicketVoucherCard helper — derives display props from Voucher
-// ---------------------------------------------------------------------------
-const getExpiresAt = (voucher: Voucher): Date =>
-  new Date(voucher.expiredDate ?? voucher.endDate ?? '9999-12-31');
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -80,7 +75,10 @@ export const VoucherApplicableBranchesScreen = ({
                 })
               : undefined
           }
-          expiresText={expiresAt.toLocaleDateString('vi-VN')}
+          expiresText={
+            expiresAt?.toLocaleDateString('vi-VN') ??
+            t('voucher_wallet.no_expiry')
+          }
           secondaryMetaText={t('voucher_wallet.voucher_active')}
           secondaryMetaIcon="checkmark-circle-outline"
           tertiaryMetaText={

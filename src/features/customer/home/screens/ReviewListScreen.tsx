@@ -274,6 +274,13 @@ export const ReviewListScreen = ({
         feedbackId: item.id,
         userName: item.user?.name ?? t('user'),
         avatar: item.user?.avatar,
+        selectedBadge:
+          item.user?.selectedBadgeName && item.user?.selectedBadgeIconUrl
+            ? {
+                name: item.user.selectedBadgeName,
+                iconUrl: item.user.selectedBadgeIconUrl,
+              }
+            : undefined,
         date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
         time: new Date(item.createdAt).toLocaleTimeString('vi-VN', {
           hour: '2-digit',

@@ -1,6 +1,7 @@
 import { AnimatedBackdrop } from '@components/AnimatedBackdrop';
 import { CustomButton } from '@components/CustomButton';
 import { CustomInput } from '@components/CustomInput';
+import Header from '@components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
@@ -183,20 +184,16 @@ export const WithdrawScreen = (): JSX.Element => {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={['left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
         {/* Header */}
-        <View className="flex-row items-center px-4 py-3">
-          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-            <Ionicons name="arrow-back" size={24} color="#333333" />
-          </Pressable>
-          <Text className="ml-3 text-xl font-bold text-gray-900">
-            {t('withdraw.title')}
-          </Text>
-        </View>
+        <Header
+          title={t('withdraw.title')}
+          onBackPress={() => navigation.goBack()}
+        />
 
         <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">
           {/* Balance info */}
