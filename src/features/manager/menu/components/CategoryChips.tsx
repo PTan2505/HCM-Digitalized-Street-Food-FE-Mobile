@@ -31,7 +31,7 @@ export const CategoryChips = ({
         onPress={() => onSelect(null)}
         className={`rounded-full border px-4 py-2 ${
           selected === null
-            ? 'border-[#006a2c] bg-[#006a2c]'
+            ? 'border-primary bg-primary'
             : 'border-gray-200 bg-white'
         }`}
       >
@@ -51,13 +51,11 @@ export const CategoryChips = ({
             key={cat}
             onPress={() => onSelect(active ? null : cat)}
             className={`rounded-full border px-4 py-2 ${
-              active
-                ? 'border-[#006a2c] bg-[#006a2c]'
-                : 'border-gray-200 bg-white'
+              active ? 'border-primary bg-primary' : 'border-gray-200 bg-white'
             }`}
           >
             <Text
-              className={`text-sm font-semibold ${active ? 'text-[#ceffd0]' : 'text-gray-600'}`}
+              className={`text-sm font-semibold ${active ? 'text-white' : 'text-gray-600'}`}
             >
               {cat}
             </Text>

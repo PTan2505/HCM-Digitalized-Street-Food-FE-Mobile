@@ -6,7 +6,7 @@ import React, {
   type JSX,
 } from 'react';
 import {
-  FlatList,
+  ScrollView,
   Text,
   View,
   type NativeScrollEvent,
@@ -28,7 +28,7 @@ export const TimeScrollPicker = ({
   value,
   onChange,
 }: TimeScrollPickerProps): JSX.Element => {
-  const flatListRef = useRef<FlatList<number | null>>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   // Pad with nulls so first/last real items can be centered
   const padded = useMemo<(number | null)[]>(
@@ -40,8 +40,8 @@ export const TimeScrollPicker = ({
     (v: number, animated = false) => {
       const idx = values.indexOf(v);
       if (idx >= 0) {
-        flatListRef.current?.scrollToOffset({
-          offset: idx * ITEM_HEIGHT,
+        scrollViewRef.current?.scrollTo({
+          y: idx * ITEM_HEIGHT,
           animated,
         });
       }
@@ -81,21 +81,16 @@ export const TimeScrollPicker = ({
           borderRadius: 8,
         }}
       />
-      <FlatList
-        ref={flatListRef}
-        data={padded}
-        keyExtractor={(_, index) => String(index)}
+      <ScrollView
+        ref={scrollViewRef}
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleScrollEnd}
-        getItemLayout={(_, index) => ({
-          length: ITEM_HEIGHT,
-          offset: ITEM_HEIGHT * index,
-          index,
-        })}
-        renderItem={({ item }) => (
+      >
+        {padded.map((item, index) => (
           <View
+            key={String(index)}
             style={{
               height: ITEM_HEIGHT,
               alignItems: 'center',
@@ -115,8 +110,8 @@ export const TimeScrollPicker = ({
               </Text>
             )}
           </View>
-        )}
-      />
+        ))}
+      </ScrollView>
     </View>
   );
 };
