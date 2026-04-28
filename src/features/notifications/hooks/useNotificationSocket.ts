@@ -6,7 +6,12 @@ import { axiosApi } from '@lib/api/apiInstance';
 import { queryClient } from '@lib/queryClient';
 import { queryKeys } from '@lib/queryKeys';
 import * as signalR from '@microsoft/signalr';
-import { addPoints, addXP, refreshUserBalanceThunk, selectUserXP } from '@slices/auth';
+import {
+  addPoints,
+  addXP,
+  refreshUserBalanceThunk,
+  selectUserXP,
+} from '@slices/auth';
 import { setPendingReward } from '@slices/quests';
 import { showXPToast } from '@slices/xpToast';
 import { tokenManagement } from '@utils/tokenManagement';
@@ -80,7 +85,13 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
               const xp = orderXPRef.current;
               const prev = currentXPRef.current;
               dispatch(addXP(xp));
-              dispatch(showXPToast({ xpEarned: xp, previousXP: prev, newXP: prev + xp }));
+              dispatch(
+                showXPToast({
+                  xpEarned: xp,
+                  previousXP: prev,
+                  newXP: prev + xp,
+                })
+              );
             }
           })
           .catch(() => {});
