@@ -24,12 +24,14 @@ export const useWorkSchedule = (
     staleTime: 3 * 60 * 1000,
   });
 
-  const { data: dayOffs = [], isLoading: isDayOffLoading } = useQuery({
+  const { data: rawDayOffs = [], isLoading: isDayOffLoading } = useQuery({
     queryKey: queryKeys.dayOffs.branch(branchId!),
     queryFn: () => axiosApi.branchApi.getDayOffs(branchId!),
     enabled: !!branchId,
     staleTime: 3 * 60 * 1000,
   });
+
+  const dayOffs = rawDayOffs.filter((d) => new Date(d.endDate) >= new Date());
 
   return {
     schedules,
