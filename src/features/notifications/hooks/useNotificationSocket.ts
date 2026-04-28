@@ -1,18 +1,14 @@
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
+import { useOrderXP } from '@features/customer/home/hooks/useSettings';
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import * as signalR from '@microsoft/signalr';
-import {
-  addPoints,
-  addXP,
-  refreshUserBalanceThunk,
-  selectUserXP,
-} from '@slices/auth';
-import { setPendingReward } from '@slices/quests';
-import { showXPToast } from '@slices/xpToast';
 import { queryClient } from '@lib/queryClient';
 import { queryKeys } from '@lib/queryKeys';
+import * as signalR from '@microsoft/signalr';
+import { addPoints, addXP, refreshUserBalanceThunk, selectUserXP } from '@slices/auth';
+import { setPendingReward } from '@slices/quests';
+import { showXPToast } from '@slices/xpToast';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -28,6 +24,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
   // needing to re-subscribe (the callback closure captures the ref, not state)
   const currentXP = useAppSelector(selectUserXP);
   currentXPRef.current = currentXP;
+  const orderXP = useOrderXP();
+  const orderXPRef = useRef(orderXP);
+  orderXPRef.current = orderXP;
 
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
@@ -77,6 +76,12 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
             if (order.data.status === ORDER_STATUS.Cancelled) {
               dispatch(refreshUserBalanceThunk());
             }
+            if (order.data.status === ORDER_STATUS.Complete) {
+              const xp = orderXPRef.current;
+              const prev = currentXPRef.current;
+              dispatch(addXP(xp));
+              dispatch(showXPToast({ xpEarned: xp, previousXP: prev, newXP: prev + xp }));
+            }
           })
           .catch(() => {});
       }
@@ -89,20 +94,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       // QuestTaskCompleted (type=3): referenceId = questTaskId → fetch task, show modal
       if (isQuestTaskCompleted && notification.referenceId) {
         const questTaskId = notification.referenceId;
-        const previousXP = currentXPRef.current;
-
-        // Apply XP immediately if the backend sent the amount
-        if (notification.xpEarned && notification.xpEarned > 0) {
-          const newXP = previousXP + notification.xpEarned;
-          dispatch(addXP(notification.xpEarned));
-          dispatch(
-            showXPToast({
-              xpEarned: notification.xpEarned,
-              previousXP,
-              newXP,
-            })
-          );
-        }
 
         // Fetch task to get reward items, then show the reward modal.
         // 1 s delay so any currently-open modal (e.g. ReviewFormModal) can

@@ -2,10 +2,10 @@ import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
-import { usePaymentSocket } from '@features/customer/direct-ordering/hooks/usePaymentSocket';
 import { useCancelOrderMutation } from '@features/customer/direct-ordering/hooks/useCancelOrderMutation';
 import { useConfirmPaymentMutation } from '@features/customer/direct-ordering/hooks/useConfirmPaymentMutation';
 import { useOrderQuery } from '@features/customer/direct-ordering/hooks/useOrderQuery';
+import { usePaymentSocket } from '@features/customer/direct-ordering/hooks/usePaymentSocket';
 import { queryKeys } from '@lib/queryKeys';
 import {
   CommonActions,
@@ -113,13 +113,8 @@ export const PaymentQRScreen = ({
   const navigateToOrderStatusAfterPayment = useCallback(() => {
     cancelledRef.current = true;
     navigation.dispatch((state) => {
-      const personalCartIndex = state.routes.findIndex(
-        (r) => r.name === 'PersonalCart'
-      );
-      const sliceAt =
-        personalCartIndex >= 0 ? personalCartIndex : state.routes.length - 1;
       const routes = [
-        ...state.routes.slice(0, sliceAt),
+        ...state.routes.slice(0, -3),
         { name: 'OrderStatus', params: { orderId, branchName } },
       ];
       return CommonActions.reset({

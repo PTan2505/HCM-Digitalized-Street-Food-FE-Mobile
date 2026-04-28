@@ -4,17 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
 import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { useCheckoutMutation } from '@features/customer/direct-ordering/hooks/useCheckoutMutation';
-import { useOrderXP } from '@features/customer/home/hooks/useSettings';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
-  addXP,
-  selectUser,
-  selectUserXP,
-  updateMoneyBalance,
-} from '@slices/auth';
-import { showXPToast } from '@slices/xpToast';
+  CommonActions,
+  StaticScreenProps,
+  useNavigation,
+} from '@react-navigation/native';
+import { selectUser, updateMoneyBalance } from '@slices/auth';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -76,11 +73,9 @@ export const DirectCheckoutScreen = ({
     error: checkoutError,
   } = useCheckoutMutation();
   const orderError = checkoutError?.message ?? null;
-  const currentXP = useAppSelector(selectUserXP);
   const moneyBalance = useAppSelector(
     (state) => selectUser(state)?.moneyBalance ?? 0
   );
-  const orderXP = useOrderXP();
   const [selectedMethod, setSelectedMethod] = useState('QR Code');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
@@ -168,18 +163,30 @@ export const DirectCheckoutScreen = ({
         voucherId: selectedVoucher?.voucherId ?? null,
       });
 
-      const newXP = currentXP + orderXP;
-      dispatch(addXP(orderXP));
-      dispatch(
-        showXPToast({ xpEarned: orderXP, previousXP: currentXP, newXP })
-      );
-
       if (selectedMethod === 'Lowca Wallet') {
         dispatch(updateMoneyBalance(moneyBalance - finalAmount));
-        navigation.navigate('OrderStatus', {
-          orderId: result.order.orderId,
-          branchName,
+
+        navigation.dispatch((state) => {
+          const preservedHistory = state.routes.slice(0, -2);
+
+          const newRoutes = [
+            ...preservedHistory,
+            {
+              name: 'OrderStatus',
+              params: {
+                orderId: result.order.orderId,
+                branchName,
+              },
+            },
+          ];
+
+          return CommonActions.reset({
+            ...state,
+            routes: newRoutes,
+            index: newRoutes.length - 1,
+          });
         });
+
         return;
       }
 
@@ -207,8 +214,6 @@ export const DirectCheckoutScreen = ({
     selectedVoucher?.voucherId,
     navigation,
     branchName,
-    currentXP,
-    orderXP,
     dispatch,
     moneyBalance,
     finalAmount,
