@@ -159,7 +159,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         cameraPermission: 'Allow Lowca to access your camera.',
       },
     ],
-    './plugins/withAndroidDebugKeystore.cjs',
+    isManager
+      ? './plugins/withAndroidDebugKeystoreManager.cjs'
+      : './plugins/withAndroidDebugKeystore.cjs',
     '@maplibre/maplibre-react-native',
     'expo-notifications',
     'expo-av',
