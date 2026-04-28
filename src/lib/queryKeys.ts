@@ -102,7 +102,7 @@ export const queryKeys = {
 
   quests: {
     all: ['quests'] as const,
-    public: ['quests', 'public'] as const,
+    public: (isCompleted?: boolean) => ['quests', 'public', { isCompleted }] as const,
     detail: (questId: number) => ['quests', 'detail', questId] as const,
     my: (status?: string) => ['quests', 'my', status] as const,
     byCampaign: (campaignId: string) =>

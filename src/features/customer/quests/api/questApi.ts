@@ -21,7 +21,8 @@ export class QuestApi {
     pageNumber = 1,
     pageSize = 10,
     isStandalone?: boolean,
-    isTierUp?: boolean
+    isTierUp?: boolean,
+    isCompleted?: boolean
   ): Promise<PaginatedQuests> {
     const res = await this.apiClient.get<PaginatedQuests>({
       url: '/api/Quest/public',
@@ -30,6 +31,7 @@ export class QuestApi {
         pageSize,
         ...(isStandalone !== undefined && { isStandalone }),
         ...(isTierUp !== undefined && { isTierUp }),
+        ...(isCompleted !== undefined && { isCompleted }),
       },
     });
     return res.data;
