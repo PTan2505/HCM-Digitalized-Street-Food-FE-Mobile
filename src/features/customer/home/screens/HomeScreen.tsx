@@ -4,20 +4,20 @@ import { useGhostPins } from '@customer/home/hooks/useGhostPins';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
+import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
 import { PlaceCard } from '@features/customer/home/components/common/PlaceCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
+import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
-import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
-import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
-import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { registerCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
@@ -347,75 +347,79 @@ export const HomeScreen = (): JSX.Element => {
   // FlatList to remount the header and re-trigger onEndReached in a loop.
   const ListHeader = useMemo(
     () => (
-      <LinearGradient
-        colors={[COLORS.primaryGradientHero, '#FFFFFF']}
-        locations={[0, 0.4]}
-        style={{
-          paddingTop:
-            refreshing && Platform.OS === 'ios' ? insets.top + 60 : insets.top,
-        }}
-      >
-        <HomeHeader />
+      <View>
+        <LinearGradient
+          colors={[COLORS.primaryGradientHero, '#FFFFFF']}
+          style={{
+            paddingTop:
+              refreshing && Platform.OS === 'ios'
+                ? insets.top + 60
+                : insets.top,
+          }}
+        >
+          <HomeHeader />
 
-        <View onLayout={handleSearchBarLayout}>
-          <SearchBar
-            onPress={() => navigation.navigate('Search', { autoFocus: true })}
-            onFilterPress={() =>
-              navigation.navigate('Search', { openFilter: true })
-            }
-          />
-        </View>
-        {campaignsLoading ? (
-          <BannerCarouselSkeleton />
-        ) : (
-          <BannerCarousel
-            items={systemCampaigns}
-            onCampaignPress={handleCampaignPress}
-            onLoadMore={() => {
-              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-            }}
-            hasMore={hasNextPage}
-          />
-        )}
+          <View onLayout={handleSearchBarLayout}>
+            <SearchBar
+              onPress={() => navigation.navigate('Search', { autoFocus: true })}
+              onFilterPress={() =>
+                navigation.navigate('Search', { openFilter: true })
+              }
+            />
+          </View>
 
-        <View className="px-4 py-2">
-          <Title>{t('home_quick_actions.section_title')}</Title>
-        </View>
-        <QuickActionGrid actions={getHomeQuickActions(t, navigation)} />
-
-        <View className="px-4 py-2">
-          <Title>{t('what_want_eat')}</Title>
-        </View>
-
-        <View className="flex-row pt-2">
-          {categoriesLoading ? (
-            <CategoryRowSkeleton />
+          {campaignsLoading ? (
+            <BannerCarouselSkeleton />
           ) : (
-            <FlatList
-              data={categories}
-              keyExtractor={(item) => String(item.categoryId)}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingTop: 8,
-                paddingBottom: 4,
+            <BannerCarousel
+              items={systemCampaigns}
+              onCampaignPress={handleCampaignPress}
+              onLoadMore={() => {
+                if (hasNextPage && !isFetchingNextPage) fetchNextPage();
               }}
-              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-              renderItem={({ item }) => (
-                <CategoryCard
-                  title={item.name}
-                  image={item.imageUrl ?? undefined}
-                  onPress={() =>
-                    navigation.navigate('Search', {
-                      selectedCategoryId: String(item.categoryId),
-                    })
-                  }
-                />
-              )}
+              hasMore={hasNextPage}
             />
           )}
-        </View>
+
+          <View className="px-4 py-2">
+            <Title>{t('home_quick_actions.section_title')}</Title>
+          </View>
+          <QuickActionGrid actions={getHomeQuickActions(t, navigation)} />
+
+          <View className="px-4 py-2">
+            <Title>{t('what_want_eat')}</Title>
+          </View>
+
+          <View className="flex-row pt-2">
+            {categoriesLoading ? (
+              <CategoryRowSkeleton />
+            ) : (
+              <FlatList
+                data={categories}
+                keyExtractor={(item) => String(item.categoryId)}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingTop: 8,
+                  paddingBottom: 4,
+                }}
+                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                renderItem={({ item }) => (
+                  <CategoryCard
+                    title={item.name}
+                    image={item.imageUrl ?? undefined}
+                    onPress={() =>
+                      navigation.navigate('Search', {
+                        selectedCategoryId: String(item.categoryId),
+                      })
+                    }
+                  />
+                )}
+              />
+            )}
+          </View>
+        </LinearGradient>
 
         {vendorCampaignLoading ? (
           <>
@@ -520,7 +524,7 @@ export const HomeScreen = (): JSX.Element => {
             color={COLORS.primaryGradientFrom}
           />
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
