@@ -791,8 +791,9 @@
       "description": "Đã có {{count}} quán trong bán kính 1km. Có thể quán bạn muốn thêm đã tồn tại:"
     },
     "feedback": {
-      "title": "Đánh giá (Tùy chọn)",
-      "subtitle": "Chia sẻ thêm về quán ăn và thêm ảnh minh họa",
+      "title": "Đánh giá",
+      "subtitle": "Vui lòng cho điểm và chia sẻ thêm về quán ăn",
+      "description": "Mô tả",
       "your_rating": "Đánh giá của bạn",
       "tags_label": "Nhãn (Tuỳ chọn)",
       "placeholder": "Mô tả về quán (món ăn đặc biệt, giờ mở cửa, giá cả, đặc điểm nổi bật...)",
@@ -803,7 +804,9 @@
     },
     "validation": {
       "name_min_length": "Tên quán phải có ít nhất 2 ký tự",
-      "address_required": "Vui lòng chọn địa chỉ từ gợi ý hoặc bản đồ"
+      "address_required": "Vui lòng chọn địa chỉ từ gợi ý hoặc bản đồ",
+      "rating_required": "Vui lòng chọn số sao đánh giá",
+      "description_min_length": "Mô tả phải có ít nhất 10 ký tự"
     },
     "submit_error": {
       "duplicate_nearby": "Đã có quán gần đây được ghi nhận",

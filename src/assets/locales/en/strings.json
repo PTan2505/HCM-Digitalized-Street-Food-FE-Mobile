@@ -790,8 +790,9 @@
       "description": "There are already {{count}} stalls within a 1km radius. The stall you want to add may already exist:"
     },
     "feedback": {
-      "title": "Review (Optional)",
-      "subtitle": "Share more about this stall and add reference images",
+      "title": "Review",
+      "subtitle": "Please rate this stall and share more about it",
+      "description": "Your review",
       "your_rating": "Your rating",
       "tags_label": "Tags (Optional)",
       "placeholder": "Describe this stall (signature dishes, opening hours, prices, standout features...)",
@@ -802,7 +803,9 @@
     },
     "validation": {
       "name_min_length": "Stall name must be at least 2 characters",
-      "address_required": "Please select an address from suggestions or map"
+      "address_required": "Please select an address from suggestions or map",
+      "rating_required": "Please select a star rating",
+      "description_min_length": "Description must be at least 10 characters"
     },
     "submit_error": {
       "duplicate_nearby": "A nearby stall has already been reported",
