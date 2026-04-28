@@ -13,6 +13,7 @@ import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
+import { isManagerApp } from '@utils/appVariant';
 import getHighResAvatar from '@utils/getHighResAvatar';
 import React, { JSX, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -159,7 +160,7 @@ export const ProfileScreen = (): JSX.Element => {
           </View>
 
           {/* XP Progress Bar */}
-          {user?.tierId != null && (
+          {!isManagerApp && user?.tierId != null && (
             <XPProgressBar
               xp={user.xp ?? 0}
               tierId={user.tierId}

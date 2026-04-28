@@ -1,10 +1,9 @@
 import { COLORS } from '@constants/colors';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { ManagerOrdersScreen } from '@features/manager/orders/screens/ManagerOrdersScreen';
+import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
 import { NotificationScreen } from '@features/notifications/screens/NotificationScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
-import { useUnreadNotificationCount } from '@features/notifications/hooks/useUnreadNotificationCount';
-import { ManagerBranchScreen } from '@manager/branch/ManagerBranchScreen';
 import { ManagerDayOffScreen } from '@manager/day-off/ManagerDayOffScreen';
 import { ManagerFeedbackScreen } from '@manager/feedback/screens/ManagerFeedbackScreen';
 import { ManagerMenuScreen } from '@manager/menu/ManagerMenuScreen';
@@ -49,7 +48,7 @@ export const ManagerMainTabs = (): JSX.Element => {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="ManagerBranch"
         component={ManagerBranchScreen}
         options={{
@@ -58,7 +57,7 @@ export const ManagerMainTabs = (): JSX.Element => {
             <FontAwesome6 name="store" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="ManagerMenu"
         component={ManagerMenuScreen}

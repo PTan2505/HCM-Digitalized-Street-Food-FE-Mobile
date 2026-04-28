@@ -12,6 +12,7 @@ import { ManagerNavigation } from '@manager-app/navigation/stackNavigator';
 import { ManagerAppProvider } from '@manager-app/provider';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
+import { StatusBar } from 'react-native';
 import { LocaleConfig } from 'react-native-calendars';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -76,6 +77,11 @@ export default function ManagerApp(): ReactNode {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor="transparent"
+          translucent
+        />
         <ManagerAppProvider>
           <ManagerNavigation theme={ManagerCustomTheme} />
         </ManagerAppProvider>
