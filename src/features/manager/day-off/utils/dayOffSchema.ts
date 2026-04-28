@@ -24,7 +24,9 @@ export const getDayOffSchema = (t: TFunction) =>
           return data.endDate >= data.startDate;
         }
         if (!data.startTime || !data.endTime) return true;
-        const start = new Date(`${data.startDate}T${data.startTime}:00`).getTime();
+        const start = new Date(
+          `${data.startDate}T${data.startTime}:00`
+        ).getTime();
         const end = new Date(`${data.endDate}T${data.endTime}:00`).getTime();
         return end >= start;
       },
