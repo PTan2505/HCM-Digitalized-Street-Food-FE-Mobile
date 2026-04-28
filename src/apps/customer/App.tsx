@@ -13,6 +13,7 @@ import {
 import '@utils/i18n';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
+import { StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -31,6 +32,11 @@ export default function App(): ReactNode {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor="transparent"
+          translucent
+        />
         <AppProvider>
           <AppSplashGate fontsLoaded={fontsLoaded ?? false}>
             <Navigation theme={CustomTheme} />

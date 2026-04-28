@@ -189,16 +189,13 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
 
     connect();
 
+    // Reconnect when the app returns to foreground in case the OS dropped the
+    // connection while backgrounded. withAutomaticReconnect() handles drops
+    // after a successful connection; this covers a clean start after resume.
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (cancelled) return;
       if (nextState === 'active') {
         connect();
-        return;
-      }
-      // 'inactive' is a transient iOS state (phone call, Control Center, etc.)
-      // — do not disconnect, it will settle back to 'active' shortly.
-      if (nextState === 'background') {
-        disconnect();
       }
     });
 
