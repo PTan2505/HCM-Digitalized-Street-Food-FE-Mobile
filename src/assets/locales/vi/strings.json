@@ -574,7 +574,8 @@
     "ok": "OK",
     "cancel": "Hủy",
     "yes": "Có",
-    "no": "Không"
+    "no": "Không",
+    "confirm": "Xác nhận"
   },
   "campaign": {
     "title": "Chiến dịch",
@@ -972,6 +973,9 @@
   },
   "manager_day_off": {
     "title": "Ngày nghỉ",
+    "subtitle": "Quản lý lịch đóng cửa và ngày nghỉ của chi nhánh.",
+    "from": "Từ",
+    "to": "Đến",
     "add": "Thêm ngày nghỉ",
     "add_title": "Thêm ngày nghỉ",
     "empty": "Chưa có ngày nghỉ nào",
@@ -993,7 +997,14 @@
     "error_end_before_start": "Ngày kết thúc phải sau ngày bắt đầu",
     "error_time_format": "Định dạng giờ không hợp lệ (HH:MM)",
     "error_end_time_before_start": "Giờ kết thúc phải sau giờ bắt đầu",
+    "confirm": "Xác nhận",
+    "date_range": "Khoảng thời gian nghỉ",
+    "select_start": "Bắt đầu",
+    "select_end": "Kết thúc",
+    "pick_start_date": "Chọn ngày bắt đầu",
+    "pick_end_date": "Chọn ngày kết thúc",
     "error_save": "Không thể lưu ngày nghỉ",
-    "error_delete": "Không thể xoá ngày nghỉ"
+    "error_delete": "Không thể xoá ngày nghỉ",
+    "error_overlap": "Khoảng thời gian này trùng với ngày nghỉ đã có"
   }
 }

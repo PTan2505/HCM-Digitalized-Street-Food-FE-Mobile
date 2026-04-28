@@ -10,15 +10,11 @@ export interface DayOff {
   branchId: number;
   startDate: string;
   endDate: string;
-  startTime: string | null;
-  endTime: string | null;
 }
 
 export interface CreateDayOffRequest {
   startDate: string;
   endDate: string;
-  startTime: string | null;
-  endTime: string | null;
 }
 
 export class ManagerDayOffApi {

@@ -18,10 +18,21 @@ export const getDayOffSchema = (t: TFunction) =>
       startTime: z.string().optional(),
       endTime: z.string().optional(),
     })
-    .refine((data) => data.endDate >= data.startDate, {
-      message: t('manager_day_off.error_end_before_start'),
-      path: ['endDate'],
-    })
+    .refine(
+      (data) => {
+        if (data.isFullDay) {
+          return data.endDate >= data.startDate;
+        }
+        if (!data.startTime || !data.endTime) return true;
+        const start = new Date(`${data.startDate}T${data.startTime}:00`).getTime();
+        const end = new Date(`${data.endDate}T${data.endTime}:00`).getTime();
+        return end >= start;
+      },
+      {
+        message: t('manager_day_off.error_end_before_start'),
+        path: ['endDate'],
+      }
+    )
     .refine(
       (data) => {
         if (!data.isFullDay) {
@@ -49,6 +60,7 @@ export const getDayOffSchema = (t: TFunction) =>
     .refine(
       (data) => {
         if (!data.isFullDay && data.startTime && data.endTime) {
+          if (data.endDate !== data.startDate) return true;
           return data.endTime > data.startTime;
         }
         return true;

@@ -971,6 +971,9 @@
   },
   "manager_day_off": {
     "title": "Days Off",
+    "subtitle": "Manage upcoming closures and staff availability.",
+    "from": "From",
+    "to": "To",
     "add": "Add Day Off",
     "add_title": "Add Day Off",
     "empty": "No days off scheduled",
@@ -992,7 +995,14 @@
     "error_end_before_start": "End date must be after start date",
     "error_time_format": "Invalid time format (HH:MM)",
     "error_end_time_before_start": "End time must be after start time",
+    "confirm": "Confirm",
+    "date_range": "Day off period",
+    "select_start": "Start",
+    "select_end": "End",
+    "pick_start_date": "Select start date",
+    "pick_end_date": "Select end date",
     "error_save": "Failed to save day off",
-    "error_delete": "Failed to delete day off"
+    "error_delete": "Failed to delete day off",
+    "error_overlap": "This period overlaps with an existing day off"
   }
 }
