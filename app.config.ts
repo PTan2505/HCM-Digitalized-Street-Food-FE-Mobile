@@ -13,7 +13,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '1.0.0',
   owner: 'street-food',
   orientation: 'portrait',
-  icon: './assets/adaptive-icon.png',
+  icon: isManager
+    ? './assets/adaptive-icon-manager.png'
+    : './assets/adaptive-icon.png',
   userInterfaceStyle: 'light',
   backgroundColor: '#ffffff',
   newArchEnabled: true,
@@ -55,8 +57,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         './google-services-manager.json')
       : (process.env.GOOGLE_SERVICES_JSON ?? './google-services.json'),
     adaptiveIcon: {
-      foregroundImage: './assets/adaptive-icon.png',
-      monochromeImage: './assets/adaptive-icon.png',
+      foregroundImage: isManager
+        ? './assets/adaptive-icon-manager.png'
+        : './assets/adaptive-icon.png',
+      monochromeImage: isManager
+        ? './assets/adaptive-icon-manager.png'
+        : './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
     },
     edgeToEdgeEnabled: true,
