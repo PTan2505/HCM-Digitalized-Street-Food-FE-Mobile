@@ -136,4 +136,7 @@ export const apiUrl = {
     applicableByBranch: (branchId: number): string =>
       `/api/vouchers/mine/branch/${branchId}`,
   },
+  tier: {
+    getAll: '/api/Tier',
+  },
 };

@@ -189,4 +189,8 @@ export const queryKeys = {
   paymentHistory: {
     all: ['paymentHistory'] as const,
   },
+
+  tiers: {
+    all: ['tiers'] as const,
+  },
 } as const;

@@ -1,7 +1,7 @@
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
-import type { VendorTier } from '@custom-types/vendor';
 import { Ionicons } from '@expo/vector-icons';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import type { RestaurantInfoData } from '@features/customer/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/customer/home/components/common/RestaurantInfo';
 import SearchResultCard from '@features/customer/home/components/common/SearchResultCard';
@@ -24,7 +24,6 @@ import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { Feedback } from '@features/customer/home/types/feedback';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/customer/reputation/api/generated';
 import type { BranchTier } from '@features/customer/reputation/types/generated';
-import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import {
@@ -33,9 +32,9 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { useQueryClient } from '@tanstack/react-query';
 import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -466,8 +465,9 @@ export const RestaurantDetailsScreen = ({
     isOpen,
     schedules,
     dayOffs,
-    tier: branchTier?.tier as VendorTier | undefined,
+    tierId: branch.tierId,
     isTierPaused: branchTier?.isBombingShieldActive,
+    isSubscribed: branch.isSubscribed,
   };
 
   const reviews: Review[] = feedbacks.map((f): Review => {

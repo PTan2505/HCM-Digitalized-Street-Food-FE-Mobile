@@ -10,6 +10,7 @@ import { CategoryApi } from '@customer/home/api/categoryApi';
 import { FeedbackApi } from '@customer/home/api/feedbackApi';
 import { FeedbackTagApi } from '@customer/home/api/feedbackTagApi';
 import { StallSearchApi } from '@customer/home/api/stallSearchApi';
+import { TierApi } from '@customer/home/api/tierApi';
 import { TasteApi } from '@customer/home/api/tasteApi';
 import { VendorApi } from '@customer/home/api/vendorApi';
 import { GhostPinApi } from '@customer/maps/api/ghostPinApi';
@@ -44,6 +45,7 @@ export const axiosApi = {
   vendorApi: new VendorApi(axiosClient),
   branchApi: new BranchApi(axiosClient),
   stallSearchApi: new StallSearchApi(axiosClient),
+  tierApi: new TierApi(axiosClient),
   tasteApi: new TasteApi(axiosClient),
   feedbackApi: new FeedbackApi(axiosClient),
   feedbackTagApi: new FeedbackTagApi(axiosClient),

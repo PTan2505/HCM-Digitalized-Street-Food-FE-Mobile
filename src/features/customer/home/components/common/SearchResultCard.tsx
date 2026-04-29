@@ -1,5 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
+import { useTiers } from '@features/customer/home/hooks/useTiers';
 import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch, Dish } from '@features/customer/home/types/branch';
 import type { VendorTier } from '@features/customer/home/types/stall';
@@ -120,6 +121,8 @@ const SearchResultCard = ({
 }: SearchResultCardProps): JSX.Element => {
   const { t } = useTranslation();
   const { isLoading, isOpen } = useWorkSchedule(branch.branchId);
+  const { tierById } = useTiers();
+  const tier = tierById(branch.tierId);
   const touchStartX = useRef(0);
 
   const distanceLabel =
@@ -160,12 +163,12 @@ const SearchResultCard = ({
               </View>
             )}
           </View>
-          {branch.tier && (
+          {tier && (
             <View
               className="absolute bottom-1.5 left-1.5 rounded-full px-1.5 py-0.5"
-              style={{ backgroundColor: TIER_COLORS[branch.tier] + '33' }}
+              style={{ backgroundColor: TIER_COLORS[tier] + '33' }}
             >
-              <Text className="text-[10px]">{TIER_ICONS[branch.tier]}</Text>
+              <Text className="text-[10px]">{TIER_ICONS[tier]}</Text>
             </View>
           )}
         </TouchableOpacity>

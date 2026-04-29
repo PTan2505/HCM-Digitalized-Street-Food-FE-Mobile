@@ -1,11 +1,18 @@
+import DiamondIcon from '@assets/icons/diamond-icon.svg';
+import GoldIcon from '@assets/icons/gold-icon.svg';
+import SilverIcon from '@assets/icons/silver-icon.svg';
+import WarningIcon from '@assets/icons/warning-icon.svg';
+import SvgIcon from '@components/SvgIcon';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTiers } from '@features/customer/home/hooks/useTiers';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { VendorTier } from '@features/customer/home/types/stall';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';
-import type { JSX } from 'react';
+import type { FC, JSX } from 'react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import type { SvgProps } from 'react-native-svg';
 
 export interface VoucherChip {
   voucherId: number;
@@ -21,11 +28,11 @@ const TIER_COLORS: Record<VendorTier, string> = {
   warning: '#EF4444',
 };
 
-const TIER_ICONS: Record<VendorTier, string> = {
-  diamond: '💎',
-  gold: '🥇',
-  silver: '🥈',
-  warning: '⚠️',
+const TIER_ICONS: Record<VendorTier, FC<SvgProps>> = {
+  diamond: DiamondIcon,
+  gold: GoldIcon,
+  silver: SilverIcon,
+  warning: WarningIcon,
 };
 
 interface PlaceCardProps {
@@ -34,7 +41,6 @@ interface PlaceCardProps {
   imageUri?: string;
   userCoords?: UserCoords | null;
   onPress?: () => void;
-  tier?: VendorTier;
   isFlashBoosted?: boolean;
   /** undefined = don't show badge (e.g. not yet fetched) */
   isOpen?: boolean;
@@ -51,12 +57,12 @@ export const PlaceCard = ({
   displayName,
   imageUri,
   onPress,
-  tier,
-  isFlashBoosted,
   isOpen,
   vouchers,
 }: PlaceCardProps): JSX.Element => {
   const { t } = useTranslation();
+  const { tierById } = useTiers();
+  const tier = tierById(branch.tierId);
   const touchStartX = useRef(0);
 
   const distanceLabel =
@@ -85,23 +91,34 @@ export const PlaceCard = ({
             {/* <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-secondary">
               <MaterialCommunityIcons name="bookmark" size={14} color="#fff" />
             </View> */}
-            {isFlashBoosted && (
+            {/* {isFlashBoosted && (
               <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-[#F59E0B] px-2 py-0.5">
                 <Ionicons name="flash" size={10} color="#fff" />
                 <Text className="text-[9px] font-bold text-white">BOOST</Text>
               </View>
-            )}
-            {tier && (
-              <View
-                className="absolute bottom-2 right-2 rounded-full px-1.5 py-0.5"
-                style={{ backgroundColor: TIER_COLORS[tier] + '22' }}
-              >
-                <Text className="text-[10px]">{TIER_ICONS[tier]}</Text>
-              </View>
-            )}
+            )} */}
           </View>
 
           <View className="rounded-b-[14.71px] bg-white px-[8.41px] py-[4.2px]">
+            {tier && (
+              <View
+                className="mb-0.5 flex-row items-center gap-1 self-start rounded-full px-1.5 py-0.5"
+                style={{ backgroundColor: TIER_COLORS[tier] + '22' }}
+              >
+                <SvgIcon
+                  icon={TIER_ICONS[tier]}
+                  width={14}
+                  height={14}
+                  color={TIER_COLORS[tier]}
+                />
+                <Text
+                  className="text-[10px] font-semibold"
+                  style={{ color: TIER_COLORS[tier] }}
+                >
+                  {t('stall')} {t(`profile.tier_${tier}`)}
+                </Text>
+              </View>
+            )}
             <Text
               className="font-nunito -mt-[1.05px] min-h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
               numberOfLines={2}
