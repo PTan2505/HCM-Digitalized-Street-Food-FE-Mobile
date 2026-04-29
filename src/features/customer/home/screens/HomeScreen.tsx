@@ -9,6 +9,7 @@ import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyC
 import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
 import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
@@ -229,12 +230,7 @@ export const HomeScreen = (): JSX.Element => {
     [navigation]
   );
 
-  const handleRatingUpdate = useCallback(
-    (branchId: number, avgRating: number, totalReviewCount: number) => {
-      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
-    },
-    [updateBranchRatingFn]
-  );
+  const handleRatingUpdate = useHandleRatingUpdate(updateBranchRatingFn);
 
   const vendorCampaignVouchersByBranchId = useMemo(() => {
     const map: Record<number, CampaignVoucherInfo[]> = {};

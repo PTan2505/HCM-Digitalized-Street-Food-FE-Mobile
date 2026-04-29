@@ -8,15 +8,16 @@ import FilterModal from '@features/customer/home/components/common/FilterModal';
 import SearchResultCard from '@features/customer/home/components/common/SearchResultCard';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import { useDishKeywords } from '@features/customer/home/hooks/useDishKeywords';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { useSearchHistory } from '@features/customer/home/hooks/useSearchHistory';
 import { useStallSearch } from '@features/customer/home/hooks/useStallSearch';
 import { useTastes } from '@features/customer/home/hooks/useTastes';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { useDietaryPreferenceQuery } from '@features/user/hooks/dietaryPreference/useDietaryPreferenceQuery';
+import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { registerCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { normalizeForMatch } from '@utils/normalizeText';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -222,8 +223,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
   const { dietaryPreferences } = useDietaryPreferenceQuery();
   const { tastes } = useTastes();
   const { categories } = useCategories();
-  const { history, addToHistory, removeFromHistory, clearHistory } =
-    useSearchHistory();
+  const { history, addToHistory, removeFromHistory } = useSearchHistory();
 
   useEffect(() => {
     if (!openFilter) return;
@@ -242,6 +242,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     error,
     search,
     clearError,
+    updateBranchRating,
   } = useStallSearch();
 
   const multiBranchVendorIds = useMemo(() => {
@@ -380,12 +381,7 @@ export const SearchScreen = ({ route }: SearchScreenProps): JSX.Element => {
     }
   };
 
-  const handleRatingUpdate = useCallback(
-    (_branchId: number, _avgRating: number, _totalReviewCount: number) => {
-      // Search results are transient — no global store to update.
-    },
-    []
-  );
+  const handleRatingUpdate = useHandleRatingUpdate(updateBranchRating);
 
   const [siblingsSheetBranch, setSiblingsSheetBranch] =
     useState<ActiveBranch | null>(null);

@@ -34,7 +34,6 @@ import { selectUser } from '@slices/auth';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import { CampaignListScreen } from '@features/customer/campaigns/screens/CampaignListScreen';
 import { SystemCampaignDetailScreen } from '@features/customer/campaigns/screens/SystemCampaignDetailScreen';
 import { VoucherApplicableBranchesScreen } from '@features/customer/campaigns/screens/VoucherApplicableBranchesScreen';
 import { VoucherHistoryScreen } from '@features/customer/campaigns/screens/VoucherHistoryScreen';
@@ -217,10 +216,10 @@ const RootStack = createNativeStackNavigator({
       screen: NotificationScreen,
       linking: 'notifications',
     },
-    CampaignList: {
-      screen: CampaignListScreen,
-      linking: 'campaigns',
-    },
+    // CampaignList: {
+    //   screen: CampaignListScreen,
+    //   linking: 'campaigns',
+    // },
     SystemCampaignDetail: {
       screen: SystemCampaignDetailScreen,
       params: {} as { campaignId: string },

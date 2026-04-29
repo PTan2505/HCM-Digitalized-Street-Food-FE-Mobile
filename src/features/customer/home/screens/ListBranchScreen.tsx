@@ -7,6 +7,7 @@ import { useLocationPermission } from '@features/customer/maps/hooks/useLocation
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { computeDisplayName } from '@utils/computeDisplayName';
 import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { registerCallback } from '@utils/callbackRegistry';
@@ -114,12 +115,7 @@ export const ListBranchScreen = ({
     fetchNextPage();
   }, [isPaginated, branchesHasNext, fetchNextPage]);
 
-  const handleRatingUpdate = useCallback(
-    (branchId: number, avgRating: number, totalReviewCount: number) => {
-      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
-    },
-    [updateBranchRatingFn]
-  );
+  const handleRatingUpdate = useHandleRatingUpdate(updateBranchRatingFn);
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
