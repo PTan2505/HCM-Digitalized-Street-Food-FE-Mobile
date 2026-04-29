@@ -3,10 +3,10 @@ import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useCampaignQuest } from '@features/customer/campaigns/hooks/useCampaignQuests';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';
@@ -206,15 +206,15 @@ export const SystemCampaignDetailScreen = ({
               const voucherData: Voucher = {
                 userVoucherId: 0,
                 voucherId: voucher.voucherId,
-                voucherCode: '',
+                voucherCode: voucher.voucherCode,
                 voucherName: voucher.name,
                 description: null,
                 voucherType: voucher.type,
                 discountValue: voucher.discountValue,
                 minAmountRequired: voucher.minAmountRequired,
                 maxDiscountValue: voucher.maxDiscountValue,
-                startDate: null,
-                endDate: null,
+                startDate: voucher.startDate,
+                endDate: voucher.endDate,
                 isActive: true,
                 campaignId: Number(campaignId),
                 quantity: item.quantity,

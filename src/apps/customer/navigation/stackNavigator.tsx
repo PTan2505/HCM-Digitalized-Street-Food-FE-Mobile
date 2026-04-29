@@ -8,6 +8,7 @@ import { OrderStatusScreen } from '@features/customer/direct-ordering/screens/Or
 import { PaymentQRScreen } from '@features/customer/direct-ordering/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/customer/direct-ordering/screens/PersonalCartScreen';
 import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/VoucherSelectScreen';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
 import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/customer/home/screens/ListBranchScreen';
@@ -94,6 +95,7 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
+        vouchers?: CampaignVoucherInfo[];
         onRatingUpdateId?: string;
       },
     },

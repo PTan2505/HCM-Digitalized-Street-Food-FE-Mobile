@@ -4,6 +4,7 @@ import { useGhostPins } from '@customer/home/hooks/useGhostPins';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
 import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
@@ -236,10 +237,7 @@ export const HomeScreen = (): JSX.Element => {
   );
 
   const vendorCampaignVouchersByBranchId = useMemo(() => {
-    const map: Record<
-      number,
-      Array<{ voucherId: number; discountValue: number; type: string }>
-    > = {};
+    const map: Record<number, CampaignVoucherInfo[]> = {};
     vendorCampaignBranches.forEach((b) => {
       const vouchers = b.campaigns.flatMap((c) => c.vouchers);
       if (vouchers.length > 0) map[b.branchId] = vouchers;
@@ -469,6 +467,9 @@ export const HomeScreen = (): JSX.Element => {
                         vouchers={
                           vendorCampaignVouchersByBranchId[left.branchId]
                         }
+                        campaignVouchers={
+                          vendorCampaignVouchersByBranchId[left.branchId]
+                        }
                         isMultiBranch={campaignMultiBranchVendorIds.includes(
                           left.vendorId ?? -1
                         )}
@@ -488,6 +489,9 @@ export const HomeScreen = (): JSX.Element => {
                           imageUri={vendorCampaignImageMap[right.branchId]}
                           userCoords={userCoords}
                           vouchers={
+                            vendorCampaignVouchersByBranchId[right.branchId]
+                          }
+                          campaignVouchers={
                             vendorCampaignVouchersByBranchId[right.branchId]
                           }
                           isMultiBranch={campaignMultiBranchVendorIds.includes(

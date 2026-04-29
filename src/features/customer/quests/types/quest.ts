@@ -85,11 +85,21 @@ export interface QuestBadgeDetail {
 export interface QuestVoucherDetail {
   voucherId: number;
   name: string;
-  type: string;
+  type: 'PERCENT' | 'AMOUNT';
   discountValue: number;
   maxDiscountValue: number | null;
   minAmountRequired: number | null;
   remain: number;
+  description: string | null;
+  startDate: string;
+  endDate: string;
+  isActive: true;
+  voucherCode: string;
+  redeemPoint: number;
+  quantity: number;
+  usedQuantity: number;
+  campaignId: number;
+  isIndependentQuest: boolean;
 }
 
 export interface PaginatedQuests {

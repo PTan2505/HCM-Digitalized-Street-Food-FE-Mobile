@@ -1,5 +1,7 @@
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
+import VoucherList from '@customer/home/components/restaurantDetails/VoucherList';
 import { Ionicons } from '@expo/vector-icons';
 import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import type { RestaurantInfoData } from '@features/customer/home/components/common/RestaurantInfo';
@@ -70,13 +72,16 @@ type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
   tab?: TabType;
+  vouchers?: CampaignVoucherInfo[];
   onRatingUpdateId?: string;
 }>;
 
 export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
-  const { branch, displayName, tab, onRatingUpdateId } = route.params;
+  const { branch, displayName, tab, vouchers, onRatingUpdateId } = route.params;
+  const [branchVouchers] = useState<CampaignVoucherInfo[]>(vouchers ?? []);
+
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -132,7 +137,7 @@ export const RestaurantDetailsScreen = ({
           isActive: boolean;
           color: string;
         }): JSX.Element => (
-          <Ionicons name="ticket-outline" size={20} color={color} />
+          <Ionicons name="location-outline" size={20} color={color} />
         ),
       },
     ],
@@ -532,7 +537,7 @@ export const RestaurantDetailsScreen = ({
         <RestaurantInfo restaurant={restaurantInfo} />
 
         {/* View on map & Giving direction */}
-        <View className="flex-row gap-3 px-4 pb-6">
+        <View className="flex-row gap-3 px-4 pb-2">
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Map', { initialBranch: branch })
@@ -592,6 +597,8 @@ export const RestaurantDetailsScreen = ({
             </Text>
           </TouchableOpacity>
         </View>
+
+        <VoucherList vouchers={branchVouchers} />
 
         <TabBar
           tabs={detailTabs}

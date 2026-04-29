@@ -2,6 +2,7 @@ import DiamondIcon from '@assets/icons/diamond-icon.svg';
 import GoldIcon from '@assets/icons/gold-icon.svg';
 import SilverIcon from '@assets/icons/silver-icon.svg';
 import WarningIcon from '@assets/icons/warning-icon.svg';
+import VoucherImage from '@assets/voucher.png';
 import SvgIcon from '@components/SvgIcon';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTiers } from '@features/customer/home/hooks/useTiers';
@@ -17,7 +18,7 @@ import type { SvgProps } from 'react-native-svg';
 export interface VoucherChip {
   voucherId: number;
   discountValue: number;
-  type: string;
+  type: 'PERCENT' | 'AMOUNT';
   minAmountRequired?: number | null;
 }
 
@@ -213,11 +214,11 @@ export const PlaceCard = ({
             }}
             renderItem={({ item }) => (
               <View className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]">
-                <View className="items-center justify-center self-stretch bg-secondary px-1.5">
-                  <MaterialCommunityIcons
-                    name="ticket-percent"
-                    size={10}
-                    color="#fff"
+                <View className="items-center justify-center self-stretch px-1.5">
+                  <Image
+                    source={VoucherImage}
+                    style={{ width: 24, height: 24 }}
+                    resizeMode="contain"
                   />
                 </View>
                 <View className="h-11 justify-center gap-2 px-2 py-1.5">

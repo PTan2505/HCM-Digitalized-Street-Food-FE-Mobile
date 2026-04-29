@@ -1,3 +1,4 @@
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import {
   PlaceCard,
   type VoucherChip,
@@ -18,6 +19,7 @@ interface VendorCampaignPlaceCardProps {
   imageUri?: string;
   userCoords?: UserCoords | null;
   vouchers?: VoucherChip[];
+  campaignVouchers?: CampaignVoucherInfo[];
   isMultiBranch?: boolean;
   onRatingUpdate: (avgRating: number, totalReviewCount: number) => void;
 }
@@ -27,6 +29,7 @@ export const VendorCampaignPlaceCard = ({
   imageUri,
   userCoords,
   vouchers,
+  campaignVouchers,
   isMultiBranch: isMultiBranchProp,
   onRatingUpdate,
 }: VendorCampaignPlaceCardProps): JSX.Element => {
@@ -56,6 +59,7 @@ export const VendorCampaignPlaceCard = ({
           navigation.navigate('RestaurantDetails', {
             branch,
             displayName,
+            vouchers: campaignVouchers,
             onRatingUpdateId: registerCallback(onRatingUpdate),
           })
         }
