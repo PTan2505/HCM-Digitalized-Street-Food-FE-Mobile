@@ -33,6 +33,7 @@ import { selectUser } from '@slices/auth';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
+import { ChatbotScreen } from '@features/customer/chatbot/screens/ChatbotScreen';
 import { CampaignListScreen } from '@features/customer/campaigns/screens/CampaignListScreen';
 import { RestaurantCampaignDetailScreen } from '@features/customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/customer/campaigns/screens/SystemCampaignDetailScreen';
@@ -267,6 +268,9 @@ const RootStack = createNativeStackNavigator({
     PaymentHistory: {
       screen: PaymentHistoryScreen,
       linking: 'payment-history',
+    },
+    Chatbot: {
+      screen: ChatbotScreen,
     },
   },
 });

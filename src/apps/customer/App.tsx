@@ -10,10 +10,11 @@ import {
   Nunito_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/nunito';
+import { DraggableFloatingButton } from '@components/DraggableFloatingButton';
 import '@utils/i18n';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
 import { ReactNode } from 'react';
-import { StatusBar } from 'react-native';
+import { StyleSheet, View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -39,10 +40,19 @@ export default function App(): ReactNode {
         />
         <AppProvider>
           <AppSplashGate fontsLoaded={fontsLoaded ?? false}>
-            <Navigation theme={CustomTheme} />
+            <View style={styles.root}>
+              <Navigation theme={CustomTheme} />
+              <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                <DraggableFloatingButton />
+              </View>
+            </View>
           </AppSplashGate>
         </AppProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});
