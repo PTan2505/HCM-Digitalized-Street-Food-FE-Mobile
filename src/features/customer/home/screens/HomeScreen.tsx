@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
 import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
-import { PlaceCard } from '@features/customer/home/components/common/PlaceCard';
+import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
 import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
@@ -459,7 +459,7 @@ export const HomeScreen = (): JSX.Element => {
                 return (
                   <View
                     key={rowIndex}
-                    className="mb-3 flex-row justify-between"
+                    className="mb-3 flex-row items-stretch justify-between"
                   >
                     <View className="w-[49%]">
                       <VendorCampaignPlaceCard
@@ -596,7 +596,7 @@ export const HomeScreen = (): JSX.Element => {
                 return (
                   <View
                     key={rowIndex}
-                    className="mb-3 flex-row justify-between"
+                    className="mb-3 flex-row items-stretch justify-between"
                   >
                     <View className="w-[49%]">
                       <VendorCampaignPlaceCard
@@ -679,7 +679,7 @@ export const HomeScreen = (): JSX.Element => {
           backgroundColor: COLORS.primaryGradientHero,
         }}
       />
-      <View>
+      <View style={{ flex: 1 }}>
         <Animated.FlatList
           data={flatListData}
           keyExtractor={(item) =>
@@ -707,6 +707,7 @@ export const HomeScreen = (): JSX.Element => {
           }
           columnWrapperStyle={{
             justifyContent: 'space-between',
+            alignItems: 'stretch',
             paddingHorizontal: 16,
             marginBottom: 12,
           }}
@@ -728,7 +729,7 @@ export const HomeScreen = (): JSX.Element => {
             );
             return (
               <View className="w-[49%]">
-                <PlaceCard
+                <HomeBranchCard
                   branch={item}
                   displayName={displayName}
                   imageUri={branchImageMap[item.branchId]?.[0]}

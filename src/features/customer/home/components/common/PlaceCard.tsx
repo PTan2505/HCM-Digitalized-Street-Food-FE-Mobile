@@ -74,8 +74,8 @@ export const PlaceCard = ({
 
   return (
     <View className="flex-1 overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
-      <TouchableOpacity onPress={onPress}>
-        <View className="p-[6.31px]">
+      <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
+        <View className="p-[6.31px]" style={{ flex: 1 }}>
           <View className="relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px]">
             {imageUri ? (
               <Image
@@ -173,8 +173,8 @@ export const PlaceCard = ({
               </Text>
             </View>
 
-            {isOpen !== undefined && (
-              <View className="mt-1">
+            <View className="mt-1" style={{ minHeight: 22 }}>
+              {isOpen !== undefined && (
                 <View
                   className={`self-start rounded-full px-2 py-0.5 ${isOpen ? 'bg-[#E8F5E9]' : 'bg-[#F3F4F6]'}`}
                 >
@@ -184,8 +184,8 @@ export const PlaceCard = ({
                     {isOpen ? t('actions.open') : t('actions.closed')}
                   </Text>
                 </View>
-              </View>
-            )}
+              )}
+            </View>
           </View>
         </View>
       </TouchableOpacity>
