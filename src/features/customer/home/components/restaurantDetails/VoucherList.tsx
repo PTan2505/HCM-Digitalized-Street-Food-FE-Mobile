@@ -1,11 +1,12 @@
-import VoucherImage from '@assets/voucher.png';
 import { COLORS } from '@constants/colors';
 import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { cssInterop } from 'nativewind';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Image, Text, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 cssInterop(LinearGradient, { className: 'style' });
 
@@ -20,11 +21,20 @@ const formatDiscount = (value: number, type: string): string => {
 
 const VoucherItem = ({ item }: { item: CampaignVoucherInfo }): JSX.Element => {
   const { t } = useTranslation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
   return (
-    <View
+    <TouchableOpacity
       className="mr-3 w-[200px] overflow-hidden rounded-2xl shadow-sm"
       style={{ height: 100 }}
+      onPress={() => {
+        console.log(item.campaignId);
+
+        navigation.navigate('RestaurantCampaignDetail', {
+          campaignId: String(item.campaignId),
+        });
+      }}
     >
       <LinearGradient
         colors={[COLORS.primaryGradientFrom, COLORS.primaryGradientTo]}
@@ -38,35 +48,29 @@ const VoucherItem = ({ item }: { item: CampaignVoucherInfo }): JSX.Element => {
           <View className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-white" />
           <View className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full bg-white" />
           <View className="absolute bottom-3 right-0 top-3 border-r-2 border-dashed border-white/60" />
-          <Image
-            source={VoucherImage}
-            style={{ width: 32, height: 32 }}
-            resizeMode="contain"
-          />
+          <View style={{ transform: [{ rotate: '-90deg' }] }}>
+            <Text className="text-xs font-extrabold leading-tight text-black">
+              {formatDiscount(item.discountValue, item.type)}
+            </Text>
+          </View>
         </View>
 
         {/* Right content */}
         <View className="flex-1 px-2.5 py-2">
-          <View className="flex-row items-center justify-between gap-1">
-            <Text className="text-xl font-extrabold leading-tight text-black">
-              {formatDiscount(item.discountValue, item.type)}
-            </Text>
-            {item.remain > 0 && (
-              <Text className="text-[9px] text-black/70">
-                {t('voucher.remain', {
-                  count: item.remain,
-                  defaultValue: `Còn: ${item.remain}`,
-                })}
-              </Text>
-            )}
-          </View>
-
           <Text
-            className="mt-0.5 text-[11px] font-bold text-black/90"
-            numberOfLines={1}
+            className="my-1 text-[11px] font-bold text-black/90"
+            numberOfLines={2}
           >
             {item.name}
           </Text>
+          {item.remain > 0 && (
+            <Text className="text-[9px] text-black/70">
+              {t('voucher.remain', {
+                count: item.remain,
+                defaultValue: `Còn: ${item.remain}`,
+              })}
+            </Text>
+          )}
 
           <View className="mt-1.5 gap-0.5">
             {!!item.minAmountRequired && (
@@ -94,7 +98,7 @@ const VoucherItem = ({ item }: { item: CampaignVoucherInfo }): JSX.Element => {
           </View>
         </View>
       </LinearGradient>
-    </View>
+    </TouchableOpacity>
   );
 };
 

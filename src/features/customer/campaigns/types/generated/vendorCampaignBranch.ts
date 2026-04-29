@@ -11,6 +11,7 @@ export interface CampaignVoucherInfo {
   startDate: string;
   endDate: string;
   voucherCode: string;
+  campaignId: number;
 }
 
 export interface BranchCampaignInfo {

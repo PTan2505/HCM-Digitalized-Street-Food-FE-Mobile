@@ -38,6 +38,26 @@ export interface VoucherDto {
   usedQuantity: number;
 }
 
+export interface CampaignVoucherDto {
+  voucherId: number;
+  name: string;
+  description: string | null;
+  type: string;
+  discountValue: number;
+  minAmountRequired: number;
+  maxDiscountValue: number | null;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  voucherCode: string;
+  redeemPoint: number;
+  quantity: number;
+  usedQuantity: number;
+  campaignId: number;
+  remain: number;
+  isIndependentQuest: boolean;
+}
+
 export class VoucherApi {
   private apiClient: ApiClient;
 
@@ -69,6 +89,13 @@ export class VoucherApi {
   async claimVoucher(voucherId: number): Promise<UserVoucherApiDto> {
     const res = await this.apiClient.post<UserVoucherApiDto, null>({
       url: apiUrl.voucher.claim(voucherId),
+    });
+    return res.data;
+  }
+
+  async getCampaignVouchers(campaignId: number): Promise<CampaignVoucherDto[]> {
+    const res = await this.apiClient.get<CampaignVoucherDto[]>({
+      url: apiUrl.voucher.byCampaign(campaignId),
     });
     return res.data;
   }
