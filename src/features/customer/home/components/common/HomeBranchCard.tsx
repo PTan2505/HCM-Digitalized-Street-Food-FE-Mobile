@@ -24,7 +24,7 @@ export const HomeBranchCard = ({
   const resolved = isLoading ? undefined : isOpen;
 
   return (
-    <View style={{ flex: 1, opacity: resolved === false ? 0.5 : 1 }}>
+    <View style={{ flex: 1 }}>
       <PlaceCard
         branch={branch}
         displayName={displayName}

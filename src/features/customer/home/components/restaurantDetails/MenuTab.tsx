@@ -149,7 +149,7 @@ const MenuTab = ({
         <Image
           source={{ uri: dish.imageUrl ?? PLACEHOLDER_IMAGE }}
           resizeMode="cover"
-          className="mr-3 h-[100px] w-[100px] overflow-hidden rounded-lg bg-gray-100"
+          className={`mr-3 h-[100px] w-[100px] overflow-hidden rounded-lg bg-gray-100 ${dish.isSoldOut ? 'opacity-50' : ''}`}
         />
         <View className="flex-1 justify-between">
           <Text className="mb-1 text-base font-semibold text-black">

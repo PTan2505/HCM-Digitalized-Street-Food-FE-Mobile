@@ -19,8 +19,8 @@ export const ManagerAccountScreen = (): React.JSX.Element => {
         {
           text: t('manager_account.logout'),
           style: 'destructive',
-          onPress: () => {
-            void dispatch(userLogout());
+          onPress: (): void => {
+            dispatch(userLogout());
           },
         },
       ]

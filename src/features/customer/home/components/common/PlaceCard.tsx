@@ -1,39 +1,20 @@
-import DiamondIcon from '@assets/icons/diamond-icon.svg';
-import GoldIcon from '@assets/icons/gold-icon.svg';
-import SilverIcon from '@assets/icons/silver-icon.svg';
-import WarningIcon from '@assets/icons/warning-icon.svg';
-import SvgIcon from '@components/SvgIcon';
+import VoucherImage from '@assets/voucher.png';
+import { TierBadge } from '@components/TierBadge';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTiers } from '@features/customer/home/hooks/useTiers';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
-import type { VendorTier } from '@features/customer/home/types/stall';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';
-import type { FC, JSX } from 'react';
+import type { JSX } from 'react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import type { SvgProps } from 'react-native-svg';
 
 export interface VoucherChip {
   voucherId: number;
   discountValue: number;
-  type: string;
+  type: 'PERCENT' | 'AMOUNT';
   minAmountRequired?: number | null;
 }
-
-const TIER_COLORS: Record<VendorTier, string> = {
-  diamond: '#60A5FA',
-  gold: '#F59E0B',
-  silver: '#9CA3AF',
-  warning: '#EF4444',
-};
-
-const TIER_ICONS: Record<VendorTier, FC<SvgProps>> = {
-  diamond: DiamondIcon,
-  gold: GoldIcon,
-  silver: SilverIcon,
-  warning: WarningIcon,
-};
 
 interface PlaceCardProps {
   branch: ActiveBranch;
@@ -76,7 +57,9 @@ export const PlaceCard = ({
     <View className="flex-1 overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
       <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
         <View className="p-[6.31px]" style={{ flex: 1 }}>
-          <View className="relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px]">
+          <View
+            className={`relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px] ${!isOpen && 'opacity-50'}`}
+          >
             {imageUri ? (
               <Image
                 className="h-full w-full"
@@ -100,25 +83,7 @@ export const PlaceCard = ({
           </View>
 
           <View className="rounded-b-[14.71px] bg-white px-[8.41px] py-[4.2px]">
-            {tier && (
-              <View
-                className="mb-0.5 flex-row items-center gap-1 self-start rounded-full px-1.5 py-0.5"
-                style={{ backgroundColor: TIER_COLORS[tier] + '22' }}
-              >
-                <SvgIcon
-                  icon={TIER_ICONS[tier]}
-                  width={14}
-                  height={14}
-                  color={TIER_COLORS[tier]}
-                />
-                <Text
-                  className="text-[10px] font-semibold"
-                  style={{ color: TIER_COLORS[tier] }}
-                >
-                  {t('stall')} {t(`profile.tier_${tier}`)}
-                </Text>
-              </View>
-            )}
+            {tier && <TierBadge tier={tier} />}
             <Text
               className="font-nunito -mt-[1.05px] min-h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
               numberOfLines={2}
@@ -213,11 +178,11 @@ export const PlaceCard = ({
             }}
             renderItem={({ item }) => (
               <View className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]">
-                <View className="items-center justify-center self-stretch bg-secondary px-1.5">
-                  <MaterialCommunityIcons
-                    name="ticket-percent"
-                    size={10}
-                    color="#fff"
+                <View className="items-center justify-center self-stretch px-1.5">
+                  <Image
+                    source={VoucherImage}
+                    style={{ width: 24, height: 24 }}
+                    resizeMode="contain"
                   />
                 </View>
                 <View className="h-11 justify-center gap-2 px-2 py-1.5">
@@ -227,7 +192,7 @@ export const PlaceCard = ({
                   </Text>
                   {!!item.minAmountRequired && (
                     <Text className="text-[9px] text-secondary">
-                      {t('voucher.min_order')}
+                      {t('voucher.min_order')}{' '}
                       {`${item.minAmountRequired.toLocaleString('vi-VN')}đ`}
                     </Text>
                   )}

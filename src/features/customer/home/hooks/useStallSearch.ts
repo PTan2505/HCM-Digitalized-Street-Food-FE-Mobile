@@ -1,6 +1,6 @@
-import { axiosApi } from '@lib/api/apiInstance';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { StallSearchParams } from '@features/customer/home/types/stall';
+import { axiosApi } from '@lib/api/apiInstance';
 import { useCallback, useState } from 'react';
 
 const MAX_SIBLING_PREFETCH = 3;
@@ -21,6 +21,11 @@ export const useStallSearch = (): {
   error: string | null;
   search: (params: StallSearchParams) => Promise<void>;
   clearError: () => void;
+  updateBranchRating: (
+    branchId: number,
+    avgRating: number,
+    totalReviewCount: number
+  ) => void;
 } => {
   const [stalls, setStalls] = useState<ActiveBranch[]>([]);
   const [imageMap, setImageMap] = useState<Record<number, string>>({});
@@ -67,5 +72,24 @@ export const useStallSearch = (): {
 
   const clearError = useCallback(() => setError(null), []);
 
-  return { stalls, imageMap, isLoading, error, search, clearError };
+  const updateBranchRating = useCallback(
+    (branchId: number, avgRating: number, totalReviewCount: number): void => {
+      setStalls((prev) =>
+        prev.map((b) =>
+          b.branchId === branchId ? { ...b, avgRating, totalReviewCount } : b
+        )
+      );
+    },
+    []
+  );
+
+  return {
+    stalls,
+    imageMap,
+    isLoading,
+    error,
+    search,
+    clearError,
+    updateBranchRating,
+  };
 };

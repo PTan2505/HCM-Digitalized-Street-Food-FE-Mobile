@@ -9,7 +9,7 @@ focusManager.setEventListener((handleFocus) => {
   const subscription = AppState.addEventListener('change', (state) => {
     handleFocus(state === 'active');
   });
-  return () => subscription.remove();
+  return (): void => subscription.remove();
 });
 
 export const queryClient = new QueryClient({

@@ -22,8 +22,7 @@ const SvgIcon = ({
     <Icon
       width={width}
       height={height}
-      fill={color}
-      color={color}
+      {...(color ? { fill: color, color: color } : {})}
       style={style}
       {...rest}
     />

@@ -28,7 +28,7 @@ export interface RestaurantCampaign {
   isActive: boolean;
   createdAt: string;
   updatedAt?: string | null;
-  imageUrl?: string | null;
+  imageUrl?: string;
   isSystemCampaign: boolean;
   // Additional restaurant-specific fields
   discountType?: DiscountType;

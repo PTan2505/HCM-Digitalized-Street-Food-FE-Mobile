@@ -1,5 +1,6 @@
 import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
@@ -33,15 +34,14 @@ import { selectUser } from '@slices/auth';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import { ChatbotScreen } from '@features/customer/chatbot/screens/ChatbotScreen';
-import { CampaignListScreen } from '@features/customer/campaigns/screens/CampaignListScreen';
-import { RestaurantCampaignDetailScreen } from '@features/customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/customer/campaigns/screens/SystemCampaignDetailScreen';
 import { VoucherApplicableBranchesScreen } from '@features/customer/campaigns/screens/VoucherApplicableBranchesScreen';
 import { VoucherHistoryScreen } from '@features/customer/campaigns/screens/VoucherHistoryScreen';
 import { VoucherMarketplaceScreen } from '@features/customer/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/customer/campaigns/screens/VoucherWalletScreen';
+import { ChatbotScreen } from '@features/customer/chatbot/screens/ChatbotScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
+import { RestaurantCampaignDetailScreen } from '@customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import type { TabType } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { QuestDetailScreen } from '@features/customer/quests/screens/QuestDetailScreen';
@@ -95,6 +95,7 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
+        vouchers?: CampaignVoucherInfo[];
         onRatingUpdateId?: string;
       },
     },
@@ -216,10 +217,10 @@ const RootStack = createNativeStackNavigator({
       screen: NotificationScreen,
       linking: 'notifications',
     },
-    CampaignList: {
-      screen: CampaignListScreen,
-      linking: 'campaigns',
-    },
+    // CampaignList: {
+    //   screen: CampaignListScreen,
+    //   linking: 'campaigns',
+    // },
     SystemCampaignDetail: {
       screen: SystemCampaignDetailScreen,
       params: {} as { campaignId: string },

@@ -18,7 +18,7 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
+    const load = async (): Promise<void> => {
       try {
         const [detail, paginatedDishes] = await Promise.all([
           axiosApi.branchApi.getBranchById(branchId),

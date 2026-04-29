@@ -68,7 +68,7 @@ export const useVoucherMarketplace = () => {
         });
       }
     },
-    [fetchMarketplace, t]
+    [dispatch, fetchMarketplace, t]
   );
 
   const clearRedeemState = useCallback(() => {

@@ -113,7 +113,7 @@ const TierNode = ({
           className="h-11 w-11 items-center justify-center rounded-full border-2"
           style={{ backgroundColor: iconBg, borderColor: iconBorder }}
         >
-          <SvgIcon icon={step.svg} width={24} height={24} color={step.color} />
+          <SvgIcon icon={step.svg} width={24} height={24} />
         </View>
 
         {!isLast && (
