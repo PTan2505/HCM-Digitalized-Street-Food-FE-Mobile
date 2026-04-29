@@ -192,7 +192,7 @@ export const PlaceCard = ({
                   </Text>
                   {!!item.minAmountRequired && (
                     <Text className="text-[9px] text-secondary">
-                      {t('voucher.min_order')}
+                      {t('voucher.min_order')}{' '}
                       {`${item.minAmountRequired.toLocaleString('vi-VN')}đ`}
                     </Text>
                   )}
