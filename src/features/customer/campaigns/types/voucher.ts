@@ -1,10 +1,12 @@
+export type VoucherType = 'PERCENT' | 'AMOUNT';
+
 export interface Voucher {
   userVoucherId: number;
   voucherId: number;
   voucherCode: string;
   voucherName: string;
   description: string | null;
-  voucherType: string;
+  voucherType: VoucherType;
   discountValue: number;
   minAmountRequired: number | null;
   maxDiscountValue: number | null;

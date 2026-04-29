@@ -46,8 +46,7 @@ export const useCampaignVouchers = (
     refetch,
   } = useQuery({
     queryKey: queryKeys.vouchers.campaignVoucher(Number(campaignId)),
-    queryFn: () =>
-      axiosApi.voucherApi.getCampaignVouchers(Number(campaignId)),
+    queryFn: () => axiosApi.voucherApi.getCampaignVouchers(Number(campaignId)),
     staleTime: 5 * 60 * 1000,
   });
 

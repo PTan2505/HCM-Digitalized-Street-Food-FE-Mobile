@@ -1,3 +1,5 @@
+import type { VoucherType } from '@features/customer/campaigns/types/voucher';
+
 export type QuestTaskType =
   | 'REVIEW'
   | 'ORDER_AMOUNT'
@@ -85,7 +87,7 @@ export interface QuestBadgeDetail {
 export interface QuestVoucherDetail {
   voucherId: number;
   name: string;
-  type: 'PERCENT' | 'AMOUNT';
+  type: VoucherType;
   discountValue: number;
   maxDiscountValue: number | null;
   minAmountRequired: number | null;
