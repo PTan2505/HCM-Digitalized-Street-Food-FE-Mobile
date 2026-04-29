@@ -44,12 +44,19 @@ const VoucherItem = ({ item }: { item: CampaignVoucherInfo }): JSX.Element => {
         style={{ flex: 1 }}
       >
         {/* Left stub */}
-        <View className="relative w-[56px] items-center justify-center bg-[rgba(137,209,81,0.8)] px-1 py-3">
+        <View className="relative w-[56px] items-center justify-center bg-[rgba(137,209,81,0.8)] py-3">
           <View className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-white" />
           <View className="absolute -bottom-2 -right-2 h-4 w-4 rounded-full bg-white" />
           <View className="absolute bottom-3 right-0 top-3 border-r-2 border-dashed border-white/60" />
-          <View style={{ transform: [{ rotate: '-90deg' }] }}>
-            <Text className="text-xs font-extrabold leading-tight text-black">
+          <View
+            className="w-[100px] items-center justify-center"
+            style={{ transform: [{ rotate: '-90deg' }] }}
+          >
+            <Text
+              className="text-xs font-extrabold leading-tight text-black"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {formatDiscount(item.discountValue, item.type)}
             </Text>
           </View>
