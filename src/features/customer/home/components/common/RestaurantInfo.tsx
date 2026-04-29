@@ -1,10 +1,10 @@
 import { TierBadge } from '@components/TierBadge';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTiers } from '@features/customer/home/hooks/useTiers';
 import type {
   DayOff,
   WorkSchedule,
 } from '@features/customer/home/types/branch';
-import { useTiers } from '@features/customer/home/hooks/useTiers';
 import { formatDayOffDate } from '@utils/scheduleUtils';
 import type { JSX } from 'react';
 import { useState } from 'react';
@@ -91,6 +91,7 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
           )}
         </Text>
       </View>
+      <TierBadge tier={tier} />
 
       <View className="mb-2 flex-row items-center gap-2">
         <Text className="text-base font-semibold text-primary-dark">
@@ -119,7 +120,6 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
               </View>
             ))}
         </View>
-        <TierBadge tier={tier} paused={restaurant.isTierPaused} />
       </View>
 
       <Text className="mb-4 text-base leading-5 text-gray-600">
