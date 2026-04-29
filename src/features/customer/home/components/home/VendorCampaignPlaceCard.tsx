@@ -1,3 +1,4 @@
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import {
   PlaceCard,
   type VoucherChip,
@@ -5,10 +6,10 @@ import {
 import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { registerCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -18,6 +19,7 @@ interface VendorCampaignPlaceCardProps {
   imageUri?: string;
   userCoords?: UserCoords | null;
   vouchers?: VoucherChip[];
+  campaignVouchers?: CampaignVoucherInfo[];
   isMultiBranch?: boolean;
   onRatingUpdate: (avgRating: number, totalReviewCount: number) => void;
 }
@@ -27,6 +29,7 @@ export const VendorCampaignPlaceCard = ({
   imageUri,
   userCoords,
   vouchers,
+  campaignVouchers,
   isMultiBranch: isMultiBranchProp,
   onRatingUpdate,
 }: VendorCampaignPlaceCardProps): JSX.Element => {
@@ -44,7 +47,7 @@ export const VendorCampaignPlaceCard = ({
   const displayName = computeDisplayName(branch, isMultiBranch, t('branch'));
 
   return (
-    <View style={{ flex: 1, opacity: resolved === false ? 0.5 : 1 }}>
+    <View style={{ flex: 1 }}>
       <PlaceCard
         branch={branch}
         displayName={displayName}
@@ -56,6 +59,7 @@ export const VendorCampaignPlaceCard = ({
           navigation.navigate('RestaurantDetails', {
             branch,
             displayName,
+            vouchers: campaignVouchers,
             onRatingUpdateId: registerCallback(onRatingUpdate),
           })
         }

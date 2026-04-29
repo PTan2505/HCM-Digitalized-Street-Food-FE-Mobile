@@ -4,10 +4,12 @@ import { useGhostPins } from '@customer/home/hooks/useGhostPins';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
 import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
 import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
@@ -228,20 +230,14 @@ export const HomeScreen = (): JSX.Element => {
     [navigation]
   );
 
-  const handleRatingUpdate = useCallback(
-    (branchId: number, avgRating: number, totalReviewCount: number) => {
-      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
-    },
-    [updateBranchRatingFn]
-  );
+  const handleRatingUpdate = useHandleRatingUpdate(updateBranchRatingFn);
 
   const vendorCampaignVouchersByBranchId = useMemo(() => {
-    const map: Record<
-      number,
-      Array<{ voucherId: number; discountValue: number; type: string }>
-    > = {};
+    const map: Record<number, CampaignVoucherInfo[]> = {};
     vendorCampaignBranches.forEach((b) => {
-      const vouchers = b.campaigns.flatMap((c) => c.vouchers);
+      const vouchers = b.campaigns.flatMap((c) =>
+        c.vouchers.map((v) => ({ ...v, campaignId: c.campaignId }))
+      );
       if (vouchers.length > 0) map[b.branchId] = vouchers;
     });
     return map;
@@ -469,6 +465,9 @@ export const HomeScreen = (): JSX.Element => {
                         vouchers={
                           vendorCampaignVouchersByBranchId[left.branchId]
                         }
+                        campaignVouchers={
+                          vendorCampaignVouchersByBranchId[left.branchId]
+                        }
                         isMultiBranch={campaignMultiBranchVendorIds.includes(
                           left.vendorId ?? -1
                         )}
@@ -488,6 +487,9 @@ export const HomeScreen = (): JSX.Element => {
                           imageUri={vendorCampaignImageMap[right.branchId]}
                           userCoords={userCoords}
                           vouchers={
+                            vendorCampaignVouchersByBranchId[right.branchId]
+                          }
+                          campaignVouchers={
                             vendorCampaignVouchersByBranchId[right.branchId]
                           }
                           isMultiBranch={campaignMultiBranchVendorIds.includes(

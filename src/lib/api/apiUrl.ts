@@ -135,6 +135,8 @@ export const apiUrl = {
     claim: (id: number): string => `/api/vouchers/${id}/claim`,
     applicableByBranch: (branchId: number): string =>
       `/api/vouchers/mine/branch/${branchId}`,
+    byCampaign: (campaignId: number): string =>
+      `/api/vouchers/campaign/${campaignId}`,
   },
   tier: {
     getAll: '/api/Tier',

@@ -1,7 +1,7 @@
 export interface CampaignVoucherInfo {
   voucherId: number;
   name: string;
-  type: string;
+  type: 'PERCENT' | 'AMOUNT';
   discountValue: number;
   minAmountRequired: number;
   maxDiscountValue?: number | null;
@@ -11,6 +11,7 @@ export interface CampaignVoucherInfo {
   startDate: string;
   endDate: string;
   voucherCode: string;
+  campaignId: number;
 }
 
 export interface BranchCampaignInfo {

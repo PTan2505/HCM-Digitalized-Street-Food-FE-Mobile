@@ -23,6 +23,7 @@ import { type CameraRef } from '@maplibre/maplibre-react-native';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { computeDisplayName } from '@utils/computeDisplayName';
 import { registerCallback } from '@utils/callbackRegistry';
 import * as Location from 'expo-location';
@@ -613,12 +614,7 @@ export const MapScreen = ({ route }: MapScreenProps): JSX.Element => {
   }, []);
 
   // ── Rating update callback ──
-  const handleRatingUpdate = useCallback(
-    (branchId: number, avgRating: number, totalReviewCount: number) => {
-      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
-    },
-    [updateBranchRatingFn]
-  );
+  const handleRatingUpdate = useHandleRatingUpdate(updateBranchRatingFn);
 
   // ── Navigate to RestaurantDetails from DetailCard ──
   const handleViewDetail = useCallback(

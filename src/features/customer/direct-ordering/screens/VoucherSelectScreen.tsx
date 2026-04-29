@@ -25,9 +25,7 @@ const calculateDiscount = (
   voucher: UserVoucherApiDto,
   totalAmount: number
 ): number => {
-  const isPercent =
-    voucher.voucherType.toUpperCase() === 'PERCENT' ||
-    voucher.voucherType.toUpperCase() === 'PERCENTAGE';
+  const isPercent = voucher.voucherType.toUpperCase() === 'PERCENT';
   let discount = isPercent
     ? (totalAmount * voucher.discountValue) / 100
     : voucher.discountValue;
@@ -162,7 +160,7 @@ export const VoucherSelectScreen = ({
 
               <View className="flex-1 flex-row items-center justify-between">
                 {/* Text content */}
-                <View className="ml-3">
+                <View className="ml-3 basis-3/5">
                   <Text
                     className={`text-base font-bold leading-[18px] ${
                       isDisabled ? 'text-gray-400' : 'text-black'

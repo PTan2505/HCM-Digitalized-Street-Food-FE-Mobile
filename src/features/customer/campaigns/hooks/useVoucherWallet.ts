@@ -1,5 +1,4 @@
 import { useMyVouchersQuery } from '@features/customer/campaigns/hooks/useMyVouchersQuery';
-import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { useCallback } from 'react';
 
 export type VoucherTab = 'all' | 'campaign' | 'system' | 'restaurant';
@@ -13,15 +12,7 @@ export const useVoucherWallet = () => {
     isLoading,
     error,
     refetch: handleRefresh,
-    invalidate,
   } = useMyVouchersQuery();
-
-  const handleClaimVoucher = useCallback(
-    (_voucher: Voucher) => {
-      invalidate();
-    },
-    [invalidate]
-  );
 
   const getDisplayedVouchers = useCallback(
     (tab: VoucherTab) => {
@@ -58,7 +49,6 @@ export const useVoucherWallet = () => {
     isLoading,
     error,
     handleRefresh,
-    handleClaimVoucher,
     getDisplayedVouchers,
     tabCount,
   };

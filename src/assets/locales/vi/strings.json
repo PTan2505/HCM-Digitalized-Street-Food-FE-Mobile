@@ -845,7 +845,8 @@
   },
   "voucher": {
     "discount": "Giảm giá",
-    "min_order": "Đơn tối thiểu"
+    "min_order": "Đơn tối thiểu",
+    "branch_voucher": "Voucher Của Quán - Đặt ngay!"
   },
   "manager_login": {
     "title": "Đăng nhập quản lý",

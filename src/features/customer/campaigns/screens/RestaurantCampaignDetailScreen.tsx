@@ -1,70 +1,41 @@
+import Header from '@components/Header';
+import type { CampaignVoucherDto } from '@features/customer/campaigns/api/voucherApi';
+import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
+import {
+  useCampaignVouchers,
+  useRestaurantCampaigns,
+} from '@features/customer/campaigns/hooks/useRestaurantCampaigns';
 import { Ionicons } from '@expo/vector-icons';
-import { useRestaurantCampaigns } from '@features/customer/campaigns/hooks/useRestaurantCampaigns';
-import { useVoucherWallet } from '@features/customer/campaigns/hooks/useVoucherWallet';
-import type { DiscountType } from '@features/customer/campaigns/types/generated';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
-import type { Voucher } from '@features/customer/campaigns/types/voucher';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
-import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const formatDiscount = (
-  type: DiscountType,
-  value: number,
-  t: (key: string) => string
-): string => {
-  if (type === 'percentage') return `${value}% ${t('campaign.off')}`;
-  return `${value.toLocaleString()}đ ${t('campaign.off')}`;
-};
 
 type RestaurantCampaignDetailScreenProps = StaticScreenProps<{
   campaignId: string;
 }>;
 
+const formatDiscount = (voucher: CampaignVoucherDto): string => {
+  if (voucher.type.toUpperCase() === 'PERCENT') {
+    return `${voucher.discountValue}%`;
+  }
+  return `${voucher.discountValue.toLocaleString('vi-VN')}đ`;
+};
+
 export const RestaurantCampaignDetailScreen = ({
   route,
 }: RestaurantCampaignDetailScreenProps): JSX.Element => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
   const { campaignId } = route.params;
-  const [claimed, setClaimed] = useState(false);
 
-  const { restaurantCampaigns } = useRestaurantCampaigns();
-  const { handleClaimVoucher } = useVoucherWallet();
-
-  const campaign = useMemo(
-    () => restaurantCampaigns.find((c) => String(c.campaignId) === campaignId),
-    [restaurantCampaigns, campaignId]
-  );
-
-  const handleClaim = useCallback(() => {
-    if (!campaign) return;
-
-    const voucher: Voucher = {
-      userVoucherId: 0,
-      voucherId: campaign.campaignId ?? 0,
-      voucherCode: '',
-      voucherName: campaign.name,
-      description: campaign.description ?? null,
-      voucherType:
-        campaign.discountType === 'percentage' ? 'PERCENTAGE' : 'AMOUNT',
-      discountValue: campaign.discountValue ?? 0,
-      minAmountRequired: campaign.minOrderValueVnd ?? null,
-      maxDiscountValue: null,
-      startDate: null,
-      endDate: campaign.expiresAt ?? null,
-      isActive: true,
-      campaignId: campaign.campaignId ?? null,
-      quantity: 1,
-      isAvailable: true,
-    };
-
-    handleClaimVoucher(voucher);
-    setClaimed(true);
-    Alert.alert(t('campaign.voucher_saved'), t('campaign.voucher_saved_desc'));
-  }, [campaign, handleClaimVoucher, t]);
+  const { campaign } = useRestaurantCampaigns(campaignId);
+  const { vouchers, isLoading: isVouchersLoading } =
+    useCampaignVouchers(campaignId);
 
   if (!campaign) {
     return (
@@ -77,120 +48,141 @@ export const RestaurantCampaignDetailScreen = ({
     );
   }
 
-  const isSoldOut = campaign.remainingClaims === 0;
-  const expiryDate = campaign.expiresAt
-    ? new Date(campaign.expiresAt).toLocaleDateString()
-    : '';
+  const startDate = new Date(campaign.startDate).toLocaleDateString();
+  const endDate = new Date(campaign.endDate).toLocaleDateString();
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / 86400000)
+  );
+  const campaignStatusLabel =
+    daysLeft === 0
+      ? t('campaign.expired')
+      : `${t('campaign.remaining', { count: daysLeft })}`;
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
-      <View className="flex-row items-center px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text className="ml-3 text-lg font-bold text-gray-900">
-          {t('campaign.restaurant_detail')}
-        </Text>
-      </View>
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
+      <Header
+        title={t('campaign.restaurant_detail')}
+        onBackPress={(): void => navigation.goBack()}
+      />
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Vendor badge */}
-        <View className="mb-3 self-start rounded-full bg-orange-100 px-3 py-1">
-          <Text className="text-sm font-semibold text-orange-600">
-            {t('campaign.merchant_promo')}
-          </Text>
+        <View className="mx-4 mt-4 overflow-hidden rounded-3xl">
+          <ImageBackground
+            source={{ uri: campaign.imageUrl }}
+            className="w-full"
+            resizeMode="cover"
+            style={{ minHeight: 260 }}
+          >
+            <LinearGradient
+              colors={['rgba(0,0,0,0.12)', 'rgba(0,0,0,0.8)']}
+              locations={[0, 0.72]}
+              style={{ flex: 1, justifyContent: 'flex-end', padding: 18 }}
+            >
+              <View className="mb-3 flex-row items-center gap-2">
+                <View className="self-start rounded-full bg-primary px-3 py-1">
+                  <Text className="text-sm font-bold text-white">
+                    {t('campaign.merchant_promo')}
+                  </Text>
+                </View>
+                <View className="self-start rounded-full bg-black/35 px-3 py-1">
+                  <Text className="text-sm font-semibold text-white">
+                    {campaignStatusLabel}
+                  </Text>
+                </View>
+              </View>
+
+              <Text className="mb-3 text-3xl font-extrabold leading-9 text-white shadow-sm shadow-black">
+                {campaign.name}
+              </Text>
+
+              <View className="self-start rounded-xl border border-white/20 bg-white/15 px-3 py-2">
+                <View className="flex-row items-center">
+                  <Ionicons name="calendar-outline" size={16} color="white" />
+                  <Text className="ml-2 text-sm font-medium text-white/95">
+                    {startDate} - {endDate}
+                  </Text>
+                </View>
+              </View>
+            </LinearGradient>
+          </ImageBackground>
         </View>
 
-        <Text className="mb-1 text-2xl font-bold text-gray-900">
-          {campaign.name}
-        </Text>
-
-        <Text className="mb-4 text-base text-gray-500">
-          {campaign.vendorName}
-        </Text>
-
-        {campaign.description && (
-          <Text className="mb-4 text-base leading-6 text-gray-600">
+        <View className="mx-4 mt-4 rounded-2xl border border-gray-100 bg-white p-4">
+          <Text className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary-dark">
+            {t('campaign.restaurant_detail')}
+          </Text>
+          <Text className="text-base leading-7 text-gray-700">
             {campaign.description}
           </Text>
-        )}
+        </View>
 
-        {/* Discount info */}
-        {campaign.discountType && campaign.discountValue && (
-          <View className="mb-4 rounded-xl bg-green-50 p-4">
-            <View className="flex-row items-center">
-              <Ionicons name="pricetag-outline" size={20} color="#16A34A" />
-              <Text className="ml-2 text-lg font-bold text-green-700">
-                {formatDiscount(
-                  campaign.discountType,
-                  campaign.discountValue,
-                  t
-                )}
+        <View className="mx-4 mt-4">
+          <Text className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary-dark">
+            {t('campaign.reward')}
+          </Text>
+
+          {isVouchersLoading ? (
+            <View className="items-center py-6">
+              <Text className="text-sm text-gray-400">
+                {t('campaign.error')}
               </Text>
             </View>
-            {campaign.minOrderValueVnd != null && (
-              <Text className="mt-1 text-base text-green-600">
-                {t('campaign.min_order')}:{' '}
-                {campaign.minOrderValueVnd.toLocaleString()}đ
+          ) : vouchers.length === 0 ? (
+            <View className="items-center rounded-2xl border border-gray-100 bg-white py-8">
+              <Ionicons name="ticket-outline" size={36} color="#9ca3af" />
+              <Text className="mt-2 text-sm text-gray-400">
+                {t('campaign.voucher_empty')}
               </Text>
-            )}
-          </View>
-        )}
+            </View>
+          ) : (
+            vouchers.map((voucher) => {
+              const isSoldOut = voucher.remain <= 0;
 
-        {/* Expiry */}
-        <View className="mb-2 flex-row items-center">
-          <Ionicons name="time-outline" size={16} color="#6B7280" />
-          <Text className="ml-2 text-base text-gray-500">
-            {t('campaign.expires')}: {expiryDate}
-          </Text>
+              return (
+                <TicketVoucherCard
+                  key={voucher.voucherId}
+                  disabled={isSoldOut}
+                  discountText={formatDiscount(voucher)}
+                  title={voucher.name}
+                  subtitle={
+                    voucher.maxDiscountValue
+                      ? t('marketplace.max_discount', {
+                          amount:
+                            voucher.maxDiscountValue.toLocaleString('vi-VN'),
+                        })
+                      : null
+                  }
+                  expiresText={new Date(voucher.endDate).toLocaleDateString(
+                    'vi-VN'
+                  )}
+                  secondaryMetaText={
+                    isSoldOut
+                      ? t('campaign.sold_out')
+                      : t('marketplace.remaining', { count: voucher.remain })
+                  }
+                  tertiaryMetaText={
+                    voucher.minAmountRequired > 0
+                      ? t('campaign.min_order', {
+                          amount:
+                            voucher.minAmountRequired.toLocaleString('vi-VN'),
+                        })
+                      : undefined
+                  }
+                  footerText={
+                    voucher.redeemPoint > 0
+                      ? `${voucher.redeemPoint.toLocaleString('vi-VN')} ${t('marketplace.points')}`
+                      : undefined
+                  }
+                />
+              );
+            })
+          )}
         </View>
-
-        {/* Remaining claims */}
-        {campaign.remainingClaims != null && (
-          <View className="mb-4 flex-row items-center">
-            <Ionicons name="ticket-outline" size={16} color="#6B7280" />
-            <Text className="ml-2 text-base text-gray-500">
-              {isSoldOut
-                ? t('campaign.sold_out')
-                : `${campaign.remainingClaims} ${t('campaign.remaining')}`}
-            </Text>
-          </View>
-        )}
-
-        {/* Scope */}
-        <View className="mb-4 rounded-xl bg-gray-50 p-3">
-          <Text className="text-sm text-gray-500">
-            {t('campaign.scope_restaurant', {
-              name: campaign.vendorName,
-            })}
-          </Text>
-        </View>
-
-        {/* Claim button */}
-        <TouchableOpacity
-          onPress={handleClaim}
-          disabled={isSoldOut || claimed}
-          className={`mt-2 items-center rounded-xl py-4 ${
-            isSoldOut || claimed ? 'bg-gray-200' : 'bg-primary'
-          }`}
-          activeOpacity={0.8}
-        >
-          <Text
-            className={`text-base font-bold ${
-              isSoldOut || claimed ? 'text-gray-400' : 'text-white'
-            }`}
-          >
-            {isSoldOut
-              ? t('campaign.sold_out')
-              : claimed
-                ? t('campaign.voucher_saved')
-                : t('campaign.save_voucher')}
-          </Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

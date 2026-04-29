@@ -92,8 +92,8 @@ export const queryKeys = {
   campaigns: {
     all: ['campaigns'] as const,
     system: ['campaigns', 'system'] as const,
-    restaurant: (lat?: number, lng?: number) =>
-      ['campaigns', 'restaurant', { lat, lng }] as const,
+    restaurant: (campaignId: number) =>
+      ['campaigns', 'restaurant', campaignId] as const,
     nearby: (lat: number, lng: number) =>
       ['campaigns', 'nearby', { lat, lng }] as const,
     vendorBranches: (lat?: number | null, lng?: number | null) =>
@@ -179,6 +179,8 @@ export const queryKeys = {
   vouchers: {
     all: ['vouchers'] as const,
     myVouchers: ['vouchers', 'my'] as const,
+    campaignVoucher: (campaignId: number) =>
+      ['vouchers', 'campaign', campaignId] as const,
   },
 
   badges: {

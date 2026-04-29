@@ -178,7 +178,7 @@ export const QuestDetailScreen = ({
           {quest.description && (
             <View className="mb-4 rounded-2xl border border-gray-100 bg-white p-4">
               <Text className="mb-2 text-sm font-semibold uppercase tracking-wide text-primary-dark">
-                {t('campaign.system_detail')}
+                {t('quest.detail')}
               </Text>
               <Text className="text-base leading-6 text-gray-700">
                 {quest.description}
