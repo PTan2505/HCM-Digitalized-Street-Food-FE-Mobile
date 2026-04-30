@@ -1,9 +1,6 @@
 import React from 'react';
 import { KeyboardAvoidingView, View } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Header from '@components/Header';
 import { useNavigation } from '@react-navigation/native';
@@ -15,7 +12,6 @@ import { useChatbot } from '@features/customer/chatbot/hooks/useChatbot';
 export const ChatbotScreen = (): React.JSX.Element => {
   const navigation = useNavigation();
   const { messages, isLoading, sendMessage } = useChatbot();
-  const { bottom } = useSafeAreaInsets();
 
   return (
     <SafeAreaView
@@ -23,11 +19,7 @@ export const ChatbotScreen = (): React.JSX.Element => {
       edges={['left', 'right', 'bottom']}
     >
       <Header title="AI Assistant" onBackPress={() => navigation.goBack()} />
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior="padding"
-        keyboardVerticalOffset={bottom}
-      >
+      <KeyboardAvoidingView className="flex-1" behavior="padding">
         <View className="flex-1">
           <ChatMessageList
             messages={messages}

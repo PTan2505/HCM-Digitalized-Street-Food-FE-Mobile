@@ -1,26 +1,33 @@
 import { useState } from 'react';
 
+import { useLocationPermission } from '@customer/maps/hooks/useLocationPermission';
 import type { ChatMessage } from '@features/customer/chatbot/types/chatbot';
 import { axiosApi } from '@lib/api/apiInstance';
+import type { PickedImage } from '@utils/imagePicker';
 
 type UseChatbotReturn = {
   messages: ChatMessage[];
   isLoading: boolean;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (text: string, image?: PickedImage | null) => Promise<void>;
 };
 
 export const useChatbot = (): UseChatbotReturn => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { coords } = useLocationPermission();
 
-  const sendMessage = async (text: string): Promise<void> => {
+  const sendMessage = async (
+    text: string,
+    image?: PickedImage | null
+  ): Promise<void> => {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed && !image) return;
 
     const userMessage: ChatMessage = {
       id: String(Date.now()),
       role: 'user',
       text: trimmed,
+      imageUri: image?.uri,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -28,10 +35,11 @@ export const useChatbot = (): UseChatbotReturn => {
 
     try {
       const response = await axiosApi.chatApi.sendMessage(
-        trimmed
-        // coords?.latitude ?? null,
-        // coords?.longitude ?? null,
-        // 100
+        trimmed,
+        coords?.latitude ?? null,
+        coords?.longitude ?? null,
+        20,
+        image
       );
       const data = response.data;
 

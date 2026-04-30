@@ -37,5 +37,6 @@ export type ChatMessage = {
   id: string;
   role: 'user' | 'bot';
   text: string;
+  imageUri?: string;
   recommendedBranches?: RecommendedBranch[];
 };

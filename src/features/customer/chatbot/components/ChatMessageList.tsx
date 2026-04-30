@@ -41,7 +41,11 @@ export const ChatMessageList = ({
       ListFooterComponent={isLoading ? <TypingIndicator /> : null}
       renderItem={({ item }) => (
         <View className="gap-2">
-          <ChatBubble role={item.role} text={item.text} />
+          <ChatBubble
+            role={item.role}
+            text={item.text}
+            imageUri={item.imageUri}
+          />
           {item.role === 'bot' &&
             item.recommendedBranches &&
             item.recommendedBranches.length > 0 && (
