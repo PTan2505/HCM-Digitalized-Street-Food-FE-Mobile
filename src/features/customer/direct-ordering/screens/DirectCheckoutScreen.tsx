@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
 import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { useCheckoutMutation } from '@features/customer/direct-ordering/hooks/useCheckoutMutation';
+import { PinVerifyModal } from '@user/components/pin/PinVerifyModal';
+import { useBalanceActionGate } from '@user/hooks/pin/useBalanceActionGate';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import {
@@ -76,6 +78,9 @@ export const DirectCheckoutScreen = ({
   const moneyBalance = useAppSelector(
     (state) => selectUser(state)?.moneyBalance ?? 0
   );
+  const { pinVerifyModalRef, gateAction, isPinStatusLoading } =
+    useBalanceActionGate();
+
   const [selectedMethod, setSelectedMethod] = useState('QR Code');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
@@ -154,54 +159,56 @@ export const DirectCheckoutScreen = ({
       return;
     }
 
-    try {
-      const result = await checkout({
-        branchId,
-        paymentMethod: selectedMethod,
-        isTakeAway,
-        note: note ?? null,
-        voucherId: selectedVoucher?.voucherId ?? null,
-      });
-
-      if (selectedMethod === 'Lowca Wallet') {
-        dispatch(updateMoneyBalance(moneyBalance - finalAmount));
-
-        navigation.dispatch((state) => {
-          const preservedHistory = state.routes.slice(0, -2);
-
-          const newRoutes = [
-            ...preservedHistory,
-            {
-              name: 'OrderStatus',
-              params: {
-                orderId: result.order.orderId,
-                branchName,
-              },
-            },
-          ];
-
-          return CommonActions.reset({
-            ...state,
-            routes: newRoutes,
-            index: newRoutes.length - 1,
-          });
+    const doCheckout = async (): Promise<void> => {
+      try {
+        const result = await checkout({
+          branchId,
+          paymentMethod: selectedMethod,
+          isTakeAway,
+          note: note ?? null,
+          voucherId: selectedVoucher?.voucherId ?? null,
         });
 
-        return;
-      }
+        if (selectedMethod === 'Lowca Wallet') {
+          dispatch(updateMoneyBalance(moneyBalance - finalAmount));
 
-      navigation.navigate('PaymentQR', {
-        orderId: result.order.orderId,
-        branchId,
-        orderCode: result.payment.orderCode,
-        totalAmount: result.order.finalAmount,
-        branchName,
-        bin: result.payment.bin,
-        accountNumber: result.payment.accountNumber,
-        accountName: result.payment.accountName,
-      });
-    } catch {
-      // Error surfaced via orderError / useEffect above
+          navigation.dispatch((state) => {
+            const preservedHistory = state.routes.slice(0, -2);
+            const newRoutes = [
+              ...preservedHistory,
+              {
+                name: 'OrderStatus',
+                params: { orderId: result.order.orderId, branchName },
+              },
+            ];
+            return CommonActions.reset({
+              ...state,
+              routes: newRoutes,
+              index: newRoutes.length - 1,
+            });
+          });
+          return;
+        }
+
+        navigation.navigate('PaymentQR', {
+          orderId: result.order.orderId,
+          branchId,
+          orderCode: result.payment.orderCode,
+          totalAmount: result.order.finalAmount,
+          branchName,
+          bin: result.payment.bin,
+          accountNumber: result.payment.accountNumber,
+          accountName: result.payment.accountName,
+        });
+      } catch {
+        // Error surfaced via orderError / useEffect above
+      }
+    };
+
+    if (selectedMethod === 'Lowca Wallet') {
+      await gateAction(doCheckout);
+    } else {
+      await doCheckout();
     }
   }, [
     cart,
@@ -217,6 +224,7 @@ export const DirectCheckoutScreen = ({
     dispatch,
     moneyBalance,
     finalAmount,
+    gateAction,
   ]);
 
   return (
@@ -433,7 +441,7 @@ export const DirectCheckoutScreen = ({
       <View className="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white px-4 pb-8 pt-3">
         <TouchableOpacity
           onPress={handleConfirm}
-          disabled={orderLoading}
+          disabled={orderLoading || isPinStatusLoading}
           className="items-center rounded-2xl bg-primary py-4"
         >
           {orderLoading ? (
@@ -445,6 +453,8 @@ export const DirectCheckoutScreen = ({
           )}
         </TouchableOpacity>
       </View>
+
+      <PinVerifyModal ref={pinVerifyModalRef} />
     </SafeAreaView>
   );
 };
