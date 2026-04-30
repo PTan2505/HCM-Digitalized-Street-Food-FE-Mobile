@@ -1,7 +1,7 @@
+import SplashScreen from '@assets/splash/splashScreen2.json';
 import LottieView from 'lottie-react-native';
 import { JSX, memo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import SplashScreen from '@assets/splash/splashScreen.json';
 
 interface Props {
   onFinish?: (isCancelled: boolean) => void;

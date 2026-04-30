@@ -1,4 +1,4 @@
-import Secure from '@assets/secure.png';
+import Secure from '@assets/images/secure.png';
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';

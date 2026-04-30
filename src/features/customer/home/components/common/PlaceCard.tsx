@@ -1,4 +1,4 @@
-import VoucherImage from '@assets/voucher.png';
+import VoucherImage from '@assets/images/voucher.png';
 import { TierBadge } from '@components/TierBadge';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTiers } from '@features/customer/home/hooks/useTiers';
