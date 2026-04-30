@@ -1,4 +1,7 @@
-import { PlaceCard, type VoucherChip } from '@features/customer/home/components/common/PlaceCard';
+import {
+  PlaceCard,
+  type VoucherChip,
+} from '@features/customer/home/components/common/PlaceCard';
 import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';

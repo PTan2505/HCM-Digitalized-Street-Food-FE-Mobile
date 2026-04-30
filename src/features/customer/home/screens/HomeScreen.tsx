@@ -109,7 +109,15 @@ export const HomeScreen = (): JSX.Element => {
   const { campaignsByBranchId: activeBranchCampaigns } =
     useVendorCampaignsByBranchIds(activeBranchIds, true);
   const activeBranchVouchersByBranchId = useMemo(() => {
-    const map: Record<number, { voucherId: number; discountValue: number; type: 'PERCENT' | 'AMOUNT'; minAmountRequired?: number | null }[]> = {};
+    const map: Record<
+      number,
+      {
+        voucherId: number;
+        discountValue: number;
+        type: 'PERCENT' | 'AMOUNT';
+        minAmountRequired?: number | null;
+      }[]
+    > = {};
     for (const [id, campaigns] of Object.entries(activeBranchCampaigns)) {
       const vouchers = campaigns.flatMap((c) => c.vouchers);
       if (vouchers.length > 0) map[Number(id)] = vouchers;

@@ -197,6 +197,13 @@ export const getProfileSections = (
           onPress: (): void => navigation.navigate('DietaryPreferences'),
         },
         {
+          id: 'security',
+          icon: 'key-outline',
+          title: t('pin.security_title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('SecuritySettings'),
+        },
+        {
           id: 'language',
           icon: 'language-outline',
           title: t('profile.language'),

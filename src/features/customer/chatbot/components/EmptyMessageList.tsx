@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 
-import foodImage from '@assets/food.png';
+import foodImage from '@assets/images/food.png';
 
 const SUGGESTION_CHIPS = [
   'Gợi ý món gần tôi',

@@ -30,17 +30,16 @@ export const useVendorCampaignsByBranchIds = (
     })),
   });
 
-  const campaignsByBranchId = useMemo<Record<number, BranchCampaignInfo[]>>(
-    () => {
-      const map: Record<number, BranchCampaignInfo[]> = {};
-      branchIds.forEach((branchId, i) => {
-        const data = results[i]?.data;
-        if (data && data.length > 0) map[branchId] = data;
-      });
-      return map;
-    },
-    [branchIds, results]
-  );
+  const campaignsByBranchId = useMemo<
+    Record<number, BranchCampaignInfo[]>
+  >(() => {
+    const map: Record<number, BranchCampaignInfo[]> = {};
+    branchIds.forEach((branchId, i) => {
+      const data = results[i]?.data;
+      if (data && data.length > 0) map[branchId] = data;
+    });
+    return map;
+  }, [branchIds, results]);
 
   const isLoading = results.some((r) => r.isLoading);
 
