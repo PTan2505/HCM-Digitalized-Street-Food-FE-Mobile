@@ -98,6 +98,8 @@ export const queryKeys = {
       ['campaigns', 'nearby', { lat, lng }] as const,
     vendorBranches: (lat?: number | null, lng?: number | null) =>
       ['campaigns', 'vendorBranches', { lat, lng }] as const,
+    vendorCampaignsByBranch: (branchId: number, isWorking?: boolean | null) =>
+      ['campaigns', 'vendorCampaignsByBranch', branchId, { isWorking: isWorking ?? null }] as const,
   },
 
   quests: {
