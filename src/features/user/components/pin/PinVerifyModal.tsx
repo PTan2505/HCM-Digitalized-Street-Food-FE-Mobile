@@ -40,7 +40,6 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
     const { mutateAsync: verifyPin } = useVerifyPin();
 
     const [modalVisible, setModalVisible] = useState(false);
-    const [error, setError] = useState('');
     const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(
       null
     );
@@ -70,7 +69,6 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
         translateY.value = withTiming(SHEET_HEIGHT, { duration: 250 });
         setTimeout(() => {
           setModalVisible(false);
-          setError('');
           setAttemptsRemaining(null);
           setCooldown(0);
           resolveRef.current?.(result);
@@ -82,7 +80,6 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
 
     useImperativeHandle(ref, () => ({
       open: (): Promise<boolean> => {
-        setError('');
         setAttemptsRemaining(null);
         setCooldown(0);
         setInputKey((k) => k + 1);
@@ -108,6 +105,9 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
           if (prev <= 1) {
             clearInterval(cooldownIntervalRef.current!);
             cooldownIntervalRef.current = null;
+            setTimeout(() => {
+              otpRef.current?.focus();
+            }, 100);
             return 0;
           }
           return prev - 1;
@@ -122,7 +122,7 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
     const handleFilled = useCallback(
       async (value: string): Promise<void> => {
         if (cooldown > 0) return;
-        setError('');
+        setAttemptsRemaining(null);
 
         try {
           const result = await verifyPin(value);
@@ -133,29 +133,28 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
             if (result.attemptsRemaining !== undefined) {
               setAttemptsRemaining(result.attemptsRemaining);
             }
-            setError(
-              result.attemptsRemaining === 0
-                ? t('pin.locked_error')
-                : t('pin.wrong_pin')
-            );
           }
         } catch (err: unknown) {
           setInputKey((k) => k + 1);
-          if (err !== null && typeof err === 'object' && 'response' in err) {
-            const axiosErr = err as {
-              response?: { status?: number; data?: { retryAfter?: number } };
+          if (err !== null && typeof err === 'object') {
+            const apiErr = err as {
+              status?: number;
+              retryAfter?: number;
+              message?: string;
             };
-            if (axiosErr.response?.status === 429) {
-              const retryAfter = axiosErr.response.data?.retryAfter ?? 30;
-              setCooldown(retryAfter);
-              setError(t('pin.locked_error'));
+            if (apiErr.status === 429) {
+              let retryAfter = apiErr.retryAfter;
+              if (!retryAfter && apiErr.message) {
+                const match = apiErr.message.match(/(\d+)\s*seconds?/i);
+                if (match) retryAfter = parseInt(match[1], 10);
+              }
+              setCooldown(retryAfter ?? 30);
               return;
             }
           }
-          setError(t('pin.verify_error'));
         }
       },
-      [cooldown, dismiss, t, verifyPin]
+      [cooldown, dismiss, verifyPin]
     );
 
     const isLocked = cooldown > 0;
@@ -224,14 +223,12 @@ export const PinVerifyModal = forwardRef<PinVerifyModalRef>(
 
           <View className="mt-4 min-h-[20px] items-center px-4">
             {isLocked ? (
-              <Text className="text-sm text-orange-500">
-                {t('pin.cooldown', { seconds: cooldown })}
+              <Text className="text-center text-sm text-orange-500">
+                {t('pin.locked_cooldown', { seconds: cooldown })}
               </Text>
-            ) : error.length > 0 ? (
-              <Text className="text-sm text-red-500">{error}</Text>
-            ) : attemptsRemaining !== null ? (
-              <Text className="text-sm text-orange-500">
-                {t('pin.attempts_remaining', { count: attemptsRemaining })}
+            ) : attemptsRemaining !== null && attemptsRemaining > 0 ? (
+              <Text className="text-center text-sm text-red-500">
+                {t('pin.wrong_pin_remaining', { count: attemptsRemaining })}
               </Text>
             ) : null}
           </View>
