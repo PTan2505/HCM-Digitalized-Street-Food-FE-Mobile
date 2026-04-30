@@ -1,8 +1,10 @@
 import type { TabType } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
 import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,22 +18,46 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
   const { branchId, tab } = route.params;
   const { t } = useTranslation();
   const [error, setError] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
-        const [detail, paginatedDishes] = await Promise.all([
-          axiosApi.branchApi.getBranchById(branchId),
-          axiosApi.branchApi.getDishesByBranch(branchId, { pageSize: 100 }),
+        const [detail, dishesList] = await Promise.all([
+          queryClient.fetchQuery({
+            queryKey: queryKeys.branches.detail(branchId),
+            queryFn: () => axiosApi.branchApi.getBranchById(branchId),
+            staleTime: 5 * 60 * 1000,
+          }),
+          queryClient.fetchQuery({
+            queryKey: queryKeys.dishes.byBranch(branchId),
+            queryFn: async () => {
+              const res = await axiosApi.branchApi.getDishesByBranch(branchId, {
+                pageNumber: 1,
+                pageSize: 100,
+              });
+              return res.items ?? [];
+            },
+            staleTime: 5 * 60 * 1000,
+          }),
         ]);
 
         let vendorName: string | null = null;
         let displayName: string;
 
         if (detail.vendorId != null) {
+          const vendorId = detail.vendorId;
           const [vendor, vendorBranches] = await Promise.all([
-            axiosApi.vendorApi.getVendorById(detail.vendorId),
-            axiosApi.branchApi.getBranchesByVendor(detail.vendorId),
+            queryClient.fetchQuery({
+              queryKey: ['vendors', 'detail', vendorId],
+              queryFn: () => axiosApi.vendorApi.getVendorById(vendorId),
+              staleTime: 5 * 60 * 1000,
+            }),
+            queryClient.fetchQuery({
+              queryKey: queryKeys.managerBranch.all, // Using a generic key, or bypass cache
+              queryFn: () => axiosApi.branchApi.getBranchesByVendor(vendorId),
+              staleTime: 5 * 60 * 1000,
+            }),
           ]);
           vendorName = vendor.name;
           displayName =
@@ -68,7 +94,7 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
           dietaryPreferenceNames: [],
           finalScore: 0,
           distanceKm: null,
-          dishes: paginatedDishes.items,
+          dishes: dishesList,
         };
 
         navigation.replace('RestaurantDetails', { branch, displayName, tab });
@@ -78,7 +104,7 @@ export const RestaurantDeepLinkScreen = ({ route }: Props): JSX.Element => {
     };
 
     load();
-  }, [branchId, navigation, t, tab]);
+  }, [branchId, navigation, t, tab, queryClient]);
 
   if (error) {
     navigation.goBack();
