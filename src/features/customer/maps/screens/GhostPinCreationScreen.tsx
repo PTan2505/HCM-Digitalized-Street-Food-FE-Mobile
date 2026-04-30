@@ -2,7 +2,6 @@ import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import type { APIErrorResponse } from '@custom-types/apiResponse';
 import { Ionicons } from '@expo/vector-icons';
-import { useGhostPinXP } from '@features/customer/home/hooks/useSettings';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { FeedbackTag } from '@features/customer/home/types/feedback';
 import type { PickedLocation } from '@features/customer/maps/components/LocationPickerMap';
@@ -12,11 +11,8 @@ import {
   searchAddress,
   type AutocompletePrediction,
 } from '@features/customer/maps/services/geocoding';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
-import { addXP, selectUserXP } from '@slices/auth';
-import { showXPToast } from '@slices/xpToast';
 import {
   compressImageForUpload,
   pickImagesFromLibrary,
@@ -45,9 +41,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const GhostPinCreationScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const currentXP = useAppSelector(selectUserXP);
-  const ghostPinXP = useGhostPinXP();
 
   const [name, setName] = useState('');
   const [addressQuery, setAddressQuery] = useState('');
@@ -359,12 +352,6 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           // Don't fail the entire creation if feedback submission fails
         }
       }
-
-      const newXP = currentXP + ghostPinXP;
-      dispatch(addXP(ghostPinXP));
-      dispatch(
-        showXPToast({ xpEarned: ghostPinXP, previousXP: currentXP, newXP })
-      );
 
       Alert.alert(
         t('ghost_pin_creation.alert.success_title'),

@@ -1,5 +1,8 @@
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
-import { useOrderXP } from '@features/customer/home/hooks/useSettings';
+import {
+  useGhostPinXP,
+  useOrderXP,
+} from '@features/customer/home/hooks/useSettings';
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -32,6 +35,9 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
   const orderXP = useOrderXP();
   const orderXPRef = useRef(orderXP);
   orderXPRef.current = orderXP;
+  const ghostPinXP = useGhostPinXP();
+  const ghostPinXPRef = useRef(ghostPinXP);
+  ghostPinXPRef.current = ghostPinXP;
 
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
@@ -95,6 +101,22 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
             }
           })
           .catch(() => {});
+      }
+
+      const isGhostPinBeVerified =
+        notification.type === 'BranchVerificationStatus' ||
+        notification.type === '7';
+
+      if (
+        isGhostPinBeVerified &&
+        notification.extraData?.status === 'ACCEPTED'
+      ) {
+        const xp = ghostPinXPRef.current;
+        const prev = currentXPRef.current;
+        dispatch(addXP(xp));
+        dispatch(
+          showXPToast({ xpEarned: xp, previousXP: prev, newXP: prev + xp })
+        );
       }
 
       const isQuestTaskCompleted =
