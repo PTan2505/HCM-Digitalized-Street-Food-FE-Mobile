@@ -76,18 +76,12 @@ export interface ActiveBranch {
   isSubscribed: boolean;
   tierId: number;
   tierName: string;
-  /** Composite score (0–1) used for map marker visibility priority */
   finalScore: number;
-  /** Populated when Lat/Long params are passed to the search endpoint */
   distanceKm: number | null;
   dishes: Dish[];
-  /** Optional tier from GET /api/Branch/:id/tier — not included in search response */
   tier?: VendorTier;
-  /** Ranking score from DisplayName bucket (100/80/50–70/0) — set by search only */
   displayNameScore?: number;
-  /** Best dish score for this branch — set by search only */
   dishScore?: number;
-  /** Other branches of the same vendor, closest first — set by search only */
   otherBranches?: ActiveBranch[];
 }
 

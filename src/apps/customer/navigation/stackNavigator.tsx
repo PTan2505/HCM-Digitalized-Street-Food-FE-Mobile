@@ -288,7 +288,13 @@ declare global {
 
 const StaticNavigation = createStaticNavigation(RootStack);
 
-export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
+export function Navigation({
+  theme,
+  onStateChange,
+}: {
+  theme: Theme;
+  onStateChange?: () => void;
+}): React.JSX.Element {
   // AppSplashGate ensures auth is resolved before Navigation mounts,
   // so we can use the user object directly to pick the correct initial route
   // and avoid the Auth→Main flash on cold start.
@@ -298,6 +304,7 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     <StaticNavigation
       ref={navigationRef}
       theme={theme}
+      onStateChange={onStateChange}
       initialState={{
         index: 0,
         routes: [{ name: user !== null ? 'Main' : 'Auth' }],

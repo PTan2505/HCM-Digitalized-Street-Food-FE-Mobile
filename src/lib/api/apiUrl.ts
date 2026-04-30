@@ -1,4 +1,7 @@
 export const apiUrl = {
+  ai: {
+    chat: '/api/Ai/chat',
+  },
   auth: {
     facebookLogin: '/api/Auth/facebook-login',
     phoneLogin: '/api/Auth/phone-login',

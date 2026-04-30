@@ -13,14 +13,18 @@ import {
 import { DraggableFloatingButton } from '@components/DraggableFloatingButton';
 import '@utils/i18n';
 import { setGlobalStyles } from '@utils/setGlobalStyles';
-import { ReactNode } from 'react';
+import { navigationRef } from '@utils/navigationRef';
+import { ReactNode, useState } from 'react';
 import { StyleSheet, View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 setGlobalStyles();
 
+const HIDDEN_ROUTES = new Set(['Chatbot']);
+
 export default function App(): ReactNode {
+  const [currentRoute, setCurrentRoute] = useState<string | undefined>();
   const [fontsLoaded] = useFonts({
     Nunito: Nunito_400Regular,
     'Nunito-Light': Nunito_300Light,
@@ -41,10 +45,17 @@ export default function App(): ReactNode {
         <AppProvider>
           <AppSplashGate fontsLoaded={fontsLoaded ?? false}>
             <View style={styles.root}>
-              <Navigation theme={CustomTheme} />
-              <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-                <DraggableFloatingButton />
-              </View>
+              <Navigation
+                theme={CustomTheme}
+                onStateChange={() =>
+                  setCurrentRoute(navigationRef.getCurrentRoute()?.name)
+                }
+              />
+              {!HIDDEN_ROUTES.has(currentRoute ?? '') && (
+                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                  <DraggableFloatingButton />
+                </View>
+              )}
             </View>
           </AppSplashGate>
         </AppProvider>

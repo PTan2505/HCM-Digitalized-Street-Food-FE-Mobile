@@ -28,13 +28,14 @@ export const DraggableFloatingButton = (): React.JSX.Element | null => {
   const startY = useSharedValue(INITIAL_Y);
 
   const tapGesture = Gesture.Tap()
+    .maxDistance(10)
     .runOnJS(true)
     .onEnd(() => {
       navigationRef.navigate('Chatbot');
     });
 
   const panGesture = Gesture.Pan()
-    .runOnJS(true)
+    .minDistance(1)
     .onBegin(() => {
       startX.value = translateX.value;
       startY.value = translateY.value;
@@ -65,7 +66,7 @@ export const DraggableFloatingButton = (): React.JSX.Element | null => {
     });
 
   // Tap gets priority; pan only activates when the finger actually moves
-  const gesture = Gesture.Exclusive(tapGesture, panGesture);
+  const gesture = Gesture.Simultaneous(tapGesture, panGesture);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [

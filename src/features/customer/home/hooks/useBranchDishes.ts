@@ -18,5 +18,5 @@ export const useBranchDishes = (
     staleTime: 5 * 60 * 1000,
   });
 
-  return { dishes: data ?? [], isLoading };
+  return { dishes: Array.isArray(data) ? data : [], isLoading };
 };

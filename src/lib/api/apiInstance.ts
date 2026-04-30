@@ -1,4 +1,5 @@
 import { AxiosApiService } from '@config/axiosApiService';
+import { ChatApi } from '@features/customer/chatbot/api/chatApi';
 import { VoucherApi } from '@customer/campaigns/api/voucherApi';
 import {
   CartApi,
@@ -36,6 +37,7 @@ const axiosService = new AxiosApiService();
 const axiosClient = new ApiClient(axiosService);
 
 export const axiosApi = {
+  chatApi: new ChatApi(axiosClient),
   loginApi: new LoginApi(axiosClient),
   userProfileApi: new UserProfileApi(axiosClient),
   badgeApi: new BadgeApi(axiosClient),
