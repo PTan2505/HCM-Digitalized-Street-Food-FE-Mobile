@@ -7,7 +7,7 @@ import type { ActiveBranch, Dish } from '@features/customer/home/types/branch';
 import type { JSX } from 'react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const formatVoucherDiscount = (discountValue: number, type: string): string => {
   if (type.toUpperCase() === 'PERCENT') return `-${discountValue}%`;
@@ -287,19 +287,22 @@ const SearchResultCard = ({
             if (dx < 8) onPress?.();
           }}
         >
-          <FlatList
-            data={vouchers}
-            keyExtractor={(v) => String(v.voucherId)}
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled
             contentContainerStyle={{
               paddingHorizontal: 8,
               paddingBottom: 6,
               paddingTop: 0,
               gap: 4,
             }}
-            renderItem={({ item }) => (
-              <View className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]">
+          >
+            {(vouchers ?? []).map((item) => (
+              <View
+                key={String(item.voucherId)}
+                className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]"
+              >
                 <View className="items-center justify-center self-stretch bg-secondary px-1.5">
                   <MaterialCommunityIcons
                     name="ticket-percent"
@@ -320,21 +323,23 @@ const SearchResultCard = ({
                   )}
                 </View>
               </View>
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
       )}
 
       {/* ── Dish tiles ── */}
       {visibleDishes.length > 0 && (
         <View className="border-t border-[#f0f0f0] px-3 pb-3 pt-2.5">
-          <FlatList
-            data={visibleDishes}
-            keyExtractor={(d) => String(d.dishId)}
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => <DishTile dish={item} />}
-          />
+            nestedScrollEnabled
+          >
+            {visibleDishes.map((item) => (
+              <DishTile key={String(item.dishId)} dish={item} />
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>

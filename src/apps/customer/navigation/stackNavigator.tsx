@@ -12,7 +12,6 @@ import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
 import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/customer/home/screens/ListBranchScreen';
-import { RestaurantDeepLinkScreen } from '@features/customer/home/screens/RestaurantDeepLinkScreen';
 import { RestaurantDetailsScreen } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/customer/home/screens/RestaurantSwipeScreen';
 import { ReviewListScreen } from '@features/customer/home/screens/ReviewListScreen';
@@ -74,14 +73,6 @@ const RootStack = createNativeStackNavigator({
         autoFocus?: boolean;
         openFilter?: boolean;
       },
-    },
-    Restaurant: {
-      screen: RestaurantDeepLinkScreen,
-      linking: {
-        path: 'restaurant/:branchId',
-        parse: { branchId: Number },
-      },
-      params: {} as { branchId: number; tab?: TabType },
     },
     RestaurantSwipe: {
       screen: RestaurantSwipeScreen,
