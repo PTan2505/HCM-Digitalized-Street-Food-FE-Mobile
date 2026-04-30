@@ -86,6 +86,13 @@ export const apiUrl = {
       userinfo: '/api/UserSetup/userinfo-setup',
       dietary: '/api/UserSetup/dietary-setup',
     },
+    pin: {
+      status: '/api/user/pin/status',
+      set: '/api/user/pin/set',
+      verify: '/api/user/pin/verify',
+      change: '/api/user/pin/change',
+      remove: '/api/user/pin/remove',
+    },
   },
   ghostPin: {
     create: '/api/Branch/user',

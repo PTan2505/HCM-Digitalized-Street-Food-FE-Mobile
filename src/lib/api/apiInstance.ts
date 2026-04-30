@@ -23,6 +23,7 @@ import { DietaryPreferenceApi } from '@features/user/api/dietaryPreferenceApi';
 import { UserPaymentApi } from '@features/user/api/paymentApi';
 import { UserProfileApi } from '@features/user/api/profileApi';
 import { UserDietaryApi } from '@features/user/api/userDietaryApi';
+import { UserPinApi } from '@features/user/api/userPinApi';
 
 import ApiClient from '@lib/api/apiClient';
 import { SettingsApi } from '@lib/api/settingsApi';
@@ -59,6 +60,7 @@ export const axiosApi = {
   questApi: new QuestApi(axiosClient),
   voucherApi: new VoucherApi(axiosClient),
   userPaymentApi: new UserPaymentApi(axiosClient),
+  userPinApi: new UserPinApi(axiosClient),
   settingsApi: new SettingsApi(axiosClient),
   managerBranchApi: new ManagerBranchApi(axiosClient),
   managerOrderApi: new ManagerOrderApi(axiosClient),

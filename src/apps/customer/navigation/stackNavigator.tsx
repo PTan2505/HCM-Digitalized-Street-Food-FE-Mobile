@@ -50,7 +50,9 @@ import { BadgeListScreen } from '@features/user/screens/BadgeListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { PaymentHistoryScreen } from '@features/user/screens/PaymentHistoryScreen';
+import { PinScreen } from '@features/user/screens/PinScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
+import { SecuritySettingsScreen } from '@features/user/screens/SecuritySettingsScreen';
 import { TierProgressScreen } from '@features/user/screens/TierProgressScreen';
 import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
 
@@ -262,6 +264,12 @@ const RootStack = createNativeStackNavigator({
     },
     Withdraw: {
       screen: WithdrawScreen,
+    },
+    Pin: {
+      screen: PinScreen,
+    },
+    SecuritySettings: {
+      screen: SecuritySettingsScreen,
     },
     BadgeList: {
       screen: BadgeListScreen,
