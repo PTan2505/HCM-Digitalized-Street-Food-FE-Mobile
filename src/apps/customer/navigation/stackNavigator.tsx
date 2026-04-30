@@ -39,6 +39,7 @@ import { VoucherApplicableBranchesScreen } from '@features/customer/campaigns/sc
 import { VoucherHistoryScreen } from '@features/customer/campaigns/screens/VoucherHistoryScreen';
 import { VoucherMarketplaceScreen } from '@features/customer/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/customer/campaigns/screens/VoucherWalletScreen';
+import { ChatbotScreen } from '@features/customer/chatbot/screens/ChatbotScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
 import { RestaurantCampaignDetailScreen } from '@customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import type { TabType } from '@features/customer/home/screens/RestaurantDetailsScreen';
@@ -269,6 +270,9 @@ const RootStack = createNativeStackNavigator({
       screen: PaymentHistoryScreen,
       linking: 'payment-history',
     },
+    Chatbot: {
+      screen: ChatbotScreen,
+    },
   },
 });
 
@@ -284,7 +288,13 @@ declare global {
 
 const StaticNavigation = createStaticNavigation(RootStack);
 
-export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
+export function Navigation({
+  theme,
+  onStateChange,
+}: {
+  theme: Theme;
+  onStateChange?: () => void;
+}): React.JSX.Element {
   // AppSplashGate ensures auth is resolved before Navigation mounts,
   // so we can use the user object directly to pick the correct initial route
   // and avoid the Auth→Main flash on cold start.
@@ -294,6 +304,7 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     <StaticNavigation
       ref={navigationRef}
       theme={theme}
+      onStateChange={onStateChange}
       initialState={{
         index: 0,
         routes: [{ name: user !== null ? 'Main' : 'Auth' }],

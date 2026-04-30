@@ -66,7 +66,7 @@ export const useBranchFeedback = (branchId: number): BranchFeedbackResult => {
       return {
         feedbacks: paginatedFeedback.items,
         averageRating: ratingData.averageRating,
-        totalCount: countData.feedbackCount,
+        totalCount: paginatedFeedback.totalCount,
         feedbackDetails: countData.details,
       };
     },
