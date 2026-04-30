@@ -1,4 +1,7 @@
-import { PlaceCard } from '@features/customer/home/components/common/PlaceCard';
+import {
+  PlaceCard,
+  type VoucherChip,
+} from '@features/customer/home/components/common/PlaceCard';
 import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';
@@ -10,6 +13,7 @@ interface HomeBranchCardProps {
   displayName: string;
   imageUri?: string;
   userCoords?: UserCoords | null;
+  vouchers?: VoucherChip[];
   onPress?: () => void;
 }
 
@@ -18,6 +22,7 @@ export const HomeBranchCard = ({
   displayName,
   imageUri,
   userCoords,
+  vouchers,
   onPress,
 }: HomeBranchCardProps): JSX.Element => {
   const { isOpen, isLoading } = useWorkSchedule(branch.branchId);
@@ -32,6 +37,7 @@ export const HomeBranchCard = ({
         userCoords={userCoords}
         onPress={onPress}
         isOpen={resolved}
+        vouchers={vouchers}
       />
     </View>
   );

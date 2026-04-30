@@ -1,5 +1,6 @@
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
+import { useVendorCampaignsByBranch } from '@features/customer/campaigns/hooks/useVendorCampaignsByBranch';
 import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import VoucherList from '@customer/home/components/restaurantDetails/VoucherList';
 import { Ionicons } from '@expo/vector-icons';
@@ -80,7 +81,15 @@ export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
   const { branch, displayName, tab, vouchers, onRatingUpdateId } = route.params;
-  const [branchVouchers] = useState<CampaignVoucherInfo[]>(vouchers ?? []);
+  const { campaigns: fetchedCampaigns, isLoading: isVouchersLoading } =
+    useVendorCampaignsByBranch(branch.branchId, true);
+  const branchVouchers = useMemo<CampaignVoucherInfo[]>(() => {
+    if (isVouchersLoading) return vouchers ?? [];
+    if (fetchedCampaigns.length === 0) return [];
+    return fetchedCampaigns.flatMap((c) =>
+      c.vouchers.map((v) => ({ ...v, campaignId: c.campaignId }))
+    );
+  }, [fetchedCampaigns, isVouchersLoading, vouchers]);
 
   const insets = useSafeAreaInsets();
 

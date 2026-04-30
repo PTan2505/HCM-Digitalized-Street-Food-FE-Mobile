@@ -4,6 +4,7 @@ import { useGhostPins } from '@customer/home/hooks/useGhostPins';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
+import { useVendorCampaignsByBranchIds } from '@features/customer/campaigns/hooks/useVendorCampaignsByBranchIds';
 import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
 import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
@@ -101,6 +102,29 @@ export const HomeScreen = (): JSX.Element => {
     isLoading: campaignsLoading,
     refetch: refetchSystemCampaigns,
   } = useSystemCampaigns();
+  const activeBranchIds = useMemo(
+    () => branches.map((b) => b.branchId),
+    [branches]
+  );
+  const { campaignsByBranchId: activeBranchCampaigns } =
+    useVendorCampaignsByBranchIds(activeBranchIds, true);
+  const activeBranchVouchersByBranchId = useMemo(() => {
+    const map: Record<
+      number,
+      {
+        voucherId: number;
+        discountValue: number;
+        type: 'PERCENT' | 'AMOUNT';
+        minAmountRequired?: number | null;
+      }[]
+    > = {};
+    for (const [id, campaigns] of Object.entries(activeBranchCampaigns)) {
+      const vouchers = campaigns.flatMap((c) => c.vouchers);
+      if (vouchers.length > 0) map[Number(id)] = vouchers;
+    }
+    return map;
+  }, [activeBranchCampaigns]);
+
   const {
     branches: vendorCampaignBranches,
     imageMap: vendorCampaignImageMap,
@@ -736,6 +760,7 @@ export const HomeScreen = (): JSX.Element => {
                   displayName={displayName}
                   imageUri={branchImageMap[item.branchId]?.[0]}
                   userCoords={userCoords}
+                  vouchers={activeBranchVouchersByBranchId[item.branchId]}
                   onPress={() =>
                     navigation.navigate('RestaurantSwipe', {
                       branch: item,
