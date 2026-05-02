@@ -186,7 +186,10 @@ const TierNode = ({
         {/* Rewards — only shown if this tier has any */}
         {rewards.length > 0 && (
           <View className="mt-2">
-            <QuestRewardBadge rewards={rewards} claimed={isCompleted} />
+            <QuestRewardBadge
+              rewards={rewards}
+              claimed={isCompleted || isCurrent}
+            />
           </View>
         )}
 

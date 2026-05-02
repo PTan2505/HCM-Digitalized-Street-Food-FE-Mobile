@@ -135,9 +135,6 @@ const RewardRow = ({ reward, claimed }: RewardRowProps): JSX.Element => {
           <Text className={`mt-0.5 text-sm font-semibold ${textColor}`}>
             {voucherDisplay.discount}
           </Text>
-          <Text className={`text-[10px] opacity-70 ${textColor}`}>
-            {voucherDisplay.remain}
-          </Text>
         </>
       )}
     </View>
