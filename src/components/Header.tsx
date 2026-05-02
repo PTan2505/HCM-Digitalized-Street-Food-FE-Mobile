@@ -47,11 +47,11 @@ const Header = ({
         <View className="min-w-[40px] items-end justify-center">
           {secondaryAction ? (
             <TouchableOpacity
-              className="flex-row items-center gap-3 self-end rounded-full bg-gray-200 px-3 py-1"
+              className="h-10 flex-row items-center gap-3 self-end rounded-full bg-gray-200 px-3 py-1"
               onPress={secondaryAction.onPress}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text>{secondaryAction.label}</Text>
+              {secondaryAction.label && <Text>{secondaryAction.label}</Text>}
               {secondaryAction.icon}
             </TouchableOpacity>
           ) : (

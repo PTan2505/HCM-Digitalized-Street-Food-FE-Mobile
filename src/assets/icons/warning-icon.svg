@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 15.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:ns1="http://sozi.baierouge.fr"
+    id="Layer_1"
+    enable-background="new 0 0 514.475 473.977"
+    xml:space="preserve"
+    viewBox="0 0 514.475 473.977"
+    version="1.1"
+    y="0px"
+    x="0px"
+  >
+<radialGradient
+      id="SVGID_1_"
+      gradientUnits="userSpaceOnUse"
+      cy="231.67"
+      cx="255.45"
+      gradientTransform="matrix(1 0 0 1.2 0 -46.335)"
+      r="206.35"
+    >
+	<stop
+        style="stop-color:#FFDE17"
+        offset="0"
+    />
+	<stop
+        style="stop-color:#ABA01F"
+        offset="1"
+    />
+</radialGradient
+  >
+<path
+      stroke="#000000"
+      stroke-width="19"
+      stroke-miterlimit="10"
+      d="m48.55 414.92c-23.156-33.24 171.74-387.11 207.91-387.11s228.79 361.14 205.92 387.11c-25.53 28.99-395.74 25.96-413.83 0z"
+      fill="url(#SVGID_1_)"
+  />
+<path
+      d="m231.94 356.15c0-14.623 12.155-23.186 26.373-23.186s25.561 8.563 25.561 23.186c0 14.219-11.343 23.186-26.373 23.186-13.81 0-25.56-8.97-25.56-23.19zm12.16-48.68c-6.018-7.507-13.969-189.32-5.687-198.39 6.574-7.2 32.684-7.429 38.997 0 6.221 7.32-2.027 193.21-5.687 198.39-3.98 5.64-23.3 5.39-27.62 0z"
+  />
+<linearGradient
+      id="SVGID_2_"
+      y2="48.45"
+      gradientUnits="userSpaceOnUse"
+      x2="256.45"
+      y1="304.93"
+      x1="256.45"
+    >
+	<stop
+        style="stop-color:#FFFFFF"
+        offset="0"
+    />
+	<stop
+        style="stop-color:#FFFFFF;stop-opacity:.9104"
+        offset=".0896"
+    />
+	<stop
+        style="stop-color:#FFFFFF;stop-opacity:0"
+        offset="1"
+    />
+</linearGradient
+  >
+<path
+      opacity=".32"
+      d="m128.14 231.73c50.628-93.413 109.17-183.28 127.4-183.28 18.633 0 78.777 95.828 129.6 192.31 47.82 90.81-306.84 82.92-257-9.03z"
+      fill="url(#SVGID_2_)"
+  />
+<metadata
+    ><rdf:RDF
+      ><cc:Work
+        ><dc:format
+          >image/svg+xml</dc:format
+        ><dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        /><cc:license
+            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        /><dc:publisher
+          ><cc:Agent
+              rdf:about="http://openclipart.org/"
+            ><dc:title
+              >Openclipart</dc:title
+            ></cc:Agent
+          ></dc:publisher
+        ><dc:title
+          >Warning icon</dc:title
+        ><dc:date
+          >2011-04-26T22:14:15</dc:date
+        ><dc:description
+          >yellow warning icon </dc:description
+        ><dc:source
+          >https://openclipart.org/detail/134215/warning-icon-by-docguy</dc:source
+        ><dc:creator
+          ><cc:Agent
+            ><dc:title
+              >docguy</dc:title
+            ></cc:Agent
+          ></dc:creator
+        ><dc:subject
+          ><rdf:Bag
+            ><rdf:li
+              >Important</rdf:li
+            ><rdf:li
+              >Warning</rdf:li
+            ><rdf:li
+              >exclamation</rdf:li
+            ><rdf:li
+              >exclamation point</rdf:li
+            ><rdf:li
+              >icon</rdf:li
+            ><rdf:li
+              >notice</rdf:li
+            ><rdf:li
+              >sign</rdf:li
+            ><rdf:li
+              >yellow</rdf:li
+            ></rdf:Bag
+          ></dc:subject
+        ></cc:Work
+      ><cc:License
+          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+        ><cc:permits
+            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        /><cc:permits
+            rdf:resource="http://creativecommons.org/ns#Distribution"
+        /><cc:permits
+            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        /></cc:License
+      ></rdf:RDF
+    ></metadata
+  ></svg
+>

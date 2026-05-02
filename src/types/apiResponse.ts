@@ -7,6 +7,7 @@ export interface BackendResponse<T = unknown> {
 
 export interface ErrorResponse extends BackendResponse<unknown> {
   errorCode: string;
+  retryAfter?: number;
 }
 
 export interface APIErrorResponse {
@@ -14,6 +15,7 @@ export interface APIErrorResponse {
   status?: number;
   message?: string;
   fieldErrors?: Record<string, string[]>;
+  retryAfter?: number;
 }
 
 export interface ApiResponse<T> {

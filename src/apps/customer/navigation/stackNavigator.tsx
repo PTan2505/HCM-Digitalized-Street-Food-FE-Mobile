@@ -1,5 +1,6 @@
 import { HomeBottomTabs } from '@customer-app/navigation/bottomTabNavigator';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
 import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens/DirectCheckoutScreen';
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
@@ -11,7 +12,6 @@ import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
 import { FavoritesScreen } from '@features/customer/home/screens/FavoritesScreen';
 import { ListBranchScreen } from '@features/customer/home/screens/ListBranchScreen';
-import { RestaurantDeepLinkScreen } from '@features/customer/home/screens/RestaurantDeepLinkScreen';
 import { RestaurantDetailsScreen } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import { RestaurantSwipeScreen } from '@features/customer/home/screens/RestaurantSwipeScreen';
 import { ReviewListScreen } from '@features/customer/home/screens/ReviewListScreen';
@@ -33,14 +33,14 @@ import { selectUser } from '@slices/auth';
 import { navigationRef } from '@utils/navigationRef';
 
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
-import { CampaignListScreen } from '@features/customer/campaigns/screens/CampaignListScreen';
-import { RestaurantCampaignDetailScreen } from '@features/customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import { SystemCampaignDetailScreen } from '@features/customer/campaigns/screens/SystemCampaignDetailScreen';
 import { VoucherApplicableBranchesScreen } from '@features/customer/campaigns/screens/VoucherApplicableBranchesScreen';
 import { VoucherHistoryScreen } from '@features/customer/campaigns/screens/VoucherHistoryScreen';
 import { VoucherMarketplaceScreen } from '@features/customer/campaigns/screens/VoucherMarketplaceScreen';
 import { VoucherWalletScreen } from '@features/customer/campaigns/screens/VoucherWalletScreen';
+import { ChatbotScreen } from '@features/customer/chatbot/screens/ChatbotScreen';
 // import ProfileScreen from '@features/user/screens/ProfileScreen';
+import { RestaurantCampaignDetailScreen } from '@customer/campaigns/screens/RestaurantCampaignDetailScreen';
 import type { TabType } from '@features/customer/home/screens/RestaurantDetailsScreen';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { QuestDetailScreen } from '@features/customer/quests/screens/QuestDetailScreen';
@@ -49,7 +49,9 @@ import { BadgeListScreen } from '@features/user/screens/BadgeListScreen';
 import { DietaryPreferencesScreen } from '@features/user/screens/DietaryPreferencesScreen';
 import { EditUserInfoScreen } from '@features/user/screens/EditUserProfileScreen';
 import { PaymentHistoryScreen } from '@features/user/screens/PaymentHistoryScreen';
+import { PinScreen } from '@features/user/screens/PinScreen';
 import { ProfileScreen } from '@features/user/screens/ProfileScreen';
+import { SecuritySettingsScreen } from '@features/user/screens/SecuritySettingsScreen';
 import { TierProgressScreen } from '@features/user/screens/TierProgressScreen';
 import { WithdrawScreen } from '@features/user/screens/WithdrawScreen';
 
@@ -72,14 +74,6 @@ const RootStack = createNativeStackNavigator({
         openFilter?: boolean;
       },
     },
-    Restaurant: {
-      screen: RestaurantDeepLinkScreen,
-      linking: {
-        path: 'restaurant/:branchId',
-        parse: { branchId: Number },
-      },
-      params: {} as { branchId: number; tab?: TabType },
-    },
     RestaurantSwipe: {
       screen: RestaurantSwipeScreen,
       params: {} as {
@@ -94,6 +88,7 @@ const RootStack = createNativeStackNavigator({
         branch: ActiveBranch;
         displayName: string;
         tab?: TabType;
+        vouchers?: CampaignVoucherInfo[];
         onRatingUpdateId?: string;
       },
     },
@@ -215,10 +210,10 @@ const RootStack = createNativeStackNavigator({
       screen: NotificationScreen,
       linking: 'notifications',
     },
-    CampaignList: {
-      screen: CampaignListScreen,
-      linking: 'campaigns',
-    },
+    // CampaignList: {
+    //   screen: CampaignListScreen,
+    //   linking: 'campaigns',
+    // },
     SystemCampaignDetail: {
       screen: SystemCampaignDetailScreen,
       params: {} as { campaignId: string },
@@ -261,12 +256,21 @@ const RootStack = createNativeStackNavigator({
     Withdraw: {
       screen: WithdrawScreen,
     },
+    Pin: {
+      screen: PinScreen,
+    },
+    SecuritySettings: {
+      screen: SecuritySettingsScreen,
+    },
     BadgeList: {
       screen: BadgeListScreen,
     },
     PaymentHistory: {
       screen: PaymentHistoryScreen,
       linking: 'payment-history',
+    },
+    Chatbot: {
+      screen: ChatbotScreen,
     },
   },
 });
@@ -283,7 +287,13 @@ declare global {
 
 const StaticNavigation = createStaticNavigation(RootStack);
 
-export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
+export function Navigation({
+  theme,
+  onStateChange,
+}: {
+  theme: Theme;
+  onStateChange?: () => void;
+}): React.JSX.Element {
   // AppSplashGate ensures auth is resolved before Navigation mounts,
   // so we can use the user object directly to pick the correct initial route
   // and avoid the Auth→Main flash on cold start.
@@ -293,6 +303,7 @@ export function Navigation({ theme }: { theme: Theme }): React.JSX.Element {
     <StaticNavigation
       ref={navigationRef}
       theme={theme}
+      onStateChange={onStateChange}
       initialState={{
         index: 0,
         routes: [{ name: user !== null ? 'Main' : 'Auth' }],

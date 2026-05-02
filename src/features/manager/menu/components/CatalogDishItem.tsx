@@ -22,7 +22,7 @@ export const CatalogDishItem = ({
       activeOpacity={0.8}
       onPress={() => onToggle(item.dishId)}
       className={`flex-row gap-3 rounded-xl border bg-white p-3 shadow-sm ${
-        isSelected ? 'border-[#006a2c]' : 'border-gray-100'
+        isSelected ? 'border-primary' : 'border-gray-100'
       }`}
     >
       <Image
@@ -42,13 +42,13 @@ export const CatalogDishItem = ({
           <Text className="text-xs text-[#38644b]">{item.categoryName}</Text>
         ) : null}
         <View className="mt-1.5 flex-row items-center justify-between">
-          <Text className="text-base font-bold text-[#006a2c]">
+          <Text className="text-base font-bold text-primary">
             {formatPrice(item.price)}
           </Text>
           <View
             className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
               isSelected
-                ? 'border-[#006a2c] bg-[#006a2c]'
+                ? 'border-primary bg-primary'
                 : 'border-gray-300 bg-transparent'
             }`}
           >

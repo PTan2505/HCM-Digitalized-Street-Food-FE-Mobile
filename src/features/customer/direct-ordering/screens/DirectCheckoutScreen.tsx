@@ -4,17 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import type { UserVoucherApiDto } from '@features/customer/campaigns/api/voucherApi';
 import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { useCheckoutMutation } from '@features/customer/direct-ordering/hooks/useCheckoutMutation';
-import { useOrderXP } from '@features/customer/home/hooks/useSettings';
+import { PinVerifyModal } from '@user/components/pin/PinVerifyModal';
+import { useBalanceActionGate } from '@user/hooks/pin/useBalanceActionGate';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
-import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import {
-  addXP,
-  selectUser,
-  selectUserXP,
-  updateMoneyBalance,
-} from '@slices/auth';
-import { showXPToast } from '@slices/xpToast';
+  CommonActions,
+  StaticScreenProps,
+  useNavigation,
+} from '@react-navigation/native';
+import { selectUser, updateMoneyBalance } from '@slices/auth';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -76,11 +75,12 @@ export const DirectCheckoutScreen = ({
     error: checkoutError,
   } = useCheckoutMutation();
   const orderError = checkoutError?.message ?? null;
-  const currentXP = useAppSelector(selectUserXP);
   const moneyBalance = useAppSelector(
     (state) => selectUser(state)?.moneyBalance ?? 0
   );
-  const orderXP = useOrderXP();
+  const { pinVerifyModalRef, gateAction, isPinStatusLoading } =
+    useBalanceActionGate();
+
   const [selectedMethod, setSelectedMethod] = useState('QR Code');
   const [isTakeAway, setIsTakeAway] = useState(true);
 
@@ -159,42 +159,56 @@ export const DirectCheckoutScreen = ({
       return;
     }
 
-    try {
-      const result = await checkout({
-        branchId,
-        paymentMethod: selectedMethod,
-        isTakeAway,
-        note: note ?? null,
-        voucherId: selectedVoucher?.voucherId ?? null,
-      });
-
-      const newXP = currentXP + orderXP;
-      dispatch(addXP(orderXP));
-      dispatch(
-        showXPToast({ xpEarned: orderXP, previousXP: currentXP, newXP })
-      );
-
-      if (selectedMethod === 'Lowca Wallet') {
-        dispatch(updateMoneyBalance(moneyBalance - finalAmount));
-        navigation.navigate('OrderStatus', {
-          orderId: result.order.orderId,
-          branchName,
+    const doCheckout = async (): Promise<void> => {
+      try {
+        const result = await checkout({
+          branchId,
+          paymentMethod: selectedMethod,
+          isTakeAway,
+          note: note ?? null,
+          voucherId: selectedVoucher?.voucherId ?? null,
         });
-        return;
-      }
 
-      navigation.navigate('PaymentQR', {
-        orderId: result.order.orderId,
-        branchId,
-        orderCode: result.payment.orderCode,
-        totalAmount: result.order.finalAmount,
-        branchName,
-        bin: result.payment.bin,
-        accountNumber: result.payment.accountNumber,
-        accountName: result.payment.accountName,
-      });
-    } catch {
-      // Error surfaced via orderError / useEffect above
+        if (selectedMethod === 'Lowca Wallet') {
+          dispatch(updateMoneyBalance(moneyBalance - finalAmount));
+
+          navigation.dispatch((state) => {
+            const preservedHistory = state.routes.slice(0, -2);
+            const newRoutes = [
+              ...preservedHistory,
+              {
+                name: 'OrderStatus',
+                params: { orderId: result.order.orderId, branchName },
+              },
+            ];
+            return CommonActions.reset({
+              ...state,
+              routes: newRoutes,
+              index: newRoutes.length - 1,
+            });
+          });
+          return;
+        }
+
+        navigation.navigate('PaymentQR', {
+          orderId: result.order.orderId,
+          branchId,
+          orderCode: result.payment.orderCode,
+          totalAmount: result.order.finalAmount,
+          branchName,
+          bin: result.payment.bin,
+          accountNumber: result.payment.accountNumber,
+          accountName: result.payment.accountName,
+        });
+      } catch {
+        // Error surfaced via orderError / useEffect above
+      }
+    };
+
+    if (selectedMethod === 'Lowca Wallet') {
+      await gateAction(doCheckout);
+    } else {
+      await doCheckout();
     }
   }, [
     cart,
@@ -207,11 +221,10 @@ export const DirectCheckoutScreen = ({
     selectedVoucher?.voucherId,
     navigation,
     branchName,
-    currentXP,
-    orderXP,
     dispatch,
     moneyBalance,
     finalAmount,
+    gateAction,
   ]);
 
   return (
@@ -428,7 +441,7 @@ export const DirectCheckoutScreen = ({
       <View className="absolute bottom-0 left-0 right-0 border-t border-gray-100 bg-white px-4 pb-8 pt-3">
         <TouchableOpacity
           onPress={handleConfirm}
-          disabled={orderLoading}
+          disabled={orderLoading || isPinStatusLoading}
           className="items-center rounded-2xl bg-primary py-4"
         >
           {orderLoading ? (
@@ -440,6 +453,8 @@ export const DirectCheckoutScreen = ({
           )}
         </TouchableOpacity>
       </View>
+
+      <PinVerifyModal ref={pinVerifyModalRef} />
     </SafeAreaView>
   );
 };

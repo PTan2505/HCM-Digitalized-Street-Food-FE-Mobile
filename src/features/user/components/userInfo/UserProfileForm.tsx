@@ -4,7 +4,7 @@ import { CustomInput } from '@components/CustomInput';
 import Header from '@components/Header';
 import { APIErrorResponse } from '@custom-types/apiResponse';
 import { User } from '@custom-types/user';
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import useLogin from '@features/auth/hooks/useLogin';
 import { getUpdateProfileSchema } from '@features/auth/utils/updateUserProfileSchema';
 import { ContactVerificationOTPModal } from '@features/user/components/profile/ContactVerificationOTPModal';
@@ -149,7 +149,7 @@ const UserProfileForm = ({
                 </View>
               ) : (
                 <View className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-primary">
-                  <FontAwesome name="pencil" size={16} color="black" />
+                  <Ionicons name="camera-outline" size={16} color="black" />
                 </View>
               )}
             </Pressable>

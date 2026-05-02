@@ -1,4 +1,5 @@
 import { User } from '@custom-types/user';
+import { isManagerApp } from '@utils/appVariant';
 import { TFunction } from 'i18next';
 import { Alert } from 'react-native';
 import { ProfileSection } from '../types/profileConfig';
@@ -113,7 +114,7 @@ export const getProfileSections = (
       ],
       containerClassName: 'mb-6',
       titleClassName: 'px-4 mb-3 text-base font-bold text-gray-900',
-      visible: true,
+      visible: !isManagerApp,
     },
 
     // Benefits & Savings Section
@@ -164,7 +165,7 @@ export const getProfileSections = (
       ],
       containerClassName: 'mb-6',
       titleClassName: 'px-4 mb-3 text-base font-bold text-gray-900',
-      visible: true,
+      visible: !isManagerApp,
     },
 
     // Account Settings Section
@@ -194,6 +195,13 @@ export const getProfileSections = (
           title: t('profile.dietary_preferences'),
           rightIcon: 'chevron-forward',
           onPress: (): void => navigation.navigate('DietaryPreferences'),
+        },
+        {
+          id: 'security',
+          icon: 'key-outline',
+          title: t('pin.security_title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('SecuritySettings'),
         },
         {
           id: 'language',

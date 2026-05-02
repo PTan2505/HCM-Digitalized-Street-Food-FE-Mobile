@@ -1,4 +1,7 @@
 export const apiUrl = {
+  ai: {
+    chat: '/api/Ai/chat',
+  },
   auth: {
     facebookLogin: '/api/Auth/facebook-login',
     phoneLogin: '/api/Auth/phone-login',
@@ -83,6 +86,13 @@ export const apiUrl = {
       userinfo: '/api/UserSetup/userinfo-setup',
       dietary: '/api/UserSetup/dietary-setup',
     },
+    pin: {
+      status: '/api/user/pin/status',
+      set: '/api/user/pin/set',
+      verify: '/api/user/pin/verify',
+      change: '/api/user/pin/change',
+      remove: '/api/user/pin/remove',
+    },
   },
   ghostPin: {
     create: '/api/Branch/user',
@@ -135,5 +145,10 @@ export const apiUrl = {
     claim: (id: number): string => `/api/vouchers/${id}/claim`,
     applicableByBranch: (branchId: number): string =>
       `/api/vouchers/mine/branch/${branchId}`,
+    byCampaign: (campaignId: number): string =>
+      `/api/vouchers/campaign/${campaignId}`,
+  },
+  tier: {
+    getAll: '/api/Tier',
   },
 };

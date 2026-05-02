@@ -13,8 +13,8 @@ import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -87,10 +87,11 @@ export const RestaurantSwipeScreen = ({
       .filter(Boolean)
       .join(', '),
     isOpen,
-    // —— fields not yet in API response, placeholder until updated ——
     priceRange: getPriceRange(branch.dishes),
     dietaryPreferenceNames: branch.dietaryPreferenceNames ?? [],
     schedules,
+    tierId: branch.tierId,
+    isSubscribed: branch.isSubscribed,
   };
 
   const handleScroll = useCallback(
@@ -203,6 +204,7 @@ export const RestaurantSwipeScreen = ({
                       .filter(Boolean)
                       .join(', '),
                     dietaryPreferenceNames: [],
+                    isSubscribed: similarBranch.isSubscribed,
                   }}
                   onPress={() => {}}
                 />

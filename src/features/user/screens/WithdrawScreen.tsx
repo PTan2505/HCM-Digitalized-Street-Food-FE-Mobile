@@ -7,6 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
+import { PinVerifyModal } from '@user/components/pin/PinVerifyModal';
+import { useBalanceActionGate } from '@user/hooks/pin/useBalanceActionGate';
 import { useWithdraw } from '@user/hooks/payment/useWithdraw';
 import { BANK_OPTIONS } from '@user/types/payment';
 import {
@@ -54,6 +56,8 @@ export const WithdrawScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const user = useAppSelector(selectUser);
   const { requestWithdraw, isLoading } = useWithdraw();
+  const { pinVerifyModalRef, gateAction, isPinStatusLoading } =
+    useBalanceActionGate();
   const [bankPickerVisible, setBankPickerVisible] = useState(false);
   const [bankBackdropVisible, setBankBackdropVisible] = useState(false);
   const [bankSearch, setBankSearch] = useState('');
@@ -164,15 +168,17 @@ export const WithdrawScreen = (): JSX.Element => {
   const selectedBank = bankOptions.find((b) => b.bin === selectedBin);
 
   const onSubmit = async (data: WithdrawFormValues): Promise<void> => {
-    await requestWithdraw(
-      {
-        toBin: data.toBin,
-        toAccountNumber: data.toAccountNumber,
-        amount: Number(data.amount),
-        description: data.description,
-      },
-      () => navigation.goBack()
-    );
+    await gateAction(async () => {
+      await requestWithdraw(
+        {
+          toBin: data.toBin,
+          toAccountNumber: data.toAccountNumber,
+          amount: Number(data.amount),
+          description: data.description,
+        },
+        () => navigation.goBack()
+      );
+    });
   };
 
   useEffect((): (() => void) => {
@@ -330,7 +336,7 @@ export const WithdrawScreen = (): JSX.Element => {
               <CustomButton
                 text={t('withdraw.submit')}
                 loadingText={t('withdraw.submitting')}
-                isLoading={isLoading}
+                isLoading={isLoading || isPinStatusLoading}
                 onPress={handleSubmit(onSubmit)}
               />
             </View>
@@ -444,6 +450,8 @@ export const WithdrawScreen = (): JSX.Element => {
           </GestureHandlerRootView>
         </Modal>
       </KeyboardAvoidingView>
+
+      <PinVerifyModal ref={pinVerifyModalRef} />
     </SafeAreaView>
   );
 };

@@ -1,6 +1,8 @@
+import VoucherImage from '@assets/images/voucher.png';
+import { TierBadge } from '@components/TierBadge';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTiers } from '@features/customer/home/hooks/useTiers';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
-import type { VendorTier } from '@features/customer/home/types/stall';
 import type { UserCoords } from '@features/customer/maps/hooks/useLocationPermission';
 import type { JSX } from 'react';
 import { useRef } from 'react';
@@ -10,23 +12,9 @@ import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 export interface VoucherChip {
   voucherId: number;
   discountValue: number;
-  type: string;
+  type: 'PERCENT' | 'AMOUNT';
   minAmountRequired?: number | null;
 }
-
-const TIER_COLORS: Record<VendorTier, string> = {
-  diamond: '#60A5FA',
-  gold: '#F59E0B',
-  silver: '#9CA3AF',
-  warning: '#EF4444',
-};
-
-const TIER_ICONS: Record<VendorTier, string> = {
-  diamond: '💎',
-  gold: '🥇',
-  silver: '🥈',
-  warning: '⚠️',
-};
 
 interface PlaceCardProps {
   branch: ActiveBranch;
@@ -34,7 +22,6 @@ interface PlaceCardProps {
   imageUri?: string;
   userCoords?: UserCoords | null;
   onPress?: () => void;
-  tier?: VendorTier;
   isFlashBoosted?: boolean;
   /** undefined = don't show badge (e.g. not yet fetched) */
   isOpen?: boolean;
@@ -51,12 +38,12 @@ export const PlaceCard = ({
   displayName,
   imageUri,
   onPress,
-  tier,
-  isFlashBoosted,
   isOpen,
   vouchers,
 }: PlaceCardProps): JSX.Element => {
   const { t } = useTranslation();
+  const { tierById } = useTiers();
+  const tier = tierById(branch.tierId);
   const touchStartX = useRef(0);
 
   const distanceLabel =
@@ -68,9 +55,11 @@ export const PlaceCard = ({
 
   return (
     <View className="flex-1 overflow-hidden rounded-[16.81px] border border-[#ededed] bg-white">
-      <TouchableOpacity onPress={onPress}>
-        <View className="p-[6.31px]">
-          <View className="relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px]">
+      <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
+        <View className="p-[6.31px]" style={{ flex: 1 }}>
+          <View
+            className={`relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px] ${!isOpen && 'opacity-50'}`}
+          >
             {imageUri ? (
               <Image
                 className="h-full w-full"
@@ -85,23 +74,16 @@ export const PlaceCard = ({
             {/* <View className="absolute right-2 top-2 h-[23px] w-[23px] items-center justify-center rounded-full bg-secondary">
               <MaterialCommunityIcons name="bookmark" size={14} color="#fff" />
             </View> */}
-            {isFlashBoosted && (
+            {/* {isFlashBoosted && (
               <View className="absolute left-2 top-2 flex-row items-center gap-1 rounded-full bg-[#F59E0B] px-2 py-0.5">
                 <Ionicons name="flash" size={10} color="#fff" />
                 <Text className="text-[9px] font-bold text-white">BOOST</Text>
               </View>
-            )}
-            {tier && (
-              <View
-                className="absolute bottom-2 right-2 rounded-full px-1.5 py-0.5"
-                style={{ backgroundColor: TIER_COLORS[tier] + '22' }}
-              >
-                <Text className="text-[10px]">{TIER_ICONS[tier]}</Text>
-              </View>
-            )}
+            )} */}
           </View>
 
           <View className="rounded-b-[14.71px] bg-white px-[8.41px] py-[4.2px]">
+            {tier && <TierBadge tier={tier} />}
             <Text
               className="font-nunito -mt-[1.05px] min-h-[36px] py-1 text-[12.6px] font-bold leading-[18px] text-black"
               numberOfLines={2}
@@ -156,8 +138,8 @@ export const PlaceCard = ({
               </Text>
             </View>
 
-            {isOpen !== undefined && (
-              <View className="mt-1">
+            <View className="mt-1" style={{ minHeight: 22 }}>
+              {isOpen !== undefined && (
                 <View
                   className={`self-start rounded-full px-2 py-0.5 ${isOpen ? 'bg-[#E8F5E9]' : 'bg-[#F3F4F6]'}`}
                 >
@@ -167,8 +149,8 @@ export const PlaceCard = ({
                     {isOpen ? t('actions.open') : t('actions.closed')}
                   </Text>
                 </View>
-              </View>
-            )}
+              )}
+            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -196,11 +178,11 @@ export const PlaceCard = ({
             }}
             renderItem={({ item }) => (
               <View className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]">
-                <View className="items-center justify-center self-stretch bg-secondary px-1.5">
-                  <MaterialCommunityIcons
-                    name="ticket-percent"
-                    size={10}
-                    color="#fff"
+                <View className="items-center justify-center self-stretch px-1.5">
+                  <Image
+                    source={VoucherImage}
+                    style={{ width: 24, height: 24 }}
+                    resizeMode="contain"
                   />
                 </View>
                 <View className="h-11 justify-center gap-2 px-2 py-1.5">
@@ -210,7 +192,7 @@ export const PlaceCard = ({
                   </Text>
                   {!!item.minAmountRequired && (
                     <Text className="text-[9px] text-secondary">
-                      {t('voucher.min_order')}
+                      {t('voucher.min_order')}{' '}
                       {`${item.minAmountRequired.toLocaleString('vi-VN')}đ`}
                     </Text>
                   )}

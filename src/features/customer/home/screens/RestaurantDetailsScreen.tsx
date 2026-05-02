@@ -1,7 +1,10 @@
 import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
-import type { VendorTier } from '@custom-types/vendor';
+import { useVendorCampaignsByBranch } from '@features/customer/campaigns/hooks/useVendorCampaignsByBranch';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
+import VoucherList from '@customer/home/components/restaurantDetails/VoucherList';
 import { Ionicons } from '@expo/vector-icons';
+import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import type { RestaurantInfoData } from '@features/customer/home/components/common/RestaurantInfo';
 import RestaurantInfo from '@features/customer/home/components/common/RestaurantInfo';
 import SearchResultCard from '@features/customer/home/components/common/SearchResultCard';
@@ -24,7 +27,6 @@ import type { ActiveBranch } from '@features/customer/home/types/branch';
 import type { Feedback } from '@features/customer/home/types/feedback';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/customer/reputation/api/generated';
 import type { BranchTier } from '@features/customer/reputation/types/generated';
-import { useCartQuery } from '@features/customer/direct-ordering/hooks/useCartQuery';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import {
@@ -33,9 +35,9 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { useQueryClient } from '@tanstack/react-query';
 import { invokeCallback, removeCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import { getPriceRange } from '@utils/priceUtils';
 import type { JSX } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -71,13 +73,24 @@ type RestaurantDetailsScreenProps = StaticScreenProps<{
   branch: ActiveBranch;
   displayName: string;
   tab?: TabType;
+  vouchers?: CampaignVoucherInfo[];
   onRatingUpdateId?: string;
 }>;
 
 export const RestaurantDetailsScreen = ({
   route,
 }: RestaurantDetailsScreenProps): JSX.Element => {
-  const { branch, displayName, tab, onRatingUpdateId } = route.params;
+  const { branch, displayName, tab, vouchers, onRatingUpdateId } = route.params;
+  const { campaigns: fetchedCampaigns, isLoading: isVouchersLoading } =
+    useVendorCampaignsByBranch(branch.branchId, true);
+  const branchVouchers = useMemo<CampaignVoucherInfo[]>(() => {
+    if (isVouchersLoading) return vouchers ?? [];
+    if (fetchedCampaigns.length === 0) return [];
+    return fetchedCampaigns.flatMap((c) =>
+      c.vouchers.map((v) => ({ ...v, campaignId: c.campaignId }))
+    );
+  }, [fetchedCampaigns, isVouchersLoading, vouchers]);
+
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -133,7 +146,7 @@ export const RestaurantDetailsScreen = ({
           isActive: boolean;
           color: string;
         }): JSX.Element => (
-          <Ionicons name="ticket-outline" size={20} color={color} />
+          <Ionicons name="location-outline" size={20} color={color} />
         ),
       },
     ],
@@ -466,8 +479,9 @@ export const RestaurantDetailsScreen = ({
     isOpen,
     schedules,
     dayOffs,
-    tier: branchTier?.tier as VendorTier | undefined,
+    tierId: branch.tierId,
     isTierPaused: branchTier?.isBombingShieldActive,
+    isSubscribed: branch.isSubscribed,
   };
 
   const reviews: Review[] = feedbacks.map((f): Review => {
@@ -532,7 +546,7 @@ export const RestaurantDetailsScreen = ({
         <RestaurantInfo restaurant={restaurantInfo} />
 
         {/* View on map & Giving direction */}
-        <View className="flex-row gap-3 px-4 pb-6">
+        <View className="flex-row gap-3 px-4 pb-2">
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Map', { initialBranch: branch })
@@ -592,6 +606,8 @@ export const RestaurantDetailsScreen = ({
             </Text>
           </TouchableOpacity>
         </View>
+
+        <VoucherList vouchers={branchVouchers} />
 
         <TabBar
           tabs={detailTabs}

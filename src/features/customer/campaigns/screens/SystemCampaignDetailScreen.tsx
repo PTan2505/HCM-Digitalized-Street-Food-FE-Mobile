@@ -1,12 +1,14 @@
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
+import { TicketVoucherCard } from '@customer/campaigns/components/TicketVoucherCard';
+import { QuestVoucherDetail } from '@customer/quests/types/quest';
 import { Ionicons } from '@expo/vector-icons';
 import { useCampaignQuest } from '@features/customer/campaigns/hooks/useCampaignQuests';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { axiosApi } from '@lib/api/apiInstance';
 import { StaticScreenProps, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';
@@ -67,6 +69,13 @@ const REWARD_UI_MAP: Record<
     textClassName: 'text-orange-700',
     iconColor: '#C2410C',
   },
+};
+
+const formatDiscount = (voucher: QuestVoucherDetail): string => {
+  if (voucher.type.toUpperCase() === 'PERCENT') {
+    return `${voucher.discountValue}%`;
+  }
+  return `${voucher.discountValue.toLocaleString('vi-VN')}đ`;
 };
 
 const normalizeRewardType = (
@@ -163,6 +172,7 @@ export const SystemCampaignDetailScreen = ({
         subtitle?: string;
         extra?: string;
         voucherData?: Voucher;
+        rawVoucher?: QuestVoucherDetail;
       }
     >
   >({});
@@ -199,46 +209,42 @@ export const SystemCampaignDetailScreen = ({
               const voucher = await axiosApi.questApi.getVoucherById(
                 item.rewardValue
               );
+
               const isPercent = voucher.type.toUpperCase().includes('PERCENT');
               const discount = isPercent
-                ? `${t('quest.reward.voucherOff')} ${voucher.discountValue}%`
-                : `${t('quest.reward.voucherOff')} ${voucher.discountValue.toLocaleString('vi-VN')}đ`;
+                ? `${voucher.discountValue}%`
+                : `${voucher.discountValue.toLocaleString('vi-VN')}đ`;
+
               const voucherData: Voucher = {
                 userVoucherId: 0,
                 voucherId: voucher.voucherId,
-                voucherCode: '',
+                voucherCode: voucher.voucherCode,
                 voucherName: voucher.name,
-                description: null,
+                description: voucher.description,
                 voucherType: voucher.type,
                 discountValue: voucher.discountValue,
                 minAmountRequired: voucher.minAmountRequired,
                 maxDiscountValue: voucher.maxDiscountValue,
-                startDate: null,
-                endDate: null,
-                isActive: true,
-                campaignId: Number(campaignId),
+                startDate: voucher.startDate,
+                endDate: voucher.endDate,
+                isActive: voucher.isActive,
+                campaignId: voucher.campaignId || Number(campaignId),
                 quantity: item.quantity,
                 isAvailable: true,
               };
+
               return [
                 item.id,
                 {
                   title: voucher.name,
                   subtitle: discount,
-                  extra: t('quest.reward.voucherRemain', {
+                  extra: t('marketplace.remaining', {
                     count: voucher.remain,
                   }),
                   voucherData,
+                  rawVoucher: voucher,
                 },
-              ] as [
-                string,
-                {
-                  title: string;
-                  subtitle: string;
-                  extra: string;
-                  voucherData: Voucher;
-                },
-              ];
+              ] as const;
             } catch {
               return [item.id, {}] as const;
             }
@@ -505,21 +511,66 @@ export const SystemCampaignDetailScreen = ({
 
                 if (
                   item.rewardType === 'VOUCHER' &&
+                  rewardDetail?.rawVoucher &&
                   rewardDetail?.voucherData
                 ) {
+                  const rawVoucher = rewardDetail.rawVoucher;
+                  const voucherData = rewardDetail.voucherData;
+                  const isSoldOut = rawVoucher.remain <= 0;
+
                   return (
                     <TouchableOpacity
                       key={item.id}
                       activeOpacity={0.7}
-                      className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3"
+                      className="rounded-2xl border border-gray-100 px-3.5 py-3"
                       style={cardStyle}
                       onPress={() =>
                         navigation.navigate('VoucherApplicableBranches', {
-                          voucher: rewardDetail.voucherData!,
+                          voucher: voucherData,
                         })
                       }
                     >
-                      {cardInner}
+                      <TicketVoucherCard
+                        disabled={isSoldOut}
+                        discountText={formatDiscount(rawVoucher)}
+                        title={rawVoucher.name}
+                        subtitle={
+                          rawVoucher.maxDiscountValue
+                            ? t('marketplace.max_discount', {
+                                amount:
+                                  rawVoucher.maxDiscountValue.toLocaleString(
+                                    'vi-VN'
+                                  ),
+                              })
+                            : null
+                        }
+                        expiresText={new Date(
+                          rawVoucher.endDate
+                        ).toLocaleDateString('vi-VN')}
+                        secondaryMetaText={
+                          isSoldOut
+                            ? t('campaign.sold_out')
+                            : t('marketplace.remaining', {
+                                count: rawVoucher.remain,
+                              })
+                        }
+                        tertiaryMetaText={
+                          rawVoucher.minAmountRequired != null &&
+                          rawVoucher.minAmountRequired > 0
+                            ? t('campaign.min_order', {
+                                amount:
+                                  rawVoucher.minAmountRequired.toLocaleString(
+                                    'vi-VN'
+                                  ),
+                              })
+                            : undefined
+                        }
+                        footerText={
+                          rawVoucher.redeemPoint > 0
+                            ? `${rawVoucher.redeemPoint.toLocaleString('vi-VN')} ${t('marketplace.points')}`
+                            : undefined
+                        }
+                      />
                     </TouchableOpacity>
                   );
                 }

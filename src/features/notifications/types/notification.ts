@@ -41,6 +41,8 @@ export interface NotificationDto {
   createdAt: string;
   /** XP awarded for this event — sent by the backend when a quest task completes */
   xpEarned?: number;
+  /** Extra data forwarded from the backend pushData — e.g. { status: "ACCEPTED" } for BranchVerificationStatus */
+  extraData?: Record<string, unknown>;
 }
 
 /** Paginated response for notifications list. */

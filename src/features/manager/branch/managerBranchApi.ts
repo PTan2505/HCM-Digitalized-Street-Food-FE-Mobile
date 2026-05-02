@@ -23,6 +23,13 @@ export class ManagerBranchApi {
     return res.data;
   }
 
+  async getBranchById(branchId: number): Promise<ManagerBranch> {
+    const res = await this.apiClient.get<ManagerBranch>({
+      url: MANAGER_BRANCH_URLS.byId(branchId),
+    });
+    return res.data;
+  }
+
   async updateBranch(
     branchId: number,
     data: UpdateBranchRequest

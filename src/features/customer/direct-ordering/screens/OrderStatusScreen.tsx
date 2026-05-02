@@ -1,3 +1,4 @@
+import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -10,6 +11,7 @@ import { usePickupCode } from '@features/customer/direct-ordering/hooks/usePicku
 import { useBranchDisplayName } from '@hooks/useBranchDisplayName';
 import { axiosApi } from '@lib/api/apiInstance';
 import {
+  CommonActions,
   StaticScreenProps,
   useFocusEffect,
   useNavigation,
@@ -149,16 +151,24 @@ export const OrderStatusScreen = ({
   });
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-white">
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center border-b border-gray-100 px-4 py-3">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text className="ml-3 text-lg font-bold text-black">
-          {t('order.status_title')}
-        </Text>
-      </View>
+
+      <Header
+        title={t('order.status_title')}
+        onBackPress={() => navigation.goBack()}
+        secondaryAction={{
+          icon: <Ionicons name="home-outline" size={18} color="black" />,
+          onPress: () => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Main' }],
+              })
+            );
+          },
+        }}
+      />
 
       <ScrollView
         className="flex-1"
@@ -268,7 +278,9 @@ export const OrderStatusScreen = ({
             <View className="flex-row items-center gap-2">
               <Ionicons name="card-outline" size={20} color="#333" />
               <Text className="text-base text-gray-700">
-                {t(`order.payment_method.${order.paymentMethod}`)}
+                {t(
+                  `order.payment_method.${order.paymentMethod === 'Lowca Wallet' ? 'wallet' : 'bank_transfer'}`
+                )}
               </Text>
             </View>
           </View>

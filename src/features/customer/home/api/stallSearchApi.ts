@@ -41,7 +41,7 @@ function mapBranchResultToActiveBranch(
     finalScore: branch.finalScore ?? 0,
     distanceKm: branch.distanceKm ?? null,
     dietaryPreferenceNames: [],
-    dishes: branch.dishes.map((d) => ({
+    dishes: (branch.dishes ?? []).map((d) => ({
       ...d,
       tasteNames: [],
       score: d.score,

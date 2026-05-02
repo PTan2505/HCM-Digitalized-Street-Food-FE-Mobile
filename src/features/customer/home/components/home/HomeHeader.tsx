@@ -12,7 +12,12 @@ const HomeHeader = (): JSX.Element => {
 
   return (
     <View className="flex-row items-center justify-between px-4">
-      <SvgIcon width={150} height={100} icon={lowcaLogo} />
+      <SvgIcon
+        width={150}
+        height={100}
+        icon={lowcaLogo}
+        style={{ marginLeft: 16 }}
+      />
 
       <View className="flex-row gap-3">
         <TouchableOpacity

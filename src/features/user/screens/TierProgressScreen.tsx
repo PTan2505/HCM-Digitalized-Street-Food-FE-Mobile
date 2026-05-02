@@ -1,4 +1,8 @@
+import DiamondIcon from '@assets/icons/diamond-icon.svg';
+import GoldIcon from '@assets/icons/gold-icon.svg';
+import SilverIcon from '@assets/icons/silver-icon.svg';
 import Header from '@components/Header';
+import SvgIcon from '@components/SvgIcon';
 import { COLORS } from '@constants/colors';
 import { QuestRewardBadge } from '@features/customer/quests/components/QuestRewardBadge';
 import type { QuestTaskRewardItem } from '@features/customer/quests/types/quest';
@@ -8,10 +12,11 @@ import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser } from '@slices/auth';
-import React, { JSX } from 'react';
+import React, { FC, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SvgProps } from 'react-native-svg';
 
 const GOLD_MIN_XP = 3000;
 const DIAMOND_MIN_XP = 10000;
@@ -24,7 +29,7 @@ interface TierStep {
   descKey: string;
   color: string;
   minXP: number;
-  emoji: string;
+  svg: FC<SvgProps>;
   nextMinXP: number | null;
   nextLabelKey: string | null;
 }
@@ -36,7 +41,7 @@ const TIER_STEPS: TierStep[] = [
     descKey: 'profile.tier_silver_desc',
     color: '#A8A8A8',
     minXP: 0,
-    emoji: '🥈',
+    svg: SilverIcon,
     nextMinXP: GOLD_MIN_XP,
     nextLabelKey: 'profile.tier_gold',
   },
@@ -46,7 +51,7 @@ const TIER_STEPS: TierStep[] = [
     descKey: 'profile.tier_gold_desc',
     color: '#F5A623',
     minXP: GOLD_MIN_XP,
-    emoji: '🥇',
+    svg: GoldIcon,
     nextMinXP: DIAMOND_MIN_XP,
     nextLabelKey: 'profile.tier_diamond',
   },
@@ -56,7 +61,7 @@ const TIER_STEPS: TierStep[] = [
     descKey: 'profile.tier_diamond_desc',
     color: '#7B61FF',
     minXP: DIAMOND_MIN_XP,
-    emoji: '💎',
+    svg: DiamondIcon,
     nextMinXP: null,
     nextLabelKey: null,
   },
@@ -108,7 +113,7 @@ const TierNode = ({
           className="h-11 w-11 items-center justify-center rounded-full border-2"
           style={{ backgroundColor: iconBg, borderColor: iconBorder }}
         >
-          <Text style={{ fontSize: 20 }}>{step.emoji}</Text>
+          <SvgIcon icon={step.svg} width={24} height={24} />
         </View>
 
         {!isLast && (
@@ -181,7 +186,10 @@ const TierNode = ({
         {/* Rewards — only shown if this tier has any */}
         {rewards.length > 0 && (
           <View className="mt-2">
-            <QuestRewardBadge rewards={rewards} claimed={isCompleted} />
+            <QuestRewardBadge
+              rewards={rewards}
+              claimed={isCompleted || isCurrent}
+            />
           </View>
         )}
 

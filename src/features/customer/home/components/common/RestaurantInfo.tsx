@@ -1,15 +1,15 @@
 import { TierBadge } from '@components/TierBadge';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTiers } from '@features/customer/home/hooks/useTiers';
 import type {
   DayOff,
   WorkSchedule,
 } from '@features/customer/home/types/branch';
-import type { VendorTier } from '@features/customer/home/types/stall';
+import { formatDayOffDate } from '@utils/scheduleUtils';
 import type { JSX } from 'react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { formatDayOffDate } from '@utils/scheduleUtils';
 
 // Mon–Sat then Sun
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -44,10 +44,11 @@ export interface RestaurantInfoData {
   dietaryPreferenceNames: string[];
   address: string;
   isOpen: boolean;
-  tier?: VendorTier;
+  tierId?: number;
   isTierPaused?: boolean;
   schedules?: WorkSchedule[];
   dayOffs?: DayOff[];
+  isSubscribed?: boolean;
 }
 
 interface RestaurantInfoProps {
@@ -56,6 +57,9 @@ interface RestaurantInfoProps {
 
 const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
   const { t } = useTranslation();
+  const { tierById } = useTiers();
+  const tier =
+    restaurant.tierId != null ? tierById(restaurant.tierId) : undefined;
   const [scheduleExpanded, setScheduleExpanded] = useState(false);
 
   const now = new Date();
@@ -76,8 +80,18 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
   return (
     <View className="p-4">
       <View className="mb-2 flex-row justify-between">
-        <Text className="text-2xl font-bold text-black">{restaurant.name}</Text>
+        <Text className="text-2xl font-bold text-black">
+          {restaurant.name}{' '}
+          {restaurant.isSubscribed && (
+            <MaterialCommunityIcons
+              name="check-decagram"
+              size={20}
+              color="#186bde"
+            />
+          )}
+        </Text>
       </View>
+      <TierBadge tier={tier} />
 
       <View className="mb-2 flex-row items-center gap-2">
         <Text className="text-base font-semibold text-primary-dark">
@@ -106,7 +120,6 @@ const RestaurantInfo = ({ restaurant }: RestaurantInfoProps): JSX.Element => {
               </View>
             ))}
         </View>
-        <TierBadge tier={restaurant.tier} paused={restaurant.isTierPaused} />
       </View>
 
       <Text className="mb-4 text-base leading-5 text-gray-600">

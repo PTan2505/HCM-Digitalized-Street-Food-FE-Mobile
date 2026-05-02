@@ -6,6 +6,7 @@ import { useNotifications } from '@features/notifications/hooks/useNotifications
 import { useNotificationSocket } from '@features/notifications/hooks/useNotificationSocket';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { addPoints, addXP, selectUser } from '@slices/auth';
 import {
   clearPendingReward,
@@ -13,6 +14,7 @@ import {
   setPendingReward,
 } from '@slices/quests';
 import { isManagerApp } from '@utils/appVariant';
+import { useQueryClient } from '@tanstack/react-query';
 import type { JSX } from 'react';
 import { useEffect } from 'react';
 
@@ -25,6 +27,7 @@ import { useEffect } from 'react';
  */
 export const NotificationHandler = (): JSX.Element => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const user = useAppSelector(selectUser);
   const expectedRole = isManagerApp ? ROLES.MANAGER : ROLES.CUSTOMER;
   const isAuthenticated = !!user && user.role === expectedRole;
@@ -70,6 +73,9 @@ export const NotificationHandler = (): JSX.Element => {
         if (task.rewards.length > 0 || xpEarned) {
           dispatch(setPendingReward({ rewards: task.rewards, xpEarned }));
         }
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.quests.all,
+        });
       })
       .catch((err) => {
         console.error(

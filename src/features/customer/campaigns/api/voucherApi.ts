@@ -1,41 +1,41 @@
+import type {
+  Voucher,
+  VoucherType,
+} from '@features/customer/campaigns/types/voucher';
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 
-export interface UserVoucherApiDto {
-  userVoucherId: number;
-  voucherId: number;
-  voucherCode: string;
-  voucherName: string;
-  description: string | null;
-  voucherType: string;
-  discountValue: number;
-  minAmountRequired: number | null;
-  maxDiscountValue: number | null;
-  startDate: string | null;
-  endDate: string | null;
+export interface UserVoucherApiDto extends Voucher {
   expiredDate: string | null;
-  isActive: boolean;
-  campaignId: number | null;
-  quantity: number;
-  isAvailable: boolean;
 }
 
-export interface VoucherDto {
+interface CampaignVoucherBase {
   voucherId: number;
   name: string;
   description: string | null;
-  type: string;
+  type: VoucherType;
   discountValue: number;
   minAmountRequired: number;
   maxDiscountValue: number | null;
   startDate: string;
   endDate: string;
-  expiredDate: string | null;
-  isActive: boolean;
   voucherCode: string;
-  redeemPoint: number;
   quantity: number;
   usedQuantity: number;
+}
+
+export interface VoucherDto extends CampaignVoucherBase {
+  expiredDate: string | null;
+  isActive: boolean;
+  redeemPoint: number;
+}
+
+export interface CampaignVoucherDto extends CampaignVoucherBase {
+  isActive: boolean;
+  redeemPoint: number;
+  campaignId: number;
+  remain: number;
+  isIndependentQuest: boolean;
 }
 
 export class VoucherApi {
@@ -69,6 +69,13 @@ export class VoucherApi {
   async claimVoucher(voucherId: number): Promise<UserVoucherApiDto> {
     const res = await this.apiClient.post<UserVoucherApiDto, null>({
       url: apiUrl.voucher.claim(voucherId),
+    });
+    return res.data;
+  }
+
+  async getCampaignVouchers(campaignId: number): Promise<CampaignVoucherDto[]> {
+    const res = await this.apiClient.get<CampaignVoucherDto[]>({
+      url: apiUrl.voucher.byCampaign(campaignId),
     });
     return res.data;
   }

@@ -11,12 +11,8 @@ import {
   searchAddress,
   type AutocompletePrediction,
 } from '@features/customer/maps/services/geocoding';
-import { useGhostPinXP } from '@features/customer/home/hooks/useSettings';
-import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation } from '@react-navigation/native';
-import { addXP, selectUserXP } from '@slices/auth';
-import { showXPToast } from '@slices/xpToast';
 import {
   compressImageForUpload,
   pickImagesFromLibrary,
@@ -45,9 +41,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const GhostPinCreationScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
-  const currentXP = useAppSelector(selectUserXP);
-  const ghostPinXP = useGhostPinXP();
 
   const [name, setName] = useState('');
   const [addressQuery, setAddressQuery] = useState('');
@@ -68,6 +61,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [ratingError, setRatingError] = useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -284,6 +279,20 @@ export const GhostPinCreationScreen = (): JSX.Element => {
     } else {
       setAddressError(null);
     }
+    if (rating === 0) {
+      setRatingError(t('ghost_pin_creation.validation.rating_required'));
+      valid = false;
+    } else {
+      setRatingError(null);
+    }
+    if (feedback.trim().length < 10) {
+      setDescriptionError(
+        t('ghost_pin_creation.validation.description_min_length')
+      );
+      valid = false;
+    } else {
+      setDescriptionError(null);
+    }
     return valid;
   };
 
@@ -305,20 +314,13 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
       // 2. Submit feedback via feedbackApi if there's any feedback content
       const branchId = response.data.branchId;
-      if (
-        branchId != null &&
-        branchId > 0 &&
-        (rating > 0 ||
-          feedback.trim() ||
-          selectedImages.length > 0 ||
-          selectedTagIds.length > 0)
-      ) {
+      if (branchId != null && branchId > 0) {
         try {
           const submittedFeedback = await axiosApi.feedbackApi.submitFeedback({
             branchId,
             dishId: null,
             orderId: null,
-            rating: rating || 5,
+            rating,
             comment: feedback.trim() || null,
             tagIds: selectedTagIds,
             userLat: lat,
@@ -350,12 +352,6 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           // Don't fail the entire creation if feedback submission fails
         }
       }
-
-      const newXP = currentXP + ghostPinXP;
-      dispatch(addXP(ghostPinXP));
-      dispatch(
-        showXPToast({ xpEarned: ghostPinXP, previousXP: currentXP, newXP })
-      );
 
       Alert.alert(
         t('ghost_pin_creation.alert.success_title'),
@@ -590,7 +586,8 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           {/* Feedback Section with Images */}
           <View className="mb-5">
             <Text className="mb-1.5 text-base font-semibold text-gray-700">
-              {t('ghost_pin_creation.feedback.title')}
+              {t('ghost_pin_creation.feedback.title')}{' '}
+              <Text className="text-red-500">*</Text>
             </Text>
             <Text className="mb-3 text-sm text-gray-500">
               {t('ghost_pin_creation.feedback.subtitle')}
@@ -605,7 +602,10 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <TouchableOpacity
                     key={star}
-                    onPress={() => setRating(star)}
+                    onPress={() => {
+                      setRating(star);
+                      if (ratingError) setRatingError(null);
+                    }}
                     hitSlop={4}
                   >
                     <Ionicons
@@ -616,6 +616,9 @@ export const GhostPinCreationScreen = (): JSX.Element => {
                   </TouchableOpacity>
                 ))}
               </View>
+              {ratingError && (
+                <Text className="mt-2 text-sm text-red-500">{ratingError}</Text>
+              )}
             </View>
 
             {/* Tags */}
@@ -658,17 +661,31 @@ export const GhostPinCreationScreen = (): JSX.Element => {
             )}
 
             {/* Feedback Text Input */}
+            <Text className="mb-1.5 text-base font-semibold text-gray-700">
+              {t('ghost_pin_creation.feedback.description')}{' '}
+              <Text className="text-red-500">*</Text>
+            </Text>
             <TextInput
-              className="mb-3 min-h-[100px] rounded-xl border border-gray-200 px-4 py-3 text-gray-800"
+              className={`mb-1 min-h-[100px] rounded-xl border px-4 py-3 text-gray-800 ${
+                descriptionError ? 'border-red-400' : 'border-gray-200'
+              }`}
               placeholder={t('ghost_pin_creation.feedback.placeholder')}
               placeholderTextColor="#9CA3AF"
               value={feedback}
-              onChangeText={setFeedback}
+              onChangeText={(text) => {
+                setFeedback(text);
+                if (descriptionError) setDescriptionError(null);
+              }}
               multiline
               textAlignVertical="top"
               maxLength={500}
               returnKeyType="default"
             />
+            {descriptionError ? (
+              <Text className="mb-2 mt-1 text-sm text-red-500">
+                {descriptionError}
+              </Text>
+            ) : null}
             <Text className="mb-3 text-sm text-gray-500">
               {t('ghost_pin_creation.feedback.character_count', {
                 count: feedback.length,

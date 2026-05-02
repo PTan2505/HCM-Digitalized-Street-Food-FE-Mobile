@@ -1,7 +1,7 @@
 import { store } from '@customer-app/store';
+import { useCustomerRoleGate } from '@features/auth/hooks/useCustomerRoleGate';
 import { getLowcaAPIUnimplementedEndpoints } from '@features/customer/campaigns/api/generated';
 import { NotificationHandler } from '@features/notifications/NotificationHandler';
-import { useCustomerRoleGate } from '@features/auth/hooks/useCustomerRoleGate';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryClient } from '@lib/queryClient';
@@ -55,10 +55,10 @@ export function AppSplashGate({
     const startTime = Date.now();
     fallbackTimerRef.current = setTimeout(() => {
       console.warn(
-        `[SplashGate] ⚠️ 15s timeout fired — Lottie onAnimationFinish never called. Elapsed: ${Date.now() - startTime}ms`
+        `[SplashGate] ⚠️ 6s timeout fired — Lottie onAnimationFinish never called. Elapsed: ${Date.now() - startTime}ms`
       );
       setAnimationFinished(true);
-    }, 15000);
+    }, 6000);
     return () => {
       if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
     };

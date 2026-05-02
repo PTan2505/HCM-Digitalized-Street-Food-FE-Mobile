@@ -1,5 +1,6 @@
 import type ApiClient from '@lib/api/apiClient';
 
+import { SystemCampaign } from '@customer/campaigns/types/generated';
 import type {
   PaginatedQuests,
   PaginatedUserQuests,
@@ -21,7 +22,8 @@ export class QuestApi {
     pageNumber = 1,
     pageSize = 10,
     isStandalone?: boolean,
-    isTierUp?: boolean
+    isTierUp?: boolean,
+    isCompleted?: boolean
   ): Promise<PaginatedQuests> {
     const res = await this.apiClient.get<PaginatedQuests>({
       url: '/api/Quest/public',
@@ -30,6 +32,7 @@ export class QuestApi {
         pageSize,
         ...(isStandalone !== undefined && { isStandalone }),
         ...(isTierUp !== undefined && { isTierUp }),
+        ...(isCompleted !== undefined && { isCompleted }),
       },
     });
     return res.data;
@@ -95,8 +98,8 @@ export class QuestApi {
     return res.data;
   }
 
-  async getCampaignById(campaignId: number): Promise<{ name: string }> {
-    const res = await this.apiClient.get<{ name: string }>({
+  async getCampaignById(campaignId: number): Promise<SystemCampaign> {
+    const res = await this.apiClient.get<SystemCampaign>({
       url: `/api/Campaign/${campaignId}`,
     });
     return res.data;

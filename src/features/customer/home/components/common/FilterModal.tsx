@@ -560,7 +560,7 @@ const FilterModal = ({
                 <MultiSlider
                   values={[distance]}
                   min={1}
-                  max={50}
+                  max={100}
                   step={1}
                   allowOverlap
                   snapped
@@ -633,6 +633,8 @@ const FilterModal = ({
                   <Text className="text-sm text-gray-400">1km</Text>
                   <Text className="text-sm text-gray-400">25km</Text>
                   <Text className="text-sm text-gray-400">50km</Text>
+                  <Text className="text-sm text-gray-400">75km</Text>
+                  <Text className="text-sm text-gray-400">100km</Text>
                 </View>
               </View>
             )}

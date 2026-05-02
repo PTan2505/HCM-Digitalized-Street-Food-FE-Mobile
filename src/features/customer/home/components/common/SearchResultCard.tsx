@@ -1,26 +1,13 @@
+import { TierBadge } from '@components/TierBadge';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
+import { useTiers } from '@features/customer/home/hooks/useTiers';
 import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch, Dish } from '@features/customer/home/types/branch';
-import type { VendorTier } from '@features/customer/home/types/stall';
 import type { JSX } from 'react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-
-const TIER_COLORS: Record<VendorTier, string> = {
-  diamond: '#60A5FA',
-  gold: '#F59E0B',
-  silver: '#9CA3AF',
-  warning: '#EF4444',
-};
-
-const TIER_ICONS: Record<VendorTier, string> = {
-  diamond: '💎',
-  gold: '🥇',
-  silver: '🥈',
-  warning: '⚠️',
-};
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const formatVoucherDiscount = (discountValue: number, type: string): string => {
   if (type.toUpperCase() === 'PERCENT') return `-${discountValue}%`;
@@ -120,6 +107,9 @@ const SearchResultCard = ({
 }: SearchResultCardProps): JSX.Element => {
   const { t } = useTranslation();
   const { isLoading, isOpen } = useWorkSchedule(branch.branchId);
+
+  const { tierById } = useTiers();
+  const tier = tierById(branch.tierId);
   const touchStartX = useRef(0);
 
   const distanceLabel =
@@ -147,7 +137,9 @@ const SearchResultCard = ({
           onPress={onPress}
           className="relative w-[120px] self-stretch overflow-hidden rounded-tl-[16px] p-2"
         >
-          <View style={{ flex: 1, borderRadius: 10, overflow: 'hidden' }}>
+          <View
+            className={`flex-1 overflow-hidden rounded-xl ${!isOpen && 'opacity-50'}`}
+          >
             {imageUri ? (
               <Image
                 style={{ flex: 1 }}
@@ -160,14 +152,6 @@ const SearchResultCard = ({
               </View>
             )}
           </View>
-          {branch.tier && (
-            <View
-              className="absolute bottom-1.5 left-1.5 rounded-full px-1.5 py-0.5"
-              style={{ backgroundColor: TIER_COLORS[branch.tier] + '33' }}
-            >
-              <Text className="text-[10px]">{TIER_ICONS[branch.tier]}</Text>
-            </View>
-          )}
         </TouchableOpacity>
 
         {/* Right — info */}
@@ -176,6 +160,7 @@ const SearchResultCard = ({
             onPress={onPress}
             className="justify-between px-3 py-2.5"
           >
+            {tier && <TierBadge tier={tier} />}
             {/* Name */}
             <Text
               className="text-[13px] font-bold leading-[18px] text-black"
@@ -302,19 +287,22 @@ const SearchResultCard = ({
             if (dx < 8) onPress?.();
           }}
         >
-          <FlatList
-            data={vouchers}
-            keyExtractor={(v) => String(v.voucherId)}
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled
             contentContainerStyle={{
               paddingHorizontal: 8,
               paddingBottom: 6,
               paddingTop: 0,
               gap: 4,
             }}
-            renderItem={({ item }) => (
-              <View className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]">
+          >
+            {(vouchers ?? []).map((item) => (
+              <View
+                key={String(item.voucherId)}
+                className="flex-row items-center overflow-hidden rounded-md border border-secondary/20 bg-[#FFF8F5]"
+              >
                 <View className="items-center justify-center self-stretch bg-secondary px-1.5">
                   <MaterialCommunityIcons
                     name="ticket-percent"
@@ -335,21 +323,23 @@ const SearchResultCard = ({
                   )}
                 </View>
               </View>
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
       )}
 
       {/* ── Dish tiles ── */}
       {visibleDishes.length > 0 && (
         <View className="border-t border-[#f0f0f0] px-3 pb-3 pt-2.5">
-          <FlatList
-            data={visibleDishes}
-            keyExtractor={(d) => String(d.dishId)}
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => <DishTile dish={item} />}
-          />
+            nestedScrollEnabled
+          >
+            {visibleDishes.map((item) => (
+              <DishTile key={String(item.dishId)} dish={item} />
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>

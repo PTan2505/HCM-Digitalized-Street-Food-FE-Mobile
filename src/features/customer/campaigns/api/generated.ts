@@ -14,6 +14,7 @@ The `data` field contains the schema documented per endpoint.
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  BranchCampaignInfo,
   CreateRestaurantCampaignRequest,
   GetNearbyCampaignsParams,
   GetPublicCampaignsParams,
@@ -176,6 +177,21 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
     });
   };
 
+  /**
+   * Anonymous endpoint — no auth required.
+   * @summary List active vendor campaigns for a specific branch
+   */
+  const getVendorCampaignsByBranch = (
+    branchId: number,
+    params?: { isWorking?: boolean }
+  ) => {
+    return orvalMutator<BranchCampaignInfo[]>({
+      url: `/api/Campaign/vendor/branch/${branchId}`,
+      method: 'GET',
+      params,
+    });
+  };
+
   return {
     getSystemCampaigns,
     joinSystemCampaign,
@@ -186,6 +202,7 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
     getCampaignQuestProgress,
     enrollInQuest,
     getVendorCampaignBranches,
+    getVendorCampaignsByBranch,
   };
 };
 export type GetSystemCampaignsResult = NonNullable<

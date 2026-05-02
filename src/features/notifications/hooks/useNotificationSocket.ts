@@ -1,7 +1,13 @@
 import { ORDER_STATUS } from '@features/customer/direct-ordering/api/cartApi';
+import {
+  useGhostPinXP,
+  useOrderXP,
+} from '@features/customer/home/hooks/useSettings';
 import type { NotificationDto } from '@features/notifications/types/notification';
 import { useAppDispatch, useAppSelector } from '@hooks/reduxHooks';
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryClient } from '@lib/queryClient';
+import { queryKeys } from '@lib/queryKeys';
 import * as signalR from '@microsoft/signalr';
 import {
   addPoints,
@@ -11,8 +17,6 @@ import {
 } from '@slices/auth';
 import { setPendingReward } from '@slices/quests';
 import { showXPToast } from '@slices/xpToast';
-import { queryClient } from '@lib/queryClient';
-import { queryKeys } from '@lib/queryKeys';
 import { tokenManagement } from '@utils/tokenManagement';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -28,6 +32,12 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
   // needing to re-subscribe (the callback closure captures the ref, not state)
   const currentXP = useAppSelector(selectUserXP);
   currentXPRef.current = currentXP;
+  const orderXP = useOrderXP();
+  const orderXPRef = useRef(orderXP);
+  orderXPRef.current = orderXP;
+  const ghostPinXP = useGhostPinXP();
+  const ghostPinXPRef = useRef(ghostPinXP);
+  ghostPinXPRef.current = ghostPinXP;
 
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
@@ -77,8 +87,36 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
             if (order.data.status === ORDER_STATUS.Cancelled) {
               dispatch(refreshUserBalanceThunk());
             }
+            if (order.data.status === ORDER_STATUS.Complete) {
+              const xp = orderXPRef.current;
+              const prev = currentXPRef.current;
+              dispatch(addXP(xp));
+              dispatch(
+                showXPToast({
+                  xpEarned: xp,
+                  previousXP: prev,
+                  newXP: prev + xp,
+                })
+              );
+            }
           })
           .catch(() => {});
+      }
+
+      const isGhostPinBeVerified =
+        notification.type === 'BranchVerificationStatus' ||
+        notification.type === '7';
+
+      if (
+        isGhostPinBeVerified &&
+        notification.extraData?.status === 'ACCEPTED'
+      ) {
+        const xp = ghostPinXPRef.current;
+        const prev = currentXPRef.current;
+        dispatch(addXP(xp));
+        dispatch(
+          showXPToast({ xpEarned: xp, previousXP: prev, newXP: prev + xp })
+        );
       }
 
       const isQuestTaskCompleted =
@@ -89,20 +127,6 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
       // QuestTaskCompleted (type=3): referenceId = questTaskId → fetch task, show modal
       if (isQuestTaskCompleted && notification.referenceId) {
         const questTaskId = notification.referenceId;
-        const previousXP = currentXPRef.current;
-
-        // Apply XP immediately if the backend sent the amount
-        if (notification.xpEarned && notification.xpEarned > 0) {
-          const newXP = previousXP + notification.xpEarned;
-          dispatch(addXP(notification.xpEarned));
-          dispatch(
-            showXPToast({
-              xpEarned: notification.xpEarned,
-              previousXP,
-              newXP,
-            })
-          );
-        }
 
         // Fetch task to get reward items, then show the reward modal.
         // 1 s delay so any currently-open modal (e.g. ReviewFormModal) can
@@ -189,16 +213,13 @@ export const useNotificationSocket = (isAuthenticated: boolean): void => {
 
     connect();
 
+    // Reconnect when the app returns to foreground in case the OS dropped the
+    // connection while backgrounded. withAutomaticReconnect() handles drops
+    // after a successful connection; this covers a clean start after resume.
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (cancelled) return;
       if (nextState === 'active') {
         connect();
-        return;
-      }
-      // 'inactive' is a transient iOS state (phone call, Control Center, etc.)
-      // — do not disconnect, it will settle back to 'active' shortly.
-      if (nextState === 'background') {
-        disconnect();
       }
     });
 

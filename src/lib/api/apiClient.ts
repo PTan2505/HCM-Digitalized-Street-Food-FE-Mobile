@@ -41,6 +41,7 @@ class FormatAxiosResponse implements IFormatAxiosResponse {
         errorData?.data && typeof errorData.data === 'object'
           ? (errorData.data as Record<string, string[]>)
           : undefined,
+      retryAfter: errorData?.retryAfter,
     };
   }
 }

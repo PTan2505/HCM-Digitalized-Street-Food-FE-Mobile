@@ -26,14 +26,14 @@ export const ManagerMenuScreen = (): JSX.Element => {
               className="relative flex-1 items-center py-3"
             >
               <Text
-                className={`text-sm font-semibold ${active ? 'text-[#006a2c]' : 'text-gray-400'}`}
+                className={`text-sm font-semibold ${active ? 'text-primary' : 'text-gray-400'}`}
               >
                 {tab === 'branch'
                   ? t('manager_menu.tab_branch')
                   : t('manager_menu.tab_catalog')}
               </Text>
               {active && (
-                <View className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-[#006a2c]" />
+                <View className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-primary" />
               )}
             </TouchableOpacity>
           );

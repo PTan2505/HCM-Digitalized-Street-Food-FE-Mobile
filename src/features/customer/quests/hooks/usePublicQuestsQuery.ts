@@ -7,7 +7,8 @@ export const usePublicQuestsQuery = (
   pageNumber = 1,
   pageSize = 10,
   isStandalone?: boolean,
-  isTierUp?: boolean
+  isTierUp?: boolean,
+  isCompleted?: boolean
 ): {
   data: PaginatedQuests | undefined;
   isLoading: boolean;
@@ -15,13 +16,14 @@ export const usePublicQuestsQuery = (
   refetch: () => void;
 } => {
   return useQuery({
-    queryKey: queryKeys.quests.public,
+    queryKey: queryKeys.quests.public(isCompleted),
     queryFn: () =>
       axiosApi.questApi.getPublicQuests(
         pageNumber,
         pageSize,
         isStandalone,
-        isTierUp
+        isTierUp,
+        isCompleted
       ),
     staleTime: 5 * 60 * 1000,
   });

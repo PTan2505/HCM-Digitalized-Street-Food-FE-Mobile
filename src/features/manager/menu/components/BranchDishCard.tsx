@@ -1,4 +1,5 @@
 import fallbackDishImage from '@assets/logos/lowcaLogo.png';
+import { COLORS } from '@constants/colors';
 import type { VendorDish } from '@manager/menu/api/managerDishApi';
 import React, { type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -52,14 +53,14 @@ export const BranchDishCard = ({
         ) : null}
         <View className="mt-1.5 flex-row items-center justify-between">
           <Text
-            className={`text-base font-bold ${soldOut ? 'text-gray-400' : 'text-[#006a2c]'}`}
+            className={`text-base font-bold ${soldOut ? 'text-gray-400' : 'text-primary'}`}
           >
             {formatPrice(item.price)}
           </Text>
           <Switch
             value={!soldOut}
             onValueChange={(val) => onToggle(item.dishId, !val)}
-            trackColor={{ false: '#a7ecc1', true: '#006a2c' }}
+            trackColor={{ false: '#a7ecc1', true: COLORS.primaryLight }}
             thumbColor="#fff"
           />
         </View>

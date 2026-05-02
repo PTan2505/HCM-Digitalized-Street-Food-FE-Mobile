@@ -4,20 +4,23 @@ import { useGhostPins } from '@customer/home/hooks/useGhostPins';
 import { Ionicons } from '@expo/vector-icons';
 import { useSystemCampaigns } from '@features/customer/campaigns/hooks/useSystemCampaigns';
 import { useVendorCampaignBranches } from '@features/customer/campaigns/hooks/useVendorCampaignBranches';
-import { PlaceCard } from '@features/customer/home/components/common/PlaceCard';
+import { useVendorCampaignsByBranchIds } from '@features/customer/campaigns/hooks/useVendorCampaignsByBranchIds';
+import type { CampaignVoucherInfo } from '@features/customer/campaigns/types/generated/vendorCampaignBranch';
+import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
+import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
+import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
-import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyCartsQuery';
-import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
+import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
 import { useAppSelector } from '@hooks/reduxHooks';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { selectUser, selectUserStatus } from '@slices/auth';
-import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
-import { computeDisplayName } from '@utils/computeDisplayName';
 import { registerCallback } from '@utils/callbackRegistry';
+import { computeDisplayName } from '@utils/computeDisplayName';
 import '@utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
@@ -99,6 +102,29 @@ export const HomeScreen = (): JSX.Element => {
     isLoading: campaignsLoading,
     refetch: refetchSystemCampaigns,
   } = useSystemCampaigns();
+  const activeBranchIds = useMemo(
+    () => branches.map((b) => b.branchId),
+    [branches]
+  );
+  const { campaignsByBranchId: activeBranchCampaigns } =
+    useVendorCampaignsByBranchIds(activeBranchIds, true);
+  const activeBranchVouchersByBranchId = useMemo(() => {
+    const map: Record<
+      number,
+      {
+        voucherId: number;
+        discountValue: number;
+        type: 'PERCENT' | 'AMOUNT';
+        minAmountRequired?: number | null;
+      }[]
+    > = {};
+    for (const [id, campaigns] of Object.entries(activeBranchCampaigns)) {
+      const vouchers = campaigns.flatMap((c) => c.vouchers);
+      if (vouchers.length > 0) map[Number(id)] = vouchers;
+    }
+    return map;
+  }, [activeBranchCampaigns]);
+
   const {
     branches: vendorCampaignBranches,
     imageMap: vendorCampaignImageMap,
@@ -228,20 +254,14 @@ export const HomeScreen = (): JSX.Element => {
     [navigation]
   );
 
-  const handleRatingUpdate = useCallback(
-    (branchId: number, avgRating: number, totalReviewCount: number) => {
-      updateBranchRatingFn(branchId, avgRating, totalReviewCount);
-    },
-    [updateBranchRatingFn]
-  );
+  const handleRatingUpdate = useHandleRatingUpdate(updateBranchRatingFn);
 
   const vendorCampaignVouchersByBranchId = useMemo(() => {
-    const map: Record<
-      number,
-      Array<{ voucherId: number; discountValue: number; type: string }>
-    > = {};
+    const map: Record<number, CampaignVoucherInfo[]> = {};
     vendorCampaignBranches.forEach((b) => {
-      const vouchers = b.campaigns.flatMap((c) => c.vouchers);
+      const vouchers = b.campaigns.flatMap((c) =>
+        c.vouchers.map((v) => ({ ...v, campaignId: c.campaignId }))
+      );
       if (vouchers.length > 0) map[b.branchId] = vouchers;
     });
     return map;
@@ -347,75 +367,79 @@ export const HomeScreen = (): JSX.Element => {
   // FlatList to remount the header and re-trigger onEndReached in a loop.
   const ListHeader = useMemo(
     () => (
-      <LinearGradient
-        colors={[COLORS.primaryGradientHero, '#FFFFFF']}
-        locations={[0, 0.4]}
-        style={{
-          paddingTop:
-            refreshing && Platform.OS === 'ios' ? insets.top + 60 : insets.top,
-        }}
-      >
-        <HomeHeader />
+      <View>
+        <LinearGradient
+          colors={[COLORS.primaryGradientHero, '#FFFFFF']}
+          style={{
+            paddingTop:
+              refreshing && Platform.OS === 'ios'
+                ? insets.top + 60
+                : insets.top,
+          }}
+        >
+          <HomeHeader />
 
-        <View onLayout={handleSearchBarLayout}>
-          <SearchBar
-            onPress={() => navigation.navigate('Search', { autoFocus: true })}
-            onFilterPress={() =>
-              navigation.navigate('Search', { openFilter: true })
-            }
-          />
-        </View>
-        {campaignsLoading ? (
-          <BannerCarouselSkeleton />
-        ) : (
-          <BannerCarousel
-            items={systemCampaigns}
-            onCampaignPress={handleCampaignPress}
-            onLoadMore={() => {
-              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-            }}
-            hasMore={hasNextPage}
-          />
-        )}
+          <View onLayout={handleSearchBarLayout}>
+            <SearchBar
+              onPress={() => navigation.navigate('Search', { autoFocus: true })}
+              onFilterPress={() =>
+                navigation.navigate('Search', { openFilter: true })
+              }
+            />
+          </View>
 
-        <View className="px-4 py-2">
-          <Title>{t('home_quick_actions.section_title')}</Title>
-        </View>
-        <QuickActionGrid actions={getHomeQuickActions(t, navigation)} />
-
-        <View className="px-4 py-2">
-          <Title>{t('what_want_eat')}</Title>
-        </View>
-
-        <View className="flex-row pt-2">
-          {categoriesLoading ? (
-            <CategoryRowSkeleton />
+          {campaignsLoading ? (
+            <BannerCarouselSkeleton />
           ) : (
-            <FlatList
-              data={categories}
-              keyExtractor={(item) => String(item.categoryId)}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingTop: 8,
-                paddingBottom: 4,
+            <BannerCarousel
+              items={systemCampaigns}
+              onCampaignPress={handleCampaignPress}
+              onLoadMore={() => {
+                if (hasNextPage && !isFetchingNextPage) fetchNextPage();
               }}
-              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-              renderItem={({ item }) => (
-                <CategoryCard
-                  title={item.name}
-                  image={item.imageUrl ?? undefined}
-                  onPress={() =>
-                    navigation.navigate('Search', {
-                      selectedCategoryId: String(item.categoryId),
-                    })
-                  }
-                />
-              )}
+              hasMore={hasNextPage}
             />
           )}
-        </View>
+
+          <View className="px-4 py-2">
+            <Title>{t('home_quick_actions.section_title')}</Title>
+          </View>
+          <QuickActionGrid actions={getHomeQuickActions(t, navigation)} />
+
+          <View className="px-4 py-2">
+            <Title>{t('what_want_eat')}</Title>
+          </View>
+
+          <View className="flex-row pt-2">
+            {categoriesLoading ? (
+              <CategoryRowSkeleton />
+            ) : (
+              <FlatList
+                data={categories}
+                keyExtractor={(item) => String(item.categoryId)}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  paddingTop: 8,
+                  paddingBottom: 4,
+                }}
+                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                renderItem={({ item }) => (
+                  <CategoryCard
+                    title={item.name}
+                    image={item.imageUrl ?? undefined}
+                    onPress={() =>
+                      navigation.navigate('Search', {
+                        selectedCategoryId: String(item.categoryId),
+                      })
+                    }
+                  />
+                )}
+              />
+            )}
+          </View>
+        </LinearGradient>
 
         {vendorCampaignLoading ? (
           <>
@@ -455,7 +479,7 @@ export const HomeScreen = (): JSX.Element => {
                 return (
                   <View
                     key={rowIndex}
-                    className="mb-3 flex-row justify-between"
+                    className="mb-3 flex-row items-stretch justify-between"
                   >
                     <View className="w-[49%]">
                       <VendorCampaignPlaceCard
@@ -463,6 +487,9 @@ export const HomeScreen = (): JSX.Element => {
                         imageUri={vendorCampaignImageMap[left.branchId]}
                         userCoords={userCoords}
                         vouchers={
+                          vendorCampaignVouchersByBranchId[left.branchId]
+                        }
+                        campaignVouchers={
                           vendorCampaignVouchersByBranchId[left.branchId]
                         }
                         isMultiBranch={campaignMultiBranchVendorIds.includes(
@@ -484,6 +511,9 @@ export const HomeScreen = (): JSX.Element => {
                           imageUri={vendorCampaignImageMap[right.branchId]}
                           userCoords={userCoords}
                           vouchers={
+                            vendorCampaignVouchersByBranchId[right.branchId]
+                          }
+                          campaignVouchers={
                             vendorCampaignVouchersByBranchId[right.branchId]
                           }
                           isMultiBranch={campaignMultiBranchVendorIds.includes(
@@ -520,7 +550,7 @@ export const HomeScreen = (): JSX.Element => {
             color={COLORS.primaryGradientFrom}
           />
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -592,7 +622,7 @@ export const HomeScreen = (): JSX.Element => {
                 return (
                   <View
                     key={rowIndex}
-                    className="mb-3 flex-row justify-between"
+                    className="mb-3 flex-row items-stretch justify-between"
                   >
                     <View className="w-[49%]">
                       <VendorCampaignPlaceCard
@@ -675,7 +705,7 @@ export const HomeScreen = (): JSX.Element => {
           backgroundColor: COLORS.primaryGradientHero,
         }}
       />
-      <View>
+      <View style={{ flex: 1 }}>
         <Animated.FlatList
           data={flatListData}
           keyExtractor={(item) =>
@@ -703,6 +733,7 @@ export const HomeScreen = (): JSX.Element => {
           }
           columnWrapperStyle={{
             justifyContent: 'space-between',
+            alignItems: 'stretch',
             paddingHorizontal: 16,
             marginBottom: 12,
           }}
@@ -724,11 +755,12 @@ export const HomeScreen = (): JSX.Element => {
             );
             return (
               <View className="w-[49%]">
-                <PlaceCard
+                <HomeBranchCard
                   branch={item}
                   displayName={displayName}
                   imageUri={branchImageMap[item.branchId]?.[0]}
                   userCoords={userCoords}
+                  vouchers={activeBranchVouchersByBranchId[item.branchId]}
                   onPress={() =>
                     navigation.navigate('RestaurantSwipe', {
                       branch: item,

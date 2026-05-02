@@ -92,17 +92,25 @@ export const queryKeys = {
   campaigns: {
     all: ['campaigns'] as const,
     system: ['campaigns', 'system'] as const,
-    restaurant: (lat?: number, lng?: number) =>
-      ['campaigns', 'restaurant', { lat, lng }] as const,
+    restaurant: (campaignId: number) =>
+      ['campaigns', 'restaurant', campaignId] as const,
     nearby: (lat: number, lng: number) =>
       ['campaigns', 'nearby', { lat, lng }] as const,
     vendorBranches: (lat?: number | null, lng?: number | null) =>
       ['campaigns', 'vendorBranches', { lat, lng }] as const,
+    vendorCampaignsByBranch: (branchId: number, isWorking?: boolean | null) =>
+      [
+        'campaigns',
+        'vendorCampaignsByBranch',
+        branchId,
+        { isWorking: isWorking ?? null },
+      ] as const,
   },
 
   quests: {
     all: ['quests'] as const,
-    public: ['quests', 'public'] as const,
+    public: (isCompleted?: boolean) =>
+      ['quests', 'public', { isCompleted }] as const,
     detail: (questId: number) => ['quests', 'detail', questId] as const,
     my: (status?: string) => ['quests', 'my', status] as const,
     byCampaign: (campaignId: string) =>
@@ -128,6 +136,17 @@ export const queryKeys = {
   managerSchedule: {
     all: ['managerSchedule'] as const,
     list: (branchId: number) => ['managerSchedule', 'list', branchId] as const,
+  },
+
+  managerBranch: {
+    all: ['managerBranch'] as const,
+    detail: (branchId: number) =>
+      ['managerBranch', 'detail', branchId] as const,
+  },
+
+  managerDayOff: {
+    all: ['managerDayOff'] as const,
+    list: (branchId: number) => ['managerDayOff', 'list', branchId] as const,
   },
 
   managerDishes: {
@@ -167,6 +186,8 @@ export const queryKeys = {
   vouchers: {
     all: ['vouchers'] as const,
     myVouchers: ['vouchers', 'my'] as const,
+    campaignVoucher: (campaignId: number) =>
+      ['vouchers', 'campaign', campaignId] as const,
   },
 
   badges: {
@@ -176,5 +197,14 @@ export const queryKeys = {
 
   paymentHistory: {
     all: ['paymentHistory'] as const,
+  },
+
+  tiers: {
+    all: ['tiers'] as const,
+  },
+
+  userPin: {
+    all: ['userPin'] as const,
+    status: () => ['userPin', 'status'] as const,
   },
 } as const;

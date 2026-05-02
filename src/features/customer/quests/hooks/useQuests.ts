@@ -16,7 +16,7 @@ export const useQuests = (): {
     data: publicQuests,
     isLoading: publicLoading,
     refetch: refetchPublic,
-  } = usePublicQuestsQuery(1, 10, true);
+  } = usePublicQuestsQuery(1, 10, true, undefined, false);
   const {
     data: myQuests,
     isLoading: myLoading,
