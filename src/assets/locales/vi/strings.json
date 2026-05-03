@@ -1044,5 +1044,8 @@
     "change_current_title": "Nhập mã PIN hiện tại",
     "change_new_title": "Nhập mã PIN mới",
     "enter_current_pin": "Nhập mã PIN hiện tại"
+  },
+  "chatbot": {
+    "title": "Trợ lý AI"
   }
 }
