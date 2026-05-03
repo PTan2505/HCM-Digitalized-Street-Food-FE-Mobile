@@ -124,6 +124,8 @@ export const queryKeys = {
     list: (status: number) => ['managerOrders', 'list', status] as const,
     count: (status: number) => ['managerOrders', 'count', status] as const,
     detail: (orderId: number) => ['managerOrders', 'detail', orderId] as const,
+    vendorList: (status: number, branchId?: number) =>
+      ['managerOrders', 'vendor', status, branchId ?? 'all'] as const,
   },
 
   managerFeedback: {
@@ -206,5 +208,31 @@ export const queryKeys = {
   userPin: {
     all: ['userPin'] as const,
     status: () => ['userPin', 'status'] as const,
+  },
+
+  vendorBranches: {
+    all: ['vendorBranches'] as const,
+    vendorInfo: () => ['vendorBranches', 'vendorInfo'] as const,
+    detail: (branchId: number) =>
+      ['vendorBranches', 'detail', branchId] as const,
+  },
+
+  managerDashboard: {
+    all: ['managerDashboard'] as const,
+    revenue: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'revenue', fromDate, toDate] as const,
+    topDishes: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'topDishes', fromDate, toDate] as const,
+    voucherStats: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'voucherStats', fromDate, toDate] as const,
+  },
+
+  managerCampaigns: {
+    all: ['managerCampaigns'] as const,
+    vendorList: () => ['managerCampaigns', 'vendorList'] as const,
+    detail: (id: number) => ['managerCampaigns', 'detail', id] as const,
+    systemJoinable: () => ['managerCampaigns', 'systemJoinable'] as const,
+    systemDetail: (id: number) =>
+      ['managerCampaigns', 'systemDetail', id] as const,
   },
 } as const;

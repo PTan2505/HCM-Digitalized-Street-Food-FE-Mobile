@@ -119,8 +119,30 @@ export const apiUrl = {
   },
   managerOrder: {
     list: '/api/Order/manager/orders',
+    vendorList: '/api/order/vendor/orders',
     decision: (id: number): string => `/api/order/vendor/orders/${id}/decision`,
     complete: (id: number): string => `/api/order/vendor/orders/${id}/complete`,
+  },
+  vendorBranch: {
+    me: '/api/vendor/me',
+    byId: (branchId: number): string => `/api/Branch/${branchId}`,
+    branchAssignments: (branchId: number): string =>
+      `/api/branch/${branchId}/dish-assignments`,
+  },
+  dashboard: {
+    revenue: '/api/dashboard/revenue',
+    vouchers: '/api/dashboard/vouchers',
+    dishes: '/api/dashboard/dishes',
+    campaigns: '/api/dashboard/campaigns',
+  },
+  vendorCampaign: {
+    vendorList: '/api/campaign/vendor',
+    create: '/api/campaign/vendor',
+    byId: (id: number): string => `/api/campaign/${id}`,
+    update: (id: number): string => `/api/campaign/${id}`,
+    systemJoinable: '/api/campaign/system/joinable',
+    systemById: (id: number): string => `/api/campaign/system/${id}`,
+    joinSystem: (id: number): string => `/api/campaign/system/${id}/join`,
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',

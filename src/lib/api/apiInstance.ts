@@ -28,11 +28,14 @@ import { UserPinApi } from '@features/user/api/userPinApi';
 import ApiClient from '@lib/api/apiClient';
 import { SettingsApi } from '@lib/api/settingsApi';
 import { ManagerBranchApi } from '@manager/branch/managerBranchApi';
+import { ManagerCampaignApi } from '@manager/campaigns/api/managerCampaignApi';
+import { ManagerDashboardApi } from '@manager/dashboard/api/managerDashboardApi';
 import { ManagerDayOffApi } from '@manager/day-off/api/managerDayOffApi';
 import { ManagerFeedbackApi } from '@manager/feedback/api/managerFeedbackApi';
 import { ManagerDishApi } from '@manager/menu/api/managerDishApi';
 import { ManagerOrderApi } from '@manager/orders/api/managerOrderApi';
 import { ManagerScheduleApi } from '@manager/schedule/api/managerScheduleApi';
+import { VendorBranchApi } from '@manager/vendor-branches/api/vendorBranchApi';
 
 const axiosService = new AxiosApiService();
 const axiosClient = new ApiClient(axiosService);
@@ -68,4 +71,7 @@ export const axiosApi = {
   managerDishApi: new ManagerDishApi(axiosClient),
   managerScheduleApi: new ManagerScheduleApi(axiosClient),
   managerDayOffApi: new ManagerDayOffApi(axiosClient),
+  vendorBranchApi: new VendorBranchApi(axiosClient),
+  managerDashboardApi: new ManagerDashboardApi(axiosClient),
+  managerCampaignApi: new ManagerCampaignApi(axiosClient),
 };

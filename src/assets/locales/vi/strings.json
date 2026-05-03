@@ -255,7 +255,9 @@
     "schedule": "Lịch hoạt động",
     "day_off": "Ngày nghỉ",
     "account": "Tài khoản",
-    "notifications": "Thông báo"
+    "notifications": "Thông báo",
+    "dashboard": "Tổng quan",
+    "campaigns": "Chiến dịch"
   },
   "manager_account": {
     "title": "Tài khoản",
@@ -306,7 +308,8 @@
     "approving": "Đang xác nhận...",
     "rejecting": "Đang từ chối...",
     "completing": "Đang hoàn thành...",
-    "just_now": "Vừa xong"
+    "just_now": "Vừa xong",
+    "all_branches": "Tất cả chi nhánh"
   },
   "manager_feedback": {
     "title": "Đánh giá",
@@ -577,7 +580,9 @@
     "cancel": "Hủy",
     "yes": "Có",
     "no": "Không",
-    "confirm": "Xác nhận"
+    "confirm": "Xác nhận",
+    "retry": "Thử lại",
+    "saving": "Đang lưu..."
   },
   "campaign": {
     "title": "Chiến dịch",
@@ -1044,5 +1049,70 @@
     "change_current_title": "Nhập mã PIN hiện tại",
     "change_new_title": "Nhập mã PIN mới",
     "enter_current_pin": "Nhập mã PIN hiện tại"
+  },
+  "manager_dashboard": {
+    "title": "Tổng quan",
+    "days_preset": "{{days}}d",
+    "revenue_title": "Doanh thu",
+    "total_revenue": "Tổng doanh thu",
+    "total_orders": "Tổng đơn",
+    "load_error": "Không tải được dữ liệu",
+    "no_data": "Chưa có dữ liệu",
+    "top_dishes_title": "Món bán chạy",
+    "voucher_title": "Sử dụng voucher",
+    "times_used": "{{count}} lần"
+  },
+  "vendor_branches": {
+    "title": "Chi nhánh",
+    "detail_title": "Chi tiết chi nhánh",
+    "error_load": "Không tải được danh sách chi nhánh",
+    "empty": "Chưa có chi nhánh nào. Hãy tạo chi nhánh trên web dashboard.",
+    "status": "Trạng thái",
+    "active": "Đang hoạt động",
+    "inactive": "Ngừng hoạt động",
+    "verified": "Đã xác minh",
+    "not_verified": "Chưa xác minh",
+    "manage_section": "Quản lý",
+    "nav_schedule": "Lịch hoạt động",
+    "nav_day_off": "Ngày nghỉ",
+    "nav_menu": "Thực đơn",
+    "nav_feedback": "Phản hồi"
+  },
+  "manager_campaigns": {
+    "title": "Chiến dịch",
+    "tab_my": "Của tôi",
+    "tab_system": "Hệ thống",
+    "create_button": "Tạo mới",
+    "create_title": "Tạo chiến dịch",
+    "edit_title": "Chỉnh sửa chiến dịch",
+    "detail_title": "Chi tiết chiến dịch",
+    "system_detail_title": "Chi tiết chiến dịch hệ thống",
+    "edit": "Chỉnh sửa",
+    "empty": "Chưa có chiến dịch nào",
+    "system_empty": "Không có chiến dịch hệ thống khả dụng",
+    "status_active": "Đang hoạt động",
+    "status_inactive": "Ngừng hoạt động",
+    "status_registerable": "Đang mở đăng ký",
+    "date_range": "Từ {{from}} đến {{to}}",
+    "date_range_label": "Thời gian",
+    "branches_count": "Số chi nhánh",
+    "field_name": "Tên chiến dịch",
+    "field_description": "Mô tả",
+    "field_start_date": "Ngày bắt đầu",
+    "field_end_date": "Ngày kết thúc",
+    "end_before_start": "Ngày kết thúc phải sau ngày bắt đầu",
+    "create_success": "Tạo chiến dịch thành công",
+    "create_error": "Tạo chiến dịch thất bại",
+    "update_success": "Cập nhật chiến dịch thành công",
+    "update_error": "Cập nhật chiến dịch thất bại",
+    "registration_period": "Thời gian đăng ký",
+    "active_period": "Thời gian hoạt động",
+    "select_branches": "Chọn chi nhánh tham gia",
+    "join_button": "Tham gia",
+    "join_no_branch": "Vui lòng chọn ít nhất một chi nhánh",
+    "join_success": "Đăng ký tham gia thành công",
+    "join_error": "Đăng ký tham gia thất bại",
+    "already_joined": "Đã tham gia",
+    "create_submit": "Tạo chiến dịch"
   }
 }

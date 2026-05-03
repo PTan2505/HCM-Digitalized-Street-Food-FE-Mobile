@@ -77,6 +77,24 @@ export class ManagerOrderApi {
     return res.data;
   }
 
+  async getVendorOrders(
+    pageNumber = 1,
+    pageSize = 10,
+    status?: number,
+    branchId?: number
+  ): Promise<PaginatedManagerOrders> {
+    const res = await this.apiClient.get<PaginatedManagerOrders>({
+      url: apiUrl.managerOrder.vendorList,
+      params: {
+        pageNumber,
+        pageSize,
+        ...(status !== undefined && { status }),
+        ...(branchId !== undefined && { branchId }),
+      },
+    });
+    return res.data;
+  }
+
   async getOrderDetail(orderId: number): Promise<ManagerOrderDetail> {
     const res = await this.apiClient.get<ManagerOrderDetail>({
       url: apiUrl.order.byId(orderId),

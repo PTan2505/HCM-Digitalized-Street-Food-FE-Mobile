@@ -148,3 +148,39 @@ export const useCompleteManagerOrder = (): UseMutationResult<
     },
   });
 };
+
+export const useVendorOrdersList = (
+  status: number,
+  branchId?: number
+): ManagerOrdersListResult => {
+  const query = useInfiniteQuery({
+    queryKey: queryKeys.managerOrders.vendorList(status, branchId),
+    queryFn: ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<PaginatedManagerOrders> =>
+      axiosApi.managerOrderApi.getVendorOrders(pageParam, 10, status, branchId),
+    getNextPageParam: (lastPage: PaginatedManagerOrders) =>
+      lastPage.hasNext === true ? lastPage.currentPage + 1 : undefined,
+    initialPageParam: 1,
+    staleTime: ORDER_STALE_TIME,
+  });
+
+  const items: ManagerOrderSummary[] =
+    query.data?.pages.flatMap((p) => p.items) ?? [];
+
+  return {
+    items,
+    isLoading: query.isLoading,
+    isRefreshing: query.isRefetching && !query.isFetchingNextPage,
+    isLoadingMore: query.isFetchingNextPage,
+    hasNext: query.hasNextPage ?? false,
+    loadMore: (): void => {
+      void query.fetchNextPage();
+    },
+    refresh: (): void => {
+      void query.refetch();
+    },
+  };
+};

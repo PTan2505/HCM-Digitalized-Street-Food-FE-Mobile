@@ -255,7 +255,9 @@
     "schedule": "Schedule",
     "day_off": "Days Off",
     "account": "Account",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "dashboard": "Dashboard",
+    "campaigns": "Campaigns"
   },
   "manager_account": {
     "title": "Account",
@@ -305,7 +307,8 @@
     "approving": "Approving...",
     "rejecting": "Rejecting...",
     "completing": "Completing...",
-    "just_now": "Just now"
+    "just_now": "Just now",
+    "all_branches": "All branches"
   },
   "manager_feedback": {
     "title": "Feedback",
@@ -575,7 +578,9 @@
     "ok": "OK",
     "cancel": "Cancel",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "retry": "Retry",
+    "saving": "Saving..."
   },
   "campaign": {
     "title": "Campaigns",
@@ -1041,5 +1046,70 @@
     "change_current_title": "Enter your current PIN",
     "change_new_title": "Enter your new PIN",
     "enter_current_pin": "Enter current PIN"
+  },
+  "manager_dashboard": {
+    "title": "Dashboard",
+    "days_preset": "{{days}}d",
+    "revenue_title": "Revenue",
+    "total_revenue": "Total Revenue",
+    "total_orders": "Total Orders",
+    "load_error": "Failed to load data",
+    "no_data": "No data available",
+    "top_dishes_title": "Top Dishes",
+    "voucher_title": "Voucher Usage",
+    "times_used": "{{count}} uses"
+  },
+  "vendor_branches": {
+    "title": "Branches",
+    "detail_title": "Branch Detail",
+    "error_load": "Failed to load branches",
+    "empty": "No branches yet. Create one from the web dashboard.",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "verified": "Verified",
+    "not_verified": "Not Verified",
+    "manage_section": "Manage",
+    "nav_schedule": "Schedule",
+    "nav_day_off": "Day-offs",
+    "nav_menu": "Menu",
+    "nav_feedback": "Feedback"
+  },
+  "manager_campaigns": {
+    "title": "Campaigns",
+    "tab_my": "My Campaigns",
+    "tab_system": "System",
+    "create_button": "Create",
+    "create_title": "Create Campaign",
+    "edit_title": "Edit Campaign",
+    "detail_title": "Campaign Detail",
+    "system_detail_title": "System Campaign Detail",
+    "edit": "Edit",
+    "empty": "No campaigns yet",
+    "system_empty": "No joinable system campaigns",
+    "status_active": "Active",
+    "status_inactive": "Inactive",
+    "status_registerable": "Registration Open",
+    "date_range": "From {{from}} to {{to}}",
+    "date_range_label": "Period",
+    "branches_count": "Branches",
+    "field_name": "Campaign Name",
+    "field_description": "Description",
+    "field_start_date": "Start Date",
+    "field_end_date": "End Date",
+    "end_before_start": "End date must be after start date",
+    "create_success": "Campaign created successfully",
+    "create_error": "Failed to create campaign",
+    "update_success": "Campaign updated successfully",
+    "update_error": "Failed to update campaign",
+    "registration_period": "Registration Period",
+    "active_period": "Active Period",
+    "select_branches": "Select Branches to Join",
+    "join_button": "Join",
+    "join_no_branch": "Please select at least one branch",
+    "join_success": "Joined campaign successfully",
+    "join_error": "Failed to join campaign",
+    "already_joined": "Joined",
+    "create_submit": "Create Campaign"
   }
 }

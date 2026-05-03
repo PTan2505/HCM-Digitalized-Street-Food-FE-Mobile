@@ -1,8 +1,14 @@
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ManagerFeedbackDetailScreen } from '@features/manager/feedback/screens/ManagerFeedbackDetailScreen';
 import { ManagerOrderDetailScreen } from '@features/manager/orders/screens/ManagerOrderDetailScreen';
+import { VendorCampaignDetailScreen } from '@manager/campaigns/screens/VendorCampaignDetailScreen';
+import { VendorCreateCampaignScreen } from '@manager/campaigns/screens/VendorCreateCampaignScreen';
+import { VendorEditCampaignScreen } from '@manager/campaigns/screens/VendorEditCampaignScreen';
+import { VendorSystemCampaignDetailScreen } from '@manager/campaigns/screens/VendorSystemCampaignDetailScreen';
 import { EditBranchScreen } from '@manager/branch/screens/EditBranchScreen';
 import { AddDayOffScreen } from '@manager/day-off/screens/AddDayOffScreen';
+import { VendorBranchDetailScreen } from '@manager/vendor-branches/screens/VendorBranchDetailScreen';
+import { VendorEditBranchScreen } from '@manager/vendor-branches/screens/VendorEditBranchScreen';
 import { useManagerSelector } from '@manager-app/managerHooks';
 import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
 import { createStaticNavigation, Theme } from '@react-navigation/native';
@@ -31,6 +37,25 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     ManagerAddDayOff: {
       screen: AddDayOffScreen,
+    },
+    // Vendor-only routes
+    VendorBranchDetail: {
+      screen: VendorBranchDetailScreen,
+    },
+    VendorEditBranch: {
+      screen: VendorEditBranchScreen,
+    },
+    VendorCampaignDetail: {
+      screen: VendorCampaignDetailScreen,
+    },
+    VendorCreateCampaign: {
+      screen: VendorCreateCampaignScreen,
+    },
+    VendorEditCampaign: {
+      screen: VendorEditCampaignScreen,
+    },
+    VendorSystemCampaignDetail: {
+      screen: VendorSystemCampaignDetailScreen,
     },
   },
 });

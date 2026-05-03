@@ -1,18 +1,24 @@
 import Header from '@components/Header';
 import TabBar from '@components/TabBar';
+import { ROLES } from '@constants/roles';
 import type { User } from '@custom-types/user';
 import {
   MANAGER_ORDER_STATUS,
   type ManagerOrderSummary,
 } from '@features/manager/orders/api/managerOrderApi';
+import { BranchFilterPicker } from '@features/manager/orders/components/BranchFilterPicker';
 import { OrderStatusBadge } from '@features/manager/orders/components/OrderStatusBadge';
 import {
   useManagerOrdersList,
   useManagerStatusCounts,
+  useVendorOrdersList,
 } from '@features/manager/orders/hooks/useManagerOrders';
 import { useNewOrderNotification } from '@features/manager/orders/hooks/useNewOrderNotification';
+import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { axiosApi } from '@lib/api/apiInstance';
+import type { AuthState } from '@slices/auth';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { TFunction } from 'i18next';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -145,9 +151,23 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
+  const userRole = useSelector(
+    (state: { user: AuthState }) => state.user.value?.role
+  );
+  const isVendor = userRole === ROLES.VENDOR;
+
   const [activeStatus, setActiveStatus] = useState<number>(
     MANAGER_ORDER_STATUS.AwaitingVendorConfirmation
   );
+  const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(
+    undefined
+  );
+
+  const { data: vendorInfo } = useVendorInfo();
+  const branches = vendorInfo?.branches ?? [];
+
+  const managerOrders = useManagerOrdersList(activeStatus);
+  const vendorOrders = useVendorOrdersList(activeStatus, selectedBranchId);
 
   const {
     items,
@@ -157,7 +177,7 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
     hasNext,
     loadMore,
     refresh,
-  } = useManagerOrdersList(activeStatus);
+  } = isVendor ? vendorOrders : managerOrders;
   const statusCounts = useManagerStatusCounts(STATUS_TABS);
 
   const pendingRefresh = useManagerOrdersList(
@@ -267,6 +287,13 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
   return (
     <SafeAreaView edges={[]} className="flex-1 bg-gray-50">
       <Header title={t('manager_orders.title')} />
+      {isVendor && branches.length > 0 && (
+        <BranchFilterPicker
+          branches={branches}
+          selectedBranchId={selectedBranchId}
+          onSelect={setSelectedBranchId}
+        />
+      )}
       {/* Status Filter Tabs */}
       <TabBar
         tabs={STATUS_TABS.map((status) => ({
