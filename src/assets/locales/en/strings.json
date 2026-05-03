@@ -1041,5 +1041,8 @@
     "change_current_title": "Enter your current PIN",
     "change_new_title": "Enter your new PIN",
     "enter_current_pin": "Enter current PIN"
+  },
+  "chatbot": {
+    "title": "AI Assistant"
   }
 }
