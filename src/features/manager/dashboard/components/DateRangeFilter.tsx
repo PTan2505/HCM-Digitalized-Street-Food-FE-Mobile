@@ -1,5 +1,4 @@
 import type { DashboardPreset } from '@manager/dashboard/hooks/useManagerDashboard';
-import { buildDateRange } from '@manager/dashboard/hooks/useManagerDashboard';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Calendar } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
@@ -107,7 +106,6 @@ export const DateRangeFilter = ({
 
   const handlePresetPress = (days: DashboardPreset): void => {
     onPresetChange(days);
-    onChange(buildDateRange(days));
   };
 
   const presetLabel = (days: DashboardPreset): string =>
