@@ -4,6 +4,7 @@ import { CampaignVoucherCard } from '@manager/campaigns/components/CampaignVouch
 import {
   useJoinSystemCampaign,
   useSystemCampaignDetail,
+  useSystemCampaigns,
 } from '@manager/campaigns/hooks/useSystemCampaigns';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { axiosApi } from '@lib/api/apiInstance';
@@ -49,7 +50,16 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
     refetch,
   } = useSystemCampaignDetail(campaignId);
   const { data: vendorInfo } = useVendorInfo();
-  const joinCampaign = useJoinSystemCampaign(campaignId, campaign?.joinFee ?? 0);
+  // joinFee is only returned by the joinable-list endpoint, not the detail one,
+  // so look it up from that cached list by campaignId.
+  const { data: joinableList } = useSystemCampaigns();
+  const joinFee = useMemo(
+    () =>
+      joinableList?.items.find((c) => c.campaignId === campaignId)?.joinFee ??
+      0,
+    [joinableList, campaignId]
+  );
+  const joinCampaign = useJoinSystemCampaign(campaignId, joinFee);
 
   const { data: tiers = [] } = useQuery({
     queryKey: queryKeys.tiers.all,
@@ -119,9 +129,7 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
           }
 
           const orderCodeNum = res.orderCode ? Number(res.orderCode) : null;
-          const joinFee = campaign?.joinFee ?? 0;
-          const computedAmount =
-            res.amount ?? selectedBranchIds.length * joinFee;
+          const computedAmount = selectedBranchIds.length * joinFee;
           const firstBranchName =
             allBranches.find((b) => b.branchId === selectedBranchIds[0])
               ?.name ?? '';
