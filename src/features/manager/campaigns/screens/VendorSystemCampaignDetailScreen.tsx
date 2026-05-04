@@ -49,7 +49,7 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
     refetch,
   } = useSystemCampaignDetail(campaignId);
   const { data: vendorInfo } = useVendorInfo();
-  const joinCampaign = useJoinSystemCampaign(campaignId);
+  const joinCampaign = useJoinSystemCampaign(campaignId, campaign?.joinFee ?? 0);
 
   const { data: tiers = [] } = useQuery({
     queryKey: queryKeys.tiers.all,

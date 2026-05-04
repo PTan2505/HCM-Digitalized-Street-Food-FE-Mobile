@@ -72,6 +72,21 @@ export interface JoinSystemCampaignRequest {
   branchIds: number[];
 }
 
+interface JoinSystemCampaignPaymentInfo {
+  paymentUrl?: string | null;
+  qrCode?: string | null;
+  orderCode?: number | null;
+  paymentLinkId?: string | null;
+  bin?: string | null;
+  accountNumber?: string | null;
+  accountName?: string | null;
+}
+
+interface JoinSystemCampaignRawResponse {
+  payment?: JoinSystemCampaignPaymentInfo | null;
+  branches: { branchId: number; status: string }[];
+}
+
 export interface PaginatedSystemCampaigns {
   totalCount: number;
   items: SystemCampaign[];
@@ -171,16 +186,29 @@ export class ManagerCampaignApi {
 
   async joinSystemCampaign(
     id: number,
-    data: JoinSystemCampaignRequest
+    data: JoinSystemCampaignRequest,
+    joinFee: number = 0
   ): Promise<CreatePaymentLinkResponse> {
     const res = await this.apiClient.post<
-      CreatePaymentLinkResponse,
+      JoinSystemCampaignRawResponse,
       JoinSystemCampaignRequest
     >({
       url: apiUrl.vendorCampaign.joinSystem(id),
       data,
     });
-    return res.data;
+    const { payment } = res.data;
+    return {
+      success: true,
+      paymentUrl: payment?.paymentUrl ?? '',
+      orderCode: payment?.orderCode?.toString() ?? '',
+      paymentLinkId: payment?.paymentLinkId ?? '',
+      requireConfirmation: false,
+      bin: payment?.bin,
+      accountNumber: payment?.accountNumber,
+      accountName: payment?.accountName,
+      amount: data.branchIds.length * joinFee,
+      message: res.message,
+    };
   }
 
   async getCampaignBranches(

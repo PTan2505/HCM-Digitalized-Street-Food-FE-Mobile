@@ -34,7 +34,8 @@ export const useSystemCampaignDetail = (
   });
 
 export const useJoinSystemCampaign = (
-  campaignId: number
+  campaignId: number,
+  joinFee: number = 0
 ): UseMutationResult<
   CreatePaymentLinkResponse,
   Error,
@@ -42,7 +43,7 @@ export const useJoinSystemCampaign = (
 > =>
   useMutation({
     mutationFn: (data) =>
-      axiosApi.managerCampaignApi.joinSystemCampaign(campaignId, data),
+      axiosApi.managerCampaignApi.joinSystemCampaign(campaignId, data, joinFee),
   });
 
 export const useCampaignBranches = (
