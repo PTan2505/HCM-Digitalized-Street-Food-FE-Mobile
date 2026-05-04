@@ -1,12 +1,13 @@
 import Header from '@components/Header';
 import { useSubscriptionPrice } from '@features/customer/home/hooks/useSettings';
+import { FontAwesome6 } from '@expo/vector-icons';
 import { BranchStatusBadge } from '@manager/vendor-branches/components/BranchStatusBadge';
 import { useCreateSubscriptionPaymentLink } from '@manager/vendor-branches/hooks/useCreateBranchFlow';
 import { useVendorBranchDetail } from '@manager/vendor-branches/hooks/useVendorBranches';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { setActiveBranchId } from '@slices/managerAuth';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -17,8 +18,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
 
 interface RouteParams {
   branchId: number;
@@ -139,7 +139,7 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
       route: 'ManagerFeedback',
     },
     {
-      icon: 'megaphone',
+      icon: 'flag-checkered',
       label: t('vendor_branches.nav_campaigns'),
       route: 'VendorCampaigns',
     },
