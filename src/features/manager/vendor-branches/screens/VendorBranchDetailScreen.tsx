@@ -1,4 +1,5 @@
 import Header from '@components/Header';
+import { useSubscriptionPrice } from '@features/customer/home/hooks/useSettings';
 import { BranchStatusBadge } from '@manager/vendor-branches/components/BranchStatusBadge';
 import { useCreateSubscriptionPaymentLink } from '@manager/vendor-branches/hooks/useCreateBranchFlow';
 import { useVendorBranchDetail } from '@manager/vendor-branches/hooks/useVendorBranches';
@@ -60,6 +61,7 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
     refetch,
   } = useVendorBranchDetail(branchId);
   const subscribeMutation = useCreateSubscriptionPaymentLink();
+  const subscriptionPrice = useSubscriptionPrice();
 
   // Sync the selected vendor branch into Redux so downstream screens
   // (Menu, Schedule, Feedback, Day Off) can read branchId from the store.
@@ -87,7 +89,7 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
           orderId: branchId,
           branchId,
           orderCode: orderCodeNum,
-          totalAmount: res.amount ?? 0,
+          totalAmount: res.amount ?? subscriptionPrice,
           branchName: branch.name,
           bin: res.bin,
           accountNumber: res.accountNumber,
