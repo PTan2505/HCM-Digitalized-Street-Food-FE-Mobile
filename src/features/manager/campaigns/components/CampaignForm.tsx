@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { CustomInput } from '@components/CustomInput';
 import { DateTimeField } from '@components/DateTimeField';
+import { Ionicons } from '@expo/vector-icons';
 import { BranchSelector } from '@manager/campaigns/components/BranchSelector';
 import {
   CampaignImageUpload,
@@ -13,13 +13,9 @@ import type {
 } from '@manager/campaigns/utils/campaignSchema';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { type JSX, useMemo } from 'react';
-import {
-  Controller,
-  useFieldArray,
-  useFormContext,
-} from 'react-hook-form';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
   image: CampaignImageValue | null;
@@ -83,10 +79,6 @@ export const CampaignForm = ({
         name="description"
         label={t('manager_campaigns.field_description')}
         required
-      />
-      <CustomInput<CampaignFormValues>
-        name="targetSegment"
-        label={t('manager_campaigns.target_segment')}
       />
       <DateTimeField<CampaignFormValues>
         name="startDate"

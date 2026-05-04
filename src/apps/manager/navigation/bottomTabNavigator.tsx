@@ -10,32 +10,37 @@ import { useManagerSelector } from '@manager-app/managerHooks';
 import { ManagerBranchHomeScreen } from '@manager/branch/screens/ManagerBranchHomeScreen';
 import { VendorCampaignScreen } from '@manager/campaigns/screens/VendorCampaignScreen';
 import { VendorBranchListScreen } from '@manager/vendor-branches/screens/VendorBranchListScreen';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabNavigationOptions, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
-const tabBarScreenOptions = {
-  headerShown: false,
-  tabBarActiveTintColor: COLORS.primary,
-  tabBarInactiveTintColor: '#9CA3AF',
-  tabBarStyle: {
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    paddingBottom: 4,
-    paddingTop: 4,
-    height: 60,
-  },
-  tabBarLabelStyle: {
-    fontSize: 10,
-    fontFamily: 'Nunito-Medium',
-  },
+const useTabBarScreenOptions = (): BottomTabNavigationOptions => {
+  const insets = useSafeAreaInsets();
+  return {
+    headerShown: false,
+    tabBarActiveTintColor: COLORS.primary,
+    tabBarInactiveTintColor: '#9CA3AF',
+    tabBarStyle: {
+      borderTopWidth: 1,
+      borderTopColor: '#F3F4F6',
+      paddingBottom: insets.bottom + 4,
+      paddingTop: 4,
+      height: 60 + insets.bottom,
+    },
+    tabBarLabelStyle: {
+      fontSize: 10,
+      fontFamily: 'Nunito-Medium',
+    },
+  };
 };
 
 const VendorTabs = (): JSX.Element => {
   const { t } = useTranslation();
   const { unreadCount } = useUnreadNotificationCount();
+  const tabBarScreenOptions = useTabBarScreenOptions();
 
   return (
     <Tab.Navigator
@@ -110,6 +115,7 @@ const VendorTabs = (): JSX.Element => {
 const ManagerTabs = (): JSX.Element => {
   const { t } = useTranslation();
   const { unreadCount } = useUnreadNotificationCount();
+  const tabBarScreenOptions = useTabBarScreenOptions();
 
   return (
     <Tab.Navigator
