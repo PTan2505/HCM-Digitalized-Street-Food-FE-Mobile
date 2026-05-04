@@ -1,5 +1,8 @@
 import { CustomInput } from '@components/CustomInput';
 import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
+import { normalizeAddressDetail } from '@manager/branch/utils/branchAddress';
 import {
   getEditBranchSchema,
   type EditBranchFormValues,
@@ -10,7 +13,8 @@ import {
 } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useMemo, type JSX } from 'react';
+import { locationPickerBus } from '@features/shared/maps/utils/locationPickerBus';
+import React, { useEffect, useMemo, useRef, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -30,9 +34,11 @@ interface RouteParams {
 
 export const VendorEditBranchScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const navigation = useNavigation<any>();
   const route = useRoute();
   const { branchId } = route.params as RouteParams;
+  const sessionIdRef = useRef(`branch-edit-${branchId}-${Date.now()}`);
 
   const { data: branch } = useVendorBranchDetail(branchId);
   const updateBranch = useUpdateVendorBranch(branchId);
@@ -48,14 +54,22 @@ export const VendorEditBranchScreen = (): JSX.Element => {
       addressDetail: '',
       ward: '',
       city: '',
+      lat: 0,
+      long: 0,
     },
+    mode: 'onChange',
   });
 
   const {
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    setValue,
+    watch,
+    formState: { isSubmitting, errors },
   } = methods;
+
+  const lat = watch('lat');
+  const long = watch('long');
 
   useEffect(() => {
     if (branch) {
@@ -66,20 +80,79 @@ export const VendorEditBranchScreen = (): JSX.Element => {
         addressDetail: branch.addressDetail,
         ward: branch.ward,
         city: branch.city,
+        lat: branch.lat ?? 0,
+        long: branch.long ?? 0,
       });
     }
   }, [branch, reset]);
 
-  const onSubmit = (values: EditBranchFormValues): void => {
-    updateBranch.mutate(values, {
-      onSuccess: () => {
-        Alert.alert(t('manager_branch.success_update'));
-        navigation.goBack();
-      },
-      onError: () => {
-        Alert.alert(t('manager_branch.error_update'));
-      },
+  useEffect(() => {
+    const sessionId = sessionIdRef.current;
+    return locationPickerBus.subscribe(sessionId, (location) => {
+      setValue('lat', location.coordinate[1], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('long', location.coordinate[0], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      if (location.addressDetail) {
+        setValue('addressDetail', location.addressDetail, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      } else if (location.address) {
+        setValue('addressDetail', location.address, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+      if (location.ward) {
+        setValue('ward', location.ward, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+      if (location.city) {
+        setValue('city', location.city, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
     });
+  }, [setValue]);
+
+  const handlePickLocation = (): void => {
+    navigation.navigate('LocationPicker', {
+      sessionId: sessionIdRef.current,
+      initialCoordinate:
+        lat && long ? ([long, lat] as [number, number]) : undefined,
+    });
+  };
+
+  const onSubmit = (values: EditBranchFormValues): void => {
+    const ward = values.ward?.trim() || 'Thành phố Hồ Chí Minh';
+    const city = values.city?.trim() || 'Thành phố Hồ Chí Minh';
+    updateBranch.mutate(
+      {
+        ...values,
+        addressDetail: normalizeAddressDetail(values.addressDetail),
+        ward,
+        city,
+        dietaryPreferenceIds: [],
+      },
+      {
+        onSuccess: () => {
+          Alert.alert(t('manager_branch.success_update'));
+          navigation.goBack();
+        },
+        onError: (error) => {
+          console.error('Vendor update branch failed:', error);
+          Alert.alert(t('manager_branch.error_update'));
+        },
+      }
+    );
   };
 
   return (
@@ -132,6 +205,42 @@ export const VendorEditBranchScreen = (): JSX.Element => {
               label={t('manager_branch.city')}
               required
             />
+
+            <View className="mt-5">
+              <Text className="mb-2 text-sm font-semibold text-gray-700">
+                {t('manager_branch.location_section')}{' '}
+                <Text className="text-[#FE4763]">*</Text>
+              </Text>
+              <TouchableOpacity
+                onPress={handlePickLocation}
+                className="flex-row items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
+              >
+                <View className="flex-1 flex-row items-center gap-2">
+                  <Ionicons
+                    name="location-outline"
+                    size={20}
+                    color={COLORS.primary}
+                  />
+                  <Text
+                    className="flex-1 text-sm text-gray-700"
+                    numberOfLines={2}
+                  >
+                    {lat && long
+                      ? t('manager_branch.location_picked', {
+                          lat: lat.toFixed(6),
+                          lng: long.toFixed(6),
+                        })
+                      : t('manager_branch.location_pick')}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+              </TouchableOpacity>
+              {(errors.lat?.message ?? errors.long?.message) && (
+                <Text className="mt-1 text-sm text-[#FE4763]">
+                  {errors.lat?.message ?? errors.long?.message}
+                </Text>
+              )}
+            </View>
 
             <View className="mt-6">
               <TouchableOpacity

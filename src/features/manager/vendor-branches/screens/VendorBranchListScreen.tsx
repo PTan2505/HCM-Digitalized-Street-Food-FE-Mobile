@@ -1,4 +1,6 @@
 import Header from '@components/Header';
+import { COLORS } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 import { BranchStatusBadge } from '@manager/vendor-branches/components/BranchStatusBadge';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
 import type { ManagerBranch } from '@manager/branch/branch.types';
@@ -59,10 +61,33 @@ export const VendorBranchListScreen = (): React.JSX.Element => {
   const { data: vendorInfo, isLoading, isError, refetch } = useVendorInfo();
 
   const branches = vendorInfo?.branches ?? [];
+  const vendorId = vendorInfo?.vendorId;
+  const hasBranches = branches.length > 0;
+
+  const handleCreateOrAdd = (): void => {
+    if (!hasBranches || vendorId === undefined) {
+      navigation.navigate('VendorCreateBranch', { mode: 'createVendor' });
+    } else {
+      navigation.navigate('VendorCreateBranch', {
+        mode: 'addBranch',
+        vendorId,
+      });
+    }
+  };
+
+  const ctaLabel = hasBranches
+    ? t('vendor_branches.add_branch_cta')
+    : t('vendor_branches.create_vendor_cta');
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
-      <Header title={t('vendor_branches.title')} />
+      <Header
+        title={t('vendor_branches.title')}
+        secondaryAction={{
+          icon: <Ionicons name="add" size={20} color={COLORS.primary} />,
+          onPress: handleCreateOrAdd,
+        }}
+      />
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#9FD356" />
@@ -81,11 +106,18 @@ export const VendorBranchListScreen = (): React.JSX.Element => {
             </Text>
           </TouchableOpacity>
         </View>
-      ) : branches.length === 0 ? (
-        <View className="flex-1 items-center justify-center gap-3 px-8">
+      ) : !hasBranches ? (
+        <View className="flex-1 items-center justify-center gap-4 px-8">
           <Text className="text-center text-base text-gray-500">
             {t('vendor_branches.empty')}
           </Text>
+          <TouchableOpacity
+            className="flex-row items-center gap-2 rounded-full bg-primary px-6 py-3"
+            onPress={handleCreateOrAdd}
+          >
+            <Ionicons name="add" size={18} color="#fff" />
+            <Text className="font-semibold text-white">{ctaLabel}</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -101,6 +133,15 @@ export const VendorBranchListScreen = (): React.JSX.Element => {
               }
             />
           )}
+          ListFooterComponent={
+            <TouchableOpacity
+              onPress={handleCreateOrAdd}
+              className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-primary bg-white py-4"
+            >
+              <Ionicons name="add" size={18} color={COLORS.primary} />
+              <Text className="font-semibold text-primary">{ctaLabel}</Text>
+            </TouchableOpacity>
+          }
           contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
           onRefresh={() => void refetch()}

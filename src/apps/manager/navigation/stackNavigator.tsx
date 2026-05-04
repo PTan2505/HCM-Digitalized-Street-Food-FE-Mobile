@@ -1,3 +1,6 @@
+import { PaymentQRScreen } from '@features/shared/payment/screens/PaymentQRScreen';
+import { LocationPickerScreen } from '@features/customer/maps/screens/LocationPickerScreen';
+import { CreateBranchScreen } from '@manager/branch/screens/CreateBranchScreen';
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ManagerFeedbackDetailScreen } from '@features/manager/feedback/screens/ManagerFeedbackDetailScreen';
 import { ManagerFeedbackScreen } from '@features/manager/feedback/screens/ManagerFeedbackScreen';
@@ -105,6 +108,15 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     VendorDishCatalog: {
       screen: VendorDishCatalogScreen,
+    },
+    VendorCreateBranch: {
+      screen: CreateBranchScreen,
+    },
+    LocationPicker: {
+      screen: LocationPickerScreen,
+    },
+    PaymentQR: {
+      screen: PaymentQRScreen,
     },
   },
 });

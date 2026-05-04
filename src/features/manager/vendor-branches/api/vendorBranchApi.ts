@@ -1,8 +1,15 @@
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 import type {
+  CreateOrUpdateBranchResponse,
+  CreatePaymentLinkRequest,
+  CreatePaymentLinkResponse,
   ManagerBranch,
+  SubmitImagesResponse,
+  SubmitLicenseResponse,
   UpdateBranchRequest,
+  VendorRegistrationRequest,
+  VendorRegistrationResponse,
 } from '@manager/branch/branch.types';
 import type { DietaryPreference } from '@user/types/dietaryPreference';
 
@@ -15,6 +22,12 @@ export interface VendorInfo {
   updatedAt: string | null;
   isActive: boolean;
   branches: ManagerBranch[];
+}
+
+export interface PickedFile {
+  uri: string;
+  mimeType: string;
+  fileName: string;
 }
 
 export class VendorBranchApi {
@@ -63,7 +76,7 @@ export class VendorBranchApi {
 
   async claimBranch(
     branchId: number,
-    licenseImages: { uri: string; mimeType: string; fileName: string }[]
+    licenseImages: PickedFile[]
   ): Promise<unknown> {
     const formData = new FormData();
     formData.append('branchId', String(branchId));
@@ -81,6 +94,92 @@ export class VendorBranchApi {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    });
+    return res.data;
+  }
+
+  async registerVendor(
+    data: VendorRegistrationRequest
+  ): Promise<VendorRegistrationResponse> {
+    const res = await this.apiClient.post<
+      VendorRegistrationResponse,
+      VendorRegistrationRequest
+    >({
+      url: apiUrl.vendorBranch.registerVendor,
+      data,
+    });
+    return res.data;
+  }
+
+  async createBranch(
+    vendorId: number,
+    data: VendorRegistrationRequest
+  ): Promise<CreateOrUpdateBranchResponse> {
+    const res = await this.apiClient.post<
+      CreateOrUpdateBranchResponse,
+      VendorRegistrationRequest
+    >({
+      url: apiUrl.vendorBranch.createBranchForVendor(vendorId),
+      data,
+    });
+    return res.data;
+  }
+
+  async submitLicense(
+    branchId: number,
+    licenseImages: PickedFile[]
+  ): Promise<SubmitLicenseResponse> {
+    const formData = new FormData();
+    licenseImages.forEach((img) => {
+      formData.append('licenseImages', {
+        uri: img.uri,
+        type: img.mimeType,
+        name: img.fileName,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+    });
+    const res = await this.apiClient.post<SubmitLicenseResponse, FormData>({
+      url: apiUrl.vendorBranch.submitLicense(branchId),
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  }
+
+  async submitImages(
+    branchId: number,
+    images: PickedFile[]
+  ): Promise<SubmitImagesResponse[]> {
+    const formData = new FormData();
+    images.forEach((img) => {
+      formData.append('images', {
+        uri: img.uri,
+        type: img.mimeType,
+        name: img.fileName,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+    });
+    const res = await this.apiClient.post<SubmitImagesResponse[], FormData>({
+      url: apiUrl.vendorBranch.submitImages(branchId),
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  }
+
+  async createSubscriptionPaymentLink(
+    data: CreatePaymentLinkRequest
+  ): Promise<CreatePaymentLinkResponse> {
+    const res = await this.apiClient.post<
+      CreatePaymentLinkResponse,
+      CreatePaymentLinkRequest
+    >({
+      url: apiUrl.payment.createLink,
+      data,
     });
     return res.data;
   }

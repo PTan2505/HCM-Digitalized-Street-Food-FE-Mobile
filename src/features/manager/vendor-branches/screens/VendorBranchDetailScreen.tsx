@@ -1,5 +1,6 @@
 import Header from '@components/Header';
 import { BranchStatusBadge } from '@manager/vendor-branches/components/BranchStatusBadge';
+import { useCreateSubscriptionPaymentLink } from '@manager/vendor-branches/hooks/useCreateBranchFlow';
 import { useVendorBranchDetail } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { setActiveBranchId } from '@slices/managerAuth';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -7,6 +8,8 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import {
   ActivityIndicator,
+  Alert,
+  Linking,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -56,12 +59,61 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
     isError,
     refetch,
   } = useVendorBranchDetail(branchId);
+  const subscribeMutation = useCreateSubscriptionPaymentLink();
 
   // Sync the selected vendor branch into Redux so downstream screens
   // (Menu, Schedule, Feedback, Day Off) can read branchId from the store.
   useEffect(() => {
     dispatch(setActiveBranchId(branchId));
   }, [branchId, dispatch]);
+
+  const handleSubscribe = async (): Promise<void> => {
+    if (!branch || subscribeMutation.isPending) return;
+    try {
+      const res = await subscribeMutation.mutateAsync({ branchId });
+      if (!res.success) {
+        Alert.alert(
+          t('manager_branch.subscribe_payment_failed'),
+          res.message ?? ''
+        );
+        return;
+      }
+
+      const orderCodeNum = res.orderCode ? Number(res.orderCode) : null;
+
+      // If backend returned VietQR fields, render the QR locally.
+      if (res.bin && res.accountNumber) {
+        navigation.navigate('PaymentQR', {
+          orderId: branchId,
+          branchId,
+          orderCode: orderCodeNum,
+          totalAmount: res.amount ?? 0,
+          branchName: branch.name,
+          bin: res.bin,
+          accountNumber: res.accountNumber,
+          accountName: res.accountName,
+          mode: 'subscription',
+          description: t('manager_branch.subscribe_payment_description', {
+            branchId,
+          }),
+        });
+        return;
+      }
+
+      // Fallback: open the hosted PayOS page if QR fields aren't available.
+      if (res.paymentUrl) {
+        const canOpen = await Linking.canOpenURL(res.paymentUrl);
+        if (!canOpen) {
+          Alert.alert(t('manager_branch.subscribe_external_unavailable'));
+          return;
+        }
+        await Linking.openURL(res.paymentUrl);
+      }
+    } catch (error) {
+      console.error('Subscribe payment failed:', error);
+      Alert.alert(t('manager_branch.subscribe_payment_failed'));
+    }
+  };
 
   const navEntries: NavEntry[] = [
     {
@@ -161,6 +213,27 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
               value={branch.totalReviewCount ?? 0}
             />
           </View>
+
+          {!branch.isSubscribed && (
+            <TouchableOpacity
+              onPress={() => void handleSubscribe()}
+              disabled={subscribeMutation.isPending}
+              className={`flex-row items-center justify-center gap-2 rounded-2xl py-3 ${
+                subscribeMutation.isPending ? 'bg-gray-300' : 'bg-primary'
+              }`}
+            >
+              {subscribeMutation.isPending ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <FontAwesome6 name="qrcode" size={16} color="#fff" />
+                  <Text className="text-base font-semibold text-white">
+                    {t('manager_branch.subscribe_pay')}
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
 
           <Text className="mt-2 text-sm font-semibold text-gray-500">
             {t('vendor_branches.manage_section')}

@@ -135,6 +135,13 @@ export const apiUrl = {
     updateMyDietaryPreferences:
       '/api/Vendor/my-vendor/dietary-preferences',
     claimBranch: '/api/Vendor/claim-branch',
+    registerVendor: '/api/Vendor',
+    createBranchForVendor: (vendorId: number): string =>
+      `/api/Branch/vendor/${vendorId}`,
+    submitLicense: (branchId: number): string =>
+      `/api/Branch/${branchId}/submit-license`,
+    submitImages: (branchId: number): string =>
+      `/api/Branch/${branchId}/images`,
   },
   dashboard: {
     revenue: '/api/VendorDashboard/revenue',
@@ -164,6 +171,7 @@ export const apiUrl = {
     orderConfirm: '/api/Payment/order/confirm',
     userTransfer: '/api/Payment/user/transfer',
     history: '/api/Payment/history',
+    createLink: '/api/Payment/create-link',
   },
   notification: {
     registerToken: '/api/notifications/register-token',
