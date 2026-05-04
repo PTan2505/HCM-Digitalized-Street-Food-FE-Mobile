@@ -1,31 +1,99 @@
 import Header from '@components/Header';
-import { CampaignStatsCard } from '@manager/dashboard/components/CampaignStatsCard';
-import { DateRangeChips } from '@manager/dashboard/components/DateRangeChips';
-import { RevenueSummaryCard } from '@manager/dashboard/components/RevenueSummaryCard';
-import { TopDishesCard } from '@manager/dashboard/components/TopDishesCard';
-import { VoucherStatsCard } from '@manager/dashboard/components/VoucherStatsCard';
-import type { DashboardPreset } from '@manager/dashboard/hooks/useManagerDashboard';
+import { CampaignBarChart } from '@manager/dashboard/components/CampaignBarChart';
+import { DateRangeFilter } from '@manager/dashboard/components/DateRangeFilter';
+import { DishBarChart } from '@manager/dashboard/components/DishBarChart';
+import { RevenueLineChart } from '@manager/dashboard/components/RevenueLineChart';
+import { SummaryCard } from '@manager/dashboard/components/SummaryCard';
+import { VoucherBarChart } from '@manager/dashboard/components/VoucherBarChart';
 import {
+  buildDateRange,
   useCampaignStats,
-  useDateRange,
   useRevenueSummary,
   useTopDishes,
   useVoucherStats,
+  type DashboardPreset,
 } from '@manager/dashboard/hooks/useManagerDashboard';
+import {
+  DollarSign,
+  Megaphone,
+  ShoppingBag,
+  ShoppingCart,
+  Target,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ScrollView } from 'react-native';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
+const formatCurrency = (value: number): string =>
+  new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const DEFAULT_PRESET: DashboardPreset = 30;
+
 export const ManagerDashboardScreen = (): React.JSX.Element => {
   const { t } = useTranslation();
-  const [preset, setPreset] = useState<DashboardPreset>(30);
-  const { fromDate, toDate } = useDateRange(preset);
+  const [preset, setPreset] = useState<DashboardPreset | null>(DEFAULT_PRESET);
+  const [range, setRange] = useState(() => buildDateRange(DEFAULT_PRESET));
 
-  const revenue = useRevenueSummary(fromDate, toDate);
+  const handlePresetChange = (next: DashboardPreset): void => {
+    setPreset(next);
+    setRange(buildDateRange(next));
+  };
+
+  const handleRangeChange = (next: {
+    fromDate: string;
+    toDate: string;
+  }): void => {
+    setRange(next);
+    setPreset(null);
+  };
+
+  const revenue = useRevenueSummary(range.fromDate, range.toDate);
   const topDishes = useTopDishes();
   const voucherStats = useVoucherStats();
-  const campaignStats = useCampaignStats(fromDate, toDate);
+  const campaignStats = useCampaignStats(range.fromDate, range.toDate);
+
+  const isAnyLoading =
+    revenue.isLoading ||
+    topDishes.isLoading ||
+    voucherStats.isLoading ||
+    campaignStats.isLoading;
+
+  const isAnyFetching =
+    revenue.isFetching ||
+    topDishes.isFetching ||
+    voucherStats.isFetching ||
+    campaignStats.isFetching;
+
+  const isAnyError =
+    revenue.isError ||
+    topDishes.isError ||
+    voucherStats.isError ||
+    campaignStats.isError;
+
+  const onRefresh = (): void => {
+    void revenue.refetch();
+    void topDishes.refetch();
+    void voucherStats.refetch();
+    void campaignStats.refetch();
+  };
+
+  const totalRevenue = revenue.data?.totalRevenue ?? 0;
+  const totalOrders = revenue.data?.totalOrders ?? 0;
+  const totalCampaigns = campaignStats.data?.totalCampaigns ?? 0;
+  const totalCampaignRevenue = campaignStats.data?.totalCampaignRevenue ?? 0;
+  const totalCampaignOrders = campaignStats.data?.totalCampaignOrders ?? 0;
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
@@ -33,35 +101,83 @@ export const ManagerDashboardScreen = (): React.JSX.Element => {
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isAnyFetching} onRefresh={onRefresh} />
+        }
       >
-        <DateRangeChips selected={preset} onSelect={setPreset} />
+        <View>
+          <Text className="text-xl font-bold text-gray-900">
+            {t('manager_dashboard.heading')}
+          </Text>
+          <Text className="mt-0.5 text-xs text-gray-500">
+            {t('manager_dashboard.heading_subtitle')}
+          </Text>
+        </View>
 
-        <RevenueSummaryCard
-          data={revenue.data}
-          isLoading={revenue.isLoading}
-          isError={revenue.isError}
-          onRetry={() => void revenue.refetch()}
+        <DateRangeFilter
+          fromDate={range.fromDate}
+          toDate={range.toDate}
+          preset={preset}
+          onChange={handleRangeChange}
+          onPresetChange={handlePresetChange}
         />
 
-        <TopDishesCard
-          dishes={topDishes.data?.topDishes}
-          isLoading={topDishes.isLoading}
-          isError={topDishes.isError}
-          onRetry={() => void topDishes.refetch()}
-        />
+        {isAnyLoading ? (
+          <View className="h-48 items-center justify-center">
+            <ActivityIndicator color="#9FD356" size="large" />
+            <Text className="mt-2 text-xs text-gray-500">
+              {t('manager_dashboard.loading')}
+            </Text>
+          </View>
+        ) : (
+          <>
+            {isAnyError && (
+              <View className="flex-row items-center justify-between rounded-xl border border-red-100 bg-red-50 p-3">
+                <Text className="flex-1 text-xs text-red-600">
+                  {t('manager_dashboard.partial_error')}
+                </Text>
+                <TouchableOpacity onPress={onRefresh}>
+                  <Text className="text-xs font-semibold text-red-700">
+                    {t('common.retry')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-        <VoucherStatsCard
-          usages={voucherStats.data?.voucherUsages}
-          isLoading={voucherStats.isLoading}
-          isError={voucherStats.isError}
-          onRetry={() => void voucherStats.refetch()}
-        />
+            <View className="flex-row flex-wrap gap-2">
+              <SummaryCard
+                title={t('manager_dashboard.total_revenue')}
+                value={formatCurrency(totalRevenue)}
+                Icon={DollarSign}
+              />
+              <SummaryCard
+                title={t('manager_dashboard.total_orders')}
+                value={totalOrders}
+                Icon={ShoppingBag}
+              />
+              <SummaryCard
+                title={t('manager_dashboard.total_campaigns')}
+                value={totalCampaigns}
+                Icon={Target}
+              />
+              <SummaryCard
+                title={t('manager_dashboard.campaign_revenue')}
+                value={formatCurrency(totalCampaignRevenue)}
+                Icon={Megaphone}
+              />
+              <SummaryCard
+                title={t('manager_dashboard.campaign_orders')}
+                value={totalCampaignOrders}
+                Icon={ShoppingCart}
+              />
+            </View>
 
-        <CampaignStatsCard
-          data={campaignStats.data}
-          isLoading={campaignStats.isLoading}
-          isError={campaignStats.isError}
-        />
+            <RevenueLineChart data={revenue.data?.dailyRevenues ?? []} />
+            <DishBarChart data={topDishes.data?.topDishes ?? []} />
+            <CampaignBarChart data={campaignStats.data?.campaigns ?? []} />
+            <VoucherBarChart data={voucherStats.data?.voucherUsages ?? []} />
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

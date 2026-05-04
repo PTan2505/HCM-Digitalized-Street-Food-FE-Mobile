@@ -9,19 +9,23 @@ import { queryKeys } from '@lib/queryKeys';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-export type DashboardPreset = 7 | 14 | 30;
+export type DashboardPreset = 7 | 30 | 90;
+
+export const buildDateRange = (
+  days: number
+): { fromDate: string; toDate: string } => {
+  const to = new Date();
+  to.setHours(23, 59, 59, 999);
+  const from = new Date();
+  from.setDate(from.getDate() - days);
+  from.setHours(0, 0, 0, 0);
+  return { fromDate: from.toISOString(), toDate: to.toISOString() };
+};
 
 export const useDateRange = (
   days: DashboardPreset
 ): { fromDate: string; toDate: string } =>
-  useMemo(() => {
-    const to = new Date();
-    to.setUTCHours(23, 59, 59, 999);
-    const from = new Date();
-    from.setDate(from.getDate() - days);
-    from.setUTCHours(0, 0, 0, 0);
-    return { fromDate: from.toISOString(), toDate: to.toISOString() };
-  }, [days]);
+  useMemo(() => buildDateRange(days), [days]);
 
 export const useRevenueSummary = (
   fromDate: string,
