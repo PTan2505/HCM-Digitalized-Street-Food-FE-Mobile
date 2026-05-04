@@ -154,7 +154,21 @@ const PaymentTransactionItem = ({
       ) : null}
 
       <View className="mt-3 flex-row items-center justify-between border-t border-gray-100 pt-3">
-        <Text className="text-sm text-gray-400">{formattedDate}</Text>
+        <View>
+          <Text className="text-sm text-gray-400">{formattedDate}</Text>
+          {item.paidAt ? (
+            <Text className="mt-0.5 text-xs text-gray-400">
+              {t('payment_history.paid_at')}:{' '}
+              {new Date(item.paidAt).toLocaleString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
+          ) : null}
+        </View>
         <Text
           className="text-base font-bold"
           style={{ color: isOutgoing ? '#e66772' : '#00B14F' }}
@@ -176,7 +190,13 @@ const PaymentTransactionItem = ({
   );
 };
 
-export const PaymentHistoryScreen = (): JSX.Element => {
+interface PaymentHistoryScreenProps {
+  onTransactionPress?: (transaction: PaymentTransaction) => void;
+}
+
+export const PaymentHistoryScreen = ({
+  onTransactionPress,
+}: PaymentHistoryScreenProps = {}): JSX.Element => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
@@ -222,13 +242,17 @@ export const PaymentHistoryScreen = (): JSX.Element => {
   const handleTransactionPress = useCallback(
     (tx: PaymentTransaction) => {
       if (tx.orderId === null) return;
+      if (onTransactionPress) {
+        onTransactionPress(tx);
+        return;
+      }
       navigation.navigate('OrderStatus', {
         orderId: tx.orderId,
         branchName: '',
         readOnly: true,
       });
     },
-    [navigation]
+    [navigation, onTransactionPress]
   );
 
   const renderItem = ({ item }: { item: PaymentTransaction }): JSX.Element => (

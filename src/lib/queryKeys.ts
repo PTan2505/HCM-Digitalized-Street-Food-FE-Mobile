@@ -165,6 +165,8 @@ export const queryKeys = {
       ['managerDishes', 'branch', branchId] as const,
     vendorCatalog: (vendorId: number) =>
       ['managerDishes', 'vendor', vendorId] as const,
+    byVendor: (vendorId: number, keyword: string) =>
+      ['managerDishes', 'byVendor', vendorId, keyword] as const,
   },
 
   tastes: {
@@ -223,6 +225,8 @@ export const queryKeys = {
     vendorInfo: () => ['vendorBranches', 'vendorInfo'] as const,
     detail: (branchId: number) =>
       ['vendorBranches', 'detail', branchId] as const,
+    dietaryPreferences: (vendorId: number) =>
+      ['vendorBranches', 'dietaryPreferences', vendorId] as const,
   },
 
   managerDashboard: {

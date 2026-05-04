@@ -130,6 +130,11 @@ export const apiUrl = {
     byId: (branchId: number): string => `/api/Branch/${branchId}`,
     branchAssignments: (branchId: number): string =>
       `/api/branch/${branchId}/dish-assignments`,
+    dietaryPreferences: (vendorId: number): string =>
+      `/api/Vendor/${vendorId}/dietary-preferences`,
+    updateMyDietaryPreferences:
+      '/api/Vendor/my-vendor/dietary-preferences',
+    claimBranch: '/api/Vendor/claim-branch',
   },
   dashboard: {
     revenue: '/api/VendorDashboard/revenue',

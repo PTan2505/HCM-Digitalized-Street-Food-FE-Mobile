@@ -1,5 +1,6 @@
 import Header from '@components/Header';
 import { CampaignStatusBadge } from '@manager/campaigns/components/CampaignStatusBadge';
+import { CampaignVoucherCard } from '@manager/campaigns/components/CampaignVoucherCard';
 import { useVendorCampaignDetail } from '@manager/campaigns/hooks/useVendorCampaigns';
 import {
   useAddBranchesToCampaign,
@@ -57,6 +58,13 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
     staleTime: 5 * 60_000,
   });
 
+  const { data: vouchers = [] } = useQuery({
+    queryKey: queryKeys.vouchers.campaignVoucher(campaignId),
+    queryFn: () => axiosApi.voucherApi.getCampaignVouchers(campaignId),
+    enabled: campaignId > 0,
+    staleTime: 60_000,
+  });
+
   const removeBranches = useRemoveBranchesFromCampaign(campaignId);
   const addBranches = useAddBranchesToCampaign(campaignId);
   const [isRemoving, setIsRemoving] = useState<number | null>(null);
@@ -103,6 +111,13 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
     () => eligibleBranches.filter((b) => enrolledBranchIds.has(b.branchId)).length,
     [eligibleBranches, enrolledBranchIds]
   );
+
+  const requiredTierLabel = useMemo((): string => {
+    if (!campaign?.requiredTierId)
+      return t('manager_campaigns.no_required_tier');
+    const tier = tiers.find((item) => item.tierId === campaign.requiredTierId);
+    return tier?.name ?? `#${campaign.requiredTierId}`;
+  }, [campaign, tiers, t]);
 
   const handleRemoveBranch = (branchId: number, branchName: string): void => {
     Alert.alert(
@@ -191,6 +206,55 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
                 {formatDate(campaign.endDate)}
               </Text>
             </View>
+          </View>
+
+          {/* Campaign details */}
+          <View className="rounded-2xl bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-sm font-semibold text-gray-500">
+                {t('manager_campaigns.target_segment')}
+              </Text>
+              <Text className="ml-4 flex-shrink text-right text-sm font-medium text-gray-800">
+                {campaign.targetSegment?.trim()
+                  ? campaign.targetSegment
+                  : t('manager_campaigns.target_segment_all')}
+              </Text>
+            </View>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm font-semibold text-gray-500">
+                {t('manager_campaigns.required_tier')}
+              </Text>
+              <Text className="ml-4 text-right text-sm font-medium text-gray-800">
+                {requiredTierLabel}
+              </Text>
+            </View>
+          </View>
+
+          {/* Vouchers */}
+          <View className="rounded-2xl bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-base font-bold text-gray-900">
+                {t('manager_campaigns.campaign_vouchers')}
+              </Text>
+              {vouchers.length > 0 && (
+                <View className="rounded-full bg-gray-100 px-2 py-0.5">
+                  <Text className="text-xs font-semibold text-gray-500">
+                    {vouchers.length}
+                  </Text>
+                </View>
+              )}
+            </View>
+            {vouchers.length === 0 ? (
+              <Text className="text-sm text-gray-400">
+                {t('manager_campaigns.no_vouchers')}
+              </Text>
+            ) : (
+              <View className="gap-3">
+                {vouchers.map((v) => (
+                  <CampaignVoucherCard key={v.voucherId} voucher={v} />
+                ))}
+              </View>
+            )}
           </View>
 
           {/* Count badges */}

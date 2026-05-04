@@ -11,6 +11,12 @@ import { VendorEditCampaignScreen } from '@manager/campaigns/screens/VendorEditC
 import { VendorSystemCampaignDetailScreen } from '@manager/campaigns/screens/VendorSystemCampaignDetailScreen';
 import { EditBranchScreen } from '@manager/branch/screens/EditBranchScreen';
 import { AddDayOffScreen } from '@manager/day-off/screens/AddDayOffScreen';
+import { VendorDietaryPreferencesScreen } from '@manager/dietary/screens/VendorDietaryPreferencesScreen';
+import { VendorDishCatalogScreen } from '@manager/dish/screens/VendorDishCatalogScreen';
+import { VendorClaimBranchScreen } from '@manager/ghost-pin/screens/VendorClaimBranchScreen';
+import { VendorGhostPinScreen } from '@manager/ghost-pin/screens/VendorGhostPinScreen';
+import { ManagerPaymentHistoryScreen } from '@manager/payment/screens/ManagerPaymentHistoryScreen';
+import { VendorRegistrationHistoryScreen } from '@manager/registration-history/screens/VendorRegistrationHistoryScreen';
 import { VendorBranchDetailScreen } from '@manager/vendor-branches/screens/VendorBranchDetailScreen';
 import { VendorEditBranchScreen } from '@manager/vendor-branches/screens/VendorEditBranchScreen';
 import { useManagerSelector } from '@manager-app/managerHooks';
@@ -73,6 +79,24 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     VendorSystemCampaignDetail: {
       screen: VendorSystemCampaignDetailScreen,
+    },
+    ManagerPaymentHistory: {
+      screen: ManagerPaymentHistoryScreen,
+    },
+    VendorRegistrationHistory: {
+      screen: VendorRegistrationHistoryScreen,
+    },
+    VendorDietaryPreferences: {
+      screen: VendorDietaryPreferencesScreen,
+    },
+    VendorGhostPin: {
+      screen: VendorGhostPinScreen,
+    },
+    VendorClaimBranch: {
+      screen: VendorClaimBranchScreen,
+    },
+    VendorDishCatalog: {
+      screen: VendorDishCatalogScreen,
     },
   },
 });
