@@ -223,7 +223,7 @@ export const TabBar = <T extends TabKey>({
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
       className="mb-2 border-b border-gray-200 bg-white"
-      style={{ flexGrow: 0 }}
+      style={{ flexGrow: 0, flexShrink: 0 }}
     >
       {tabContainer}
     </ScrollView>
