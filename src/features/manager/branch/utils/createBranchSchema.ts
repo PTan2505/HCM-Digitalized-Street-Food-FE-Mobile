@@ -22,9 +22,7 @@ export const getCreateVendorSchema = (t: TFunction) =>
       .string()
       .min(3, t('manager_branch.error_branch_name_min'))
       .max(100, t('manager_branch.error_branch_name_max')),
-    addressDetail: z
-      .string()
-      .min(10, t('manager_branch.error_address_min')),
+    addressDetail: z.string().min(10, t('manager_branch.error_address_min')),
     ward: z.string(),
     city: z.string(),
     lat: z
@@ -57,9 +55,7 @@ export const getAddBranchSchema = (t: TFunction) =>
       .string()
       .min(3, t('manager_branch.error_branch_name_min'))
       .max(100, t('manager_branch.error_branch_name_max')),
-    addressDetail: z
-      .string()
-      .min(10, t('manager_branch.error_address_min')),
+    addressDetail: z.string().min(10, t('manager_branch.error_address_min')),
     ward: z.string(),
     city: z.string(),
     lat: z

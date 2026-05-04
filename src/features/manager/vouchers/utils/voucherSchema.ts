@@ -47,12 +47,9 @@ export const getVoucherSchema = (t: TFunction) =>
       message: t('manager_vouchers.end_before_start'),
       path: ['endDate'],
     })
-    .refine(
-      (data) => data.type !== 'PERCENT' || data.discountValue <= 100,
-      {
-        message: t('manager_vouchers.percent_max_100'),
-        path: ['discountValue'],
-      }
-    );
+    .refine((data) => data.type !== 'PERCENT' || data.discountValue <= 100, {
+      message: t('manager_vouchers.percent_max_100'),
+      path: ['discountValue'],
+    });
 
 export type VoucherFormValues = z.infer<ReturnType<typeof getVoucherSchema>>;

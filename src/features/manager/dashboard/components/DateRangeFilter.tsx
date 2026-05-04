@@ -122,7 +122,7 @@ export const DateRangeFilter = ({
         >
           <Calendar size={14} color="#6B7280" />
           <View className="flex-1">
-            <Text className="text-[10px] font-semibold text-gray-500 uppercase">
+            <Text className="text-[10px] font-semibold uppercase text-gray-500">
               {t('manager_dashboard.from_date')}
             </Text>
             <Text className="text-sm text-gray-800">
@@ -136,7 +136,7 @@ export const DateRangeFilter = ({
         >
           <Calendar size={14} color="#6B7280" />
           <View className="flex-1">
-            <Text className="text-[10px] font-semibold text-gray-500 uppercase">
+            <Text className="text-[10px] font-semibold uppercase text-gray-500">
               {t('manager_dashboard.to_date')}
             </Text>
             <Text className="text-sm text-gray-800">

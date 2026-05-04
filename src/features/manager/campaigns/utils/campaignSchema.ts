@@ -40,13 +40,10 @@ export const getVoucherDraftSchema = (t: TFunction) =>
         .int(t('manager_vouchers.must_be_integer'))
         .min(0, t('manager_vouchers.must_be_non_negative')),
     })
-    .refine(
-      (data) => data.type !== 'PERCENT' || data.discountValue <= 100,
-      {
-        message: t('manager_vouchers.percent_max_100'),
-        path: ['discountValue'],
-      }
-    );
+    .refine((data) => data.type !== 'PERCENT' || data.discountValue <= 100, {
+      message: t('manager_vouchers.percent_max_100'),
+      path: ['discountValue'],
+    });
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 export const getCampaignSchema = (

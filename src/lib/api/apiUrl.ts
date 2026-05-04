@@ -132,8 +132,7 @@ export const apiUrl = {
       `/api/branch/${branchId}/dish-assignments`,
     dietaryPreferences: (vendorId: number): string =>
       `/api/Vendor/${vendorId}/dietary-preferences`,
-    updateMyDietaryPreferences:
-      '/api/Vendor/my-vendor/dietary-preferences',
+    updateMyDietaryPreferences: '/api/Vendor/my-vendor/dietary-preferences',
     claimBranch: '/api/Vendor/claim-branch',
     registerVendor: '/api/Vendor',
     createBranchForVendor: (vendorId: number): string =>

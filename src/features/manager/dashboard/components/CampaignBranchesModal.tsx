@@ -1,13 +1,7 @@
 import type { CampaignBranchStat } from '@manager/dashboard/api/managerDashboardApi';
 import { X } from 'lucide-react-native';
 import React from 'react';
-import {
-  FlatList,
-  Modal,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 

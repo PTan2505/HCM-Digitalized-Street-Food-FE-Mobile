@@ -56,7 +56,9 @@ export const CampaignBarChart = ({ data }: Props): React.JSX.Element => {
     const collapsed: Array<{ campaign: CampaignStat; index: number }> =
       sorted.length > 5
         ? ((): Array<{ campaign: CampaignStat; index: number }> => {
-            const top = sorted.slice(0, 5).map((c, i) => ({ campaign: c, index: i }));
+            const top = sorted
+              .slice(0, 5)
+              .map((c, i) => ({ campaign: c, index: i }));
             const rest = sorted.slice(5);
             const branchMap = new Map<number, CampaignBranchStat>();
             for (const c of rest) {
@@ -159,7 +161,9 @@ export const CampaignBarChart = ({ data }: Props): React.JSX.Element => {
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholder={t('manager_dashboard.campaign_search_placeholder')}
+                  placeholder={t(
+                    'manager_dashboard.campaign_search_placeholder'
+                  )}
                   placeholderTextColor="#9CA3AF"
                   className="flex-1 text-sm text-gray-800"
                 />

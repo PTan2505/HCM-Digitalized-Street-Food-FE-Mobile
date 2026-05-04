@@ -12,9 +12,7 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query';
 
-export const useVoucherDetail = (
-  id: number
-): UseQueryResult<ManagerVoucher> =>
+export const useVoucherDetail = (id: number): UseQueryResult<ManagerVoucher> =>
   useQuery({
     queryKey: queryKeys.managerVouchers.detail(id),
     queryFn: () => axiosApi.managerVoucherApi.getById(id),
@@ -90,8 +88,7 @@ export const useDeleteVoucher = (): UseMutationResult<
 > => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ voucherId }) =>
-      axiosApi.managerVoucherApi.delete(voucherId),
+    mutationFn: ({ voucherId }) => axiosApi.managerVoucherApi.delete(voucherId),
     onSuccess: (_, { campaignId }) => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.managerVouchers.all,

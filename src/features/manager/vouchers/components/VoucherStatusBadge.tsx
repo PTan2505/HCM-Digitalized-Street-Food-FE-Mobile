@@ -27,36 +27,34 @@ const computeStatus = (voucher: VoucherLike): Status => {
   return 'active';
 };
 
-const STYLES: Record<
-  Status,
-  { container: string; text: string; key: string }
-> = {
-  soldOut: {
-    container: 'border-orange-200 bg-orange-50',
-    text: 'text-orange-600',
-    key: 'manager_vouchers.status_sold_out',
-  },
-  inactive: {
-    container: 'border-red-200 bg-red-50',
-    text: 'text-red-500',
-    key: 'manager_vouchers.status_paused',
-  },
-  upcoming: {
-    container: 'border-blue-200 bg-blue-50',
-    text: 'text-blue-700',
-    key: 'manager_vouchers.status_upcoming',
-  },
-  ended: {
-    container: 'border-gray-200 bg-gray-100',
-    text: 'text-gray-600',
-    key: 'manager_vouchers.status_ended',
-  },
-  active: {
-    container: 'border-green-200 bg-green-50',
-    text: 'text-green-700',
-    key: 'manager_vouchers.status_active',
-  },
-};
+const STYLES: Record<Status, { container: string; text: string; key: string }> =
+  {
+    soldOut: {
+      container: 'border-orange-200 bg-orange-50',
+      text: 'text-orange-600',
+      key: 'manager_vouchers.status_sold_out',
+    },
+    inactive: {
+      container: 'border-red-200 bg-red-50',
+      text: 'text-red-500',
+      key: 'manager_vouchers.status_paused',
+    },
+    upcoming: {
+      container: 'border-blue-200 bg-blue-50',
+      text: 'text-blue-700',
+      key: 'manager_vouchers.status_upcoming',
+    },
+    ended: {
+      container: 'border-gray-200 bg-gray-100',
+      text: 'text-gray-600',
+      key: 'manager_vouchers.status_ended',
+    },
+    active: {
+      container: 'border-green-200 bg-green-50',
+      text: 'text-green-700',
+      key: 'manager_vouchers.status_active',
+    },
+  };
 
 export const VoucherStatusBadge = ({ voucher }: Props): React.JSX.Element => {
   const { t } = useTranslation();

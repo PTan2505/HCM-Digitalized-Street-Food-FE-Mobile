@@ -10,7 +10,10 @@ import { useManagerSelector } from '@manager-app/managerHooks';
 import { ManagerBranchHomeScreen } from '@manager/branch/screens/ManagerBranchHomeScreen';
 import { VendorCampaignScreen } from '@manager/campaigns/screens/VendorCampaignScreen';
 import { VendorBranchListScreen } from '@manager/vendor-branches/screens/VendorBranchListScreen';
-import { BottomTabNavigationOptions, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+  BottomTabNavigationOptions,
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

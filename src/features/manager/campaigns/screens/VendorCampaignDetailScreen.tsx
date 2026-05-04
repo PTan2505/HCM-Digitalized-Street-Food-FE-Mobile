@@ -100,11 +100,7 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
   );
 
   const eligibleBranches = useMemo(() => {
-    if (
-      !isSystemCampaign ||
-      !campaign?.requiredTierId ||
-      tiers.length === 0
-    ) {
+    if (!isSystemCampaign || !campaign?.requiredTierId || tiers.length === 0) {
       return subscribedBranches;
     }
     const requiredTier = tiers.find(

@@ -69,8 +69,7 @@ export const buildVoucherCreateRequest = (
 ): VoucherCreateRequest => ({
   ...v,
   type: toApiType(v.type),
-  maxDiscountValue:
-    v.type === 'AMOUNT' ? null : (v.maxDiscountValue ?? null),
+  maxDiscountValue: v.type === 'AMOUNT' ? null : (v.maxDiscountValue ?? null),
   expiredDate: null,
 });
 

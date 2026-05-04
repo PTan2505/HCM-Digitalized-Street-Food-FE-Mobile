@@ -55,7 +55,9 @@ export const VendorClaimBranchScreen = (): React.JSX.Element => {
       }
       if (result.error === 'cancelled') return;
       const compressed = await Promise.all(
-        result.images.map((img) => compressImageForUpload(img.uri, img.fileName))
+        result.images.map((img) =>
+          compressImageForUpload(img.uri, img.fileName)
+        )
       );
       setImages((prev) => [...prev, ...compressed].slice(0, MAX_IMAGES));
     } finally {
@@ -156,7 +158,11 @@ export const VendorClaimBranchScreen = (): React.JSX.Element => {
               <ActivityIndicator color={COLORS.primary} />
             ) : (
               <>
-                <Ionicons name="image-outline" size={20} color={COLORS.primary} />
+                <Ionicons
+                  name="image-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
                 <Text className="ml-2 text-sm font-semibold text-primary">
                   {t('vendor_claim.add_image')}
                 </Text>

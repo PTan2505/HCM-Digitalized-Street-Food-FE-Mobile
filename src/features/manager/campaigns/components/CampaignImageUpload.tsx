@@ -33,9 +33,7 @@ export const CampaignImageUpload = ({
   const { t } = useTranslation();
   const [isPicking, setIsPicking] = useState(false);
 
-  const previewUri =
-    value?.uri ??
-    (initialUrl && !value ? initialUrl : null);
+  const previewUri = value?.uri ?? (initialUrl && !value ? initialUrl : null);
 
   const ensurePermission = async (
     type: 'camera' | 'library'

@@ -20,10 +20,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
-import {
-  pickImagesFromLibrary,
-  type PickedImage,
-} from '@utils/imagePicker';
+import { pickImagesFromLibrary, type PickedImage } from '@utils/imagePicker';
 import { locationPickerBus } from '@features/shared/maps/utils/locationPickerBus';
 import React, { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -156,7 +153,8 @@ export const CreateBranchScreen = (): JSX.Element => {
   const handlePickLocation = (): void => {
     navigation.navigate('LocationPicker', {
       sessionId: sessionIdRef.current,
-      initialCoordinate: lat && lng ? ([lng, lat] as [number, number]) : undefined,
+      initialCoordinate:
+        lat && lng ? ([lng, lat] as [number, number]) : undefined,
     });
   };
 
@@ -358,7 +356,9 @@ export const CreateBranchScreen = (): JSX.Element => {
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
                   {dietaryPreferences.map((d) => {
-                    const isSelected = dietaryIds.includes(d.dietaryPreferenceId);
+                    const isSelected = dietaryIds.includes(
+                      d.dietaryPreferenceId
+                    );
                     return (
                       <TouchableOpacity
                         key={d.dietaryPreferenceId}
@@ -461,7 +461,11 @@ export const CreateBranchScreen = (): JSX.Element => {
                 onPress={handlePickStoreImages}
                 className="flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-gray-50 py-4"
               >
-                <Ionicons name="image-outline" size={20} color={COLORS.primary} />
+                <Ionicons
+                  name="image-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
                 <Text className="text-sm font-semibold text-gray-700">
                   {storeImages.length > 0
                     ? t('manager_branch.images_count', {

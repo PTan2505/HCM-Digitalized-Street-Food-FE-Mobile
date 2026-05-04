@@ -26,10 +26,7 @@ interface RouteParams {
   campaignId?: number | string;
 }
 
-const buildDefaults = (
-  startDate = '',
-  endDate = ''
-): VoucherFormValues => ({
+const buildDefaults = (startDate = '', endDate = ''): VoucherFormValues => ({
   name: '',
   voucherCode: '',
   description: '',
@@ -81,10 +78,7 @@ export const VendorCreateVoucherScreen = (): JSX.Element => {
     }
   }, [campaign, reset]);
 
-  const submit = (
-    values: VoucherFormValues,
-    onDone: () => void
-  ): void => {
+  const submit = (values: VoucherFormValues, onDone: () => void): void => {
     createVouchers.mutate(
       [
         {
@@ -115,12 +109,7 @@ export const VendorCreateVoucherScreen = (): JSX.Element => {
   const onSaveAndAddAnother = handleSubmit((values) => {
     submit(values, () => {
       Alert.alert(t('manager_vouchers.create_success'));
-      reset(
-        buildDefaults(
-          campaign?.startDate ?? '',
-          campaign?.endDate ?? ''
-        )
-      );
+      reset(buildDefaults(campaign?.startDate ?? '', campaign?.endDate ?? ''));
     });
   });
 
@@ -183,9 +172,7 @@ export const VendorCreateVoucherScreen = (): JSX.Element => {
               </TouchableOpacity>
               <TouchableOpacity
                 className={`items-center rounded-full border-2 py-3 ${
-                  isPending
-                    ? 'border-gray-200'
-                    : 'border-primary bg-white'
+                  isPending ? 'border-gray-200' : 'border-primary bg-white'
                 }`}
                 onPress={onSaveAndAddAnother}
                 disabled={isPending}

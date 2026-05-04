@@ -9,13 +9,14 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query';
 
-export const useAllDietaryPreferences =
-  (): UseQueryResult<DietaryPreference[]> =>
-    useQuery({
-      queryKey: queryKeys.dietary.preferences,
-      queryFn: () => axiosApi.dietaryPreferenceApi.getAllDietaryPreferences(),
-      staleTime: 5 * 60_000,
-    });
+export const useAllDietaryPreferences = (): UseQueryResult<
+  DietaryPreference[]
+> =>
+  useQuery({
+    queryKey: queryKeys.dietary.preferences,
+    queryFn: () => axiosApi.dietaryPreferenceApi.getAllDietaryPreferences(),
+    staleTime: 5 * 60_000,
+  });
 
 export const useMyVendorDietaryPreferences = (
   vendorId: number | undefined

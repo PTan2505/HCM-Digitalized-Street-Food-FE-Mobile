@@ -61,11 +61,7 @@ const parseValue = (raw: string, mode: Mode): Date | null => {
 };
 
 /** Serialize a picked Date into the storage format. */
-const serializeValue = (
-  d: Date,
-  mode: Mode,
-  format: ValueFormat
-): string => {
+const serializeValue = (d: Date, mode: Mode, format: ValueFormat): string => {
   if (mode === 'time' || format === 'time-only') {
     return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
@@ -88,9 +84,8 @@ const formatDisplay = (raw: string, mode: Mode): string => {
   return `${date} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const isFormProps = <T extends FieldValues>(
-  p: Props<T>
-): p is FormProps<T> => 'name' in p;
+const isFormProps = <T extends FieldValues>(p: Props<T>): p is FormProps<T> =>
+  'name' in p;
 
 /** Internal renderer — receives a value and an onChange (form or controlled). */
 const FieldBody = ({
@@ -122,10 +117,7 @@ const FieldBody = ({
 
   const valueDate = parseValue(value, mode);
 
-  const handleChange = (
-    event: DateTimePickerEvent,
-    selected?: Date
-  ): void => {
+  const handleChange = (event: DateTimePickerEvent, selected?: Date): void => {
     if (Platform.OS === 'android') {
       if (event.type === 'dismissed') {
         setShow(null);

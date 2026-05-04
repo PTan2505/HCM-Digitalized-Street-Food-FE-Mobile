@@ -8,12 +8,19 @@ interface Props {
   Icon: LucideIcon;
 }
 
-export const SummaryCard = ({ title, value, Icon }: Props): React.JSX.Element => {
+export const SummaryCard = ({
+  title,
+  value,
+  Icon,
+}: Props): React.JSX.Element => {
   return (
-    <View className="flex-1 min-w-[46%] rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
+    <View className="min-w-[46%] flex-1 rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
       <View className="flex-row items-center justify-between gap-2">
         <View className="min-w-0 flex-1">
-          <Text className="mb-1 text-[11px] font-medium text-gray-500" numberOfLines={1}>
+          <Text
+            className="mb-1 text-[11px] font-medium text-gray-500"
+            numberOfLines={1}
+          >
             {title}
           </Text>
           <Text className="text-base font-bold text-gray-900" numberOfLines={1}>

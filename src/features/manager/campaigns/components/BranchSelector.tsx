@@ -79,17 +79,11 @@ export const BranchSelector = ({
               </Text>
               <View
                 className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
-                  isSelected
-                    ? 'border-primary bg-primary'
-                    : 'border-gray-300'
+                  isSelected ? 'border-primary bg-primary' : 'border-gray-300'
                 }`}
               >
                 {isSelected ? (
-                  <MaterialCommunityIcons
-                    name="check"
-                    size={14}
-                    color="#fff"
-                  />
+                  <MaterialCommunityIcons name="check" size={14} color="#fff" />
                 ) : null}
               </View>
             </TouchableOpacity>
