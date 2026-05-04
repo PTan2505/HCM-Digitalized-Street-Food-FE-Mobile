@@ -13,7 +13,11 @@ import {
   getCampaignSchema,
   type CampaignFormValues,
 } from '@manager/campaigns/utils/campaignSchema';
+import { useVouchersByCampaign } from '@manager/vouchers/hooks/useVendorVouchers';
+import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -40,15 +44,19 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
   const route = useRoute();
   const { campaignId } = route.params as RouteParams;
 
+  const queryClient = useQueryClient();
   const { data: campaign, isLoading } = useVendorCampaignDetail(campaignId);
+  const { data: vouchers = [] } = useVouchersByCampaign(campaignId);
   const updateCampaign = useUpdateVendorCampaign(campaignId);
   const uploadImage = useUploadCampaignImage(campaignId);
   const deleteImage = useDeleteCampaignImage(campaignId);
   const deleteCampaign = useDeleteVendorCampaign();
   const schema = useMemo(() => getCampaignSchema(t), [t]);
+  const hasVouchers = vouchers.length > 0;
 
   const [image, setImage] = useState<CampaignImageValue | null>(null);
   const [imageRemoved, setImageRemoved] = useState(false);
+  const [isSyncingVouchers, setIsSyncingVouchers] = useState(false);
 
   const methods = useForm<CampaignFormValues>({
     resolver: zodResolver(schema),
@@ -92,7 +100,52 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
     setImage(next);
   };
 
+  const syncVoucherDates = async (
+    nextStart: string,
+    nextEnd: string
+  ): Promise<void> => {
+    if (vouchers.length === 0) return;
+    const datesUnchanged =
+      campaign?.startDate === nextStart && campaign?.endDate === nextEnd;
+    if (datesUnchanged) return;
+
+    setIsSyncingVouchers(true);
+    try {
+      await Promise.all(
+        vouchers.map((voucher) =>
+          axiosApi.managerVoucherApi.update(voucher.voucherId, {
+            name: voucher.name,
+            voucherCode: voucher.voucherCode,
+            description: voucher.description,
+            type: voucher.type,
+            discountValue: voucher.discountValue,
+            maxDiscountValue: voucher.maxDiscountValue,
+            minAmountRequired: voucher.minAmountRequired,
+            quantity: voucher.quantity,
+            redeemPoint: voucher.redeemPoint,
+            isActive: voucher.isActive,
+            campaignId: voucher.campaignId,
+            startDate: nextStart,
+            endDate: nextEnd,
+          })
+        )
+      );
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerVouchers.byCampaign(campaignId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.vouchers.campaignVoucher(campaignId),
+      });
+    } finally {
+      setIsSyncingVouchers(false);
+    }
+  };
+
   const onSubmit = (values: CampaignFormValues): void => {
+    if (!hasVouchers) {
+      Alert.alert(t('manager_campaigns.requires_voucher_edit'));
+      return;
+    }
     updateCampaign.mutate(
       {
         name: values.name,
@@ -121,6 +174,13 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
             } catch {
               Alert.alert(t('manager_campaigns.image_delete_error'));
             }
+          }
+          try {
+            await syncVoucherDates(values.startDate, values.endDate);
+          } catch {
+            Alert.alert(t('manager_campaigns.voucher_sync_error'));
+            navigation.goBack();
+            return;
           }
           Alert.alert(t('manager_campaigns.update_success'));
           navigation.goBack();
@@ -176,7 +236,8 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
     updateCampaign.isPending ||
     uploadImage.isPending ||
     deleteImage.isPending ||
-    deleteCampaign.isPending;
+    deleteCampaign.isPending ||
+    isSyncingVouchers;
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
@@ -205,13 +266,20 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
                 imageRemoved ? null : (campaign?.imageUrl ?? null)
               }
             />
+            {!hasVouchers ? (
+              <View className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                <Text className="text-sm font-semibold text-amber-800">
+                  {t('manager_campaigns.requires_voucher_edit')}
+                </Text>
+              </View>
+            ) : null}
             <View className="mt-6">
               <TouchableOpacity
                 className={`items-center rounded-full py-3 ${
-                  isPending ? 'bg-gray-300' : 'bg-primary'
+                  isPending || !hasVouchers ? 'bg-gray-300' : 'bg-primary'
                 }`}
                 onPress={handleSubmit(onSubmit)}
-                disabled={isPending}
+                disabled={isPending || !hasVouchers}
               >
                 <Text className="text-base font-bold text-white">
                   {isPending ? t('common.saving') : t('manager_branch.save')}

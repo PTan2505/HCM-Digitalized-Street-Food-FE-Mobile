@@ -93,6 +93,8 @@ export const VendorEditVoucherScreen = (): JSX.Element => {
     updateVoucher.mutate(
       {
         ...values,
+        startDate: parentCampaign?.startDate ?? values.startDate,
+        endDate: parentCampaign?.endDate ?? values.endDate,
         description: values.description ?? null,
         campaignId: voucher?.campaignId ?? null,
       },

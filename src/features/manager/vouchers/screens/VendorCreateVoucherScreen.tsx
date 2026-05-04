@@ -89,6 +89,8 @@ export const VendorCreateVoucherScreen = (): JSX.Element => {
       [
         {
           ...values,
+          startDate: campaign?.startDate ?? values.startDate,
+          endDate: campaign?.endDate ?? values.endDate,
           description: values.description ?? null,
           isActive: true,
           campaignId: campaignId ?? null,

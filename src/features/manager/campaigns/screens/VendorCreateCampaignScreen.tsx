@@ -5,7 +5,9 @@ import { useCreateVendorCampaign } from '@manager/campaigns/hooks/useVendorCampa
 import {
   getCampaignSchema,
   type CampaignFormValues,
+  type VoucherDraftValues,
 } from '@manager/campaigns/utils/campaignSchema';
+import { useCreateVouchers } from '@manager/vouchers/hooks/useVendorVouchers';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,8 +31,12 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const createCampaign = useCreateVendorCampaign();
+  const createVouchers = useCreateVouchers();
   const queryClient = useQueryClient();
-  const schema = useMemo(() => getCampaignSchema(t), [t]);
+  const schema = useMemo(
+    () => getCampaignSchema(t, { requireVouchers: true }),
+    [t]
+  );
   const [image, setImage] = useState<CampaignImageValue | null>(null);
 
   const methods = useForm<CampaignFormValues>({
@@ -42,6 +48,7 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
       startDate: '',
       endDate: '',
       branchIds: [],
+      vouchers: [],
     },
   });
 
@@ -49,6 +56,33 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const submitVouchers = async (
+    campaignId: number,
+    drafts: VoucherDraftValues[],
+    startDate: string,
+    endDate: string
+  ): Promise<void> => {
+    if (drafts.length === 0) return;
+    await createVouchers.mutateAsync(
+      drafts.map((draft) => ({
+        name: draft.name,
+        voucherCode: draft.voucherCode,
+        description: draft.description?.trim() ? draft.description : null,
+        type: draft.type,
+        discountValue: draft.discountValue,
+        maxDiscountValue:
+          draft.type === 'PERCENT' ? draft.maxDiscountValue : null,
+        minAmountRequired: draft.minAmountRequired,
+        quantity: draft.quantity,
+        redeemPoint: draft.redeemPoint,
+        startDate,
+        endDate,
+        isActive: true,
+        campaignId,
+      }))
+    );
+  };
 
   const onSubmit = (values: CampaignFormValues): void => {
     createCampaign.mutate(
@@ -80,6 +114,18 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
               Alert.alert(t('manager_campaigns.image_upload_error'));
             }
           }
+          try {
+            await submitVouchers(
+              created.campaignId,
+              values.vouchers ?? [],
+              values.startDate,
+              values.endDate
+            );
+          } catch {
+            Alert.alert(t('manager_campaigns.create_voucher_error'));
+            navigation.goBack();
+            return;
+          }
           Alert.alert(t('manager_campaigns.create_success'));
           navigation.goBack();
         },
@@ -90,7 +136,8 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
     );
   };
 
-  const isPending = isSubmitting || createCampaign.isPending;
+  const isPending =
+    isSubmitting || createCampaign.isPending || createVouchers.isPending;
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
@@ -108,7 +155,11 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <CampaignForm image={image} onImageChange={setImage} />
+            <CampaignForm
+              image={image}
+              onImageChange={setImage}
+              showVoucherSection
+            />
             <View className="mt-6">
               <TouchableOpacity
                 className={`items-center rounded-full py-3 ${
