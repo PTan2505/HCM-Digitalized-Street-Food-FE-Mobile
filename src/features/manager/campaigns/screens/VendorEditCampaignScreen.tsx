@@ -1,5 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import Header from '@components/Header';
+import { Ionicons } from '@expo/vector-icons';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { CampaignForm } from '@manager/campaigns/components/CampaignForm';
 import type { CampaignImageValue } from '@manager/campaigns/components/CampaignImageUpload';
 import {
@@ -14,11 +17,8 @@ import {
   type CampaignFormValues,
 } from '@manager/campaigns/utils/campaignSchema';
 import { useVouchersByCampaign } from '@manager/vouchers/hooks/useVendorVouchers';
-import { axiosApi } from '@lib/api/apiInstance';
-import { queryKeys } from '@lib/queryKeys';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useMemo, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -232,11 +232,9 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
   }
 
   const isPending =
-    isSubmitting ||
-    updateCampaign.isPending ||
-    uploadImage.isPending ||
-    deleteImage.isPending ||
-    deleteCampaign.isPending ||
+    (isSubmitting || updateCampaign.isPending || uploadImage.isPending) ??
+    deleteImage.isPending ??
+    deleteCampaign.isPending ??
     isSyncingVouchers;
 
   return (
@@ -279,7 +277,7 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
                   isPending || !hasVouchers ? 'bg-gray-300' : 'bg-primary'
                 }`}
                 onPress={handleSubmit(onSubmit)}
-                disabled={isPending || !hasVouchers}
+                disabled={isPending ?? !hasVouchers}
               >
                 <Text className="text-base font-bold text-white">
                   {isPending ? t('common.saving') : t('manager_branch.save')}
