@@ -1,5 +1,5 @@
+import { DateTimeField } from '@components/DateTimeField';
 import type { WorkSchedule } from '@manager/schedule/api/managerScheduleApi';
-import { TimeScrollPicker } from '@manager/schedule/components/TimeScrollPicker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,17 +25,6 @@ const MODAL_HEIGHT = SCREEN_HEIGHT - SHEET_TOP;
 const CLOSE_THRESHOLD = MODAL_HEIGHT * 0.5;
 const SPRING = { damping: 20, stiffness: 200, mass: 0.8 } as const;
 
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const MINUTES = Array.from({ length: 60 }, (_, i) => i);
-
-const parseTime = (time: string): [number, number] => {
-  const parts = time.split(':').map(Number);
-  return [parts[0] ?? 9, parts[1] ?? 0];
-};
-
-const formatTime = (h: number, m: number): string =>
-  `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-
 const toMinutes = (time: string): number => {
   const [h = 0, m = 0] = time.split(':').map(Number);
   return h * 60 + m;
@@ -60,41 +49,31 @@ export const AddEditSlotModal = ({
 }: AddEditSlotModalProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
-  const [resetKey, setResetKey] = useState(0);
   const dragY = useSharedValue(MODAL_HEIGHT);
 
-  const [openHour, setOpenHour] = useState(9);
-  const [openMinute, setOpenMinute] = useState(0);
-  const [closeHour, setCloseHour] = useState(22);
-  const [closeMinute, setCloseMinute] = useState(0);
+  const [openTime, setOpenTime] = useState('09:00');
+  const [closeTime, setCloseTime] = useState('22:00');
   const [error, setError] = useState('');
 
   // Slide down then unmount on close; prepare state and mount on open
   useEffect(() => {
     if (visible) {
-      const [oh, om] = schedule ? parseTime(schedule.openTime) : [9, 0];
-      const [ch, cm] = schedule ? parseTime(schedule.closeTime) : [22, 0];
-      setOpenHour(oh);
-      setOpenMinute(om);
-      setCloseHour(ch);
-      setCloseMinute(cm);
+      setOpenTime(schedule ? schedule.openTime.substring(0, 5) : '09:00');
+      setCloseTime(schedule ? schedule.closeTime.substring(0, 5) : '22:00');
       setError('');
-      setResetKey((k) => k + 1);
-      dragY.value = MODAL_HEIGHT; // start off-screen so slide-up plays
+      dragY.value = MODAL_HEIGHT;
       setMounted(true);
       return undefined;
     }
     dragY.value = withSpring(MODAL_HEIGHT, SPRING);
     const timer = setTimeout(() => setMounted(false), 400);
     return (): void => clearTimeout(timer);
-    // dragY is a stable ref — safe to omit
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, schedule]);
 
   // Slide up once the component is mounted and rendered off-screen
   useEffect(() => {
     if (mounted) dragY.value = withSpring(0, SPRING);
-    // dragY is a stable ref — safe to omit
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
 
@@ -125,9 +104,6 @@ export const AddEditSlotModal = ({
   }));
 
   const handleSave = useCallback(() => {
-    const openTime = formatTime(openHour, openMinute);
-    const closeTime = formatTime(closeHour, closeMinute);
-
     if (closeTime <= openTime) {
       setError(t('manager_schedule.error_close_before_open'));
       return;
@@ -150,16 +126,7 @@ export const AddEditSlotModal = ({
 
     setError('');
     onSave(openTime, closeTime);
-  }, [
-    openHour,
-    openMinute,
-    closeHour,
-    closeMinute,
-    existingSlots,
-    schedule,
-    onSave,
-    t,
-  ]);
+  }, [openTime, closeTime, existingSlots, schedule, onSave, t]);
 
   const title = `${schedule ? t('manager_schedule.edit_slot') : t('manager_schedule.add_slot')} · ${weekdayLabel}`;
 
@@ -207,41 +174,21 @@ export const AddEditSlotModal = ({
             {title}
           </Text>
 
-          <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#38644b]">
-            {t('manager_schedule.open_time')}
-          </Text>
-          <View className="mb-4 flex-row items-center justify-center gap-2">
-            <TimeScrollPicker
-              key={`open-h-${resetKey}`}
-              values={HOURS}
-              value={openHour}
-              onChange={setOpenHour}
-            />
-            <Text className="mb-1 text-3xl font-bold text-[#006a2c]">:</Text>
-            <TimeScrollPicker
-              key={`open-m-${resetKey}`}
-              values={MINUTES}
-              value={openMinute}
-              onChange={setOpenMinute}
+          <View className="mb-4">
+            <DateTimeField
+              label={t('manager_schedule.open_time')}
+              mode="time"
+              value={openTime}
+              onChange={setOpenTime}
             />
           </View>
 
-          <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#38644b]">
-            {t('manager_schedule.close_time')}
-          </Text>
-          <View className="mb-2 flex-row items-center justify-center gap-2">
-            <TimeScrollPicker
-              key={`close-h-${resetKey}`}
-              values={HOURS}
-              value={closeHour}
-              onChange={setCloseHour}
-            />
-            <Text className="mb-1 text-3xl font-bold text-[#006a2c]">:</Text>
-            <TimeScrollPicker
-              key={`close-m-${resetKey}`}
-              values={MINUTES}
-              value={closeMinute}
-              onChange={setCloseMinute}
+          <View className="mb-2">
+            <DateTimeField
+              label={t('manager_schedule.close_time')}
+              mode="time"
+              value={closeTime}
+              onChange={setCloseTime}
             />
           </View>
 

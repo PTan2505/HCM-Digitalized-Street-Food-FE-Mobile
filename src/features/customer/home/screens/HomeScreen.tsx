@@ -10,8 +10,8 @@ import { useMyCartsQuery } from '@features/customer/direct-ordering/hooks/useMyC
 import { HomeBranchCard } from '@features/customer/home/components/common/HomeBranchCard';
 import BannerCarousel from '@features/customer/home/components/home/BannerCarousel';
 import { useActiveBranchesQuery } from '@features/customer/home/hooks/useActiveBranchesQuery';
-import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import { useCategories } from '@features/customer/home/hooks/useCategories';
+import { useHandleRatingUpdate } from '@features/customer/home/hooks/useHandleRatingUpdate';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useLocationPermission } from '@features/customer/maps/hooks/useLocationPermission';
 import { useUserDietaryQuery } from '@features/user/hooks/dietaryPreference/useUserDietaryQuery';
@@ -67,15 +67,20 @@ export const HomeScreen = (): JSX.Element => {
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { userDietaryPreferences, isLoading: isDietaryLoading } =
     useUserDietaryQuery();
-  const { coords: userCoords, permissionStatus } = useLocationPermission();
+  const {
+    coords: userCoords,
+    permissionStatus,
+    coordsSettled,
+  } = useLocationPermission();
   const branchFetchEnabled =
     permissionStatus !== Location.PermissionStatus.UNDETERMINED &&
-    !(user?.dietarySetup && isDietaryLoading);
+    !(user?.dietarySetup && isDietaryLoading) &&
+    (permissionStatus !== Location.PermissionStatus.GRANTED || coordsSettled);
   const branchFilters = useMemo(
     () => ({
       lat: userCoords?.latitude,
       lng: userCoords?.longitude,
-      distance: userCoords ? 5 : undefined,
+      distance: userCoords ? 20 : undefined,
       dietaryIds: userDietaryPreferences.map((p) => p.dietaryPreferenceId),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,7 +136,7 @@ export const HomeScreen = (): JSX.Element => {
     multiBranchVendorIds: campaignMultiBranchVendorIds,
     isLoading: vendorCampaignLoading,
     refetch: refetchVendorCampaigns,
-  } = useVendorCampaignBranches(userCoords, permissionStatus);
+  } = useVendorCampaignBranches(userCoords, permissionStatus, coordsSettled);
   const {
     branches: ghostPins,
     isLoading: ghostPinsLoading,

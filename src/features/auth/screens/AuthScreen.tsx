@@ -68,6 +68,14 @@ export const AuthScreen = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
+    console.log(
+      '[AuthScreen] userStatus:',
+      userStatus,
+      'user role:',
+      user?.role,
+      'isManagerApp:',
+      isManagerApp
+    );
     if (userStatus !== 'succeeded' || !user) return;
     if (!isManagerApp) {
       if (user.role === ROLES.CUSTOMER) {
@@ -76,11 +84,20 @@ export const AuthScreen = (): JSX.Element => {
       // Non-customer in customer app: useCustomerRoleGate handles logout + alert
       return;
     }
-    if (user.role === ROLES.MANAGER) {
+    console.log(
+      '[AuthScreen] manager app — role check:',
+      user.role,
+      'MANAGER:',
+      ROLES.MANAGER,
+      'VENDOR:',
+      ROLES.VENDOR
+    );
+    if (user.role === ROLES.MANAGER || user.role === ROLES.VENDOR) {
+      console.log('[AuthScreen] navigating to ManagerHome');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (navigation as any).replace('ManagerHome');
     }
-    // Non-manager in manager app: useManagerRoleGate handles logout + alert
+    // Other roles in manager app: useManagerRoleGate handles logout + alert
   }, [user, userStatus, navigation]);
 
   const handleGoogleLogin = async (): Promise<void> => {

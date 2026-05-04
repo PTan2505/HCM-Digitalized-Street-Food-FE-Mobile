@@ -45,3 +45,8 @@ export const useGhostPinXP = (): number => {
   const { settings } = useSettings();
   return settings['ghostpinXP'] ?? 100;
 };
+
+export const useSubscriptionPrice = (): number => {
+  const { settings } = useSettings();
+  return settings['SubscriptionFee'] ?? 0;
+};

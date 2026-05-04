@@ -1,5 +1,6 @@
 import Header from '@components/Header';
 import TabBar from '@components/TabBar';
+import { ROLES } from '@constants/roles';
 import type { User } from '@custom-types/user';
 import {
   MANAGER_ORDER_STATUS,
@@ -9,11 +10,17 @@ import { OrderStatusBadge } from '@features/manager/orders/components/OrderStatu
 import {
   useManagerOrdersList,
   useManagerStatusCounts,
+  useVendorBranchOrdersList,
+  useVendorBranchStatusCounts,
+  useVendorOrdersList,
+  useVendorStatusCounts,
 } from '@features/manager/orders/hooks/useManagerOrders';
 import { useNewOrderNotification } from '@features/manager/orders/hooks/useNewOrderNotification';
 import { axiosApi } from '@lib/api/apiInstance';
+import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { AuthState } from '@slices/auth';
 import type { TFunction } from 'i18next';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +33,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 
 const STATUS_TABS = [
   MANAGER_ORDER_STATUS.AwaitingVendorConfirmation,
@@ -115,6 +123,11 @@ const OrderCard = ({ order, onPress }: OrderCardProps): React.JSX.Element => {
           <Text className="text-sm font-medium text-gray-500" numberOfLines={1}>
             {customerName}
           </Text>
+          {order.branchName ? (
+            <Text className="mt-0.5 text-xs text-gray-400" numberOfLines={1}>
+              {order.branchName}
+            </Text>
+          ) : null}
         </View>
         <View className="items-end">
           <Text className="text-base font-extrabold text-gray-900">
@@ -145,8 +158,28 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ReactNavigation.RootParamList>>();
 
+  const userRole = useSelector(
+    (state: { user: AuthState }) => state.user.value?.role
+  );
+  const isVendor = userRole === ROLES.VENDOR;
+
   const [activeStatus, setActiveStatus] = useState<number>(
     MANAGER_ORDER_STATUS.AwaitingVendorConfirmation
+  );
+  const ALL_BRANCHES = -1;
+  const [selectedBranchId, setSelectedBranchId] =
+    useState<number>(ALL_BRANCHES);
+
+  const { data: vendorInfo } = useVendorInfo();
+  const branches = vendorInfo?.branches ?? [];
+
+  const isBranchSelected = selectedBranchId !== ALL_BRANCHES;
+
+  const managerOrders = useManagerOrdersList(activeStatus);
+  const vendorAllOrders = useVendorOrdersList(activeStatus);
+  const vendorBranchOrders = useVendorBranchOrdersList(
+    activeStatus,
+    isBranchSelected ? selectedBranchId : 0
   );
 
   const {
@@ -157,8 +190,23 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
     hasNext,
     loadMore,
     refresh,
-  } = useManagerOrdersList(activeStatus);
-  const statusCounts = useManagerStatusCounts(STATUS_TABS);
+  } = isVendor
+    ? isBranchSelected
+      ? vendorBranchOrders
+      : vendorAllOrders
+    : managerOrders;
+
+  const managerStatusCounts = useManagerStatusCounts(STATUS_TABS);
+  const vendorAllStatusCounts = useVendorStatusCounts(STATUS_TABS);
+  const vendorBranchStatusCounts = useVendorBranchStatusCounts(
+    STATUS_TABS,
+    isBranchSelected ? selectedBranchId : 0
+  );
+  const statusCounts = isVendor
+    ? isBranchSelected
+      ? vendorBranchStatusCounts
+      : vendorAllStatusCounts
+    : managerStatusCounts;
 
   const pendingRefresh = useManagerOrdersList(
     MANAGER_ORDER_STATUS.AwaitingVendorConfirmation
@@ -267,6 +315,7 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
   return (
     <SafeAreaView edges={[]} className="flex-1 bg-gray-50">
       <Header title={t('manager_orders.title')} />
+
       {/* Status Filter Tabs */}
       <TabBar
         tabs={STATUS_TABS.map((status) => ({
@@ -278,6 +327,17 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
         tabCount={(status) => statusCounts[status] ?? 0}
         variant="equal"
       />
+      {isVendor && branches.length > 1 && (
+        <TabBar
+          tabs={[
+            { key: ALL_BRANCHES, label: t('actions.all') },
+            ...branches.map((b) => ({ key: b.branchId, label: b.name })),
+          ]}
+          activeTab={selectedBranchId}
+          onTabChange={setSelectedBranchId}
+          variant="scroll"
+        />
+      )}
       {QuickStats}
       {isLoading && items.length === 0 ? (
         <View className="flex-1 items-center justify-center">

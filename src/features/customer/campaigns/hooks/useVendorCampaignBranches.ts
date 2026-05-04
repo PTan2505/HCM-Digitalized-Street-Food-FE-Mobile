@@ -9,7 +9,8 @@ const campaignApi = getLowcaAPIUnimplementedEndpoints();
 
 export const useVendorCampaignBranches = (
   coords?: { latitude: number; longitude: number } | null,
-  permissionStatus?: Location.PermissionStatus
+  permissionStatus?: Location.PermissionStatus,
+  coordsSettled?: boolean
 ): {
   branches: VendorCampaignBranch[];
   imageMap: Record<number, string>;
@@ -21,12 +22,15 @@ export const useVendorCampaignBranches = (
   const lat = coords?.latitude ?? null;
   const lng = coords?.longitude ?? null;
 
-  // Don't fetch until permission is settled — if still UNDETERMINED the user
-  // may be about to grant location, and we'd get a worse (no-location) result.
-  // Once GRANTED or DENIED the query fires; DENIED fetches with lat/lng null.
+  // Don't fetch until permission is settled and, when GRANTED, until the
+  // coords fetch has completed (success or failure) — otherwise we'd fire once
+  // with lat/lng null then again when the async location fetch resolves.
   const enabled =
     permissionStatus === undefined ||
-    permissionStatus !== Location.PermissionStatus.UNDETERMINED;
+    (permissionStatus !== Location.PermissionStatus.UNDETERMINED &&
+      permissionStatus !== Location.PermissionStatus.GRANTED) ||
+    (permissionStatus === Location.PermissionStatus.GRANTED &&
+      (coordsSettled ?? coords !== null));
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: queryKeys.campaigns.vendorBranches(lat, lng),
@@ -37,6 +41,7 @@ export const useVendorCampaignBranches = (
         pageSize: 10,
         lat,
         lng,
+        distance: coords ? 20 : undefined,
       });
 
       const items = result?.items ?? [];
