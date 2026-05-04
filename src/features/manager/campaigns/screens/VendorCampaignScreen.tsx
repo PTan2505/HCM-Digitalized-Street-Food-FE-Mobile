@@ -54,6 +54,10 @@ const SystemCampaignItem = ({
         <CampaignStatusBadge
           isActive={item.isActive}
           isRegisterable={item.isRegisterable}
+          startDate={item.startDate}
+          endDate={item.endDate}
+          registrationStartDate={item.registrationStartDate}
+          registrationEndDate={item.registrationEndDate}
         />
       </View>
       {item.description ? (

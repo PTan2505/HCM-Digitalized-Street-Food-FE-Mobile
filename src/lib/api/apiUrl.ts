@@ -179,12 +179,17 @@ export const apiUrl = {
   voucher: {
     mine: '/api/vouchers/mine',
     marketplace: '/api/vouchers/marketplace',
+    base: '/api/vouchers',
     byId: (id: number): string => `/api/vouchers/${id}`,
     claim: (id: number): string => `/api/vouchers/${id}/claim`,
     applicableByBranch: (branchId: number): string =>
       `/api/vouchers/mine/branch/${branchId}`,
     byCampaign: (campaignId: number): string =>
       `/api/vouchers/campaign/${campaignId}`,
+  },
+  vendorCampaignImage: {
+    images: (id: number): string => `/api/Campaign/${id}/images`,
+    image: (id: number): string => `/api/Campaign/${id}/image`,
   },
   tier: {
     getAll: '/api/Tier',

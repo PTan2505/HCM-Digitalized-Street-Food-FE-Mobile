@@ -202,6 +202,19 @@ export const queryKeys = {
       ['vouchers', 'campaign', campaignId] as const,
   },
 
+  managerVouchers: {
+    all: ['managerVouchers'] as const,
+    detail: (id: number) => ['managerVouchers', 'detail', id] as const,
+    byCampaign: (campaignId: number) =>
+      ['managerVouchers', 'byCampaign', campaignId] as const,
+  },
+
+  managerCampaignImage: {
+    all: ['managerCampaignImage'] as const,
+    detail: (campaignId: number) =>
+      ['managerCampaignImage', 'detail', campaignId] as const,
+  },
+
   badges: {
     all: ['badges'] as const,
     user: ['badges', 'user'] as const,

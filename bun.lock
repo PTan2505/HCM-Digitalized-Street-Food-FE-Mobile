@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "hcm-digitalized-street-food-fe-mobile",
@@ -11,6 +12,7 @@
         "@microsoft/signalr": "^10.0.0",
         "@ptomasroos/react-native-multi-slider": "^2.2.2",
         "@react-native-async-storage/async-storage": "^2.2.0",
+        "@react-native-community/datetimepicker": "8.4.4",
         "@react-native-google-signin/google-signin": "^16.1.1",
         "@react-navigation/bottom-tabs": "^7.9.0",
         "@react-navigation/native": "^7.1.26",
@@ -494,6 +496,8 @@
     "@ptomasroos/react-native-multi-slider": ["@ptomasroos/react-native-multi-slider@2.2.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-HWyCnRD3Z3SbHK2FLWYmBBqd1B4iXipeKv1+AK0FoY/CElEDTEixHE8hN60TsqxalPrznn798LE2Q4tHuCiyaA=="],
 
     "@react-native-async-storage/async-storage": ["@react-native-async-storage/async-storage@2.2.0", "", { "dependencies": { "merge-options": "^3.0.4" }, "peerDependencies": { "react-native": "^0.0.0-0 || >=0.65 <1.0" } }, "sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw=="],
+
+    "@react-native-community/datetimepicker": ["@react-native-community/datetimepicker@8.4.4", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "expo": ">=52.0.0", "react": "*", "react-native": "*", "react-native-windows": "*" }, "optionalPeers": ["expo", "react-native-windows"] }, "sha512-bc4ZixEHxZC9/qf5gbdYvIJiLZ5CLmEsC3j+Yhe1D1KC/3QhaIfGDVdUcid0PdlSoGOSEq4VlB93AWyetEyBSQ=="],
 
     "@react-native-google-signin/google-signin": ["@react-native-google-signin/google-signin@16.1.1", "", { "peerDependencies": { "expo": ">=52.0.40", "react": "*", "react-native": "*" }, "optionalPeers": ["expo"] }, "sha512-lcHBnZ7uvCJiWtGooKOklo/4okqszWvJ0BatW1UaIe+ynmpVpp1lyJkvv1Mj08d39k4soaWuhZVNKjD/RFL34Q=="],
 

@@ -160,6 +160,10 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
               <CampaignStatusBadge
                 isActive={campaign.isActive}
                 isRegisterable={campaign.isRegisterable}
+                startDate={campaign.startDate}
+                endDate={campaign.endDate}
+                registrationStartDate={campaign.registrationStartDate}
+                registrationEndDate={campaign.registrationEndDate}
               />
             </View>
             {campaign.description ? (

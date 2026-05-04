@@ -5,12 +5,14 @@ import { z } from 'zod';
 export const getCampaignSchema = (t: TFunction) =>
   z
     .object({
-      name: z.string().min(1, t('validation.required')),
-      description: z.string().optional(),
+      name: z.string().trim().min(1, t('validation.required')),
+      description: z.string().trim().min(1, t('validation.required')),
+      targetSegment: z.string().optional(),
       startDate: z.string().min(1, t('validation.required')),
       endDate: z.string().min(1, t('validation.required')),
+      branchIds: z.array(z.number()).optional(),
     })
-    .refine((data) => data.endDate >= data.startDate, {
+    .refine((data) => data.endDate > data.startDate, {
       message: t('manager_campaigns.end_before_start'),
       path: ['endDate'],
     });

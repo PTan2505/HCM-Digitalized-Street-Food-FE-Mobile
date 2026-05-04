@@ -1,3 +1,4 @@
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Header from '@components/Header';
 import { CampaignStatusBadge } from '@manager/campaigns/components/CampaignStatusBadge';
 import { CampaignVoucherCard } from '@manager/campaigns/components/CampaignVoucherCard';
@@ -7,6 +8,10 @@ import {
   useCampaignBranches,
   useRemoveBranchesFromCampaign,
 } from '@manager/campaigns/hooks/useSystemCampaigns';
+import {
+  useDeleteVoucher,
+  useVouchersByCampaign,
+} from '@manager/vouchers/hooks/useVendorVouchers';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
@@ -16,6 +21,7 @@ import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -30,6 +36,7 @@ interface RouteParams {
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
   const pad = (n: number): string => n.toString().padStart(2, '0');
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
 };
@@ -58,19 +65,29 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
     staleTime: 5 * 60_000,
   });
 
-  const { data: vouchers = [] } = useQuery({
+  const isSystemCampaign = campaign?.isSystemCampaign === true;
+
+  // Use the manager voucher hook for vendor-owned campaigns (allows mutations)
+  // and the customer-side hook for system campaigns (read-only).
+  const managerVouchers = useVouchersByCampaign(
+    isSystemCampaign ? 0 : campaignId
+  );
+  const { data: systemVouchers = [] } = useQuery({
     queryKey: queryKeys.vouchers.campaignVoucher(campaignId),
     queryFn: () => axiosApi.voucherApi.getCampaignVouchers(campaignId),
-    enabled: campaignId > 0,
+    enabled: campaignId > 0 && isSystemCampaign,
     staleTime: 60_000,
   });
 
+  const vouchers = isSystemCampaign
+    ? systemVouchers
+    : (managerVouchers.data ?? []);
+
+  const deleteVoucher = useDeleteVoucher();
   const removeBranches = useRemoveBranchesFromCampaign(campaignId);
   const addBranches = useAddBranchesToCampaign(campaignId);
   const [isRemoving, setIsRemoving] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState<number | null>(null);
-
-  const isSystemCampaign = campaign?.isSystemCampaign === true;
 
   const enrolledBranchIds = useMemo(
     () => new Set(campaignBranches?.items.map((b) => b.branchId) ?? []),
@@ -90,12 +107,14 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
     ) {
       return subscribedBranches;
     }
-    const requiredTier = tiers.find((t) => t.tierId === campaign.requiredTierId);
+    const requiredTier = tiers.find(
+      (tier) => tier.tierId === campaign.requiredTierId
+    );
     if (!requiredTier) return subscribedBranches;
 
     return subscribedBranches.filter((branch) => {
       if (enrolledBranchIds.has(branch.branchId)) return true;
-      const branchTier = tiers.find((t) => t.tierId === branch.tierId);
+      const branchTier = tiers.find((tier) => tier.tierId === branch.tierId);
       if (!branchTier) return false;
       return branchTier.weight >= requiredTier.weight;
     });
@@ -108,7 +127,8 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
   ]);
 
   const enrolledCount = useMemo(
-    () => eligibleBranches.filter((b) => enrolledBranchIds.has(b.branchId)).length,
+    () =>
+      eligibleBranches.filter((b) => enrolledBranchIds.has(b.branchId)).length,
     [eligibleBranches, enrolledBranchIds]
   );
 
@@ -140,6 +160,38 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
             } finally {
               setIsRemoving(null);
             }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleAddVoucher = (): void => {
+    navigation.navigate('VendorCreateVoucher', { campaignId });
+  };
+
+  const handleEditVoucher = (voucherId: number): void => {
+    navigation.navigate('VendorEditVoucher', { voucherId });
+  };
+
+  const handleDeleteVoucher = (voucherId: number): void => {
+    Alert.alert(
+      t('manager_vouchers.delete_title'),
+      t('manager_vouchers.delete_confirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.remove'),
+          style: 'destructive',
+          onPress: (): void => {
+            deleteVoucher.mutate(
+              { voucherId, campaignId },
+              {
+                onError: () => {
+                  Alert.alert(t('manager_vouchers.delete_error'));
+                },
+              }
+            );
           },
         },
       ]
@@ -184,13 +236,26 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
           contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 12 }}
           showsVerticalScrollIndicator={false}
         >
+          {campaign.imageUrl ? (
+            <Image
+              source={{ uri: campaign.imageUrl }}
+              className="w-full rounded-2xl"
+              style={{ aspectRatio: 16 / 9 }}
+              resizeMode="cover"
+            />
+          ) : null}
+
           {/* Campaign info */}
           <View className="rounded-2xl bg-white p-4 shadow-sm">
             <View className="mb-3 flex-row items-start justify-between">
               <Text className="flex-1 pr-2 text-xl font-bold text-gray-900">
                 {campaign.name}
               </Text>
-              <CampaignStatusBadge isActive={campaign.isActive} />
+              <CampaignStatusBadge
+                isActive={campaign.isActive}
+                startDate={campaign.startDate}
+                endDate={campaign.endDate}
+              />
             </View>
             {campaign.description ? (
               <Text className="mb-3 text-sm text-gray-600">
@@ -233,25 +298,52 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
           {/* Vouchers */}
           <View className="rounded-2xl bg-white p-4 shadow-sm">
             <View className="mb-3 flex-row items-center justify-between">
-              <Text className="text-base font-bold text-gray-900">
-                {t('manager_campaigns.campaign_vouchers')}
-              </Text>
-              {vouchers.length > 0 && (
-                <View className="rounded-full bg-gray-100 px-2 py-0.5">
-                  <Text className="text-xs font-semibold text-gray-500">
-                    {vouchers.length}
+              <View className="flex-row items-center gap-2">
+                <Text className="text-base font-bold text-gray-900">
+                  {t('manager_campaigns.campaign_vouchers')}
+                </Text>
+                {vouchers.length > 0 && (
+                  <View className="rounded-full bg-gray-100 px-2 py-0.5">
+                    <Text className="text-xs font-semibold text-gray-500">
+                      {vouchers.length}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              {!isSystemCampaign ? (
+                <TouchableOpacity
+                  onPress={handleAddVoucher}
+                  className="flex-row items-center gap-1 rounded-full bg-primary px-3 py-1.5"
+                >
+                  <Ionicons name="add" size={16} color="#fff" />
+                  <Text className="text-xs font-bold text-white">
+                    {t('manager_vouchers.add_voucher')}
                   </Text>
-                </View>
-              )}
+                </TouchableOpacity>
+              ) : null}
             </View>
             {vouchers.length === 0 ? (
-              <Text className="text-sm text-gray-400">
-                {t('manager_campaigns.no_vouchers')}
-              </Text>
+              <View className="items-center py-4">
+                <MaterialCommunityIcons
+                  name="ticket-percent-outline"
+                  size={28}
+                  color="#D1D5DB"
+                />
+                <Text className="mt-1 text-sm text-gray-400">
+                  {t('manager_campaigns.no_vouchers')}
+                </Text>
+              </View>
             ) : (
               <View className="gap-3">
                 {vouchers.map((v) => (
-                  <CampaignVoucherCard key={v.voucherId} voucher={v} />
+                  <CampaignVoucherCard
+                    key={v.voucherId}
+                    voucher={v}
+                    onEdit={!isSystemCampaign ? handleEditVoucher : undefined}
+                    onDelete={
+                      !isSystemCampaign ? handleDeleteVoucher : undefined
+                    }
+                  />
                 ))}
               </View>
             )}

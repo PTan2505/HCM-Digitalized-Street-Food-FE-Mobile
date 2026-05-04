@@ -1,13 +1,17 @@
-import { CustomInput } from '@components/CustomInput';
 import Header from '@components/Header';
+import { CampaignForm } from '@manager/campaigns/components/CampaignForm';
+import type { CampaignImageValue } from '@manager/campaigns/components/CampaignImageUpload';
 import { useCreateVendorCampaign } from '@manager/campaigns/hooks/useVendorCampaigns';
 import {
   getCampaignSchema,
   type CampaignFormValues,
 } from '@manager/campaigns/utils/campaignSchema';
+import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, type JSX } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useMemo, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -25,15 +29,19 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const createCampaign = useCreateVendorCampaign();
+  const queryClient = useQueryClient();
   const schema = useMemo(() => getCampaignSchema(t), [t]);
+  const [image, setImage] = useState<CampaignImageValue | null>(null);
 
   const methods = useForm<CampaignFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: '',
       description: '',
+      targetSegment: '',
       startDate: '',
       endDate: '',
+      branchIds: [],
     },
   });
 
@@ -47,11 +55,31 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
       {
         name: values.name,
         description: values.description ?? null,
+        targetSegment: values.targetSegment?.trim()
+          ? values.targetSegment
+          : null,
         startDate: values.startDate,
         endDate: values.endDate,
+        branchIds:
+          values.branchIds && values.branchIds.length > 0
+            ? values.branchIds
+            : null,
       },
       {
-        onSuccess: () => {
+        onSuccess: async (created) => {
+          if (image) {
+            try {
+              await axiosApi.managerCampaignApi.uploadCampaignImage(
+                created.campaignId,
+                image
+              );
+              void queryClient.invalidateQueries({
+                queryKey: queryKeys.managerCampaigns.detail(created.campaignId),
+              });
+            } catch {
+              Alert.alert(t('manager_campaigns.image_upload_error'));
+            }
+          }
           Alert.alert(t('manager_campaigns.create_success'));
           navigation.goBack();
         },
@@ -61,6 +89,8 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
       }
     );
   };
+
+  const isPending = isSubmitting || createCampaign.isPending;
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
@@ -78,35 +108,17 @@ export const VendorCreateCampaignScreen = (): JSX.Element => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <CustomInput<CampaignFormValues>
-              name="name"
-              label={t('manager_campaigns.field_name')}
-              required
-            />
-            <CustomInput<CampaignFormValues>
-              name="description"
-              label={t('manager_campaigns.field_description')}
-            />
-            <CustomInput<CampaignFormValues>
-              name="startDate"
-              label={t('manager_campaigns.field_start_date')}
-              placeholder="YYYY-MM-DD"
-              required
-            />
-            <CustomInput<CampaignFormValues>
-              name="endDate"
-              label={t('manager_campaigns.field_end_date')}
-              placeholder="YYYY-MM-DD"
-              required
-            />
+            <CampaignForm image={image} onImageChange={setImage} />
             <View className="mt-6">
               <TouchableOpacity
-                className="items-center rounded-full bg-primary py-3"
+                className={`items-center rounded-full py-3 ${
+                  isPending ? 'bg-gray-300' : 'bg-primary'
+                }`}
                 onPress={handleSubmit(onSubmit)}
-                disabled={isSubmitting || createCampaign.isPending}
+                disabled={isPending}
               >
                 <Text className="text-base font-bold text-white">
-                  {createCampaign.isPending
+                  {isPending
                     ? t('common.saving')
                     : t('manager_campaigns.create_submit')}
                 </Text>

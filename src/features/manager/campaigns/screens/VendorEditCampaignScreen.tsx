@@ -1,7 +1,12 @@
-import { CustomInput } from '@components/CustomInput';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '@components/Header';
+import { CampaignForm } from '@manager/campaigns/components/CampaignForm';
+import type { CampaignImageValue } from '@manager/campaigns/components/CampaignImageUpload';
 import {
+  useDeleteCampaignImage,
+  useDeleteVendorCampaign,
   useUpdateVendorCampaign,
+  useUploadCampaignImage,
   useVendorCampaignDetail,
 } from '@manager/campaigns/hooks/useVendorCampaigns';
 import {
@@ -10,7 +15,7 @@ import {
 } from '@manager/campaigns/utils/campaignSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useMemo, type JSX } from 'react';
+import React, { useEffect, useMemo, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -37,11 +42,24 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
 
   const { data: campaign, isLoading } = useVendorCampaignDetail(campaignId);
   const updateCampaign = useUpdateVendorCampaign(campaignId);
+  const uploadImage = useUploadCampaignImage(campaignId);
+  const deleteImage = useDeleteCampaignImage(campaignId);
+  const deleteCampaign = useDeleteVendorCampaign();
   const schema = useMemo(() => getCampaignSchema(t), [t]);
+
+  const [image, setImage] = useState<CampaignImageValue | null>(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
 
   const methods = useForm<CampaignFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '', description: '', startDate: '', endDate: '' },
+    defaultValues: {
+      name: '',
+      description: '',
+      targetSegment: '',
+      startDate: '',
+      endDate: '',
+      branchIds: [],
+    },
   });
 
   const {
@@ -55,22 +73,55 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
       reset({
         name: campaign.name,
         description: campaign.description ?? '',
-        startDate: campaign.startDate.split('T')[0],
-        endDate: campaign.endDate.split('T')[0],
+        targetSegment: campaign.targetSegment ?? '',
+        startDate: campaign.startDate,
+        endDate: campaign.endDate,
+        branchIds: campaign.branchIds ?? [],
       });
+      setImage(null);
+      setImageRemoved(false);
     }
   }, [campaign, reset]);
+
+  const handleImageChange = (next: CampaignImageValue | null): void => {
+    if (next === null) {
+      setImageRemoved(true);
+    } else {
+      setImageRemoved(false);
+    }
+    setImage(next);
+  };
 
   const onSubmit = (values: CampaignFormValues): void => {
     updateCampaign.mutate(
       {
         name: values.name,
         description: values.description ?? null,
+        targetSegment: values.targetSegment?.trim()
+          ? values.targetSegment
+          : null,
         startDate: values.startDate,
         endDate: values.endDate,
+        branchIds:
+          values.branchIds && values.branchIds.length > 0
+            ? values.branchIds
+            : null,
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          if (image && !image.isExisting) {
+            try {
+              await uploadImage.mutateAsync(image);
+            } catch {
+              Alert.alert(t('manager_campaigns.image_upload_error'));
+            }
+          } else if (imageRemoved && campaign?.imageUrl) {
+            try {
+              await deleteImage.mutateAsync();
+            } catch {
+              Alert.alert(t('manager_campaigns.image_delete_error'));
+            }
+          }
           Alert.alert(t('manager_campaigns.update_success'));
           navigation.goBack();
         },
@@ -78,6 +129,31 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
           Alert.alert(t('manager_campaigns.update_error'));
         },
       }
+    );
+  };
+
+  const onDelete = (): void => {
+    Alert.alert(
+      t('manager_campaigns.delete_title'),
+      t('manager_campaigns.delete_confirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.remove'),
+          style: 'destructive',
+          onPress: (): void => {
+            deleteCampaign.mutate(campaignId, {
+              onSuccess: () => {
+                Alert.alert(t('manager_campaigns.delete_success'));
+                navigation.goBack();
+              },
+              onError: () => {
+                Alert.alert(t('manager_campaigns.delete_error'));
+              },
+            });
+          },
+        },
+      ]
     );
   };
 
@@ -95,11 +171,22 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
     );
   }
 
+  const isPending =
+    isSubmitting ||
+    updateCampaign.isPending ||
+    uploadImage.isPending ||
+    deleteImage.isPending ||
+    deleteCampaign.isPending;
+
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
       <Header
         title={t('manager_campaigns.edit_title')}
         onBackPress={() => navigation.goBack()}
+        secondaryAction={{
+          icon: <Ionicons name="trash-outline" size={20} color="#EF4444" />,
+          onPress: onDelete,
+        }}
       />
       <KeyboardAvoidingView
         className="flex-1"
@@ -111,37 +198,23 @@ export const VendorEditCampaignScreen = (): JSX.Element => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <CustomInput<CampaignFormValues>
-              name="name"
-              label={t('manager_campaigns.field_name')}
-              required
-            />
-            <CustomInput<CampaignFormValues>
-              name="description"
-              label={t('manager_campaigns.field_description')}
-            />
-            <CustomInput<CampaignFormValues>
-              name="startDate"
-              label={t('manager_campaigns.field_start_date')}
-              placeholder="YYYY-MM-DD"
-              required
-            />
-            <CustomInput<CampaignFormValues>
-              name="endDate"
-              label={t('manager_campaigns.field_end_date')}
-              placeholder="YYYY-MM-DD"
-              required
+            <CampaignForm
+              image={image}
+              onImageChange={handleImageChange}
+              initialImageUrl={
+                imageRemoved ? null : (campaign?.imageUrl ?? null)
+              }
             />
             <View className="mt-6">
               <TouchableOpacity
-                className="items-center rounded-full bg-primary py-3"
+                className={`items-center rounded-full py-3 ${
+                  isPending ? 'bg-gray-300' : 'bg-primary'
+                }`}
                 onPress={handleSubmit(onSubmit)}
-                disabled={isSubmitting || updateCampaign.isPending}
+                disabled={isPending}
               >
                 <Text className="text-base font-bold text-white">
-                  {updateCampaign.isPending
-                    ? t('common.saving')
-                    : t('manager_branch.save')}
+                  {isPending ? t('common.saving') : t('manager_branch.save')}
                 </Text>
               </TouchableOpacity>
             </View>

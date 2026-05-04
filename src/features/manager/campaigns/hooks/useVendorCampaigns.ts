@@ -3,6 +3,7 @@ import type {
   PaginatedVendorCampaigns,
   CreateCampaignRequest,
   UpdateCampaignRequest,
+  CampaignImageAsset,
 } from '@manager/campaigns/api/managerCampaignApi';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
@@ -82,6 +83,61 @@ export const useUpdateVendorCampaign = (
       });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.managerCampaigns.detail(id),
+      });
+    },
+  });
+};
+
+export const useDeleteVendorCampaign = (): UseMutationResult<
+  void,
+  Error,
+  number
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => axiosApi.managerCampaignApi.deleteCampaign(id),
+    onSuccess: (_, id) => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.vendorList(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.detail(id),
+      });
+    },
+  });
+};
+
+export const useUploadCampaignImage = (
+  campaignId: number
+): UseMutationResult<unknown, Error, CampaignImageAsset> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (image) =>
+      axiosApi.managerCampaignApi.uploadCampaignImage(campaignId, image),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.detail(campaignId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.vendorList(),
+      });
+    },
+  });
+};
+
+export const useDeleteCampaignImage = (
+  campaignId: number
+): UseMutationResult<void, Error, void> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      axiosApi.managerCampaignApi.deleteCampaignImage(campaignId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.detail(campaignId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.vendorList(),
       });
     },
   });

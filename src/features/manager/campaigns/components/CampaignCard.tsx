@@ -32,7 +32,11 @@ export const CampaignCard = ({
         >
           {campaign.name}
         </Text>
-        <CampaignStatusBadge isActive={campaign.isActive} />
+        <CampaignStatusBadge
+          isActive={campaign.isActive}
+          startDate={campaign.startDate}
+          endDate={campaign.endDate}
+        />
       </View>
       {campaign.description ? (
         <Text className="mb-2 text-xs text-gray-500" numberOfLines={2}>

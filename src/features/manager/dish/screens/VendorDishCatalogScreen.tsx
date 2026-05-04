@@ -19,7 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const formatVnd = (n: number): string =>
-  `${n.toLocaleString('vi-VN')} đ`;
+  `${n.toLocaleString('vi-VN')} đ`;
 
 const DishCard = ({ dish }: { dish: VendorDish }): React.JSX.Element => {
   const { t } = useTranslation();

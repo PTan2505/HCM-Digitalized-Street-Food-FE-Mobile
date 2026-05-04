@@ -1,11 +1,21 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { CampaignVoucherDto } from '@features/customer/campaigns/api/voucherApi';
+import type { ManagerVoucher } from '@manager/vouchers/api/managerVoucherApi';
+import { VoucherStatusBadge } from '@manager/vouchers/components/VoucherStatusBadge';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+type VoucherSource = CampaignVoucherDto | ManagerVoucher;
+
 interface Props {
-  voucher: CampaignVoucherDto;
+  voucher: VoucherSource;
+  onEdit?: (voucherId: number) => void;
+  onDelete?: (voucherId: number) => void;
 }
+
+const getId = (v: VoucherSource): number =>
+  'voucherId' in v && typeof v.voucherId === 'number' ? v.voucherId : 0;
 
 const formatCurrency = (amount: number): string =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
@@ -14,14 +24,21 @@ const formatCurrency = (amount: number): string =>
 
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
   const pad = (n: number): string => n.toString().padStart(2, '0');
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
 };
 
-export const CampaignVoucherCard = ({ voucher }: Props): React.JSX.Element => {
+export const CampaignVoucherCard = ({
+  voucher,
+  onEdit,
+  onDelete,
+}: Props): React.JSX.Element => {
   const { t } = useTranslation();
   const isPercent = voucher.type === 'PERCENT';
   const remaining = Math.max(voucher.quantity - (voucher.usedQuantity ?? 0), 0);
+  const id = getId(voucher);
+  const showActions = onEdit !== undefined || onDelete !== undefined;
 
   return (
     <View className="relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
@@ -56,23 +73,7 @@ export const CampaignVoucherCard = ({ voucher }: Props): React.JSX.Element => {
               })}
             </Text>
           </View>
-          <View
-            className={`rounded-full border px-2 py-0.5 ${
-              voucher.isActive
-                ? 'border-green-200 bg-green-50'
-                : 'border-red-200 bg-red-50'
-            }`}
-          >
-            <Text
-              className={`text-xs font-bold ${
-                voucher.isActive ? 'text-green-700' : 'text-red-500'
-              }`}
-            >
-              {voucher.isActive
-                ? t('manager_campaigns.status_active')
-                : t('manager_campaigns.status_inactive')}
-            </Text>
-          </View>
+          <VoucherStatusBadge voucher={voucher} />
         </View>
 
         {voucher.minAmountRequired > 0 && (
@@ -82,6 +83,41 @@ export const CampaignVoucherCard = ({ voucher }: Props): React.JSX.Element => {
             })}
           </Text>
         )}
+
+        {showActions ? (
+          <View className="mt-3 flex-row gap-2">
+            {onEdit ? (
+              <TouchableOpacity
+                onPress={() => onEdit(id)}
+                className="flex-row items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5"
+              >
+                <MaterialCommunityIcons
+                  name="pencil-outline"
+                  size={14}
+                  color="#9FD356"
+                />
+                <Text className="text-xs font-semibold text-primary">
+                  {t('manager_campaigns.edit')}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+            {onDelete ? (
+              <TouchableOpacity
+                onPress={() => onDelete(id)}
+                className="flex-row items-center gap-1 rounded-full bg-red-50 px-3 py-1.5"
+              >
+                <MaterialCommunityIcons
+                  name="trash-can-outline"
+                  size={14}
+                  color="#EF4444"
+                />
+                <Text className="text-xs font-semibold text-red-500">
+                  {t('common.remove')}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        ) : null}
       </View>
     </View>
   );

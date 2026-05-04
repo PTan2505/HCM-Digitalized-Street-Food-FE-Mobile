@@ -19,6 +19,8 @@ import { ManagerPaymentHistoryScreen } from '@manager/payment/screens/ManagerPay
 import { VendorRegistrationHistoryScreen } from '@manager/registration-history/screens/VendorRegistrationHistoryScreen';
 import { VendorBranchDetailScreen } from '@manager/vendor-branches/screens/VendorBranchDetailScreen';
 import { VendorEditBranchScreen } from '@manager/vendor-branches/screens/VendorEditBranchScreen';
+import { VendorCreateVoucherScreen } from '@manager/vouchers/screens/VendorCreateVoucherScreen';
+import { VendorEditVoucherScreen } from '@manager/vouchers/screens/VendorEditVoucherScreen';
 import { useManagerSelector } from '@manager-app/managerHooks';
 import { ManagerMainTabs } from '@manager-app/navigation/bottomTabNavigator';
 import { createStaticNavigation, Theme } from '@react-navigation/native';
@@ -79,6 +81,12 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     VendorSystemCampaignDetail: {
       screen: VendorSystemCampaignDetailScreen,
+    },
+    VendorCreateVoucher: {
+      screen: VendorCreateVoucherScreen,
+    },
+    VendorEditVoucher: {
+      screen: VendorEditVoucherScreen,
     },
     ManagerPaymentHistory: {
       screen: ManagerPaymentHistoryScreen,

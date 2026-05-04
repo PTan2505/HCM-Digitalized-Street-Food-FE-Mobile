@@ -45,16 +45,25 @@ export interface PaginatedVendorCampaigns {
 export interface CreateCampaignRequest {
   name: string;
   description?: string | null;
+  targetSegment?: string | null;
   startDate: string;
   endDate: string;
-  branchIds?: number[];
+  branchIds?: number[] | null;
 }
 
 export interface UpdateCampaignRequest {
   name: string;
   description?: string | null;
+  targetSegment?: string | null;
   startDate: string;
   endDate: string;
+  branchIds?: number[] | null;
+}
+
+export interface CampaignImageAsset {
+  uri: string;
+  mimeType: string;
+  fileName: string;
 }
 
 export interface JoinSystemCampaignRequest {
@@ -214,5 +223,36 @@ export class ManagerCampaignApi {
       data: { branchIds },
     });
     return res.data;
+  }
+
+  async deleteCampaign(campaignId: number): Promise<void> {
+    await this.apiClient.delete<void>({
+      url: apiUrl.vendorCampaign.byId(campaignId),
+    });
+  }
+
+  async uploadCampaignImage(
+    campaignId: number,
+    image: CampaignImageAsset
+  ): Promise<unknown> {
+    const formData = new FormData();
+    formData.append('image', {
+      uri: image.uri,
+      type: image.mimeType,
+      name: image.fileName,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
+    const res = await this.apiClient.post<unknown, FormData>({
+      url: apiUrl.vendorCampaignImage.images(campaignId),
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  }
+
+  async deleteCampaignImage(campaignId: number): Promise<void> {
+    await this.apiClient.delete<void>({
+      url: apiUrl.vendorCampaignImage.image(campaignId),
+    });
   }
 }
