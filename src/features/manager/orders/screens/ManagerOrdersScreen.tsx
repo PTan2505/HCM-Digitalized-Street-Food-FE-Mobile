@@ -11,7 +11,10 @@ import { OrderStatusBadge } from '@features/manager/orders/components/OrderStatu
 import {
   useManagerOrdersList,
   useManagerStatusCounts,
+  useVendorBranchOrdersList,
+  useVendorBranchStatusCounts,
   useVendorOrdersList,
+  useVendorStatusCounts,
 } from '@features/manager/orders/hooks/useManagerOrders';
 import { useNewOrderNotification } from '@features/manager/orders/hooks/useNewOrderNotification';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
@@ -121,6 +124,11 @@ const OrderCard = ({ order, onPress }: OrderCardProps): React.JSX.Element => {
           <Text className="text-sm font-medium text-gray-500" numberOfLines={1}>
             {customerName}
           </Text>
+          {order.branchName ? (
+            <Text className="mt-0.5 text-xs text-gray-400" numberOfLines={1}>
+              {order.branchName}
+            </Text>
+          ) : null}
         </View>
         <View className="items-end">
           <Text className="text-base font-extrabold text-gray-900">
@@ -167,7 +175,11 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
   const branches = vendorInfo?.branches ?? [];
 
   const managerOrders = useManagerOrdersList(activeStatus);
-  const vendorOrders = useVendorOrdersList(activeStatus, selectedBranchId);
+  const vendorAllOrders = useVendorOrdersList(activeStatus);
+  const vendorBranchOrders = useVendorBranchOrdersList(
+    activeStatus,
+    selectedBranchId ?? 0
+  );
 
   const {
     items,
@@ -177,8 +189,23 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
     hasNext,
     loadMore,
     refresh,
-  } = isVendor ? vendorOrders : managerOrders;
-  const statusCounts = useManagerStatusCounts(STATUS_TABS);
+  } = isVendor
+    ? selectedBranchId !== undefined
+      ? vendorBranchOrders
+      : vendorAllOrders
+    : managerOrders;
+
+  const managerStatusCounts = useManagerStatusCounts(STATUS_TABS);
+  const vendorAllStatusCounts = useVendorStatusCounts(STATUS_TABS);
+  const vendorBranchStatusCounts = useVendorBranchStatusCounts(
+    STATUS_TABS,
+    selectedBranchId ?? 0
+  );
+  const statusCounts = isVendor
+    ? selectedBranchId !== undefined
+      ? vendorBranchStatusCounts
+      : vendorAllStatusCounts
+    : managerStatusCounts;
 
   const pendingRefresh = useManagerOrdersList(
     MANAGER_ORDER_STATUS.AwaitingVendorConfirmation
@@ -286,8 +313,13 @@ export const ManagerOrdersScreen = (): React.JSX.Element => {
 
   return (
     <SafeAreaView edges={[]} className="flex-1 bg-gray-50">
-      <Header title={t('manager_orders.title')} />
-      {isVendor && branches.length > 0 && (
+      <Header
+        title={t('manager_orders.title')}
+        onBackPress={
+          navigation.canGoBack() ? (): void => navigation.goBack() : undefined
+        }
+      />
+      {isVendor && branches.length > 1 && (
         <BranchFilterPicker
           branches={branches}
           selectedBranchId={selectedBranchId}

@@ -22,6 +22,8 @@ export interface ManagerOrderSummary {
   orderId: number;
   userId?: number | null;
   displayName?: string | null;
+  branchId?: number | null;
+  branchName?: string | null;
   status: number;
   totalAmount: number;
   discountAmount?: number | null;
@@ -58,6 +60,12 @@ export interface CompleteOrderRequest {
   verificationCode: string;
 }
 
+export interface PickupCode {
+  orderId: number;
+  verificationCode: string;
+  qrContent: string;
+}
+
 export class ManagerOrderApi {
   private apiClient: ApiClient;
 
@@ -80,8 +88,7 @@ export class ManagerOrderApi {
   async getVendorOrders(
     pageNumber = 1,
     pageSize = 10,
-    status?: number,
-    branchId?: number
+    status?: number
   ): Promise<PaginatedManagerOrders> {
     const res = await this.apiClient.get<PaginatedManagerOrders>({
       url: apiUrl.managerOrder.vendorList,
@@ -89,7 +96,23 @@ export class ManagerOrderApi {
         pageNumber,
         pageSize,
         ...(status !== undefined && { status }),
-        ...(branchId !== undefined && { branchId }),
+      },
+    });
+    return res.data;
+  }
+
+  async getVendorBranchOrders(
+    branchId: number,
+    pageNumber = 1,
+    pageSize = 10,
+    status?: number
+  ): Promise<PaginatedManagerOrders> {
+    const res = await this.apiClient.get<PaginatedManagerOrders>({
+      url: apiUrl.managerOrder.vendorBranchList(branchId),
+      params: {
+        pageNumber,
+        pageSize,
+        ...(status !== undefined && { status }),
       },
     });
     return res.data;
@@ -117,5 +140,12 @@ export class ManagerOrderApi {
       url: apiUrl.managerOrder.complete(orderId),
       params: data,
     });
+  }
+
+  async getPickupCode(orderId: number): Promise<PickupCode> {
+    const res = await this.apiClient.get<PickupCode>({
+      url: apiUrl.order.pickupCode(orderId),
+    });
+    return res.data;
   }
 }

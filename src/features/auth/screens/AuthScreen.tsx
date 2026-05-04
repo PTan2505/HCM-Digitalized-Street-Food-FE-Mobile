@@ -68,7 +68,14 @@ export const AuthScreen = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    console.log('[AuthScreen] userStatus:', userStatus, 'user role:', user?.role, 'isManagerApp:', isManagerApp);
+    console.log(
+      '[AuthScreen] userStatus:',
+      userStatus,
+      'user role:',
+      user?.role,
+      'isManagerApp:',
+      isManagerApp
+    );
     if (userStatus !== 'succeeded' || !user) return;
     if (!isManagerApp) {
       if (user.role === ROLES.CUSTOMER) {
@@ -77,7 +84,14 @@ export const AuthScreen = (): JSX.Element => {
       // Non-customer in customer app: useCustomerRoleGate handles logout + alert
       return;
     }
-    console.log('[AuthScreen] manager app — role check:', user.role, 'MANAGER:', ROLES.MANAGER, 'VENDOR:', ROLES.VENDOR);
+    console.log(
+      '[AuthScreen] manager app — role check:',
+      user.role,
+      'MANAGER:',
+      ROLES.MANAGER,
+      'VENDOR:',
+      ROLES.VENDOR
+    );
     if (user.role === ROLES.MANAGER || user.role === ROLES.VENDOR) {
       console.log('[AuthScreen] navigating to ManagerHome');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

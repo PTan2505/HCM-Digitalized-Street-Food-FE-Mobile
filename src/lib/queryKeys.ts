@@ -123,9 +123,17 @@ export const queryKeys = {
     all: ['managerOrders'] as const,
     list: (status: number) => ['managerOrders', 'list', status] as const,
     count: (status: number) => ['managerOrders', 'count', status] as const,
+    vendorCount: (status: number) =>
+      ['managerOrders', 'vendorCount', status] as const,
+    vendorBranchCount: (status: number, branchId: number) =>
+      ['managerOrders', 'vendorBranchCount', status, branchId] as const,
     detail: (orderId: number) => ['managerOrders', 'detail', orderId] as const,
-    vendorList: (status: number, branchId?: number) =>
-      ['managerOrders', 'vendor', status, branchId ?? 'all'] as const,
+    pickupCode: (orderId: number) =>
+      ['managerOrders', 'pickupCode', orderId] as const,
+    vendorList: (status: number) =>
+      ['managerOrders', 'vendor', status] as const,
+    vendorBranchList: (status: number, branchId: number) =>
+      ['managerOrders', 'vendorBranch', status, branchId] as const,
   },
 
   managerFeedback: {
@@ -221,10 +229,10 @@ export const queryKeys = {
     all: ['managerDashboard'] as const,
     revenue: (fromDate: string, toDate: string) =>
       ['managerDashboard', 'revenue', fromDate, toDate] as const,
-    topDishes: (fromDate: string, toDate: string) =>
-      ['managerDashboard', 'topDishes', fromDate, toDate] as const,
-    voucherStats: (fromDate: string, toDate: string) =>
-      ['managerDashboard', 'voucherStats', fromDate, toDate] as const,
+    topDishes: () => ['managerDashboard', 'topDishes'] as const,
+    voucherStats: () => ['managerDashboard', 'voucherStats'] as const,
+    campaignStats: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'campaignStats', fromDate, toDate] as const,
   },
 
   managerCampaigns: {
@@ -234,5 +242,7 @@ export const queryKeys = {
     systemJoinable: () => ['managerCampaigns', 'systemJoinable'] as const,
     systemDetail: (id: number) =>
       ['managerCampaigns', 'systemDetail', id] as const,
+    branches: (campaignId: number, isSystem = false) =>
+      ['managerCampaigns', 'branches', campaignId, isSystem] as const,
   },
 } as const;

@@ -38,6 +38,28 @@ export interface DateRangeParams {
   toDate: string;
 }
 
+export interface CampaignBranchStat {
+  branchId: number;
+  branchName: string;
+  orderCount: number;
+  revenue: number;
+}
+
+export interface CampaignStat {
+  campaignId: number;
+  campaignName: string;
+  orderCount: number;
+  revenue: number;
+  branches?: CampaignBranchStat[];
+}
+
+export interface CampaignStats {
+  totalCampaigns: number;
+  totalCampaignOrders: number;
+  totalCampaignRevenue: number;
+  campaigns: CampaignStat[];
+}
+
 export class ManagerDashboardApi {
   private apiClient: ApiClient;
 
@@ -53,17 +75,23 @@ export class ManagerDashboardApi {
     return res.data;
   }
 
-  async getTopDishes(params: DateRangeParams): Promise<TopDishesData> {
+  async getTopDishes(): Promise<TopDishesData> {
     const res = await this.apiClient.get<TopDishesData>({
       url: apiUrl.dashboard.dishes,
-      params,
     });
     return res.data;
   }
 
-  async getVoucherStats(params: DateRangeParams): Promise<VoucherStats> {
+  async getVoucherStats(): Promise<VoucherStats> {
     const res = await this.apiClient.get<VoucherStats>({
       url: apiUrl.dashboard.vouchers,
+    });
+    return res.data;
+  }
+
+  async getCampaignStats(params: DateRangeParams): Promise<CampaignStats> {
+    const res = await this.apiClient.get<CampaignStats>({
+      url: apiUrl.dashboard.campaigns,
       params,
     });
     return res.data;

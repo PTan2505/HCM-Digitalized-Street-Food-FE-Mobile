@@ -309,7 +309,11 @@
     "rejecting": "Đang từ chối...",
     "completing": "Đang hoàn thành...",
     "just_now": "Vừa xong",
-    "all_branches": "Tất cả chi nhánh"
+    "all_branches": "Tất cả chi nhánh",
+    "get_pickup_code": "Xem mã pickup",
+    "pickup_code_title": "Mã pickup đơn hàng",
+    "pickup_code_desc": "Mã xác nhận để hoàn thành đơn hàng",
+    "pickup_code_error": "Không thể tải mã pickup"
   },
   "manager_feedback": {
     "title": "Đánh giá",
@@ -582,7 +586,8 @@
     "no": "Không",
     "confirm": "Xác nhận",
     "retry": "Thử lại",
-    "saving": "Đang lưu..."
+    "saving": "Đang lưu...",
+    "remove": "Xoá"
   },
   "campaign": {
     "title": "Chiến dịch",
@@ -1060,7 +1065,12 @@
     "no_data": "Chưa có dữ liệu",
     "top_dishes_title": "Món bán chạy",
     "voucher_title": "Sử dụng voucher",
-    "times_used": "{{count}} lần"
+    "times_used": "{{count}} lần",
+    "error_load": "Không tải được dữ liệu",
+    "campaigns_title": "Hiệu quả chiến dịch",
+    "total_campaigns": "Tổng chiến dịch",
+    "campaign_orders": "Đơn từ chiến dịch",
+    "campaign_revenue": "Doanh thu chiến dịch"
   },
   "vendor_branches": {
     "title": "Chi nhánh",
@@ -1076,7 +1086,9 @@
     "nav_schedule": "Lịch hoạt động",
     "nav_day_off": "Ngày nghỉ",
     "nav_menu": "Thực đơn",
-    "nav_feedback": "Phản hồi"
+    "nav_feedback": "Phản hồi",
+    "nav_campaigns": "Chiến dịch",
+    "nav_orders": "Đơn hàng"
   },
   "manager_campaigns": {
     "title": "Chiến dịch",
@@ -1113,6 +1125,34 @@
     "join_success": "Đăng ký tham gia thành công",
     "join_error": "Đăng ký tham gia thất bại",
     "already_joined": "Đã tham gia",
-    "create_submit": "Tạo chiến dịch"
+    "create_submit": "Tạo chiến dịch",
+    "enrolled_branches": "Chi nhánh tham gia",
+    "no_branches": "Chưa có chi nhánh nào",
+    "add_branch": "Thêm chi nhánh",
+    "add": "Thêm",
+    "remove_branch_title": "Xoá chi nhánh",
+    "remove_branch_confirm": "Xoá {{name}} khỏi chiến dịch?",
+    "remove_branch_error": "Xoá chi nhánh thất bại",
+    "add_branch_error": "Thêm chi nhánh thất bại",
+    "total_campaigns": "Tổng chiến dịch",
+    "campaign_orders": "Đơn từ chiến dịch",
+    "campaign_revenue": "Doanh thu chiến dịch",
+    "target_segment": "Phân khúc mục tiêu",
+    "target_segment_all": "Tất cả",
+    "required_tier": "Yêu cầu hạng quán",
+    "no_required_tier": "Không yêu cầu",
+    "campaign_vouchers": "Vouchers của chiến dịch",
+    "no_vouchers": "Chưa có voucher nào",
+    "voucher_remaining": "Còn lại: {{count}}/{{total}}",
+    "min_order": "Đơn tối thiểu: {{amount}}",
+    "joinable_branches": "Chi nhánh có thể tham gia",
+    "no_joinable_branches": "Không có chi nhánh đủ điều kiện",
+    "select_all": "Chọn tất cả",
+    "deselect_all": "Bỏ chọn tất cả",
+    "branch_enrolled": "Đang tham gia",
+    "branch_not_enrolled": "Chưa tham gia",
+    "date_from": "Từ",
+    "date_to": "Đến",
+    "total_branches_label": "Tổng chi nhánh"
   }
 }

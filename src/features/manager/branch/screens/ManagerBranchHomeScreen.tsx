@@ -1,10 +1,10 @@
 import Header from '@components/Header';
 import { BranchStatusBadge } from '@manager/vendor-branches/components/BranchStatusBadge';
-import { useVendorBranchDetail } from '@manager/vendor-branches/hooks/useVendorBranches';
-import { setActiveBranchId } from '@slices/managerAuth';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useManagerBranchDetail } from '@manager/branch/hooks/useManagerBranch';
+import { useNavigation } from '@react-navigation/native';
+import { FontAwesome6 } from '@expo/vector-icons';
+import React, { type JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   ScrollView,
@@ -13,18 +13,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { FontAwesome6 } from '@expo/vector-icons';
-
-interface RouteParams {
-  branchId: number;
-}
 
 interface NavEntry {
   icon: string;
   label: string;
   route: string;
-  params?: Record<string, unknown>;
 }
 
 const InfoRow = ({
@@ -33,7 +26,7 @@ const InfoRow = ({
 }: {
   label: string;
   value: string | number | null | undefined;
-}): React.JSX.Element => (
+}): JSX.Element => (
   <View className="flex-row justify-between border-b border-gray-100 py-3">
     <Text className="text-sm text-gray-500">{label}</Text>
     <Text className="max-w-[60%] text-right text-sm font-medium text-gray-900">
@@ -42,26 +35,16 @@ const InfoRow = ({
   </View>
 );
 
-export const VendorBranchDetailScreen = (): React.JSX.Element => {
+export const ManagerBranchHomeScreen = (): JSX.Element => {
   const { t } = useTranslation();
-  const route = useRoute();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigation = useNavigation<any>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dispatch = useDispatch<any>();
-  const { branchId } = route.params as RouteParams;
   const {
     data: branch,
     isLoading,
     isError,
     refetch,
-  } = useVendorBranchDetail(branchId);
-
-  // Sync the selected vendor branch into Redux so downstream screens
-  // (Menu, Schedule, Feedback, Day Off) can read branchId from the store.
-  useEffect(() => {
-    dispatch(setActiveBranchId(branchId));
-  }, [branchId, dispatch]);
+  } = useManagerBranchDetail();
 
   const navEntries: NavEntry[] = [
     {
@@ -84,24 +67,17 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
       label: t('vendor_branches.nav_feedback'),
       route: 'ManagerFeedback',
     },
-    {
-      icon: 'megaphone',
-      label: t('vendor_branches.nav_campaigns'),
-      route: 'VendorCampaigns',
-    },
   ];
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header
-        title={branch?.name ?? t('vendor_branches.detail_title')}
-        onBackPress={() => navigation.goBack()}
+        title={branch?.name ?? t('manager_branch.title')}
         secondaryAction={
           branch
             ? {
                 label: t('manager_branch.edit'),
-                onPress: () =>
-                  navigation.navigate('VendorEditBranch', { branchId }),
+                onPress: () => navigation.navigate('ManagerEditBranch'),
               }
             : undefined
         }
@@ -171,7 +147,7 @@ export const VendorBranchDetailScreen = (): React.JSX.Element => {
               <TouchableOpacity
                 key={entry.route}
                 className={`flex-row items-center justify-between px-4 py-4 ${idx < navEntries.length - 1 ? 'border-b border-gray-100' : ''}`}
-                onPress={() => navigation.navigate(entry.route, entry.params)}
+                onPress={() => navigation.navigate(entry.route)}
               >
                 <View className="flex-row items-center gap-3">
                   <FontAwesome6 name={entry.icon} size={16} color="#6B7280" />

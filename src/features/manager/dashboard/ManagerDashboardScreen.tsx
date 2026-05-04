@@ -1,10 +1,12 @@
 import Header from '@components/Header';
+import { CampaignStatsCard } from '@manager/dashboard/components/CampaignStatsCard';
 import { DateRangeChips } from '@manager/dashboard/components/DateRangeChips';
 import { RevenueSummaryCard } from '@manager/dashboard/components/RevenueSummaryCard';
 import { TopDishesCard } from '@manager/dashboard/components/TopDishesCard';
 import { VoucherStatsCard } from '@manager/dashboard/components/VoucherStatsCard';
 import type { DashboardPreset } from '@manager/dashboard/hooks/useManagerDashboard';
 import {
+  useCampaignStats,
   useDateRange,
   useRevenueSummary,
   useTopDishes,
@@ -21,14 +23,12 @@ export const ManagerDashboardScreen = (): React.JSX.Element => {
   const { fromDate, toDate } = useDateRange(preset);
 
   const revenue = useRevenueSummary(fromDate, toDate);
-  const topDishes = useTopDishes(fromDate, toDate);
-  const voucherStats = useVoucherStats(fromDate, toDate);
+  const topDishes = useTopDishes();
+  const voucherStats = useVoucherStats();
+  const campaignStats = useCampaignStats(fromDate, toDate);
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header title={t('manager_dashboard.title')} />
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 32 }}
@@ -55,6 +55,12 @@ export const ManagerDashboardScreen = (): React.JSX.Element => {
           isLoading={voucherStats.isLoading}
           isError={voucherStats.isError}
           onRetry={() => void voucherStats.refetch()}
+        />
+
+        <CampaignStatsCard
+          data={campaignStats.data}
+          isLoading={campaignStats.isLoading}
+          isError={campaignStats.isError}
         />
       </ScrollView>
     </SafeAreaView>

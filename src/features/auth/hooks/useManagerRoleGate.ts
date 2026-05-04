@@ -27,7 +27,12 @@ export const useManagerRoleGate = (): void => {
   }, [user]);
 
   useEffect(() => {
-    console.log('[useManagerRoleGate] userStatus:', userStatus, 'user role:', user?.role);
+    console.log(
+      '[useManagerRoleGate] userStatus:',
+      userStatus,
+      'user role:',
+      user?.role
+    );
     if (userStatus !== 'succeeded' || !user) return;
 
     const isAllowedRole =

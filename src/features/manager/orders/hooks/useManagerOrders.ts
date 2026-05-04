@@ -5,6 +5,7 @@ import type {
   ManagerOrderDetailNullable,
   ManagerOrderSummary,
   PaginatedManagerOrders,
+  PickupCode,
 } from '@features/manager/orders/api/managerOrderApi';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
@@ -15,6 +16,7 @@ import {
   useQuery,
   useQueryClient,
   type UseMutationResult,
+  type UseQueryResult,
 } from '@tanstack/react-query';
 
 const ORDER_STALE_TIME = 0;
@@ -72,6 +74,29 @@ export const useManagerStatusCounts = (
       queryKey: queryKeys.managerOrders.count(status),
       queryFn: (): Promise<PaginatedManagerOrders> =>
         axiosApi.managerOrderApi.getManagerOrders(1, 1, status),
+      select: (data: PaginatedManagerOrders): number => data.totalCount,
+      staleTime: 30_000,
+    })),
+  });
+
+  const statusCounts: Partial<Record<number, number>> = {};
+  statuses.forEach((status, i) => {
+    const count = results[i]?.data;
+    if (count !== undefined) {
+      statusCounts[status] = count;
+    }
+  });
+  return statusCounts;
+};
+
+export const useVendorStatusCounts = (
+  statuses: readonly number[]
+): Partial<Record<number, number>> => {
+  const results = useQueries({
+    queries: statuses.map((status) => ({
+      queryKey: queryKeys.managerOrders.vendorCount(status),
+      queryFn: (): Promise<PaginatedManagerOrders> =>
+        axiosApi.managerOrderApi.getVendorOrders(1, 1, status),
       select: (data: PaginatedManagerOrders): number => data.totalCount,
       staleTime: 30_000,
     })),
@@ -149,18 +174,29 @@ export const useCompleteManagerOrder = (): UseMutationResult<
   });
 };
 
+export const useOrderPickupCode = (
+  orderId: number,
+  enabled: boolean
+): UseQueryResult<PickupCode> =>
+  useQuery({
+    queryKey: queryKeys.managerOrders.pickupCode(orderId),
+    queryFn: (): Promise<PickupCode> =>
+      axiosApi.managerOrderApi.getPickupCode(orderId),
+    enabled: enabled && orderId > 0,
+    staleTime: 0,
+  });
+
 export const useVendorOrdersList = (
-  status: number,
-  branchId?: number
+  status: number
 ): ManagerOrdersListResult => {
   const query = useInfiniteQuery({
-    queryKey: queryKeys.managerOrders.vendorList(status, branchId),
+    queryKey: queryKeys.managerOrders.vendorList(status),
     queryFn: ({
       pageParam,
     }: {
       pageParam: number;
     }): Promise<PaginatedManagerOrders> =>
-      axiosApi.managerOrderApi.getVendorOrders(pageParam, 10, status, branchId),
+      axiosApi.managerOrderApi.getVendorOrders(pageParam, 10, status),
     getNextPageParam: (lastPage: PaginatedManagerOrders) =>
       lastPage.hasNext === true ? lastPage.currentPage + 1 : undefined,
     initialPageParam: 1,
@@ -183,4 +219,69 @@ export const useVendorOrdersList = (
       void query.refetch();
     },
   };
+};
+
+export const useVendorBranchOrdersList = (
+  status: number,
+  branchId: number
+): ManagerOrdersListResult => {
+  const query = useInfiniteQuery({
+    queryKey: queryKeys.managerOrders.vendorBranchList(status, branchId),
+    queryFn: ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<PaginatedManagerOrders> =>
+      axiosApi.managerOrderApi.getVendorBranchOrders(
+        branchId,
+        pageParam,
+        10,
+        status
+      ),
+    getNextPageParam: (lastPage: PaginatedManagerOrders) =>
+      lastPage.hasNext === true ? lastPage.currentPage + 1 : undefined,
+    initialPageParam: 1,
+    staleTime: ORDER_STALE_TIME,
+  });
+
+  const items: ManagerOrderSummary[] =
+    query.data?.pages.flatMap((p) => p.items) ?? [];
+
+  return {
+    items,
+    isLoading: query.isLoading,
+    isRefreshing: query.isRefetching && !query.isFetchingNextPage,
+    isLoadingMore: query.isFetchingNextPage,
+    hasNext: query.hasNextPage ?? false,
+    loadMore: (): void => {
+      void query.fetchNextPage();
+    },
+    refresh: (): void => {
+      void query.refetch();
+    },
+  };
+};
+
+export const useVendorBranchStatusCounts = (
+  statuses: readonly number[],
+  branchId: number
+): Partial<Record<number, number>> => {
+  const results = useQueries({
+    queries: statuses.map((status) => ({
+      queryKey: queryKeys.managerOrders.vendorBranchCount(status, branchId),
+      queryFn: (): Promise<PaginatedManagerOrders> =>
+        axiosApi.managerOrderApi.getVendorBranchOrders(branchId, 1, 1, status),
+      select: (data: PaginatedManagerOrders): number => data.totalCount,
+      staleTime: 30_000,
+    })),
+  });
+
+  const statusCounts: Partial<Record<number, number>> = {};
+  statuses.forEach((status, i) => {
+    const count = results[i]?.data;
+    if (count !== undefined) {
+      statusCounts[status] = count;
+    }
+  });
+  return statusCounts;
 };

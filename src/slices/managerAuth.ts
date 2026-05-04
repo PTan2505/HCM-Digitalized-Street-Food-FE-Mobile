@@ -48,6 +48,9 @@ const managerAuthSlice = createSlice({
       state.branchId = action.payload.branchId;
       state.managerId = action.payload.managerId;
     },
+    setActiveBranchId(state, action: PayloadAction<number>) {
+      state.branchId = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -68,7 +71,7 @@ const managerAuthSlice = createSlice({
   },
 });
 
-export const { clearManagerBranch, setManagerBranch } =
+export const { clearManagerBranch, setManagerBranch, setActiveBranchId } =
   managerAuthSlice.actions;
 
 export const selectManagerBranch = (state: {

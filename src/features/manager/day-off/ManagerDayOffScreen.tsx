@@ -148,7 +148,12 @@ export const ManagerDayOffScreen = (): JSX.Element => {
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
-      <Header title={t('manager_day_off.title')} />
+      <Header
+        title={t('manager_day_off.title')}
+        onBackPress={
+          navigation.canGoBack() ? (): void => navigation.goBack() : undefined
+        }
+      />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

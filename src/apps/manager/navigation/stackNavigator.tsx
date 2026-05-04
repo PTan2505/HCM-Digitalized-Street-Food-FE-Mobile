@@ -1,6 +1,10 @@
 import { AuthScreen } from '@features/auth/screens/AuthScreen';
 import { ManagerFeedbackDetailScreen } from '@features/manager/feedback/screens/ManagerFeedbackDetailScreen';
+import { ManagerFeedbackScreen } from '@features/manager/feedback/screens/ManagerFeedbackScreen';
+import { ManagerMenuScreen } from '@features/manager/menu/ManagerMenuScreen';
 import { ManagerOrderDetailScreen } from '@features/manager/orders/screens/ManagerOrderDetailScreen';
+import { ManagerScheduleScreen } from '@features/manager/schedule/ManagerScheduleScreen';
+import { ManagerDayOffScreen } from '@manager/day-off/ManagerDayOffScreen';
 import { VendorCampaignDetailScreen } from '@manager/campaigns/screens/VendorCampaignDetailScreen';
 import { VendorCreateCampaignScreen } from '@manager/campaigns/screens/VendorCreateCampaignScreen';
 import { VendorEditCampaignScreen } from '@manager/campaigns/screens/VendorEditCampaignScreen';
@@ -37,6 +41,19 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     ManagerAddDayOff: {
       screen: AddDayOffScreen,
+    },
+    // Branch management screens (used by both roles via stack push)
+    ManagerSchedule: {
+      screen: ManagerScheduleScreen,
+    },
+    ManagerDayOff: {
+      screen: ManagerDayOffScreen,
+    },
+    ManagerMenu: {
+      screen: ManagerMenuScreen,
+    },
+    ManagerFeedback: {
+      screen: ManagerFeedbackScreen,
     },
     // Vendor-only routes
     VendorBranchDetail: {

@@ -308,7 +308,11 @@
     "rejecting": "Rejecting...",
     "completing": "Completing...",
     "just_now": "Just now",
-    "all_branches": "All branches"
+    "all_branches": "All branches",
+    "get_pickup_code": "View Pickup Code",
+    "pickup_code_title": "Order Pickup Code",
+    "pickup_code_desc": "Verification code to complete the order",
+    "pickup_code_error": "Could not load pickup code"
   },
   "manager_feedback": {
     "title": "Feedback",
@@ -580,7 +584,8 @@
     "yes": "Yes",
     "no": "No",
     "retry": "Retry",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "remove": "Remove"
   },
   "campaign": {
     "title": "Campaigns",
@@ -1057,7 +1062,12 @@
     "no_data": "No data available",
     "top_dishes_title": "Top Dishes",
     "voucher_title": "Voucher Usage",
-    "times_used": "{{count}} uses"
+    "times_used": "{{count}} uses",
+    "error_load": "Failed to load data",
+    "campaigns_title": "Campaign Performance",
+    "total_campaigns": "Total Campaigns",
+    "campaign_orders": "Campaign Orders",
+    "campaign_revenue": "Campaign Revenue"
   },
   "vendor_branches": {
     "title": "Branches",
@@ -1073,7 +1083,9 @@
     "nav_schedule": "Schedule",
     "nav_day_off": "Day-offs",
     "nav_menu": "Menu",
-    "nav_feedback": "Feedback"
+    "nav_feedback": "Feedback",
+    "nav_campaigns": "Campaigns",
+    "nav_orders": "Orders"
   },
   "manager_campaigns": {
     "title": "Campaigns",
@@ -1110,6 +1122,34 @@
     "join_success": "Joined campaign successfully",
     "join_error": "Failed to join campaign",
     "already_joined": "Joined",
-    "create_submit": "Create Campaign"
+    "create_submit": "Create Campaign",
+    "enrolled_branches": "Enrolled Branches",
+    "no_branches": "No branches enrolled yet",
+    "add_branch": "Add Branch",
+    "add": "Add",
+    "remove_branch_title": "Remove Branch",
+    "remove_branch_confirm": "Remove {{name}} from this campaign?",
+    "remove_branch_error": "Failed to remove branch",
+    "add_branch_error": "Failed to add branch",
+    "total_campaigns": "Total Campaigns",
+    "campaign_orders": "Campaign Orders",
+    "campaign_revenue": "Campaign Revenue",
+    "target_segment": "Target Segment",
+    "target_segment_all": "All",
+    "required_tier": "Required Tier",
+    "no_required_tier": "No Requirement",
+    "campaign_vouchers": "Campaign Vouchers",
+    "no_vouchers": "No vouchers yet",
+    "voucher_remaining": "Remaining: {{count}}/{{total}}",
+    "min_order": "Min. order: {{amount}}",
+    "joinable_branches": "Joinable Branches",
+    "no_joinable_branches": "No eligible branches",
+    "select_all": "Select All",
+    "deselect_all": "Deselect All",
+    "branch_enrolled": "Enrolled",
+    "branch_not_enrolled": "Not Enrolled",
+    "date_from": "From",
+    "date_to": "To",
+    "total_branches_label": "Total Branches"
   }
 }

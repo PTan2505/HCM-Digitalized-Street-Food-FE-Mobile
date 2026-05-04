@@ -120,20 +120,22 @@ export const apiUrl = {
   managerOrder: {
     list: '/api/Order/manager/orders',
     vendorList: '/api/order/vendor/orders',
+    vendorBranchList: (branchId: number): string =>
+      `/api/Order/vendor/branches/${branchId}/orders`,
     decision: (id: number): string => `/api/order/vendor/orders/${id}/decision`,
     complete: (id: number): string => `/api/order/vendor/orders/${id}/complete`,
   },
   vendorBranch: {
-    me: '/api/vendor/me',
+    me: '/api/Vendor/my-vendor',
     byId: (branchId: number): string => `/api/Branch/${branchId}`,
     branchAssignments: (branchId: number): string =>
       `/api/branch/${branchId}/dish-assignments`,
   },
   dashboard: {
-    revenue: '/api/dashboard/revenue',
-    vouchers: '/api/dashboard/vouchers',
-    dishes: '/api/dashboard/dishes',
-    campaigns: '/api/dashboard/campaigns',
+    revenue: '/api/VendorDashboard/revenue',
+    vouchers: '/api/VendorDashboard/vouchers',
+    dishes: '/api/VendorDashboard/dishes',
+    campaigns: '/api/VendorDashboard/campaigns',
   },
   vendorCampaign: {
     vendorList: '/api/campaign/vendor',
@@ -142,7 +144,16 @@ export const apiUrl = {
     update: (id: number): string => `/api/campaign/${id}`,
     systemJoinable: '/api/campaign/system/joinable',
     systemById: (id: number): string => `/api/campaign/system/${id}`,
-    joinSystem: (id: number): string => `/api/campaign/system/${id}/join`,
+    joinSystem: (id: number): string =>
+      `/api/Campaign/join/system/${id}/branch`,
+    vendorCampaignBranches: (id: number): string =>
+      `/api/Campaign/vendor/${id}/branches`,
+    systemCampaignBranches: (id: number): string =>
+      `/api/Campaign/system/${id}/branches`,
+    addBranchesToCampaign: (id: number): string =>
+      `/api/Campaign/vendor/${id}/branches/add`,
+    removeBranchesFromCampaign: (id: number): string =>
+      `/api/Campaign/vendor/${id}/branches/remove`,
   },
   payment: {
     orderConfirm: '/api/Payment/order/confirm',

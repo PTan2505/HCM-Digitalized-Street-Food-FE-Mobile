@@ -86,17 +86,15 @@ export const VendorCampaignScreen = (): JSX.Element => {
   } = useVendorCampaignsList();
 
   const {
-    data: systemCampaigns,
+    data: systemCampaignsData,
     isLoading: systemLoading,
     isRefetching: systemRefetching,
     refetch: systemRefetch,
   } = useSystemCampaigns();
+  const systemCampaigns = systemCampaignsData?.items ?? [];
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header
         title={t('manager_campaigns.title')}
         secondaryAction={
@@ -181,7 +179,7 @@ export const VendorCampaignScreen = (): JSX.Element => {
         </View>
       ) : (
         <FlatList
-          data={systemCampaigns ?? []}
+          data={systemCampaigns}
           keyExtractor={(item) => String(item.campaignId)}
           renderItem={({ item }) => (
             <SystemCampaignItem

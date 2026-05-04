@@ -61,10 +61,7 @@ export const VendorBranchListScreen = (): React.JSX.Element => {
   const branches = vendorInfo?.branches ?? [];
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      className="flex-1 bg-gray-50"
-    >
+    <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
       <Header title={t('vendor_branches.title')} />
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

@@ -8,6 +8,7 @@ import {
   useManagerScheduleList,
   useUpdateWorkSchedule,
 } from '@manager/schedule/hooks/useManagerSchedule';
+import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, ScrollView, View } from 'react-native';
@@ -26,6 +27,8 @@ const DAYS = [
 
 export const ManagerScheduleScreen = (): JSX.Element => {
   const { t } = useTranslation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const navigation = useNavigation<any>();
   const { data: schedules, isLoading } = useManagerScheduleList();
   const createSchedule = useCreateWorkSchedule();
   const updateSchedule = useUpdateWorkSchedule();
@@ -113,7 +116,12 @@ export const ManagerScheduleScreen = (): JSX.Element => {
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
-      <Header title={t('manager_schedule.title')} />
+      <Header
+        title={t('manager_schedule.title')}
+        onBackPress={
+          navigation.canGoBack() ? (): void => navigation.goBack() : undefined
+        }
+      />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

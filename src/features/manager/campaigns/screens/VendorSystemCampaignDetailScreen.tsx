@@ -1,12 +1,17 @@
 import Header from '@components/Header';
 import { CampaignStatusBadge } from '@manager/campaigns/components/CampaignStatusBadge';
+import { CampaignVoucherCard } from '@manager/campaigns/components/CampaignVoucherCard';
 import {
   useJoinSystemCampaign,
   useSystemCampaignDetail,
 } from '@manager/campaigns/hooks/useSystemCampaigns';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
+import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState, type JSX } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useMemo, useState, type JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -16,15 +21,17 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 
 interface RouteParams {
   campaignId: number;
 }
 
-const formatDate = (dateStr: string): string => {
+const formatDatetime = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return '-';
   const d = new Date(dateStr);
-  return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+  if (isNaN(d.getTime())) return '-';
+  const pad = (n: number): string => n.toString().padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
 export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
@@ -43,10 +50,50 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
   const { data: vendorInfo } = useVendorInfo();
   const joinCampaign = useJoinSystemCampaign(campaignId);
 
+  const { data: tiers = [] } = useQuery({
+    queryKey: queryKeys.tiers.all,
+    queryFn: () => axiosApi.tierApi.getTiers(),
+    staleTime: 5 * 60_000,
+  });
+
+  const { data: vouchers = [] } = useQuery({
+    queryKey: queryKeys.vouchers.campaignVoucher(campaignId),
+    queryFn: () => axiosApi.voucherApi.getCampaignVouchers(campaignId),
+    enabled: campaignId > 0,
+    staleTime: 60_000,
+  });
+
   const [selectedBranchIds, setSelectedBranchIds] = useState<number[]>([]);
 
-  const branches = vendorInfo?.branches ?? [];
-  const alreadyJoinedIds = campaign?.joinedBranchIds ?? [];
+  const allBranches = useMemo(
+    () => vendorInfo?.branches ?? [],
+    [vendorInfo?.branches]
+  );
+
+  const joinableBranches = useMemo(() => {
+    if (!campaign) return [];
+    if (campaign.joinableBranch != null) {
+      const joinableSet = new Set(campaign.joinableBranch);
+      return allBranches.filter((b) => joinableSet.has(b.branchId));
+    }
+    const joinedSet = new Set(campaign.joinedBranchIds ?? []);
+    return allBranches.filter((b) => !joinedSet.has(b.branchId));
+  }, [campaign, allBranches]);
+
+  const requiredTierLabel = useMemo((): string => {
+    if (!campaign?.requiredTierId)
+      return t('manager_campaigns.no_required_tier');
+    const tier = tiers.find((item) => item.tierId === campaign.requiredTierId);
+    return tier?.name ?? `#${campaign.requiredTierId}`;
+  }, [campaign, tiers, t]);
+
+  const handleToggleAll = (): void => {
+    if (selectedBranchIds.length === joinableBranches.length) {
+      setSelectedBranchIds([]);
+    } else {
+      setSelectedBranchIds(joinableBranches.map((b) => b.branchId));
+    }
+  };
 
   const toggleBranch = (branchId: number): void => {
     setSelectedBranchIds((prev) =>
@@ -104,6 +151,7 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
           contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 12 }}
           showsVerticalScrollIndicator={false}
         >
+          {/* Campaign header */}
           <View className="rounded-2xl bg-white p-4 shadow-sm">
             <View className="mb-3 flex-row items-start justify-between">
               <Text className="flex-1 pr-2 text-xl font-bold text-gray-900">
@@ -119,77 +167,162 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
                 {campaign.description}
               </Text>
             ) : null}
-            <View className="rounded-xl bg-gray-50 p-3">
-              <Text className="text-xs font-semibold uppercase text-gray-500">
+
+            {/* Registration period */}
+            <View className="mb-3 rounded-xl bg-gray-50 p-3">
+              <Text className="mb-1 text-xs font-semibold uppercase text-gray-500">
                 {t('manager_campaigns.registration_period')}
               </Text>
-              <Text className="mt-1 text-sm font-medium text-gray-800">
-                {formatDate(campaign.registrationStartDate)} →{' '}
-                {formatDate(campaign.registrationEndDate)}
+              <Text className="text-sm font-medium text-gray-800">
+                {t('manager_campaigns.date_from')}:{' '}
+                {formatDatetime(campaign.registrationStartDate)}
+              </Text>
+              <Text className="text-sm font-medium text-gray-800">
+                {t('manager_campaigns.date_to')}:{' '}
+                {formatDatetime(campaign.registrationEndDate)}
               </Text>
             </View>
-            <View className="mt-3 rounded-xl bg-gray-50 p-3">
-              <Text className="text-xs font-semibold uppercase text-gray-500">
+
+            {/* Active period */}
+            <View className="rounded-xl bg-gray-50 p-3">
+              <Text className="mb-1 text-xs font-semibold uppercase text-gray-500">
                 {t('manager_campaigns.active_period')}
               </Text>
-              <Text className="mt-1 text-sm font-medium text-gray-800">
-                {formatDate(campaign.startDate)} →{' '}
-                {formatDate(campaign.endDate)}
+              <Text className="text-sm font-medium text-gray-800">
+                {t('manager_campaigns.date_from')}:{' '}
+                {formatDatetime(campaign.startDate)}
+              </Text>
+              <Text className="text-sm font-medium text-gray-800">
+                {t('manager_campaigns.date_to')}:{' '}
+                {formatDatetime(campaign.endDate)}
               </Text>
             </View>
           </View>
 
-          {campaign.isRegisterable && branches.length > 0 && (
-            <View className="rounded-2xl bg-white p-4 shadow-sm">
-              <Text className="mb-3 text-base font-bold text-gray-900">
-                {t('manager_campaigns.select_branches')}
+          {/* Campaign details */}
+          <View className="rounded-2xl bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-sm font-semibold text-gray-500">
+                {t('manager_campaigns.target_segment')}
               </Text>
-              {branches.map((branch) => {
-                const isJoined = alreadyJoinedIds.includes(branch.branchId);
-                const isSelected = selectedBranchIds.includes(branch.branchId);
-                return (
-                  <TouchableOpacity
-                    key={branch.branchId}
-                    onPress={() => !isJoined && toggleBranch(branch.branchId)}
-                    className={`mb-2 flex-row items-center justify-between rounded-xl border p-3 ${
-                      isJoined
-                        ? 'border-green-200 bg-green-50'
-                        : isSelected
-                          ? 'border-primary bg-primary/5'
-                          : 'border-gray-100 bg-gray-50'
-                    }`}
-                    disabled={isJoined}
-                  >
-                    <Text
-                      className={`text-sm font-medium ${isJoined ? 'text-green-700' : 'text-gray-800'}`}
-                    >
-                      {branch.name}
-                    </Text>
-                    {isJoined ? (
-                      <Text className="text-xs font-semibold text-green-600">
-                        {t('manager_campaigns.already_joined')}
-                      </Text>
-                    ) : (
-                      <View
-                        className={`h-5 w-5 rounded-full border-2 ${isSelected ? 'border-primary bg-primary' : 'border-gray-300'}`}
-                      />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-              <TouchableOpacity
-                className="mt-4 items-center rounded-full bg-primary py-3"
-                onPress={handleJoin}
-                disabled={
-                  joinCampaign.isPending || selectedBranchIds.length === 0
-                }
-              >
-                <Text className="text-base font-bold text-white">
-                  {joinCampaign.isPending
-                    ? t('common.saving')
-                    : t('manager_campaigns.join_button')}
+              <Text className="ml-4 flex-shrink text-right text-sm font-medium text-gray-800">
+                {campaign.targetSegment?.trim()
+                  ? campaign.targetSegment
+                  : t('manager_campaigns.target_segment_all')}
+              </Text>
+            </View>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-sm font-semibold text-gray-500">
+                {t('manager_campaigns.required_tier')}
+              </Text>
+              <Text className="ml-4 text-right text-sm font-medium text-gray-800">
+                {requiredTierLabel}
+              </Text>
+            </View>
+          </View>
+
+          {/* Vouchers */}
+          <View className="rounded-2xl bg-white p-4 shadow-sm">
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-base font-bold text-gray-900">
+                {t('manager_campaigns.campaign_vouchers')}
+              </Text>
+              {vouchers.length > 0 && (
+                <View className="rounded-full bg-gray-100 px-2 py-0.5">
+                  <Text className="text-xs font-semibold text-gray-500">
+                    {vouchers.length}
+                  </Text>
+                </View>
+              )}
+            </View>
+            {vouchers.length === 0 ? (
+              <Text className="text-sm text-gray-400">
+                {t('manager_campaigns.no_vouchers')}
+              </Text>
+            ) : (
+              <View className="gap-3">
+                {vouchers.map((v) => (
+                  <CampaignVoucherCard key={v.voucherId} voucher={v} />
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Joinable branches */}
+          {campaign.isRegisterable && (
+            <View className="rounded-2xl bg-white p-4 shadow-sm">
+              <View className="mb-3 flex-row items-center justify-between">
+                <Text className="text-base font-bold text-gray-900">
+                  {t('manager_campaigns.joinable_branches')}
                 </Text>
-              </TouchableOpacity>
+                {joinableBranches.length > 0 && (
+                  <TouchableOpacity onPress={handleToggleAll}>
+                    <Text className="text-xs font-semibold text-primary">
+                      {selectedBranchIds.length === joinableBranches.length
+                        ? t('manager_campaigns.deselect_all')
+                        : t('manager_campaigns.select_all')}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {joinableBranches.length === 0 ? (
+                <Text className="text-sm text-gray-400">
+                  {t('manager_campaigns.no_joinable_branches')}
+                </Text>
+              ) : (
+                <>
+                  {joinableBranches.map((branch) => {
+                    const isSelected = selectedBranchIds.includes(
+                      branch.branchId
+                    );
+                    return (
+                      <TouchableOpacity
+                        key={branch.branchId}
+                        onPress={() => toggleBranch(branch.branchId)}
+                        className={`mb-2 flex-row items-center justify-between rounded-xl border p-3 ${
+                          isSelected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-gray-100 bg-gray-50'
+                        }`}
+                      >
+                        <Text
+                          className={`flex-1 text-sm font-medium ${
+                            isSelected ? 'text-primary' : 'text-gray-800'
+                          }`}
+                          numberOfLines={1}
+                        >
+                          {branch.name}
+                        </Text>
+                        <View
+                          className={`h-5 w-5 rounded-full border-2 ${
+                            isSelected
+                              ? 'border-primary bg-primary'
+                              : 'border-gray-300'
+                          }`}
+                        />
+                      </TouchableOpacity>
+                    );
+                  })}
+                  <TouchableOpacity
+                    className={`mt-2 items-center rounded-full py-3 ${
+                      joinCampaign.isPending || selectedBranchIds.length === 0
+                        ? 'bg-gray-300'
+                        : 'bg-primary'
+                    }`}
+                    onPress={handleJoin}
+                    disabled={
+                      joinCampaign.isPending || selectedBranchIds.length === 0
+                    }
+                  >
+                    <Text className="text-base font-bold text-white">
+                      {joinCampaign.isPending
+                        ? t('common.saving')
+                        : t('manager_campaigns.join_button')}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           )}
         </ScrollView>

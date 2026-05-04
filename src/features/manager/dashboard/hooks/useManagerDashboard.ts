@@ -1,4 +1,5 @@
 import type {
+  CampaignStats,
   RevenueSummary,
   TopDishesData,
   VoucherStats,
@@ -10,19 +11,16 @@ import { useMemo } from 'react';
 
 export type DashboardPreset = 7 | 14 | 30;
 
-const pad = (n: number): string => String(n).padStart(2, '0');
-
-const toDateStr = (d: Date): string =>
-  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-
 export const useDateRange = (
   days: DashboardPreset
 ): { fromDate: string; toDate: string } =>
   useMemo(() => {
     const to = new Date();
+    to.setUTCHours(23, 59, 59, 999);
     const from = new Date();
     from.setDate(from.getDate() - days);
-    return { fromDate: toDateStr(from), toDate: toDateStr(to) };
+    from.setUTCHours(0, 0, 0, 0);
+    return { fromDate: from.toISOString(), toDate: to.toISOString() };
   }, [days]);
 
 export const useRevenueSummary = (
@@ -35,22 +33,24 @@ export const useRevenueSummary = (
       axiosApi.managerDashboardApi.getRevenue({ fromDate, toDate }),
   });
 
-export const useTopDishes = (
-  fromDate: string,
-  toDate: string
-): UseQueryResult<TopDishesData> =>
+export const useTopDishes = (): UseQueryResult<TopDishesData> =>
   useQuery({
-    queryKey: queryKeys.managerDashboard.topDishes(fromDate, toDate),
-    queryFn: () =>
-      axiosApi.managerDashboardApi.getTopDishes({ fromDate, toDate }),
+    queryKey: queryKeys.managerDashboard.topDishes(),
+    queryFn: () => axiosApi.managerDashboardApi.getTopDishes(),
   });
 
-export const useVoucherStats = (
+export const useVoucherStats = (): UseQueryResult<VoucherStats> =>
+  useQuery({
+    queryKey: queryKeys.managerDashboard.voucherStats(),
+    queryFn: () => axiosApi.managerDashboardApi.getVoucherStats(),
+  });
+
+export const useCampaignStats = (
   fromDate: string,
   toDate: string
-): UseQueryResult<VoucherStats> =>
+): UseQueryResult<CampaignStats> =>
   useQuery({
-    queryKey: queryKeys.managerDashboard.voucherStats(fromDate, toDate),
+    queryKey: queryKeys.managerDashboard.campaignStats(fromDate, toDate),
     queryFn: () =>
-      axiosApi.managerDashboardApi.getVoucherStats({ fromDate, toDate }),
+      axiosApi.managerDashboardApi.getCampaignStats({ fromDate, toDate }),
   });
