@@ -1163,8 +1163,8 @@
     "enter_current_pin": "Nhập mã PIN hiện tại"
   },
   "manager_dashboard": {
-    "title": "Bảng điều khiển",
-    "heading": "Bảng điều khiển hoạt động",
+    "title": "Tổng quan",
+    "heading": "Tổng quan hoạt động",
     "heading_subtitle": "Giám sát doanh thu và hiệu suất kinh doanh của bạn",
     "days_preset": "{{days}}d",
     "last_n_days": "{{days}} ngày qua",
