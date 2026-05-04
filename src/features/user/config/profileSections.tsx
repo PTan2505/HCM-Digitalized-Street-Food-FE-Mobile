@@ -117,6 +117,53 @@ export const getProfileSections = (
       visible: !isManagerApp,
     },
 
+    // Vendor Features Section (manager app only)
+    {
+      id: 'vendor-features',
+      type: 'list-items',
+      title: t('profile.vendor_features', 'Vendor'),
+      items: [
+        {
+          id: 'vendor-registration-history',
+          icon: 'document-text-outline',
+          title: t('registration_history.title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('VendorRegistrationHistory'),
+        },
+        {
+          id: 'vendor-payment-history',
+          icon: 'receipt-outline',
+          title: t('profile.payment_history'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('ManagerPaymentHistory'),
+        },
+        {
+          id: 'vendor-dietary',
+          icon: 'restaurant-outline',
+          title: t('vendor_dietary.title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('VendorDietaryPreferences'),
+        },
+        {
+          id: 'vendor-ghost-pins',
+          icon: 'storefront-outline',
+          title: t('vendor_ghost_pin.title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('VendorGhostPin'),
+        },
+        {
+          id: 'vendor-dish-catalog',
+          icon: 'fast-food-outline',
+          title: t('vendor_dish.title'),
+          rightIcon: 'chevron-forward',
+          onPress: (): void => navigation.navigate('VendorDishCatalog'),
+        },
+      ],
+      containerClassName: 'mb-6',
+      titleClassName: 'px-4 mb-3 text-base font-bold text-gray-900',
+      visible: isManagerApp,
+    },
+
     // Benefits & Savings Section
     {
       id: 'benefits',

@@ -123,7 +123,17 @@ export const queryKeys = {
     all: ['managerOrders'] as const,
     list: (status: number) => ['managerOrders', 'list', status] as const,
     count: (status: number) => ['managerOrders', 'count', status] as const,
+    vendorCount: (status: number) =>
+      ['managerOrders', 'vendorCount', status] as const,
+    vendorBranchCount: (status: number, branchId: number) =>
+      ['managerOrders', 'vendorBranchCount', status, branchId] as const,
     detail: (orderId: number) => ['managerOrders', 'detail', orderId] as const,
+    pickupCode: (orderId: number) =>
+      ['managerOrders', 'pickupCode', orderId] as const,
+    vendorList: (status: number) =>
+      ['managerOrders', 'vendor', status] as const,
+    vendorBranchList: (status: number, branchId: number) =>
+      ['managerOrders', 'vendorBranch', status, branchId] as const,
   },
 
   managerFeedback: {
@@ -155,6 +165,8 @@ export const queryKeys = {
       ['managerDishes', 'branch', branchId] as const,
     vendorCatalog: (vendorId: number) =>
       ['managerDishes', 'vendor', vendorId] as const,
+    byVendor: (vendorId: number, keyword: string) =>
+      ['managerDishes', 'byVendor', vendorId, keyword] as const,
   },
 
   tastes: {
@@ -190,6 +202,19 @@ export const queryKeys = {
       ['vouchers', 'campaign', campaignId] as const,
   },
 
+  managerVouchers: {
+    all: ['managerVouchers'] as const,
+    detail: (id: number) => ['managerVouchers', 'detail', id] as const,
+    byCampaign: (campaignId: number) =>
+      ['managerVouchers', 'byCampaign', campaignId] as const,
+  },
+
+  managerCampaignImage: {
+    all: ['managerCampaignImage'] as const,
+    detail: (campaignId: number) =>
+      ['managerCampaignImage', 'detail', campaignId] as const,
+  },
+
   badges: {
     all: ['badges'] as const,
     user: ['badges', 'user'] as const,
@@ -206,5 +231,35 @@ export const queryKeys = {
   userPin: {
     all: ['userPin'] as const,
     status: () => ['userPin', 'status'] as const,
+  },
+
+  vendorBranches: {
+    all: ['vendorBranches'] as const,
+    vendorInfo: () => ['vendorBranches', 'vendorInfo'] as const,
+    detail: (branchId: number) =>
+      ['vendorBranches', 'detail', branchId] as const,
+    dietaryPreferences: (vendorId: number) =>
+      ['vendorBranches', 'dietaryPreferences', vendorId] as const,
+  },
+
+  managerDashboard: {
+    all: ['managerDashboard'] as const,
+    revenue: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'revenue', fromDate, toDate] as const,
+    topDishes: () => ['managerDashboard', 'topDishes'] as const,
+    voucherStats: () => ['managerDashboard', 'voucherStats'] as const,
+    campaignStats: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'campaignStats', fromDate, toDate] as const,
+  },
+
+  managerCampaigns: {
+    all: ['managerCampaigns'] as const,
+    vendorList: () => ['managerCampaigns', 'vendorList'] as const,
+    detail: (id: number) => ['managerCampaigns', 'detail', id] as const,
+    systemJoinable: () => ['managerCampaigns', 'systemJoinable'] as const,
+    systemDetail: (id: number) =>
+      ['managerCampaigns', 'systemDetail', id] as const,
+    branches: (campaignId: number, isSystem = false) =>
+      ['managerCampaigns', 'branches', campaignId, isSystem] as const,
   },
 } as const;

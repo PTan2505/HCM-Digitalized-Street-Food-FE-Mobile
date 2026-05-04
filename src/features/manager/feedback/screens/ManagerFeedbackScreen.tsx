@@ -304,7 +304,12 @@ export const ManagerFeedbackScreen = (): React.JSX.Element => {
 
   return (
     <SafeAreaView edges={[]} className="flex-1 bg-gray-50">
-      <Header title={t('manager_feedback.title')} />
+      <Header
+        title={t('manager_feedback.title')}
+        onBackPress={
+          navigation.canGoBack() ? (): void => navigation.goBack() : undefined
+        }
+      />
       {isLoading && items.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#9FD356" />

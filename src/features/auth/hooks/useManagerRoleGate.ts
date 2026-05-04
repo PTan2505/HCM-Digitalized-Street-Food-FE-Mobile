@@ -27,17 +27,29 @@ export const useManagerRoleGate = (): void => {
   }, [user]);
 
   useEffect(() => {
+    console.log(
+      '[useManagerRoleGate] userStatus:',
+      userStatus,
+      'user role:',
+      user?.role
+    );
     if (userStatus !== 'succeeded' || !user) return;
 
-    if (user.role !== ROLES.MANAGER) {
+    const isAllowedRole =
+      user.role === ROLES.MANAGER || user.role === ROLES.VENDOR;
+    console.log('[useManagerRoleGate] isAllowedRole:', isAllowedRole);
+    if (!isAllowedRole) {
       hasFetchedBranchRef.current = false;
       void dispatch(userLogout());
       Alert.alert(t('auth.error'), t('auth.manager_access_denied'));
       return;
     }
 
-    if (!hasFetchedBranchRef.current) {
+    // Only branch managers need to pre-fetch their assigned branch.
+    // Vendors fetch all branches on-demand via the branch list screen.
+    if (user.role === ROLES.MANAGER && !hasFetchedBranchRef.current) {
       hasFetchedBranchRef.current = true;
+      console.log('[useManagerRoleGate] fetching manager branch');
       void dispatch(fetchManagerBranch());
     }
   }, [userStatus, user, dispatch, t]);
