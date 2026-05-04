@@ -5,6 +5,8 @@ export interface VendorCampaign {
   campaignId: number;
   name: string;
   description: string | null;
+  targetSegment?: string | null;
+  requiredTierId?: number | null;
   startDate: string;
   endDate: string;
   isActive: boolean;

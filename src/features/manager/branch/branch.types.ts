@@ -16,6 +16,8 @@ export interface ManagerBranch {
   isVerified: boolean;
   avgRating: number;
   totalReviewCount: number | null;
+  tierId?: number;
+  tierName?: string;
   isActive: boolean;
   isSubscribed: boolean;
   daysRemaining: number | null;

@@ -7,8 +7,11 @@ import {
   useRemoveBranchesFromCampaign,
 } from '@manager/campaigns/hooks/useSystemCampaigns';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
+import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -36,6 +39,7 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigation = useNavigation<any>();
   const { campaignId } = route.params as RouteParams;
+
   const {
     data: campaign,
     isLoading,
@@ -47,17 +51,58 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
     campaign?.isSystemCampaign ?? undefined
   );
   const { data: vendorInfo } = useVendorInfo();
+  const { data: tiers = [] } = useQuery({
+    queryKey: queryKeys.tiers.all,
+    queryFn: () => axiosApi.tierApi.getTiers(),
+    staleTime: 5 * 60_000,
+  });
+
   const removeBranches = useRemoveBranchesFromCampaign(campaignId);
   const addBranches = useAddBranchesToCampaign(campaignId);
   const [isRemoving, setIsRemoving] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState<number | null>(null);
 
   const isSystemCampaign = campaign?.isSystemCampaign === true;
-  const allVendorBranches = vendorInfo?.branches ?? [];
-  const enrolledBranchIds = new Set(
-    campaignBranches?.items.map((b) => b.branchId) ?? []
+
+  const enrolledBranchIds = useMemo(
+    () => new Set(campaignBranches?.items.map((b) => b.branchId) ?? []),
+    [campaignBranches]
   );
-  const enrolledCount = enrolledBranchIds.size;
+
+  const subscribedBranches = useMemo(
+    () => (vendorInfo?.branches ?? []).filter((b) => b.isSubscribed),
+    [vendorInfo?.branches]
+  );
+
+  const eligibleBranches = useMemo(() => {
+    if (
+      !isSystemCampaign ||
+      !campaign?.requiredTierId ||
+      tiers.length === 0
+    ) {
+      return subscribedBranches;
+    }
+    const requiredTier = tiers.find((t) => t.tierId === campaign.requiredTierId);
+    if (!requiredTier) return subscribedBranches;
+
+    return subscribedBranches.filter((branch) => {
+      if (enrolledBranchIds.has(branch.branchId)) return true;
+      const branchTier = tiers.find((t) => t.tierId === branch.tierId);
+      if (!branchTier) return false;
+      return branchTier.weight >= requiredTier.weight;
+    });
+  }, [
+    subscribedBranches,
+    isSystemCampaign,
+    campaign?.requiredTierId,
+    tiers,
+    enrolledBranchIds,
+  ]);
+
+  const enrolledCount = useMemo(
+    () => eligibleBranches.filter((b) => enrolledBranchIds.has(b.branchId)).length,
+    [eligibleBranches, enrolledBranchIds]
+  );
 
   const handleRemoveBranch = (branchId: number, branchName: string): void => {
     Alert.alert(
@@ -155,7 +200,7 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
                 {t('manager_campaigns.total_branches_label')}
               </Text>
               <Text className="text-2xl font-extrabold text-blue-700">
-                {allVendorBranches.length}
+                {eligibleBranches.length}
               </Text>
             </View>
             <View className="flex-1 rounded-2xl border border-green-100 bg-green-50 p-3">
@@ -168,8 +213,8 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
             </View>
           </View>
 
-          {/* Branch list — all vendor branches with enrollment status */}
-          {allVendorBranches.length === 0 ? (
+          {/* Branch list */}
+          {eligibleBranches.length === 0 ? (
             <View className="rounded-2xl bg-white p-4 shadow-sm">
               <Text className="text-sm text-gray-400">
                 {t('manager_campaigns.no_branches')}
@@ -177,13 +222,13 @@ export const VendorCampaignDetailScreen = (): React.JSX.Element => {
             </View>
           ) : (
             <View className="rounded-2xl bg-white shadow-sm">
-              {allVendorBranches.map((branch, idx) => {
+              {eligibleBranches.map((branch, idx) => {
                 const isEnrolled = enrolledBranchIds.has(branch.branchId);
                 return (
                   <View
                     key={branch.branchId}
                     className={`flex-row items-center px-4 py-3 ${
-                      idx < allVendorBranches.length - 1
+                      idx < eligibleBranches.length - 1
                         ? 'border-b border-gray-100'
                         : ''
                     }`}
