@@ -1264,6 +1264,7 @@
     "join_no_branch": "Vui lòng chọn ít nhất một chi nhánh",
     "join_success": "Đăng ký tham gia thành công",
     "join_error": "Đăng ký tham gia thất bại",
+    "join_payment_description": "Tham gia chien dich {{campaignId}}",
     "already_joined": "Đã tham gia",
     "create_submit": "Tạo chiến dịch",
     "enrolled_branches": "Chi nhánh tham gia",

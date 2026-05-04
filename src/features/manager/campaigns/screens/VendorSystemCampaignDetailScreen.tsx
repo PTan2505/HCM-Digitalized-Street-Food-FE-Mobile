@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -111,9 +112,49 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
     joinCampaign.mutate(
       { branchIds: selectedBranchIds },
       {
-        onSuccess: () => {
-          Alert.alert(t('manager_campaigns.join_success'));
-          setSelectedBranchIds([]);
+        onSuccess: async (res) => {
+          if (!res.success) {
+            Alert.alert(t('manager_campaigns.join_error'), res.message ?? '');
+            return;
+          }
+
+          const orderCodeNum = res.orderCode ? Number(res.orderCode) : null;
+          const joinFee = campaign?.joinFee ?? 0;
+          const computedAmount =
+            res.amount ?? selectedBranchIds.length * joinFee;
+          const firstBranchName =
+            allBranches.find((b) => b.branchId === selectedBranchIds[0])
+              ?.name ?? '';
+
+          if (res.bin && res.accountNumber) {
+            navigation.navigate('PaymentQR', {
+              orderId: orderCodeNum ?? campaignId,
+              branchId: selectedBranchIds[0] ?? 0,
+              orderCode: orderCodeNum,
+              totalAmount: computedAmount,
+              branchName: firstBranchName,
+              bin: res.bin,
+              accountNumber: res.accountNumber,
+              accountName: res.accountName,
+              mode: 'campaign',
+              campaignId,
+              description: t('manager_campaigns.join_payment_description', {
+                campaignId,
+              }),
+            });
+            setSelectedBranchIds([]);
+            return;
+          }
+
+          if (res.paymentUrl) {
+            const canOpen = await Linking.canOpenURL(res.paymentUrl);
+            if (!canOpen) {
+              Alert.alert(t('manager_branch.subscribe_external_unavailable'));
+              return;
+            }
+            await Linking.openURL(res.paymentUrl);
+            setSelectedBranchIds([]);
+          }
         },
         onError: () => {
           Alert.alert(t('manager_campaigns.join_error'));

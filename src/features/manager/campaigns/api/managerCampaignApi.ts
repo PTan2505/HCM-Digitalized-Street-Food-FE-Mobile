@@ -1,3 +1,4 @@
+import type { CreatePaymentLinkResponse } from '@manager/branch/branch.types';
 import type ApiClient from '@lib/api/apiClient';
 import { apiUrl } from '@lib/api/apiUrl';
 
@@ -30,6 +31,7 @@ export interface SystemCampaign {
   imageUrl: string | null;
   joinedBranchIds?: number[] | null;
   joinableBranch?: number[] | null;
+  joinFee?: number | null;
 }
 
 export interface PaginatedVendorCampaigns {
@@ -170,11 +172,15 @@ export class ManagerCampaignApi {
   async joinSystemCampaign(
     id: number,
     data: JoinSystemCampaignRequest
-  ): Promise<void> {
-    await this.apiClient.post<void, JoinSystemCampaignRequest>({
+  ): Promise<CreatePaymentLinkResponse> {
+    const res = await this.apiClient.post<
+      CreatePaymentLinkResponse,
+      JoinSystemCampaignRequest
+    >({
       url: apiUrl.vendorCampaign.joinSystem(id),
       data,
     });
+    return res.data;
   }
 
   async getCampaignBranches(

@@ -6,6 +6,7 @@ import type {
   PaginatedSystemCampaigns,
   SystemCampaign,
 } from '@manager/campaigns/api/managerCampaignApi';
+import type { CreatePaymentLinkResponse } from '@manager/branch/branch.types';
 import { axiosApi } from '@lib/api/apiInstance';
 import { queryKeys } from '@lib/queryKeys';
 import {
@@ -34,21 +35,15 @@ export const useSystemCampaignDetail = (
 
 export const useJoinSystemCampaign = (
   campaignId: number
-): UseMutationResult<void, Error, JoinSystemCampaignRequest> => {
-  const queryClient = useQueryClient();
-  return useMutation({
+): UseMutationResult<
+  CreatePaymentLinkResponse,
+  Error,
+  JoinSystemCampaignRequest
+> =>
+  useMutation({
     mutationFn: (data) =>
       axiosApi.managerCampaignApi.joinSystemCampaign(campaignId, data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.managerCampaigns.systemJoinable(),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.managerCampaigns.systemDetail(campaignId),
-      });
-    },
   });
-};
 
 export const useCampaignBranches = (
   campaignId: number,

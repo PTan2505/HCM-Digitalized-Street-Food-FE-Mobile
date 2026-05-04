@@ -1261,6 +1261,7 @@
     "join_no_branch": "Please select at least one branch",
     "join_success": "Joined campaign successfully",
     "join_error": "Failed to join campaign",
+    "join_payment_description": "Tham gia chien dich {{campaignId}}",
     "already_joined": "Joined",
     "create_submit": "Create Campaign",
     "enrolled_branches": "Enrolled Branches",
