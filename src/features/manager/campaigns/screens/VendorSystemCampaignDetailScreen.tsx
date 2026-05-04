@@ -340,12 +340,18 @@ export const VendorSystemCampaignDetailScreen = (): JSX.Element => {
                           {branch.name}
                         </Text>
                         <View
-                          className={`h-5 w-5 rounded-full border-2 ${
+                          className={`h-5 w-5 items-center justify-center rounded border-2 ${
                             isSelected
                               ? 'border-primary bg-primary'
                               : 'border-gray-300'
                           }`}
-                        />
+                        >
+                          {isSelected && (
+                            <Text className="text-xs font-bold leading-none text-white">
+                              ✓
+                            </Text>
+                          )}
+                        </View>
                       </TouchableOpacity>
                     );
                   })}
