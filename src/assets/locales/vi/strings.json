@@ -1374,5 +1374,8 @@
     "placeholder_date": "Chọn ngày",
     "placeholder_datetime": "Chọn ngày & giờ",
     "placeholder_time": "Chọn giờ"
+  },
+  "chatbot": {
+    "title": "Trợ lý AI"
   }
 }

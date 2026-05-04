@@ -1371,5 +1371,8 @@
     "placeholder_date": "Pick date",
     "placeholder_datetime": "Pick date & time",
     "placeholder_time": "Pick time"
+  },
+  "chatbot": {
+    "title": "AI Assistant"
   }
 }
