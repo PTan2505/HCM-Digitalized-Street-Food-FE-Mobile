@@ -6,7 +6,7 @@ import { DirectCheckoutScreen } from '@features/customer/direct-ordering/screens
 import { MyCartsScreen } from '@features/customer/direct-ordering/screens/MyCartsScreen';
 import { OrderHistoryScreen } from '@features/customer/direct-ordering/screens/OrderHistoryScreen';
 import { OrderStatusScreen } from '@features/customer/direct-ordering/screens/OrderStatusScreen';
-import { PaymentQRScreen } from '@features/customer/direct-ordering/screens/PaymentQRScreen';
+import { PaymentQRScreen } from '@features/shared/payment/screens/PaymentQRScreen';
 import { PersonalCartScreen } from '@features/customer/direct-ordering/screens/PersonalCartScreen';
 import { VoucherSelectScreen } from '@features/customer/direct-ordering/screens/VoucherSelectScreen';
 import type { VoucherChip } from '@features/customer/home/components/common/PlaceCard';
@@ -188,6 +188,9 @@ const RootStack = createNativeStackNavigator({
         bin?: string | null;
         accountNumber?: string | null;
         accountName?: string | null;
+        mode?: 'order' | 'subscription';
+        description?: string;
+        successRouteName?: string;
       },
     },
     OrderStatus: {

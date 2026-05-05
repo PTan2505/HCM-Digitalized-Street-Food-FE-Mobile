@@ -61,16 +61,20 @@ const fetchCoordsOnce = async (): Promise<UserCoords | null> => {
   return resolved;
 };
 
+let sharedCoordsSettled = false;
+
 export const useLocationPermission = (): {
   permissionStatus: Location.PermissionStatus;
   retryPermission: () => void;
   coords: UserCoords | null;
+  coordsSettled: boolean;
 } => {
   const [permissionStatus, setPermissionStatus] =
     useState<Location.PermissionStatus>(
       sharedPermissionStatus ?? Location.PermissionStatus.UNDETERMINED
     );
   const [coords, setCoords] = useState<UserCoords | null>(sharedCoords);
+  const [coordsSettled, setCoordsSettled] = useState(sharedCoordsSettled);
 
   const fetchCoords = useCallback(async (): Promise<void> => {
     try {
@@ -80,6 +84,9 @@ export const useLocationPermission = (): {
       }
     } catch {
       // coords stay null — callers handle gracefully
+    } finally {
+      sharedCoordsSettled = true;
+      setCoordsSettled(true);
     }
   }, []);
 
@@ -135,6 +142,8 @@ export const useLocationPermission = (): {
           // clear stale coordinates so UI can reflect the denied state.
           sharedCoords = null;
           setCoords(null);
+          sharedCoordsSettled = true;
+          setCoordsSettled(true);
         }
       } catch {
         if (!cancelled) {
@@ -150,6 +159,8 @@ export const useLocationPermission = (): {
         void fetchCoords();
       } else if (sharedPermissionStatus === Location.PermissionStatus.DENIED) {
         setCoords(null);
+        sharedCoordsSettled = true;
+        setCoordsSettled(true);
       }
     } else {
       void checkPermission();
@@ -187,5 +198,6 @@ export const useLocationPermission = (): {
     permissionStatus,
     retryPermission,
     coords,
+    coordsSettled,
   };
 };

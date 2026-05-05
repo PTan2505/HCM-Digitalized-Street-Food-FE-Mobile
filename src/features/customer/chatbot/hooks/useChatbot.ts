@@ -38,7 +38,7 @@ export const useChatbot = (): UseChatbotReturn => {
         trimmed,
         coords?.latitude ?? null,
         coords?.longitude ?? null,
-        20,
+        null,
         image
       );
       const data = response.data;

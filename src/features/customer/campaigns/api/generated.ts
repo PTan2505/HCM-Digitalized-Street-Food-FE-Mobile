@@ -161,6 +161,7 @@ export const getLowcaAPIUnimplementedEndpoints = () => {
     pageSize?: number;
     lat?: number | null;
     lng?: number | null;
+    distance?: number | null;
   }) => {
     return orvalMutator<{
       currentPage: number;

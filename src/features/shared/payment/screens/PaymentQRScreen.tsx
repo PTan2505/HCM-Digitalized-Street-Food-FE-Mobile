@@ -29,6 +29,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
 
+export type PaymentQRMode = 'order' | 'subscription' | 'campaign';
+
 type PaymentQRScreenProps = StaticScreenProps<{
   orderId: number;
   branchId: number;
@@ -38,6 +40,18 @@ type PaymentQRScreenProps = StaticScreenProps<{
   bin?: string | null;
   accountNumber?: string | null;
   accountName?: string | null;
+  /**
+   * 'order' (default) — direct customer order; back triggers cancelOrder.
+   * 'subscription' — vendor branch subscription payment; back leaves the order alone.
+   * 'campaign' — vendor joining a system campaign; back leaves the order alone.
+   */
+  mode?: PaymentQRMode;
+  /** Optional override for the QR description (max 25 chars). Defaults to "Thanh toan don hang {orderId}". */
+  description?: string;
+  /** When in subscription/campaign mode, route to navigate to after success. Defaults to going back to the previous screen. */
+  successRouteName?: string;
+  /** Required when mode === 'campaign' — the system campaign id to invalidate after success. */
+  campaignId?: number;
 }>;
 
 export const PaymentQRScreen = ({
@@ -52,11 +66,18 @@ export const PaymentQRScreen = ({
     bin,
     accountNumber,
     accountName,
+    mode = 'order',
+    description,
+    successRouteName,
+    campaignId,
   } = route.params;
+  const isSubscription = mode === 'subscription';
+  const isCampaign = mode === 'campaign';
+  const isNonOrder = isSubscription || isCampaign;
   const { t } = useTranslation();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const { order: activeOrder } = useOrderQuery(orderId);
+  const { order: activeOrder } = useOrderQuery(isNonOrder ? 0 : orderId);
   const { cancelOrder } = useCancelOrderMutation();
   const { confirmPayment } = useConfirmPaymentMutation();
   const { paymentStatus } = usePaymentSocket(orderCode ?? null);
@@ -79,6 +100,7 @@ export const PaymentQRScreen = ({
   }, []);
 
   const pendingCountdownText = useMemo(() => {
+    if (isNonOrder) return null;
     if (activeOrder?.status !== ORDER_STATUS.Pending) {
       return null;
     }
@@ -102,7 +124,7 @@ export const PaymentQRScreen = ({
     return t('checkout.payment_qr_expires_in', {
       time: `${minutes}:${seconds}`,
     });
-  }, [activeOrder, now, t]);
+  }, [activeOrder, now, t, isNonOrder]);
   const isPendingCountdownExpired =
     pendingCountdownText === t('checkout.payment_qr_expired');
 
@@ -125,12 +147,76 @@ export const PaymentQRScreen = ({
     });
   }, [navigation, orderId, branchName]);
 
+  // Subscription / campaign success: just pop back to caller (or navigate to a configured route).
+  const navigateAfterNonOrderPayment = useCallback(() => {
+    cancelledRef.current = true;
+    if (successRouteName) {
+      navigation.dispatch((state) => {
+        const routes = [
+          ...state.routes.slice(0, -1),
+          { name: successRouteName },
+        ];
+        return CommonActions.reset({
+          ...state,
+          routes,
+          index: routes.length - 1,
+        });
+      });
+      return;
+    }
+    navigation.goBack();
+  }, [navigation, successRouteName]);
+
   const invalidateCart = useCallback(() => {
     void queryClient.invalidateQueries({
       queryKey: queryKeys.cart.byBranch(branchId),
     });
     void queryClient.invalidateQueries({ queryKey: queryKeys.cart.my });
   }, [queryClient, branchId]);
+
+  const invalidateBranchAfterSubscription = useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.vendorBranches.all,
+    });
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.managerBranch.all,
+    });
+  }, [queryClient]);
+
+  const invalidateCampaignAfterJoin = useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.managerCampaigns.systemJoinable(),
+    });
+    if (campaignId !== undefined) {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.systemDetail(campaignId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.managerCampaigns.branches(campaignId, true),
+      });
+    }
+  }, [queryClient, campaignId]);
+
+  const handlePaidSuccess = useCallback(() => {
+    if (isCampaign) {
+      invalidateCampaignAfterJoin();
+      navigateAfterNonOrderPayment();
+    } else if (isSubscription) {
+      invalidateBranchAfterSubscription();
+      navigateAfterNonOrderPayment();
+    } else {
+      invalidateCart();
+      navigateToOrderStatusAfterPayment();
+    }
+  }, [
+    isCampaign,
+    isSubscription,
+    invalidateCampaignAfterJoin,
+    invalidateBranchAfterSubscription,
+    invalidateCart,
+    navigateAfterNonOrderPayment,
+    navigateToOrderStatusAfterPayment,
+  ]);
 
   // Fallback: if SignalR missed the event while app was backgrounded,
   // manually confirm payment status when user returns to the app.
@@ -140,13 +226,12 @@ export const PaymentQRScreen = ({
       confirmPayment({ orderCode: orderCodeRef.current })
         .then((result) => {
           if (result.paymentStatus === 'PAID') {
-            invalidateCart();
-            navigateToOrderStatusAfterPayment();
+            handlePaidSuccess();
           } else if (
             result.paymentStatus === 'CANCELLED' ||
             result.paymentStatus === 'EXPIRED'
           ) {
-            invalidateCart();
+            if (!isNonOrder) invalidateCart();
             Alert.alert(t('auth.error'), t('checkout.payment_failed'));
           }
         })
@@ -156,17 +241,16 @@ export const PaymentQRScreen = ({
     return (): void => {
       subscription.remove();
     };
-  }, [confirmPayment, invalidateCart, navigateToOrderStatusAfterPayment, t]);
+  }, [confirmPayment, invalidateCart, handlePaidSuccess, isNonOrder, t]);
 
   useEffect(() => {
     if (paymentStatus === 'PAID') {
-      invalidateCart();
-      navigateToOrderStatusAfterPayment();
+      handlePaidSuccess();
     } else if (paymentStatus === 'CANCELLED' || paymentStatus === 'EXPIRED') {
-      invalidateCart();
+      if (!isNonOrder) invalidateCart();
       Alert.alert(t('auth.error'), t('checkout.payment_failed'));
     }
-  }, [paymentStatus, invalidateCart, navigateToOrderStatusAfterPayment, t]);
+  }, [paymentStatus, invalidateCart, handlePaidSuccess, isNonOrder, t]);
 
   const handleShare = useCallback(async () => {
     if (!screenShotRef.current?.capture) return;
@@ -189,8 +273,10 @@ export const PaymentQRScreen = ({
     }
   }, [t]);
 
-  // Covers swipe-back: fire-and-forget cancel without blocking navigation
+  // Covers swipe-back: fire-and-forget cancel without blocking navigation.
+  // Subscription / campaign modes do NOT cancel anything — user may want to return later.
   useEffect(() => {
+    if (isNonOrder) return;
     return navigation.addListener('beforeRemove', () => {
       if (cancelledRef.current) return;
       cancelledRef.current = true;
@@ -198,9 +284,13 @@ export const PaymentQRScreen = ({
         .then(() => invalidateCart())
         .catch(() => {});
     });
-  }, [navigation, cancelOrder, orderId, invalidateCart]);
+  }, [navigation, cancelOrder, orderId, invalidateCart, isNonOrder]);
 
   const handleBack = useCallback(() => {
+    if (isNonOrder) {
+      navigation.goBack();
+      return;
+    }
     if (cancelledRef.current) {
       navigation.goBack();
       return;
@@ -214,11 +304,19 @@ export const PaymentQRScreen = ({
       .catch(() => {
         navigation.goBack();
       });
-  }, [cancelOrder, navigation, orderId, invalidateCart]);
+  }, [cancelOrder, navigation, orderId, invalidateCart, isNonOrder]);
 
   const handleViewOrder = useCallback(() => {
+    if (isNonOrder) {
+      navigation.goBack();
+      return;
+    }
     navigation.navigate('OrderStatus', { orderId, branchName });
-  }, [navigation, orderId, branchName]);
+  }, [navigation, orderId, branchName, isNonOrder]);
+
+  const qrDescription = description
+    ? description.slice(0, 25)
+    : `Thanh toan don hang ${orderId}`.slice(0, 25);
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-white">
@@ -252,7 +350,7 @@ export const PaymentQRScreen = ({
           <View>
             <Image
               source={{
-                uri: `https://img.vietqr.io/image/${bin}-${accountNumber}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${orderId}`.slice(0, 25))}${accountName ? `&accountName=${encodeURIComponent(accountName)}` : ''}`,
+                uri: `https://img.vietqr.io/image/${bin}-${accountNumber}-compact.png?amount=${totalAmount}&addInfo=${encodeURIComponent(qrDescription)}${accountName ? `&accountName=${encodeURIComponent(accountName)}` : ''}`,
               }}
               style={{ width: 300, height: 300 }}
               resizeMode="contain"
@@ -304,15 +402,17 @@ export const PaymentQRScreen = ({
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleViewOrder}
-            className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5"
-          >
-            <Ionicons name="receipt-outline" size={20} color="#fff" />
-            <Text className="text-base font-semibold text-white">
-              {t('checkout.payment_qr_view_order')}
-            </Text>
-          </TouchableOpacity>
+          {!isNonOrder && (
+            <TouchableOpacity
+              onPress={handleViewOrder}
+              className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary py-3.5"
+            >
+              <Ionicons name="receipt-outline" size={20} color="#fff" />
+              <Text className="text-base font-semibold text-white">
+                {t('checkout.payment_qr_view_order')}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </SafeAreaView>

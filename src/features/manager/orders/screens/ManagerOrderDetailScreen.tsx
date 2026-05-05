@@ -8,6 +8,7 @@ import {
   useCompleteManagerOrder,
   useDecideManagerOrder,
   useManagerOrderDetail,
+  useOrderPickupCode,
 } from '@features/manager/orders/hooks/useManagerOrders';
 import { axiosApi } from '@lib/api/apiInstance';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -253,6 +254,8 @@ export const ManagerOrderDetailScreen = (): React.JSX.Element => {
   const [customerPhone, setCustomerPhone] = useState<string | null>(null);
   const [isActioning, setIsActioning] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showPickupCode, setShowPickupCode] = useState(false);
+  const pickupCode = useOrderPickupCode(params.orderId, showPickupCode);
 
   useEffect(() => {
     if (!order?.userId) return;
@@ -552,19 +555,88 @@ export const ManagerOrderDetailScreen = (): React.JSX.Element => {
             </>
           )}
           {isPaid && (
-            <TouchableOpacity
-              className="flex-1 items-center rounded-full bg-primary py-3"
-              onPress={() => {
-                setShowCompleteModal(true);
-              }}
-            >
-              <Text className="text-sm font-bold text-white">
-                {t('manager_orders.mark_complete')}
-              </Text>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                className="flex-1 items-center rounded-full border border-primary py-3"
+                onPress={() => {
+                  setShowPickupCode(true);
+                }}
+              >
+                <Text className="text-sm font-bold text-primary">
+                  {t('manager_orders.get_pickup_code')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 items-center rounded-full bg-primary py-3"
+                onPress={() => {
+                  setShowCompleteModal(true);
+                }}
+              >
+                <Text className="text-sm font-bold text-white">
+                  {t('manager_orders.mark_complete')}
+                </Text>
+              </TouchableOpacity>
+            </>
           )}
         </View>
       )}
+
+      {/* Pickup Code Modal */}
+      <Modal
+        visible={showPickupCode}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowPickupCode(false);
+        }}
+      >
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={() => {
+            setShowPickupCode(false);
+          }}
+        />
+        <View
+          style={[StyleSheet.absoluteFill, { justifyContent: 'flex-end' }]}
+          pointerEvents="box-none"
+        >
+          <View className="rounded-t-3xl bg-white px-6 pb-10 pt-6">
+            <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-200" />
+            <Text className="title-md mb-1 text-center text-gray-900">
+              {t('manager_orders.pickup_code_title')}
+            </Text>
+            <Text className="mb-6 text-center text-sm text-gray-500">
+              {t('manager_orders.pickup_code_desc')}
+            </Text>
+            {pickupCode.isLoading ? (
+              <ActivityIndicator
+                color="#9FD356"
+                style={{ marginVertical: 24 }}
+              />
+            ) : pickupCode.data ? (
+              <View className="items-center gap-3 rounded-2xl bg-gray-50 py-6">
+                <Text className="text-4xl font-extrabold tracking-widest text-gray-900">
+                  {pickupCode.data.verificationCode}
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-center text-sm text-gray-400">
+                {t('manager_orders.pickup_code_error')}
+              </Text>
+            )}
+            <TouchableOpacity
+              className="mt-6 items-center py-2"
+              onPress={() => {
+                setShowPickupCode(false);
+              }}
+            >
+              <Text className="text-sm font-medium text-gray-400">
+                {t('manager_orders.cancel')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Completion Code Modal */}
       <CompletionModal
