@@ -1,6 +1,6 @@
 import type { Voucher } from '@features/customer/campaigns/types/voucher';
 
-export const getExpiresAt = (voucher: Voucher): Date | null =>
+export const getExpiresAt = (voucher: { endDate: string | null }): Date | null =>
   voucher.endDate ? new Date(voucher.endDate) : null;
 
 export const isExpired = (voucher: Voucher): boolean =>
