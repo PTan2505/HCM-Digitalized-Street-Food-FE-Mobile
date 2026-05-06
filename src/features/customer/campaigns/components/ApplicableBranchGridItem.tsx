@@ -1,5 +1,6 @@
 import type { VendorCampaignBranch } from '@features/customer/campaigns/types/generated';
 import { PlaceCard } from '@features/customer/home/components/common/PlaceCard';
+import { useWorkSchedule } from '@features/customer/home/hooks/useWorkSchedule';
 import type { ActiveBranch } from '@features/customer/home/types/branch';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -59,12 +60,15 @@ export const ApplicableBranchGridItem = ({
     isMultiBranch,
     t('branch')
   );
+  const { isOpen, isLoading } = useWorkSchedule(branch.branchId);
+  const resolvedIsOpen = isLoading ? undefined : isOpen;
 
   return (
     <PlaceCard
       branch={activeBranch}
       displayName={displayName}
       imageUri={imageUri}
+      isOpen={resolvedIsOpen}
       onPress={() =>
         navigation.navigate('RestaurantSwipe', {
           branch: activeBranch,
