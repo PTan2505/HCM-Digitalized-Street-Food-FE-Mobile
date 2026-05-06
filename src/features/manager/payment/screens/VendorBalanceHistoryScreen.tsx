@@ -11,19 +11,16 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  FlatList,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type PaymentTab = 'money_in' | 'money_out';
 
-const METHOD_ICON: Record<VendorPaymentMethod, keyof typeof Ionicons.glyphMap> = {
-  'Vendor Wallet': 'wallet-outline',
-  PAYOS_PAYOUT: 'arrow-up-circle-outline',
-};
+const METHOD_ICON: Record<VendorPaymentMethod, keyof typeof Ionicons.glyphMap> =
+  {
+    'Vendor Wallet': 'wallet-outline',
+    PAYOS_PAYOUT: 'arrow-up-circle-outline',
+  };
 
 const SkeletonRow = (): JSX.Element => (
   <View className="mx-4 mb-3 rounded-2xl border border-gray-200 bg-white p-4">
@@ -56,8 +53,9 @@ const VendorBalanceItem = ({
 }): JSX.Element => {
   const { t } = useTranslation();
   const isOutgoing = item.amount < 0;
-  const methodIcon =
-    item.paymentMethod ? (METHOD_ICON[item.paymentMethod] ?? 'card-outline') : 'card-outline';
+  const methodIcon = item.paymentMethod
+    ? (METHOD_ICON[item.paymentMethod] ?? 'card-outline')
+    : 'card-outline';
 
   const methodLabel =
     item.paymentMethod === 'PAYOS_PAYOUT'
@@ -82,8 +80,14 @@ const VendorBalanceItem = ({
           <Text className="text-sm text-gray-500">{methodLabel}</Text>
         </View>
         {item.status === 'PAID' ? (
-          <View className="rounded-full px-2.5 py-0.5" style={{ backgroundColor: '#00B14F20' }}>
-            <Text className="text-xs font-semibold" style={{ color: '#00B14F' }}>
+          <View
+            className="rounded-full px-2.5 py-0.5"
+            style={{ backgroundColor: '#00B14F20' }}
+          >
+            <Text
+              className="text-xs font-semibold"
+              style={{ color: '#00B14F' }}
+            >
               {t('payment_history.status_paid', 'Thành công')}
             </Text>
           </View>
@@ -96,7 +100,8 @@ const VendorBalanceItem = ({
 
       {item.transactionCode ? (
         <Text className="mt-1 text-xs text-gray-400">
-          {t('payment_history.transaction_code', 'Mã GD')}: {item.transactionCode}
+          {t('payment_history.transaction_code', 'Mã GD')}:{' '}
+          {item.transactionCode}
         </Text>
       ) : null}
 
@@ -133,8 +138,14 @@ export const VendorBalanceHistoryScreen = (): JSX.Element => {
 
   const tabs = useMemo(
     () => [
-      { key: 'money_in' as const, label: t('payment_history.tab_money_in', 'Tiền vào') },
-      { key: 'money_out' as const, label: t('payment_history.tab_money_out', 'Tiền ra') },
+      {
+        key: 'money_in' as const,
+        label: t('payment_history.tab_money_in', 'Tiền vào'),
+      },
+      {
+        key: 'money_out' as const,
+        label: t('payment_history.tab_money_out', 'Tiền ra'),
+      },
     ],
     [t]
   );
@@ -188,7 +199,10 @@ export const VendorBalanceHistoryScreen = (): JSX.Element => {
               </Text>
               <Text className="mt-1 text-center text-sm text-gray-500">
                 {activeTab === 'money_in'
-                  ? t('vendor_balance.empty_in', 'Chưa có khoản tiền nào được cộng vào ví')
+                  ? t(
+                      'vendor_balance.empty_in',
+                      'Chưa có khoản tiền nào được cộng vào ví'
+                    )
                   : t('vendor_balance.empty_out', 'Chưa có khoản rút tiền nào')}
               </Text>
             </View>

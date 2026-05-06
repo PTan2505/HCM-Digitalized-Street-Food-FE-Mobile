@@ -17,7 +17,8 @@ export const useVendorBalanceHistoryQuery =
     >({
       queryKey: queryKeys.vendorBalanceHistory.all,
       queryFn: async (): Promise<VendorBalanceHistoryItem[]> => {
-        const result = await axiosApi.managerPaymentApi.getVendorBalanceHistory();
+        const result =
+          await axiosApi.managerPaymentApi.getVendorBalanceHistory();
         return result.data;
       },
     });
