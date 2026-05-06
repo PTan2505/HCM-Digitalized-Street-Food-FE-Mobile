@@ -28,6 +28,7 @@ import { UserPinApi } from '@features/user/api/userPinApi';
 import ApiClient from '@lib/api/apiClient';
 import { SettingsApi } from '@lib/api/settingsApi';
 import { ManagerBranchApi } from '@manager/branch/managerBranchApi';
+import { ManagerPaymentApi } from '@manager/payment/api/managerPaymentApi';
 import { ManagerCampaignApi } from '@manager/campaigns/api/managerCampaignApi';
 import { ManagerVoucherApi } from '@manager/vouchers/api/managerVoucherApi';
 import { ManagerDashboardApi } from '@manager/dashboard/api/managerDashboardApi';
@@ -76,4 +77,5 @@ export const axiosApi = {
   managerDashboardApi: new ManagerDashboardApi(axiosClient),
   managerCampaignApi: new ManagerCampaignApi(axiosClient),
   managerVoucherApi: new ManagerVoucherApi(axiosClient),
+  managerPaymentApi: new ManagerPaymentApi(axiosClient),
 };

@@ -92,13 +92,15 @@ export const ProfileScreen = (): JSX.Element => {
               </Text>
             )}
             <View className="overflow-hidden rounded-2xl bg-white">
-              {section.items?.map((item, index) => (
-                <ProfileListItem
-                  key={item.id}
-                  item={item}
-                  isLastItem={index === (section.items?.length ?? 0) - 1}
-                />
-              ))}
+              {section.items
+                ?.filter((item) => item.visible !== false)
+                .map((item, index, arr) => (
+                  <ProfileListItem
+                    key={item.id}
+                    item={item}
+                    isLastItem={index === arr.length - 1}
+                  />
+                ))}
             </View>
           </View>
         );
