@@ -29,14 +29,21 @@ export const QuestListScreen = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState<Tab>('discover');
   const [refreshing, setRefreshing] = useState(false);
 
-  const discoverQuests = publicQuests?.items ?? [];
   const myQuestItems = myQuests?.items ?? [];
+  const inProgressQuestIds = new Set(
+    myQuestItems.filter((q) => q.status === 'IN_PROGRESS').map((q) => q.questId)
+  );
+  const discoverQuests = (publicQuests?.items ?? []).filter(
+    (q) => !inProgressQuestIds.has(q.questId)
+  );
   const activeQuests = myQuestItems.filter((q) => q.status === 'IN_PROGRESS');
   const completedQuests = myQuestItems.filter((q) => q.status === 'COMPLETED');
 
   useEffect(() => {
     if (activeTab === 'discover') {
+      // Need myQuests too — Discover hides quests the user is currently doing.
       loadPublicQuests();
+      loadMyQuests();
     } else {
       loadMyQuests();
     }
@@ -46,6 +53,7 @@ export const QuestListScreen = (): JSX.Element => {
     setRefreshing(true);
     if (activeTab === 'discover') {
       loadPublicQuests();
+      loadMyQuests();
     } else {
       loadMyQuests();
     }
