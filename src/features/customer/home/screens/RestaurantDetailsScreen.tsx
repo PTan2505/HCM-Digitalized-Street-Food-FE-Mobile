@@ -367,11 +367,14 @@ export const RestaurantDetailsScreen = ({
     })
       .then((result) => {
         if (result.action === Share.sharedAction) {
-          // Exclude clipboard copy on iOS — only count actual sends to an app
+          // iOS: exclude clipboard copy — only count actual sends to an app
           if (
             result.activityType === 'com.apple.UIKit.activity.CopyToPasteboard'
           )
             return;
+          // Android: action is always sharedAction even on dismiss; activityType
+          // is null when dismissed and contains the target app package when shared
+          if (Platform.OS === 'android' && !result.activityType) return;
           axiosApi.questApi.shareStall(branch.branchId).catch(() => {});
         }
       })

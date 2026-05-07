@@ -19,6 +19,7 @@ import { VendorDishCatalogScreen } from '@manager/dish/screens/VendorDishCatalog
 import { VendorClaimBranchScreen } from '@manager/ghost-pin/screens/VendorClaimBranchScreen';
 import { VendorGhostPinScreen } from '@manager/ghost-pin/screens/VendorGhostPinScreen';
 import { ManagerPaymentHistoryScreen } from '@manager/payment/screens/ManagerPaymentHistoryScreen';
+import { VendorBalanceHistoryScreen } from '@manager/payment/screens/VendorBalanceHistoryScreen';
 import { VendorRegistrationHistoryScreen } from '@manager/registration-history/screens/VendorRegistrationHistoryScreen';
 import { VendorBranchDetailScreen } from '@manager/vendor-branches/screens/VendorBranchDetailScreen';
 import { VendorEditBranchScreen } from '@manager/vendor-branches/screens/VendorEditBranchScreen';
@@ -93,6 +94,9 @@ const ManagerRootStack = createNativeStackNavigator({
     },
     ManagerPaymentHistory: {
       screen: ManagerPaymentHistoryScreen,
+    },
+    VendorBalanceHistory: {
+      screen: VendorBalanceHistoryScreen,
     },
     VendorRegistrationHistory: {
       screen: VendorRegistrationHistoryScreen,

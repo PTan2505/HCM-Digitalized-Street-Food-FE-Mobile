@@ -58,7 +58,7 @@ export const PlaceCard = ({
       <TouchableOpacity onPress={onPress} style={{ flex: 1 }}>
         <View className="p-[6.31px]" style={{ flex: 1 }}>
           <View
-            className={`relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px] ${!isOpen && 'opacity-50'}`}
+            className={`relative h-[117.7px] w-full overflow-hidden rounded-t-[14.71px] ${isOpen === false && 'opacity-50'}`}
           >
             {imageUri ? (
               <Image

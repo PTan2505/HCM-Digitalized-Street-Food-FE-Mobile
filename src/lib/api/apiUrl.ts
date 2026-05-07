@@ -170,6 +170,7 @@ export const apiUrl = {
     orderConfirm: '/api/Payment/order/confirm',
     userTransfer: '/api/Payment/user/transfer',
     history: '/api/Payment/history',
+    vendorHistory: '/api/Payment/vendor/history',
     createLink: '/api/Payment/create-link',
   },
   notification: {

@@ -224,6 +224,10 @@ export const queryKeys = {
     all: ['paymentHistory'] as const,
   },
 
+  vendorBalanceHistory: {
+    all: ['vendorBalanceHistory'] as const,
+  },
+
   tiers: {
     all: ['tiers'] as const,
   },

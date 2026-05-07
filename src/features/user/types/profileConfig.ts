@@ -21,6 +21,7 @@ export interface ProfileSectionItem {
   rightText?: string;
   rightIcon?: string;
   color?: string;
+  visible?: boolean;
 }
 
 export interface ProfileActionCard {

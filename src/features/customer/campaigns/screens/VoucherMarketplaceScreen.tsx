@@ -1,5 +1,6 @@
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
+import { getExpiresAt } from '@customer/campaigns/utils/voucher';
 import { Ionicons } from '@expo/vector-icons';
 import type { VoucherDto } from '@features/customer/campaigns/api/voucherApi';
 import { TicketVoucherCard } from '@features/customer/campaigns/components/TicketVoucherCard';
@@ -29,9 +30,6 @@ const formatDiscount = (voucher: VoucherDto): string => {
 const remainingQuantity = (voucher: VoucherDto): number =>
   voucher.quantity - voucher.usedQuantity;
 
-const displayExpiry = (voucher: VoucherDto): Date =>
-  new Date(voucher.expiredDate ?? voucher.endDate);
-
 interface MarketplaceCardProps {
   item: VoucherDto;
   userPoints: number;
@@ -50,7 +48,6 @@ const MarketplaceCard = ({
   const isSoldOut = remaining <= 0;
   const canAfford = userPoints >= item.redeemPoint;
   const disabled = isSoldOut || !canAfford || isRedeeming;
-  const expiresAt = displayExpiry(item).toLocaleDateString('vi-VN');
 
   return (
     <TicketVoucherCard
@@ -64,7 +61,10 @@ const MarketplaceCard = ({
             })
           : undefined
       }
-      expiresText={expiresAt}
+      expiresText={
+        getExpiresAt(item)?.toLocaleDateString('vi-VN') ??
+        t('voucher_wallet.no_expiry')
+      }
       secondaryMetaText={
         isSoldOut
           ? t('marketplace.sold_out')
