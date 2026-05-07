@@ -1205,7 +1205,9 @@
     "total_campaigns": "Total Campaigns",
     "campaign_orders": "Orders from campaigns",
     "campaign_revenue": "Campaign Revenue",
-    "others": "Others"
+    "others": "Others",
+    "compared_to": "vs. same period",
+    "compared_to_period": "vs. same period {{period}}"
   },
   "vendor_branches": {
     "title": "Branches",

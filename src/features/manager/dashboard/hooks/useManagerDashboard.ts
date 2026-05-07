@@ -37,16 +37,24 @@ export const useRevenueSummary = (
       axiosApi.managerDashboardApi.getRevenue({ fromDate, toDate }),
   });
 
-export const useTopDishes = (): UseQueryResult<TopDishesData> =>
+export const useTopDishes = (
+  fromDate: string,
+  toDate: string
+): UseQueryResult<TopDishesData> =>
   useQuery({
-    queryKey: queryKeys.managerDashboard.topDishes(),
-    queryFn: () => axiosApi.managerDashboardApi.getTopDishes(),
+    queryKey: queryKeys.managerDashboard.topDishes(fromDate, toDate),
+    queryFn: () =>
+      axiosApi.managerDashboardApi.getTopDishes({ fromDate, toDate }),
   });
 
-export const useVoucherStats = (): UseQueryResult<VoucherStats> =>
+export const useVoucherStats = (
+  fromDate: string,
+  toDate: string
+): UseQueryResult<VoucherStats> =>
   useQuery({
-    queryKey: queryKeys.managerDashboard.voucherStats(),
-    queryFn: () => axiosApi.managerDashboardApi.getVoucherStats(),
+    queryKey: queryKeys.managerDashboard.voucherStats(fromDate, toDate),
+    queryFn: () =>
+      axiosApi.managerDashboardApi.getVoucherStats({ fromDate, toDate }),
   });
 
 export const useCampaignStats = (

@@ -10,6 +10,9 @@ export interface DailyRevenue {
 export interface RevenueSummary {
   totalRevenue: number;
   totalOrders: number;
+  revenueGrowthRate: number | null;
+  ordersGrowthRate: number | null;
+  previousPeriod: string | null;
   dailyRevenues: DailyRevenue[];
 }
 
@@ -75,16 +78,18 @@ export class ManagerDashboardApi {
     return res.data;
   }
 
-  async getTopDishes(): Promise<TopDishesData> {
+  async getTopDishes(params: DateRangeParams): Promise<TopDishesData> {
     const res = await this.apiClient.get<TopDishesData>({
       url: apiUrl.dashboard.dishes,
+      params,
     });
     return res.data;
   }
 
-  async getVoucherStats(): Promise<VoucherStats> {
+  async getVoucherStats(params: DateRangeParams): Promise<VoucherStats> {
     const res = await this.apiClient.get<VoucherStats>({
       url: apiUrl.dashboard.vouchers,
+      params,
     });
     return res.data;
   }

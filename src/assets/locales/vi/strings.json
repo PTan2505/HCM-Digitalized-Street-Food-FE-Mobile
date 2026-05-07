@@ -1208,7 +1208,9 @@
     "total_campaigns": "Tổng chiến dịch",
     "campaign_orders": "Đơn hàng từ chiến dịch",
     "campaign_revenue": "Doanh thu chiến dịch",
-    "others": "Khác"
+    "others": "Khác",
+    "compared_to": "so với cùng kỳ",
+    "compared_to_period": "so với cùng kỳ {{period}}"
   },
   "vendor_branches": {
     "title": "Chi nhánh",
