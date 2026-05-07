@@ -37,6 +37,7 @@ export const queryKeys = {
     images: (branchId: number) => ['branches', 'images', branchId] as const,
     similar: (branchId: number) => ['branches', 'similar', branchId] as const,
     allGhostPins: ['branches', 'allGhostPins'] as const,
+    myGhostPins: ['branches', 'myGhostPins'] as const,
   },
 
   workSchedule: {

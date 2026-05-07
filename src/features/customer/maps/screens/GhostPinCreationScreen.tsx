@@ -7,12 +7,18 @@ import type { FeedbackTag } from '@features/customer/home/types/feedback';
 import type { PickedLocation } from '@features/customer/maps/components/LocationPickerMap';
 import { LocationPickerMap } from '@features/customer/maps/components/LocationPickerMap';
 import {
+  PENDING_GHOST_PIN_LIMIT,
+  useMyGhostPins,
+} from '@features/customer/maps/hooks/useMyGhostPins';
+import {
   getPlaceDetail,
   searchAddress,
   type AutocompletePrediction,
 } from '@features/customer/maps/services/geocoding';
 import { axiosApi } from '@lib/api/apiInstance';
+import { queryKeys } from '@lib/queryKeys';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   compressImageForUpload,
   pickImagesFromLibrary,
@@ -41,6 +47,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export const GhostPinCreationScreen = (): JSX.Element => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const {
+    pendingCount,
+    isAtLimit,
+    isLoading: isLoadingMyPins,
+  } = useMyGhostPins();
 
   const [name, setName] = useState('');
   const [addressQuery, setAddressQuery] = useState('');
@@ -298,6 +310,14 @@ export const GhostPinCreationScreen = (): JSX.Element => {
 
   // ── Submit ──
   const handleSubmit = async (): Promise<void> => {
+    if (isAtLimit) {
+      setSubmitError(
+        t('ghost_pin_creation.submit_error.pending_limit', {
+          limit: PENDING_GHOST_PIN_LIMIT,
+        })
+      );
+      return;
+    }
     if (!validate()) return;
     setSubmitError(null);
     setIsSubmitting(true);
@@ -353,6 +373,10 @@ export const GhostPinCreationScreen = (): JSX.Element => {
         }
       }
 
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.branches.myGhostPins,
+      });
+
       Alert.alert(
         t('ghost_pin_creation.alert.success_title'),
         t('ghost_pin_creation.alert.success_message'),
@@ -360,7 +384,16 @@ export const GhostPinCreationScreen = (): JSX.Element => {
       );
     } catch (error: unknown) {
       const apiError = error as APIErrorResponse;
-      if (apiError?.status === 409) {
+      if (apiError?.status === 429) {
+        setSubmitError(
+          t('ghost_pin_creation.submit_error.pending_limit', {
+            limit: PENDING_GHOST_PIN_LIMIT,
+          })
+        );
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.branches.myGhostPins,
+        });
+      } else if (apiError?.status === 409) {
         setSubmitError(t('ghost_pin_creation.submit_error.duplicate_nearby'));
       } else {
         setSubmitError(t('ghost_pin_creation.submit_error.default'));
@@ -387,6 +420,24 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: 20 }}
         >
+          {/* Pending limit banner */}
+          {isAtLimit && (
+            <View className="mb-5 flex-row items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+              <Ionicons
+                name="alert-circle-outline"
+                size={20}
+                color="#DC2626"
+                style={{ marginTop: 1 }}
+              />
+              <Text className="flex-1 text-base text-red-700">
+                {t('ghost_pin_creation.pending_limit_banner', {
+                  count: pendingCount,
+                  limit: PENDING_GHOST_PIN_LIMIT,
+                })}
+              </Text>
+            </View>
+          )}
+
           {/* Name (required) */}
           <View className="mb-5">
             <Text className="mb-1.5 text-base font-semibold text-gray-700">
@@ -756,16 +807,20 @@ export const GhostPinCreationScreen = (): JSX.Element => {
           {/* Submit */}
           <TouchableOpacity
             className={`items-center rounded-xl py-4 ${
-              isSubmitting ? 'bg-gray-300' : 'bg-primary'
+              isSubmitting || isAtLimit || isLoadingMyPins
+                ? 'bg-gray-300'
+                : 'bg-primary'
             }`}
             onPress={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAtLimit || isLoadingMyPins}
           >
             {isSubmitting ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <Text className="text-base font-bold text-white">
-                {t('ghost_pin_creation.form.submit')}
+                {isAtLimit
+                  ? t('ghost_pin_creation.form.submit_disabled_limit')
+                  : t('ghost_pin_creation.form.submit')}
               </Text>
             )}
           </TouchableOpacity>

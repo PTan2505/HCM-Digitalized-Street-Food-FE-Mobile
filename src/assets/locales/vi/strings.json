@@ -861,7 +861,8 @@
       "name_placeholder": "Nhập tên quán ăn",
       "address_label": "Địa chỉ",
       "address_placeholder": "Tìm kiếm địa chỉ...",
-      "submit": "Xác nhận"
+      "submit": "Xác nhận",
+      "submit_disabled_limit": "Đã đạt giới hạn"
     },
     "nearby": {
       "title": "Có quán ăn gần đây",
@@ -887,7 +888,8 @@
     },
     "submit_error": {
       "duplicate_nearby": "Đã có quán gần đây được ghi nhận",
-      "default": "Không thể tạo ghim. Vui lòng thử lại."
+      "default": "Không thể tạo ghim. Vui lòng thử lại.",
+      "pending_limit": "Bạn chỉ có thể có tối đa {{limit}} ghim đang chờ duyệt cùng lúc. Vui lòng chờ kiểm duyệt trước khi tạo ghim mới."
     },
     "alert": {
       "image_limit_title": "Giới hạn ảnh",
@@ -903,7 +905,8 @@
       "success_message": "Ghim quán ăn đã được tạo thành công!"
     },
     "distance_meters": "{{count}}m",
-    "distance_kilometers": "{{count}}km"
+    "distance_kilometers": "{{count}}km",
+    "pending_limit_banner": "Bạn đang có {{count}}/{{limit}} ghim chờ duyệt. Hãy chờ kiểm duyệt xong trước khi tạo ghim mới."
   },
   "my_ghost_pins": {
     "title": "Quán tôi đã thêm",
