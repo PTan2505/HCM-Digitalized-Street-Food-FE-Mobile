@@ -11,6 +11,8 @@ interface BranchLike {
 }
 
 export const useBranchDisplayName = (branchId: number): string | undefined => {
+  const { t } = useTranslation();
+
   const { data: branch } = useQuery({
     queryKey: queryKeys.branches.detail(branchId),
     queryFn: () => axiosApi.branchApi.getBranchById(branchId),
@@ -18,10 +20,31 @@ export const useBranchDisplayName = (branchId: number): string | undefined => {
     enabled: branchId > 0,
   });
 
-  if (!branch) return undefined;
+  const vendorId = branch?.vendorId ?? null;
 
-  // BranchDetail has no vendorName — return the branch name directly.
-  return branch.name;
+  const { data: vendor } = useQuery({
+    queryKey: ['vendors', 'detail', vendorId],
+    queryFn: () => axiosApi.vendorApi.getVendorById(vendorId as number),
+    staleTime: 5 * 60 * 1000,
+    enabled: vendorId != null,
+  });
+
+  const { data: vendorBranches } = useQuery({
+    queryKey: ['branches', 'byVendor', vendorId],
+    queryFn: () => axiosApi.branchApi.getBranchesByVendor(vendorId as number),
+    staleTime: 5 * 60 * 1000,
+    enabled: vendorId != null,
+  });
+
+  if (!branch) return undefined;
+  if (vendorId == null) return branch.name;
+  if (!vendor || !vendorBranches) return undefined;
+
+  return computeDisplayName(
+    { vendorId, vendorName: vendor.name, name: branch.name },
+    vendorBranches.totalCount > 1,
+    t('branch')
+  );
 };
 
 export const useBranchDisplayNameFromBranch = (branch: BranchLike): string => {

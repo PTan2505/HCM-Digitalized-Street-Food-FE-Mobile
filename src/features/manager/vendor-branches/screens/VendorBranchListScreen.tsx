@@ -1,11 +1,12 @@
 import Header from '@components/Header';
 import { COLORS } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import type { ManagerBranch } from '@manager/branch/branch.types';
 import { BranchStatusBadge } from '@manager/vendor-branches/components/BranchStatusBadge';
 import { useVendorInfo } from '@manager/vendor-branches/hooks/useVendorBranches';
-import type { ManagerBranch } from '@manager/branch/branch.types';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,7 +15,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 
 const BranchRow = ({
   branch,
@@ -133,15 +133,6 @@ export const VendorBranchListScreen = (): React.JSX.Element => {
               }
             />
           )}
-          ListFooterComponent={
-            <TouchableOpacity
-              onPress={handleCreateOrAdd}
-              className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-primary bg-white py-4"
-            >
-              <Ionicons name="add" size={18} color={COLORS.primary} />
-              <Text className="font-semibold text-primary">{ctaLabel}</Text>
-            </TouchableOpacity>
-          }
           contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
           onRefresh={() => void refetch()}

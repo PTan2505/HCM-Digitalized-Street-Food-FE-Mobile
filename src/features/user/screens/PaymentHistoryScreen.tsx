@@ -276,6 +276,10 @@ export const PaymentHistoryScreen = ({
       <Header
         title={t('payment_history.title')}
         onBackPress={() => navigation.goBack()}
+        secondaryAction={{
+          label: 'Rút tiền',
+          onPress: () => navigation.navigate('Withdraw'),
+        }}
       />
 
       <FlatList

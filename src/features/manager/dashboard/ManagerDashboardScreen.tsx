@@ -3,6 +3,7 @@ import { CampaignBarChart } from '@manager/dashboard/components/CampaignBarChart
 import { DateRangeFilter } from '@manager/dashboard/components/DateRangeFilter';
 import { DishBarChart } from '@manager/dashboard/components/DishBarChart';
 import { RevenueLineChart } from '@manager/dashboard/components/RevenueLineChart';
+import type { TrendItem } from '@manager/dashboard/components/SummaryCard';
 import { SummaryCard } from '@manager/dashboard/components/SummaryCard';
 import { VoucherBarChart } from '@manager/dashboard/components/VoucherBarChart';
 import {
@@ -39,6 +40,14 @@ const formatCurrency = (value: number): string =>
     maximumFractionDigits: 0,
   }).format(value);
 
+const makeTrend = (
+  rate: number | null | undefined,
+  label?: string
+): TrendItem | undefined => {
+  if (rate == null) return undefined;
+  return { value: Math.abs(rate), isPositive: rate >= 0, label };
+};
+
 const DEFAULT_PRESET: DashboardPreset = 30;
 
 export const ManagerDashboardScreen = (): React.JSX.Element => {
@@ -60,8 +69,8 @@ export const ManagerDashboardScreen = (): React.JSX.Element => {
   };
 
   const revenue = useRevenueSummary(range.fromDate, range.toDate);
-  const topDishes = useTopDishes();
-  const voucherStats = useVoucherStats();
+  const topDishes = useTopDishes(range.fromDate, range.toDate);
+  const voucherStats = useVoucherStats(range.fromDate, range.toDate);
   const campaignStats = useCampaignStats(range.fromDate, range.toDate);
 
   const isAnyLoading =
@@ -94,6 +103,12 @@ export const ManagerDashboardScreen = (): React.JSX.Element => {
   const totalCampaigns = campaignStats.data?.totalCampaigns ?? 0;
   const totalCampaignRevenue = campaignStats.data?.totalCampaignRevenue ?? 0;
   const totalCampaignOrders = campaignStats.data?.totalCampaignOrders ?? 0;
+
+  const periodLabel = revenue.data?.previousPeriod
+    ? t('manager_dashboard.compared_to_period', {
+        period: revenue.data.previousPeriod,
+      })
+    : t('manager_dashboard.compared_to');
 
   return (
     <SafeAreaView edges={['left', 'right']} className="flex-1 bg-gray-50">
@@ -149,11 +164,13 @@ export const ManagerDashboardScreen = (): React.JSX.Element => {
                 title={t('manager_dashboard.total_revenue')}
                 value={formatCurrency(totalRevenue)}
                 Icon={DollarSign}
+                trend={makeTrend(revenue.data?.revenueGrowthRate, periodLabel)}
               />
               <SummaryCard
                 title={t('manager_dashboard.total_orders')}
                 value={totalOrders}
                 Icon={ShoppingBag}
+                trend={makeTrend(revenue.data?.ordersGrowthRate, periodLabel)}
               />
               <SummaryCard
                 title={t('manager_dashboard.total_campaigns')}

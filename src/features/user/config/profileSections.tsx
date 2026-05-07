@@ -76,7 +76,7 @@ export const getProfileSections = (
           rightText: `${(user?.moneyBalance ?? 0).toLocaleString('vn-VN')} đ`,
           rightIcon: 'chevron-forward',
           onPress: (): void => {
-            navigation.navigate('Withdraw');
+            navigation.navigate('PaymentHistory');
           },
         },
         {
@@ -96,14 +96,6 @@ export const getProfileSections = (
           rightIcon: 'chevron-forward',
           onPress: (): void => navigation.navigate('OrderHistory'),
         },
-        {
-          id: 'payment-history',
-          icon: 'receipt-outline',
-          title: t('profile.payment_history'),
-          rightIcon: 'chevron-forward',
-          onPress: (): void => navigation.navigate('PaymentHistory'),
-        },
-
         {
           id: 'ghost-pins',
           icon: 'location-outline',

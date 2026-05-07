@@ -250,8 +250,10 @@ export const queryKeys = {
     all: ['managerDashboard'] as const,
     revenue: (fromDate: string, toDate: string) =>
       ['managerDashboard', 'revenue', fromDate, toDate] as const,
-    topDishes: () => ['managerDashboard', 'topDishes'] as const,
-    voucherStats: () => ['managerDashboard', 'voucherStats'] as const,
+    topDishes: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'topDishes', fromDate, toDate] as const,
+    voucherStats: (fromDate: string, toDate: string) =>
+      ['managerDashboard', 'voucherStats', fromDate, toDate] as const,
     campaignStats: (fromDate: string, toDate: string) =>
       ['managerDashboard', 'campaignStats', fromDate, toDate] as const,
   },
