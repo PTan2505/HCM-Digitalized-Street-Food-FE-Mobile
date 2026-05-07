@@ -554,11 +554,14 @@
       "awaitingVendorConfirmation": "Chờ quán xác nhận",
       "paid": "Đang chuẩn bị",
       "complete": "Hoàn thành",
-      "cancelled": "Đã huỷ"
+      "cancelled": "Đã huỷ",
+      "expired": "Hết hạn"
     },
     "confirmed_title": "Đặt món thành công!",
     "re_pay": "Thanh toán",
     "cancelled_title": "Đơn hàng đã huỷ",
+    "expired_title": "Đơn hàng đã hết hạn",
+    "expired_message": "Đơn hàng đã hết hạn do quá thời gian thanh toán",
     "table_label": "Bàn số",
     "take_away": "Mang đi",
     "date_label": "Ngày:",

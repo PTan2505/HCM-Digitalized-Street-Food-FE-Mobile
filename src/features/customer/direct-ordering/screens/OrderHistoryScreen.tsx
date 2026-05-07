@@ -28,6 +28,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   [ORDER_STATUS.Paid]: '#8b5cf6',
   [ORDER_STATUS.Complete]: COLORS.primary,
   [ORDER_STATUS.Cancelled]: '#e66772',
+  [ORDER_STATUS.Expired]: '#94a3b8',
 };
 
 const STATUS_KEY_MAP: Record<OrderStatus, string> = {
@@ -36,6 +37,7 @@ const STATUS_KEY_MAP: Record<OrderStatus, string> = {
   [ORDER_STATUS.Paid]: 'paid',
   [ORDER_STATUS.Complete]: 'complete',
   [ORDER_STATUS.Cancelled]: 'cancelled',
+  [ORDER_STATUS.Expired]: 'expired',
 };
 
 type OrderStatusTab = OrderStatus | 'all';
@@ -46,6 +48,7 @@ const STATUS_ICON_MAP: Record<OrderStatus, keyof typeof Ionicons.glyphMap> = {
   [ORDER_STATUS.Paid]: 'wallet-outline',
   [ORDER_STATUS.Complete]: 'checkmark-circle-outline',
   [ORDER_STATUS.Cancelled]: 'close-circle-outline',
+  [ORDER_STATUS.Expired]: 'timer-outline',
 };
 
 const OrderHistorySkeleton = (): JSX.Element => {
@@ -182,6 +185,10 @@ export const OrderHistoryScreen = (): JSX.Element => {
       {
         key: ORDER_STATUS.Cancelled,
         label: t(`order.status.${STATUS_KEY_MAP[ORDER_STATUS.Cancelled]}`),
+      },
+      {
+        key: ORDER_STATUS.Expired,
+        label: t(`order.status.${STATUS_KEY_MAP[ORDER_STATUS.Expired]}`),
       },
     ],
     [t]

@@ -553,11 +553,14 @@
       "awaitingVendorConfirmation": "Awaiting Vendor Confirmation",
       "paid": "Being Prepared",
       "complete": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "expired": "Expired"
     },
     "confirmed_title": "Order confirmed!",
     "re_pay": "Pay",
     "cancelled_title": "Order cancelled",
+    "expired_title": "Order Expired",
+    "expired_message": "This order has expired due to payment timeout",
     "table_label": "Table No.",
     "take_away": "Take Away",
     "date_label": "Date:",
