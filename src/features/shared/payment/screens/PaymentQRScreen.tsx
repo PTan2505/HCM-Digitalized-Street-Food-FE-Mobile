@@ -80,10 +80,14 @@ export const PaymentQRScreen = ({
   const { order: activeOrder } = useOrderQuery(isNonOrder ? 0 : orderId);
   const { cancelOrder } = useCancelOrderMutation();
   const { confirmPayment } = useConfirmPaymentMutation();
-  const { paymentStatus } = usePaymentSocket(orderCode ?? null);
+  const { paymentStatus, isSocketConnected, hasAttemptedConnection } =
+    usePaymentSocket(orderCode ?? null);
   const orderCodeRef = useRef(orderCode ?? null);
   const screenShotRef = useRef<ViewShot>(null);
   const cancelledRef = useRef(false);
+  // Prevents double-handling when both AppState fallback and polling resolve
+  // concurrently (or when the socket event and a fallback path race).
+  const handlingPaymentRef = useRef(false);
   const [sharing, setSharing] = useState(false);
   const [now, setNow] = useState(Date.now());
 
@@ -225,12 +229,15 @@ export const PaymentQRScreen = ({
       if (nextState !== 'active' || !orderCodeRef.current) return;
       confirmPayment({ orderCode: orderCodeRef.current })
         .then((result) => {
+          if (cancelledRef.current || handlingPaymentRef.current) return;
           if (result.paymentStatus === 'PAID') {
+            handlingPaymentRef.current = true;
             handlePaidSuccess();
           } else if (
             result.paymentStatus === 'CANCELLED' ||
             result.paymentStatus === 'EXPIRED'
           ) {
+            handlingPaymentRef.current = true;
             if (!isNonOrder) invalidateCart();
             Alert.alert(t('auth.error'), t('checkout.payment_failed'));
           }
@@ -242,6 +249,47 @@ export const PaymentQRScreen = ({
       subscription.remove();
     };
   }, [confirmPayment, invalidateCart, handlePaidSuccess, isNonOrder, t]);
+
+  // Polling fallback: only active after the socket has had a chance to connect
+  // and failed. Stops automatically when the socket recovers (isSocketConnected
+  // becomes true, causing the effect to re-run and clear the interval).
+  useEffect(() => {
+    if (!hasAttemptedConnection || isSocketConnected || !orderCode) return;
+
+    const interval = setInterval(() => {
+      if (cancelledRef.current || handlingPaymentRef.current) {
+        clearInterval(interval);
+        return;
+      }
+      confirmPayment({ orderCode })
+        .then((result) => {
+          if (cancelledRef.current || handlingPaymentRef.current) return;
+          if (result.paymentStatus === 'PAID') {
+            handlingPaymentRef.current = true;
+            handlePaidSuccess();
+          } else if (
+            result.paymentStatus === 'CANCELLED' ||
+            result.paymentStatus === 'EXPIRED'
+          ) {
+            handlingPaymentRef.current = true;
+            if (!isNonOrder) invalidateCart();
+            Alert.alert(t('auth.error'), t('checkout.payment_failed'));
+          }
+        })
+        .catch(() => {});
+    }, 5_000);
+
+    return (): void => clearInterval(interval);
+  }, [
+    hasAttemptedConnection,
+    isSocketConnected,
+    orderCode,
+    confirmPayment,
+    handlePaidSuccess,
+    invalidateCart,
+    isNonOrder,
+    t,
+  ]);
 
   useEffect(() => {
     if (paymentStatus === 'PAID') {

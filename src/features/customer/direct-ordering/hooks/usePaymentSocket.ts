@@ -17,8 +17,14 @@ const INITIAL_RETRY_DELAY_MS = 2_000;
 
 export const usePaymentSocket = (
   orderCode: number | null
-): { paymentStatus: PaymentSocketStatus } => {
+): {
+  paymentStatus: PaymentSocketStatus;
+  isSocketConnected: boolean;
+  hasAttemptedConnection: boolean;
+} => {
   const [paymentStatus, setPaymentStatus] = useState<PaymentSocketStatus>(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false);
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const orderCodeRef = useRef<number | null>(orderCode);
 
@@ -39,6 +45,14 @@ export const usePaymentSocket = (
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Warning)
       .build();
+
+    connection.onreconnected(() => setIsSocketConnected(true));
+    connection.onreconnecting(() => setIsSocketConnected(false));
+    // Guard on `cancelled` so intentional stop() during cleanup doesn't setState
+    // on an already-unmounted component.
+    connection.onclose(() => {
+      if (!cancelled) setIsSocketConnected(false);
+    });
 
     connection.on('PaymentStatusUpdate', (payload: PaymentStatusPayload) => {
       if (payload.orderCode !== orderCodeRef.current) return;
@@ -68,6 +82,8 @@ export const usePaymentSocket = (
         .start()
         .then(() => {
           console.log(`[PaymentSocket] Connected (orderCode=${orderCode})`);
+          setIsSocketConnected(true);
+          setHasAttemptedConnection(true);
         })
         .catch((err: unknown) => {
           console.warn(
@@ -75,6 +91,7 @@ export const usePaymentSocket = (
             err
           );
           if (cancelled) return;
+          setHasAttemptedConnection(true);
           scheduleRetry(Math.min(nextRetryDelay * 2, MAX_RETRY_DELAY_MS));
         });
     };
@@ -114,5 +131,5 @@ export const usePaymentSocket = (
     };
   }, [orderCode]);
 
-  return { paymentStatus };
+  return { paymentStatus, isSocketConnected, hasAttemptedConnection };
 };
