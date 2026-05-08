@@ -138,7 +138,10 @@ export const ListBranchScreen = ({
         renderItem={({ item }) => (
           <ListBranchItem
             item={item}
-            imageUri={routeBranchImageMap?.[item.branchId] ?? branchImageMap[item.branchId]?.[0]}
+            imageUri={
+              routeBranchImageMap?.[item.branchId] ??
+              branchImageMap[item.branchId]?.[0]
+            }
             vouchers={vouchersByBranchId?.[item.branchId]}
             onRatingUpdate={handleRatingUpdate}
           />
