@@ -69,6 +69,7 @@ export const ORDER_STATUS = {
   Paid: 2,
   Cancelled: 3,
   Complete: 4,
+  Expired: 5,
 } as const;
 
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];

@@ -554,11 +554,14 @@
       "awaitingVendorConfirmation": "Chờ quán xác nhận",
       "paid": "Đang chuẩn bị",
       "complete": "Hoàn thành",
-      "cancelled": "Đã huỷ"
+      "cancelled": "Đã huỷ",
+      "expired": "Hết hạn"
     },
     "confirmed_title": "Đặt món thành công!",
     "re_pay": "Thanh toán",
     "cancelled_title": "Đơn hàng đã huỷ",
+    "expired_title": "Đơn hàng đã hết hạn",
+    "expired_message": "Đơn hàng đã hết hạn do quá thời gian thanh toán",
     "table_label": "Bàn số",
     "take_away": "Mang đi",
     "date_label": "Ngày:",
@@ -696,7 +699,7 @@
     "voucher_tab_system": "Lowca",
     "voucher_tab_vendor": "Quán ăn",
     "history": "Lịch sử",
-    "history_title": "Mã đã dùng / hết hạn",
+    "history_title": "Mã hết hạn",
     "code_label": "Mã:",
     "used": "Đã dùng",
     "no_expiry": "Không giới hạn",
@@ -861,7 +864,8 @@
       "name_placeholder": "Nhập tên quán ăn",
       "address_label": "Địa chỉ",
       "address_placeholder": "Tìm kiếm địa chỉ...",
-      "submit": "Xác nhận"
+      "submit": "Xác nhận",
+      "submit_disabled_limit": "Đã đạt giới hạn"
     },
     "nearby": {
       "title": "Có quán ăn gần đây",
@@ -887,7 +891,8 @@
     },
     "submit_error": {
       "duplicate_nearby": "Đã có quán gần đây được ghi nhận",
-      "default": "Không thể tạo ghim. Vui lòng thử lại."
+      "default": "Không thể tạo ghim. Vui lòng thử lại.",
+      "pending_limit": "Bạn chỉ có thể có tối đa {{limit}} ghim đang chờ duyệt cùng lúc. Vui lòng chờ kiểm duyệt trước khi tạo ghim mới."
     },
     "alert": {
       "image_limit_title": "Giới hạn ảnh",
@@ -903,7 +908,8 @@
       "success_message": "Ghim quán ăn đã được tạo thành công!"
     },
     "distance_meters": "{{count}}m",
-    "distance_kilometers": "{{count}}km"
+    "distance_kilometers": "{{count}}km",
+    "pending_limit_banner": "Bạn đang có {{count}}/{{limit}} ghim chờ duyệt. Hãy chờ kiểm duyệt xong trước khi tạo ghim mới."
   },
   "my_ghost_pins": {
     "title": "Quán tôi đã thêm",

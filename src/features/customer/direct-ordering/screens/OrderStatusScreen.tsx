@@ -44,6 +44,7 @@ const STATUS_KEY_MAP: Record<OrderStatus, string> = {
   [ORDER_STATUS.Paid]: 'paid',
   [ORDER_STATUS.Complete]: 'complete',
   [ORDER_STATUS.Cancelled]: 'cancelled',
+  [ORDER_STATUS.Expired]: 'expired',
 };
 
 type OrderStatusScreenProps = StaticScreenProps<{
@@ -90,7 +91,12 @@ export const OrderStatusScreen = ({
 
   const getStepIndex = (): number => {
     if (!order) return 0;
-    if (order.status === ORDER_STATUS.Cancelled) return -1;
+    if (
+      order.status === ORDER_STATUS.Cancelled ||
+      order.status === ORDER_STATUS.Expired
+    ) {
+      return -1;
+    }
     return STEPS.indexOf(order.status);
   };
 
@@ -179,7 +185,9 @@ export const OrderStatusScreen = ({
           <Text className="text-2xl font-bold text-black">
             {order.status === ORDER_STATUS.Cancelled
               ? t('order.cancelled_title')
-              : t('order.confirmed_title')}
+              : order.status === ORDER_STATUS.Expired
+                ? t('order.expired_title')
+                : t('order.confirmed_title')}
           </Text>
           <Text className="mt-2 text-base font-semibold text-gray-700">
             {displayName ?? order.branchName}
@@ -230,9 +238,21 @@ export const OrderStatusScreen = ({
           </View>
         ) : (
           <View className="items-center border-b border-gray-100 px-4 py-8">
-            <Ionicons name="close-circle" size={48} color="#ef4444" />
+            <Ionicons
+              name={
+                order.status === ORDER_STATUS.Expired
+                  ? 'timer-outline'
+                  : 'close-circle'
+              }
+              size={48}
+              color={
+                order.status === ORDER_STATUS.Expired ? '#94a3b8' : '#ef4444'
+              }
+            />
             <Text className="mt-3 text-center text-base font-semibold text-gray-600">
-              {t('order.rejected_message')}
+              {order.status === ORDER_STATUS.Expired
+                ? t('order.expired_message')
+                : t('order.rejected_message')}
             </Text>
           </View>
         )}

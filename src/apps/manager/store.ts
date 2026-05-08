@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '@slices/auth';
+import connectivityReducer from '@slices/connectivity';
 import dietaryReducer from '@slices/dietary';
 import managerAuthReducer from '@slices/managerAuth';
 import questsReducer from '@slices/quests';
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   quests: questsReducer,
   managerAuth: managerAuthReducer,
   xpToast: xpToastReducer,
+  connectivity: connectivityReducer,
 });
 
 export const managerStore = configureStore({

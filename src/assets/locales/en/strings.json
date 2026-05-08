@@ -553,11 +553,14 @@
       "awaitingVendorConfirmation": "Awaiting Vendor Confirmation",
       "paid": "Being Prepared",
       "complete": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "expired": "Expired"
     },
     "confirmed_title": "Order confirmed!",
     "re_pay": "Pay",
     "cancelled_title": "Order cancelled",
+    "expired_title": "Order Expired",
+    "expired_message": "This order has expired due to payment timeout",
     "table_label": "Table No.",
     "take_away": "Take Away",
     "date_label": "Date:",
@@ -859,7 +862,8 @@
       "name_placeholder": "Enter stall name",
       "address_label": "Address",
       "address_placeholder": "Search address...",
-      "submit": "Confirm"
+      "submit": "Confirm",
+      "submit_disabled_limit": "Limit reached"
     },
     "nearby": {
       "title": "Nearby stalls found",
@@ -885,7 +889,8 @@
     },
     "submit_error": {
       "duplicate_nearby": "A nearby stall has already been reported",
-      "default": "Could not create pin. Please try again."
+      "default": "Could not create pin. Please try again.",
+      "pending_limit": "You can only have up to {{limit}} pending pins at a time. Please wait for them to be reviewed before creating a new one."
     },
     "alert": {
       "image_limit_title": "Image limit",
@@ -901,7 +906,8 @@
       "success_message": "New stall pin has been created successfully!"
     },
     "distance_meters": "{{count}}m",
-    "distance_kilometers": "{{count}}km"
+    "distance_kilometers": "{{count}}km",
+    "pending_limit_banner": "You currently have {{count}}/{{limit}} pending pins. Please wait for them to be reviewed before creating a new one."
   },
   "my_ghost_pins": {
     "title": "Stalls I've Added",

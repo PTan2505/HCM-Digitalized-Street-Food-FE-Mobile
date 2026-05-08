@@ -465,6 +465,7 @@ export const HomeScreen = (): JSX.Element => {
                   items: vendorCampaignActiveBranches,
                   title: t('discount_branches_title'),
                   vouchersByBranchId: vendorCampaignVouchersByBranchId,
+                  branchImageMap: vendorCampaignImageMap,
                 })
               }
             >

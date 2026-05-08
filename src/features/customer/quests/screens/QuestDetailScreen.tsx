@@ -246,8 +246,9 @@ export const QuestDetailScreen = ({
         </View>
       )}
 
-      {/* Stop button — only for standalone quests in progress */}
-      {quest.isStandalone && myProgress?.status === 'IN_PROGRESS' && (
+      {/* Stop button — any in-progress quest (campaign or standalone). Campaign
+          quests still auto-expire on campaign EndDate even while paused. */}
+      {myProgress?.status === 'IN_PROGRESS' && (
         <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
           <TouchableOpacity
             onPress={onStop}
@@ -266,8 +267,8 @@ export const QuestDetailScreen = ({
         </View>
       )}
 
-      {/* Continue button — standalone quest that was stopped */}
-      {quest.isStandalone && myProgress?.status === 'STOPPED' && (
+      {/* Continue button — any stopped quest can be resumed */}
+      {myProgress?.status === 'STOPPED' && (
         <View className="border-t border-gray-100 bg-white px-4 pb-8 pt-3">
           <TouchableOpacity
             onPress={onEnroll}

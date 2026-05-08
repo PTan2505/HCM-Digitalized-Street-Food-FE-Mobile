@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '@slices/auth';
+import connectivityReducer from '@slices/connectivity';
 import dietaryReducer from '@slices/dietary';
 import questsReducer from '@slices/quests';
 import xpToastReducer from '@slices/xpToast';
@@ -10,6 +11,7 @@ const rootReducer = combineReducers({
   dietary: dietaryReducer,
   quests: questsReducer,
   xpToast: xpToastReducer,
+  connectivity: connectivityReducer,
 });
 
 export const store = configureStore({

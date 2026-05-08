@@ -21,6 +21,7 @@ type ListBranchScreenProps = StaticScreenProps<{
   items?: ActiveBranch[];
   title?: string;
   vouchersByBranchId?: Record<number, VoucherChip[]>;
+  branchImageMap?: Record<number, string>;
 }>;
 
 interface ListBranchItemProps {
@@ -76,6 +77,7 @@ export const ListBranchScreen = ({
   const routeItems = route.params?.items;
   const routeTitle = route.params?.title;
   const vouchersByBranchId = route.params?.vouchersByBranchId;
+  const routeBranchImageMap = route.params?.branchImageMap;
 
   const { userDietaryPreferences } = useUserDietaryQuery();
   const { coords: userCoords } = useLocationPermission();
@@ -136,7 +138,10 @@ export const ListBranchScreen = ({
         renderItem={({ item }) => (
           <ListBranchItem
             item={item}
-            imageUri={branchImageMap[item.branchId]?.[0]}
+            imageUri={
+              routeBranchImageMap?.[item.branchId] ??
+              branchImageMap[item.branchId]?.[0]
+            }
             vouchers={vouchersByBranchId?.[item.branchId]}
             onRatingUpdate={handleRatingUpdate}
           />

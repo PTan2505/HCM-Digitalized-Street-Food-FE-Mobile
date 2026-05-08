@@ -1,5 +1,4 @@
 import Header from '@components/Header';
-import TabBar from '@components/TabBar';
 import { COLORS } from '@constants/colors';
 import {
   getExpiresAt,
@@ -38,7 +37,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
     refetch: handleRefresh,
   } = useMyVouchersQuery();
 
-  const [activeTab, setActiveTab] = useState<HistoryTab>('used');
+  const [activeTab, setActiveTab] = useState<HistoryTab>('expired');
 
   const handleTabChange = useCallback((key: HistoryTab) => {
     setActiveTab(key);
@@ -64,7 +63,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
       />
 
       {/* Tabs */}
-      <TabBar
+      {/* <TabBar
         tabs={TABS.map((tab) => ({ key: tab.key, label: t(tab.labelKey) }))}
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -72,7 +71,7 @@ export const VoucherHistoryScreen = (): JSX.Element => {
           tab === 'used' ? usedVouchers.length : expiredVouchers.length
         }
         variant="equal"
-      />
+      /> */}
 
       {/* Content */}
       {isLoading && displayedVouchers.length === 0 ? (
