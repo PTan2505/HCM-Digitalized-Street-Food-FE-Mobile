@@ -290,6 +290,7 @@
     "max_tier": "Max Tier",
     "tier_progress_title": "Membership Tier Journey",
     "tier_progress_subtitle": "Earn XP to level up and unlock rewards",
+    "tier_downgrade_notice": "User tier will be downgraded by 1 level on Jan 1st and Jul 1st every year",
     "xp_to_gold": "Earn {xp} XP to reach Gold",
     "xp_to_diamond": "Earn {xp} XP to reach Diamond",
     "tier_reached": "Reached",

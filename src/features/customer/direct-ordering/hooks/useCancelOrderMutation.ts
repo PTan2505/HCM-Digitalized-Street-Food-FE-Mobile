@@ -16,6 +16,7 @@ export const useCancelOrderMutation = (): {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.orders.history(),
       });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.vouchers.all });
     },
   });
   return { cancelOrder: mutateAsync, isLoading: isPending };

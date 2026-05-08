@@ -8,8 +8,8 @@ import { useAppSelector } from '@hooks/reduxHooks';
 import { useNavigation } from '@react-navigation/native';
 import { selectUser } from '@slices/auth';
 import { PinVerifyModal } from '@user/components/pin/PinVerifyModal';
-import { useBalanceActionGate } from '@user/hooks/pin/useBalanceActionGate';
 import { useWithdraw } from '@user/hooks/payment/useWithdraw';
+import { useBalanceActionGate } from '@user/hooks/pin/useBalanceActionGate';
 import { BANK_OPTIONS } from '@user/types/payment';
 import {
   getWithdrawSchema,
@@ -312,12 +312,12 @@ export const WithdrawScreen = (): JSX.Element => {
                 }}
               />
 
-              <CustomInput<WithdrawFormValues>
+              {/* <CustomInput<WithdrawFormValues>
                 name="description"
                 label={t('withdraw.description')}
                 placeholder={t('withdraw.description_placeholder')}
                 required
-              />
+              /> */}
             </View>
 
             <View className="mt-2 flex-row items-start gap-2 rounded-xl bg-amber-50 px-3 py-3">

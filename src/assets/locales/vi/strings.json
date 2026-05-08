@@ -290,6 +290,7 @@
     "max_tier": "Cấp độ tối đa",
     "tier_progress_title": "Hành trình hạng thành viên",
     "tier_progress_subtitle": "Tích lũy XP để nâng hạng và nhận phần thưởng",
+    "tier_downgrade_notice": "Hạng của người dùng sẽ bị hạ 1 hạng vào ngày 1/1 và ngày 1/7 hàng năm",
     "xp_to_gold": "Tích lũy {{xp}} XP để lên hạng Vàng",
     "xp_to_diamond": "Tích lũy {{xp}} XP để lên hạng Kim Cương",
     "tier_reached": "Đã đạt được",

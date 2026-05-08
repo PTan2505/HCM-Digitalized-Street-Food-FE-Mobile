@@ -262,8 +262,11 @@ export const TierProgressScreen = (): JSX.Element => {
       >
         <XPProgressBar xp={currentXP} tierId={currentTierId} />
 
-        <Text className="mx-4 mb-6 mt-3 text-sm text-gray-500">
+        <Text className="mx-4 mt-3 text-sm text-gray-500">
           {t('profile.tier_progress_subtitle')}
+        </Text>
+        <Text className="mx-4 mb-6 mt-1 text-sm italic text-gray-500">
+          * {t('profile.tier_downgrade_notice')}
         </Text>
 
         <View className="mx-4">

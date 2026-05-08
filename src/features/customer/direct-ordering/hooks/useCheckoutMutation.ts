@@ -15,11 +15,16 @@ export const useCheckoutMutation = (): {
   const { mutateAsync, isPending, error } = useMutation({
     mutationFn: (data: CheckoutCartRequest) =>
       axiosApi.cartApi.checkout(data).then((r) => r.data),
-    onSuccess: (_, { branchId }) => {
+    onSuccess: (_, { branchId, voucherId }) => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.cart.byBranch(branchId),
       });
       void queryClient.invalidateQueries({ queryKey: queryKeys.cart.my });
+      if (voucherId != null) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.vouchers.all,
+        });
+      }
     },
   });
   return { checkout: mutateAsync, isLoading: isPending, error };
