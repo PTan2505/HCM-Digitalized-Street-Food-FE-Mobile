@@ -49,7 +49,7 @@ export const TicketVoucherCard = ({
   const shouldShowAction = Boolean(actionLabel && onActionPress);
 
   return (
-    <View className="overflow-hidden rounded-3xl shadow-sm">
+    <View className="m-2 overflow-hidden rounded-3xl shadow-sm">
       <LinearGradient
         colors={
           disabled

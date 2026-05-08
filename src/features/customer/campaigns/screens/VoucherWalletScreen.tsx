@@ -14,9 +14,9 @@ import {
   useVoucherWallet,
   type VoucherTab,
 } from '@features/customer/campaigns/hooks/useVoucherWallet';
+import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { Voucher } from '@features/customer/campaigns/types/voucher';
 import type { JSX } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -127,7 +127,7 @@ export const VoucherWalletScreen = (): JSX.Element => {
             {t(emptyKey)}
           </Text>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('Main')}
             className="mt-4 rounded-full bg-primary px-6 py-2.5"
           >
             <Text className="text-base font-semibold text-white">
