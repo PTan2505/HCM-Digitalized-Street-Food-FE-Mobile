@@ -49,7 +49,7 @@ export const TicketVoucherCard = ({
   const shouldShowAction = Boolean(actionLabel && onActionPress);
 
   return (
-    <View className="mb-3 overflow-hidden rounded-3xl opacity-100 shadow-sm">
+    <View className="overflow-hidden rounded-3xl shadow-sm">
       <LinearGradient
         colors={
           disabled
@@ -59,8 +59,8 @@ export const TicketVoucherCard = ({
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0.9 }}
-        className="flex-row"
       >
+        <View className="flex-row">
         <View
           className={`relative w-[100px] items-center justify-center ${disabled ? 'bg-[#dedede]' : 'bg-[rgba(137,209,81,0.8)]'} px-1 py-2`}
         >
@@ -185,6 +185,7 @@ export const TicketVoucherCard = ({
               </TouchableOpacity>
             ) : null}
           </View>
+        </View>
         </View>
       </LinearGradient>
     </View>

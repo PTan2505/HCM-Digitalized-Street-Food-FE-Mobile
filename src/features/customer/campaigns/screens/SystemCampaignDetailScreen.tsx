@@ -522,8 +522,7 @@ export const SystemCampaignDetailScreen = ({
                     <TouchableOpacity
                       key={item.id}
                       activeOpacity={0.7}
-                      className="rounded-2xl border border-gray-100 px-3.5 py-3"
-                      style={cardStyle}
+                      className="rounded-3xl"
                       onPress={() =>
                         navigation.navigate('VoucherApplicableBranches', {
                           voucher: voucherData,
